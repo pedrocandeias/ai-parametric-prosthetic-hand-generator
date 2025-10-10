@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<models>
+  <model id="box" name="Parametric Box" file="box.scad">
+    <description>A simple parametric box with customizable dimensions</description>
+    <parameters>
+      <parameter name="width" type="number" initial="50" min="10" max="200" step="1" group="Dimensions">
+        <caption>Width of the box</caption>
+      </parameter>
+      <parameter name="depth" type="number" initial="50" min="10" max="200" step="1" group="Dimensions">
+        <caption>Depth of the box</caption>
+      </parameter>
+      <parameter name="height" type="number" initial="30" min="5" max="100" step="1" group="Dimensions">
+        <caption>Height of the box</caption>
+      </parameter>
+      <parameter name="wall_thickness" type="number" initial="2" min="1" max="10" step="0.5" group="Dimensions">
+        <caption>Wall thickness</caption>
+      </parameter>
+      <parameter name="corner_radius" type="number" initial="5" min="0" max="20" step="1" group="Style">
+        <caption>Corner radius</caption>
+      </parameter>
+      <parameter name="lid" type="boolean" initial="true" group="Features">
+        <caption>Include lid</caption>
+      </parameter>
+    </parameters>
+  </model>
+
+  <model id="gear" name="Parametric Gear" file="gear.scad">
+    <description>A customizable gear</description>
+    <parameters>
+      <parameter name="number_of_teeth" type="number" initial="20" min="8" max="100" step="1" group="Gear Properties">
+        <caption>Number of teeth</caption>
+      </parameter>
+      <parameter name="circular_pitch" type="number" initial="5" min="2" max="20" step="0.5" group="Gear Properties">
+        <caption>Circular pitch</caption>
+      </parameter>
+      <parameter name="pressure_angle" type="number" initial="20" min="10" max="45" step="1" group="Gear Properties">
+        <caption>Pressure angle</caption>
+      </parameter>
+      <parameter name="clearance" type="number" initial="0.2" min="0" max="2" step="0.1" group="Gear Properties">
+        <caption>Clearance</caption>
+      </parameter>
+      <parameter name="gear_thickness" type="number" initial="5" min="1" max="20" step="0.5" group="Dimensions">
+        <caption>Gear thickness</caption>
+      </parameter>
+      <parameter name="rim_thickness" type="number" initial="5" min="1" max="20" step="0.5" group="Dimensions">
+        <caption>Rim thickness</caption>
+      </parameter>
+      <parameter name="hub_thickness" type="number" initial="10" min="1" max="30" step="0.5" group="Dimensions">
+        <caption>Hub thickness</caption>
+      </parameter>
+      <parameter name="bore" type="number" initial="5" min="0" max="30" step="0.5" group="Dimensions">
+        <caption>Center bore diameter</caption>
+      </parameter>
+    </parameters>
+  </model>
+</models>

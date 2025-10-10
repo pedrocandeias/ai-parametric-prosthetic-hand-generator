@@ -1,0 +1,114 @@
+{
+  "models": [
+    {
+      "id": "fingerator",
+      "name": "Fingerator - Prosthetic Finger",
+      "description": "Parametric prosthetic finger design with customizable scale, bearings, and pins",
+      "file": "fingerator.scad",
+      "parameters": [
+        {
+          "name": "global_scale",
+          "type": "number",
+          "initial": 1.25,
+          "min": 1.0,
+          "max": 2.0,
+          "step": 0.01,
+          "caption": "Size of fingers",
+          "group": "Scale"
+        },
+        {
+          "name": "nominal_clearance",
+          "type": "number",
+          "initial": 0.5,
+          "min": 0.1,
+          "max": 3,
+          "step": 0.01,
+          "caption": "Clearance on sides of tabs",
+          "group": "Scale"
+        },
+        {
+          "name": "print_long_fingers",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Print long fingers",
+          "group": "Items to Print"
+        },
+        {
+          "name": "print_short_fingers",
+          "type": "boolean",
+          "initial": false,
+          "caption": "Print short fingers",
+          "group": "Items to Print"
+        },
+        {
+          "name": "print_finger_phalanx",
+          "type": "boolean",
+          "initial": false,
+          "caption": "Print finger phalanx",
+          "group": "Items to Print"
+        },
+        {
+          "name": "print_thumb",
+          "type": "boolean",
+          "initial": false,
+          "caption": "Print thumb",
+          "group": "Items to Print"
+        },
+        {
+          "name": "print_thumb_phalanx",
+          "type": "boolean",
+          "initial": false,
+          "caption": "Print thumb phalanx",
+          "group": "Items to Print"
+        },
+        {
+          "name": "bearing_pocket_diameter",
+          "type": "number",
+          "initial": 0,
+          "min": 0,
+          "max": 15,
+          "step": 2,
+          "caption": "Bearing pocket diameter (mm) - 0 for none, 5,7,9,11,13,15",
+          "group": "Igus Bearing Material"
+        },
+        {
+          "name": "bearing_pocket_depth",
+          "type": "number",
+          "initial": 0.4,
+          "min": 0.2,
+          "max": 0.6,
+          "step": 0.05,
+          "caption": "Bearing pocket depth (%)",
+          "group": "Igus Bearing Material"
+        },
+        {
+          "name": "pin_index",
+          "type": "number",
+          "initial": 0,
+          "min": 0,
+          "max": 3,
+          "step": 1,
+          "caption": "Pin style (0=Chicago, 1=Staple, 2=Headless, 3=Folding)",
+          "group": "Pin Style Selection"
+        },
+        {
+          "name": "pins_for_string",
+          "type": "boolean",
+          "initial": false,
+          "caption": "Pins for string",
+          "group": "Pin Style Selection"
+        },
+        {
+          "name": "pin_diameter_clearance",
+          "type": "number",
+          "initial": 0,
+          "min": -1,
+          "max": 1,
+          "step": 0.01,
+          "caption": "Pin diameter clearance (mm)",
+          "group": "Pin Style Selection"
+        }
+      ]
+    }
+  ]
+}

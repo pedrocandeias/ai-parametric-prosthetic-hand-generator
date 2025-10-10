@@ -1,0 +1,91 @@
+# Prosthetic Hand AI Parameter Generator
+# Apache Configuration
+
+# Enable CORS for API requests
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+</IfModule>
+
+# Set proper MIME types
+<IfModule mod_mime.c>
+    # WebAssembly
+    AddType application/wasm .wasm
+
+    # 3D Model formats
+    AddType model/gltf-binary .glb
+    AddType model/stl .stl
+
+    # JSON
+    AddType application/json .json
+
+    # JavaScript
+    AddType application/javascript .js
+
+    # CSS
+    AddType text/css .css
+</IfModule>
+
+# Enable gzip compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/json
+    AddOutputFilterByType DEFLATE text/javascript
+
+    # Don't compress WASM (already compressed)
+    SetEnvIfNoCase Request_URI \.wasm$ no-gzip
+</IfModule>
+
+# Cache static assets
+<IfModule mod_expires.c>
+    ExpiresActive On
+
+    # WASM files - cache for 1 month
+    ExpiresByType application/wasm "access plus 1 month"
+
+    # JavaScript and CSS - cache for 1 week
+    ExpiresByType application/javascript "access plus 1 week"
+    ExpiresByType text/css "access plus 1 week"
+
+    # 3D models - cache for 1 month
+    ExpiresByType model/gltf-binary "access plus 1 month"
+    ExpiresByType model/stl "access plus 1 day"
+
+    # JSON - cache for 1 day
+    ExpiresByType application/json "access plus 1 day"
+
+    # HTML - no cache
+    ExpiresByType text/html "access plus 0 seconds"
+</IfModule>
+
+# Security headers
+<IfModule mod_headers.c>
+    # Prevent clickjacking
+    Header always set X-Frame-Options "SAMEORIGIN"
+
+    # Prevent MIME type sniffing
+    Header always set X-Content-Type-Options "nosniff"
+
+    # Enable XSS protection
+    Header always set X-XSS-Protection "1; mode=block"
+
+    # Referrer policy
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Directory listing
+Options -Indexes
+
+# Follow symbolic links
+Options +FollowSymLinks
+
+# Default charset
+AddDefaultCharset UTF-8
+
+# Error pages (optional)
+# ErrorDocument 404 /public/404.html
+# ErrorDocument 500 /public/500.html
