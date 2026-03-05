@@ -1,370 +1,296 @@
 # Deployment Guide
 
-This guide explains how to deploy the Prosthetic Hand AI Parameter Generator to a web server.
+## Overview
+
+The app is a Node.js process serving both the REST API and static frontend files.
+For production, run it behind an Nginx reverse proxy with TLS.
+
+---
 
 ## Prerequisites
 
-- A web server with HTTP/HTTPS support (Apache, Nginx, or similar)
-- SSH access to your server
-- Domain name or public IP address
+```bash
+# Node.js 18+
+node --version   # must be 18 or higher
 
-## Deployment Steps
+# npm 9+
+npm --version
 
-### 1. Prepare the Application
+# (recommended) pm2 for process management
+npm install -g pm2
+```
 
-On your local machine:
+---
+
+## 1. Upload the Application
 
 ```bash
-cd /home/pec/dev/prostfab4/openscad-parameter-editor
-
-# Make sure config.json exists with your API keys
-cp config.example.json config.json
-# Edit config.json and add your real API keys
-
-# Create a deployment package (exclude development files)
-mkdir -p deploy
-rsync -av --exclude='deploy' \
-         --exclude='.git' \
-         --exclude='node_modules' \
-         --exclude='.vscode' \
-         --exclude='*.log' \
-         . deploy/
+# From your local machine — sync everything except secrets and generated files
+rsync -avz --progress \
+    --exclude='.git' \
+    --exclude='node_modules' \
+    --exclude='data' \
+    --exclude='.env' \
+    ./ user@your-server.com:/opt/prosthetic-hand/
 ```
 
-### 2. Upload to Web Server
-
-#### Option A: Using SCP
+Then on the server:
 
 ```bash
-# Replace with your server details
-SERVER_USER=your_username
-SERVER_HOST=your-server.com
-SERVER_PATH=/var/www/html/prosthetic-hand
-
-# Upload the files
-scp -r deploy/* ${SERVER_USER}@${SERVER_HOST}:${SERVER_PATH}/
+cd /opt/prosthetic-hand
+npm install --omit=dev
 ```
 
-#### Option B: Using rsync (recommended)
+---
+
+## 2. Create `.env`
 
 ```bash
-# Replace with your server details
-SERVER_USER=your_username
-SERVER_HOST=your-server.com
-SERVER_PATH=/var/www/html/prosthetic-hand
-
-# Sync files to server
-rsync -avz --progress deploy/ ${SERVER_USER}@${SERVER_HOST}:${SERVER_PATH}/
+cd /opt/prosthetic-hand
+cp .env.example .env
+chmod 600 .env        # restrict read access
+nano .env
 ```
 
-#### Option C: Using FTP/SFTP
+Minimum required:
 
-Use an FTP client like FileZilla:
-1. Connect to your server
-2. Navigate to your web directory (e.g., `/var/www/html/`)
-3. Create a folder called `prosthetic-hand`
-4. Upload all files from the `deploy` folder
-
-### 3. Configure Web Server
-
-#### Apache Configuration
-
-Create or edit `.htaccess` in your deployment directory:
-
-```apache
-# Enable CORS for API requests
-<IfModule mod_headers.c>
-    Header set Access-Control-Allow-Origin "*"
-    Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
-    Header set Access-Control-Allow-Headers "Content-Type"
-</IfModule>
-
-# Set proper MIME types
-<IfModule mod_mime.c>
-    AddType application/wasm .wasm
-    AddType application/json .json
-    AddType model/gltf-binary .glb
-    AddType model/stl .stl
-</IfModule>
-
-# Enable gzip compression
-<IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE text/html text/plain text/css application/javascript application/json
-</IfModule>
-
-# Cache static assets
-<IfModule mod_expires.c>
-    ExpiresActive On
-    ExpiresByType application/wasm "access plus 1 month"
-    ExpiresByType application/javascript "access plus 1 week"
-    ExpiresByType text/css "access plus 1 week"
-    ExpiresByType model/gltf-binary "access plus 1 month"
-</IfModule>
+```env
+JWT_SECRET=<64-char hex — run: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))">
+ANTHROPIC_API_KEY=sk-ant-...
+OPENAI_API_KEY=sk-...
+PORT=3000
+NODE_ENV=production
 ```
 
-#### Nginx Configuration
+---
 
-Add to your nginx site configuration:
+## 3. Create the First Admin
+
+```bash
+node scripts/create-admin.js admin admin@yourorg.com 'StrongPassword!'
+```
+
+---
+
+## 4. Process Management
+
+### Option A — pm2 (recommended)
+
+```bash
+# Start
+pm2 start server/index.js --name prosthetic-hand
+
+# Auto-start on reboot
+pm2 save
+pm2 startup   # follow the printed instructions
+
+# Useful commands
+pm2 status
+pm2 logs prosthetic-hand
+pm2 restart prosthetic-hand
+pm2 reload prosthetic-hand   # zero-downtime reload
+```
+
+### Option B — systemd
+
+Create `/etc/systemd/system/prosthetic-hand.service`:
+
+```ini
+[Unit]
+Description=Prosthetic Hand AI Parameter Generator
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/opt/prosthetic-hand
+EnvironmentFile=/opt/prosthetic-hand/.env
+ExecStart=/usr/bin/node server/index.js
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable prosthetic-hand
+sudo systemctl start prosthetic-hand
+sudo systemctl status prosthetic-hand
+```
+
+---
+
+## 5. Nginx Reverse Proxy
 
 ```nginx
 server {
     listen 80;
     server_name your-domain.com;
+    return 301 https://$host$request_uri;
+}
 
-    root /var/www/html/prosthetic-hand;
-    index index.html;
+server {
+    listen 443 ssl http2;
+    server_name your-domain.com;
 
-    # Main application
+    ssl_certificate     /etc/letsencrypt/live/your-domain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/your-domain.com/privkey.pem;
+    ssl_protocols       TLSv1.2 TLSv1.3;
+    ssl_ciphers         HIGH:!aNULL:!MD5;
+
+    # Larger body for API requests
+    client_max_body_size 2m;
+
+    # Proxy all traffic to Node
     location / {
-        try_files $uri $uri/ /index.html;
+        proxy_pass         http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header   Upgrade $http_upgrade;
+        proxy_set_header   Connection 'upgrade';
+        proxy_set_header   Host $host;
+        proxy_set_header   X-Real-IP $remote_addr;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
     }
 
-    # Serve models
-    location /models/ {
-        try_files $uri $uri/ =404;
+    # Cache large static WASM + GLTF files
+    location ~* \.(wasm|glb|stl)$ {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_set_header Host $host;
+        add_header Cache-Control "public, max-age=2592000, immutable";
     }
 
-    # Serve config
-    location /config.json {
-        try_files $uri =404;
-    }
-
-    # Set proper MIME types
-    location ~ \.wasm$ {
-        types { application/wasm wasm; }
-        add_header Cache-Control "public, max-age=2592000";
-    }
-
-    location ~ \.glb$ {
-        types { model/gltf-binary glb; }
-        add_header Cache-Control "public, max-age=2592000";
-    }
-
-    location ~ \.stl$ {
-        types { model/stl stl; }
-        add_header Cache-Control "public, max-age=2592000";
-    }
-
-    # Enable gzip compression
+    # Compress responses
     gzip on;
-    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript application/wasm;
+    gzip_types text/plain text/css application/json application/javascript
+               text/javascript application/wasm;
 }
 ```
 
-### 4. Set Correct Permissions
-
-On your server:
-
 ```bash
-# Navigate to deployment directory
-cd /var/www/html/prosthetic-hand
-
-# Set proper ownership (replace www-data with your web server user)
-sudo chown -R www-data:www-data .
-
-# Set proper permissions
-find . -type d -exec chmod 755 {} \;
-find . -type f -exec chmod 644 {} \;
-
-# Protect config.json (optional - make it readable only by web server)
-chmod 640 config.json
+sudo nginx -t
+sudo systemctl reload nginx
 ```
 
-### 5. Configure HTTPS (Recommended)
+---
 
-#### Using Let's Encrypt (Certbot)
+## 6. HTTPS with Let's Encrypt
 
 ```bash
-# Install certbot
-sudo apt-get update
-sudo apt-get install certbot python3-certbot-nginx  # For Nginx
+sudo apt install certbot python3-certbot-nginx
+sudo certbot --nginx -d your-domain.com
+# Certbot auto-renews; verify with:
+sudo certbot renew --dry-run
+```
+
+---
+
+## 7. File Permissions
+
+```bash
+# App files owned by the service user
+sudo chown -R www-data:www-data /opt/prosthetic-hand
+
+# .env readable only by owner
+chmod 600 /opt/prosthetic-hand/.env
+
+# data/ directory writable by service user (for SQLite)
+chmod 750 /opt/prosthetic-hand/data
+```
+
+---
+
+## 8. Backup
+
+Back up only the database and environment file:
+
+```bash
+# Create daily backup script at /etc/cron.daily/prosthetic-hand-backup
+#!/bin/bash
+BACKUP_DIR=/var/backups/prosthetic-hand
+DATE=$(date +%Y%m%d)
+mkdir -p "$BACKUP_DIR"
+cp /opt/prosthetic-hand/data/app.db "$BACKUP_DIR/app-$DATE.db"
+# Keep 30 days
+find "$BACKUP_DIR" -name "app-*.db" -mtime +30 -delete
+```
+
+```bash
+chmod +x /etc/cron.daily/prosthetic-hand-backup
+```
+
+---
+
+## 9. Updating
+
+```bash
+# On local machine
+rsync -avz --progress \
+    --exclude='.git' \
+    --exclude='node_modules' \
+    --exclude='data' \
+    --exclude='.env' \
+    ./ user@your-server.com:/opt/prosthetic-hand/
+
+# On server
+cd /opt/prosthetic-hand
+npm install --omit=dev
+pm2 reload prosthetic-hand   # zero-downtime reload
 # OR
-sudo apt-get install certbot python3-certbot-apache  # For Apache
-
-# Get SSL certificate
-sudo certbot --nginx -d your-domain.com  # For Nginx
-# OR
-sudo certbot --apache -d your-domain.com  # For Apache
+sudo systemctl restart prosthetic-hand
 ```
 
-### 6. Test the Deployment
+The SQLite schema is applied automatically on startup (`CREATE TABLE IF NOT EXISTS`), so no manual migration is needed for additive schema changes.
 
-1. Open your browser and navigate to:
-   - `http://your-domain.com/` or
-   - `http://your-server-ip/`
+---
 
-2. Check that:
-   - ✅ Page loads correctly
-   - ✅ Model selector works
-   - ✅ 3D viewer displays
-   - ✅ AI suggestions work (check browser console for API errors)
-   - ✅ STL export functions
+## 10. Deployment Checklist
 
-3. Open browser developer console (F12) and check for:
-   - ❌ No 404 errors
-   - ❌ No CORS errors
-   - ❌ No MIME type errors
+- [ ] Node.js 18+ installed
+- [ ] `npm install --omit=dev` complete
+- [ ] `.env` created with real `JWT_SECRET`, `PORT=3000`, `NODE_ENV=production`
+- [ ] AI keys set (if using AI suggestions)
+- [ ] First admin created
+- [ ] Process manager (pm2 or systemd) configured and enabled
+- [ ] Nginx reverse proxy configured
+- [ ] HTTPS certificate installed
+- [ ] File permissions set (`chmod 600 .env`)
+- [ ] Backup cron job configured
+- [ ] Smoke test: `GET /api/setup/status` returns `{"needsSetup":false}`
+- [ ] Verify `/.env` returns 404
+- [ ] Verify `/config.json` returns 404
 
-## Security Considerations
-
-### Protect API Keys
-
-**Important**: Never commit `config.json` to version control!
-
-Option 1: Use environment variables (recommended for production):
-
-Create a PHP or Node.js backend to serve the config:
-
-```php
-<?php
-// config-api.php
-header('Content-Type: application/json');
-
-$config = [
-    'ai' => [
-        'provider' => getenv('AI_PROVIDER') ?: 'anthropic',
-        'anthropic_api_key' => getenv('ANTHROPIC_API_KEY'),
-        'openai_api_key' => getenv('OPENAI_API_KEY')
-    ]
-];
-
-echo json_encode($config);
-?>
-```
-
-Then update `app.js` to fetch from `config-api.php` instead of `config.json`.
-
-Option 2: Use server-side proxy for API calls (most secure):
-
-Instead of calling AI APIs directly from the browser, create a backend endpoint that:
-1. Receives the anthropometric data from the frontend
-2. Makes the API call server-side
-3. Returns the suggestions to the frontend
-
-This way, API keys never leave your server.
-
-### File Permissions
-
-```bash
-# Recommended permissions
-chmod 755 /var/www/html/prosthetic-hand
-chmod 755 /var/www/html/prosthetic-hand/models
-chmod 644 /var/www/html/prosthetic-hand/*.html
-chmod 644 /var/www/html/prosthetic-hand/*.js
-chmod 644 /var/www/html/prosthetic-hand/*.wasm
-chmod 644 /var/www/html/prosthetic-hand/models/*
-chmod 640 /var/www/html/prosthetic-hand/config.json
-```
-
-## Troubleshooting
-
-### Files Not Loading
-
-Check:
-- Web server has read permissions
-- MIME types are configured correctly
-- File paths in HTML are correct
-
-### CORS Errors
-
-Add CORS headers:
-```apache
-Header set Access-Control-Allow-Origin "*"
-```
-
-### WASM Not Loading
-
-Check MIME type:
-```apache
-AddType application/wasm .wasm
-```
-
-### 404 Errors
-
-Check:
-- Files are in correct location
-- Paths in code match server structure
-- Web server document root is correct
-
-### API Errors
-
-Check:
-- `config.json` exists and has valid API keys
-- API keys have correct permissions
-- Browser can access `config.json` (check Network tab)
-- No CORS issues blocking API calls
+---
 
 ## Monitoring
 
-### Check Server Logs
-
 ```bash
-# Apache
-sudo tail -f /var/log/apache2/access.log
-sudo tail -f /var/log/apache2/error.log
+# pm2
+pm2 logs prosthetic-hand --lines 100
+pm2 monit
+
+# systemd
+journalctl -u prosthetic-hand -f
+journalctl -u prosthetic-hand --since "1 hour ago"
 
 # Nginx
 sudo tail -f /var/log/nginx/access.log
 sudo tail -f /var/log/nginx/error.log
 ```
 
-### Browser Console
+---
 
-Monitor for:
-- JavaScript errors
-- Failed network requests
-- API response errors
+## Environment Variables Quick Reference
 
-## Updating the Application
-
-```bash
-# On local machine, in deploy directory
-rsync -avz --progress deploy/ ${SERVER_USER}@${SERVER_HOST}:${SERVER_PATH}/
-
-# On server
-cd ${SERVER_PATH}
-# Clear any cached files if needed
-```
-
-## Performance Optimization
-
-1. **Enable Gzip Compression** - Reduce file sizes
-2. **Enable Browser Caching** - Cache static assets
-3. **Use CDN** - Serve static files from CDN
-4. **Minify JavaScript** - Reduce `app.js` size
-5. **Optimize WASM** - Ensure WASM files are served with correct headers
-
-## Backup
-
-Regular backup of:
-- `config.json` (API keys)
-- `models/` directory (custom models)
-- `models-config.json` (model configurations)
-
-```bash
-# Create backup
-tar -czf backup-$(date +%Y%m%d).tar.gz \
-    config.json \
-    models/ \
-    models-config.json
-```
-
-## Support
-
-For issues:
-1. Check browser console (F12)
-2. Check server logs
-3. Verify file permissions
-4. Test API keys separately
-5. Check this deployment guide
-
-## Quick Deployment Checklist
-
-- [ ] Configure `config.json` with API keys
-- [ ] Upload files to server
-- [ ] Set correct file permissions
-- [ ] Configure web server (Apache/Nginx)
-- [ ] Enable HTTPS (recommended)
-- [ ] Test all functionality
-- [ ] Monitor server logs
-- [ ] Set up backups
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `JWT_SECRET` | Yes | — | ≥32 char secret for JWT signing |
+| `ANTHROPIC_API_KEY` | No | — | Enables Claude suggestions |
+| `OPENAI_API_KEY` | No | — | Enables GPT-4 suggestions |
+| `PORT` | No | 3000 | HTTP port |
+| `NODE_ENV` | No | development | Set `production` to enable secure cookies |

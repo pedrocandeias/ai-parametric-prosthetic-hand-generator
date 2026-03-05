@@ -1,0 +1,26 @@
+{
+  "name": "ai-parametric-prosthetic-hand-generator",
+  "version": "1.0.0",
+  "description": "AI-powered prosthetic hand customization with Node.js backend",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "stop": "kill $(lsof -ti:${PORT:-3000}) 2>/dev/null && echo 'Server stopped' || echo 'No server running'",
+    "restart": "npm run stop; sleep 1; node server/index.js",
+    "create-admin": "node scripts/create-admin.js"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "better-sqlite3": "^9.4.3",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.3",
+    "express-rate-limit": "^7.2.0",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.1",
+    "zod": "^3.22.4"
+  }
+}

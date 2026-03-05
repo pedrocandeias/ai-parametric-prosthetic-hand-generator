@@ -1,9 +1,245 @@
 {
   "models": [
     {
+      "id": "cyborgbeast07l",
+      "name": "Cyborg Beast — Full Hand Assembly",
+      "description": "Complete parametric prosthetic hand: palm, wrist, four fingers, and thumb. Scale palmW to fit the user's hand.",
+      "file": "cyborgbeast07l.scad",
+      "dependencies": ["cyborgpalm001.scad", "cyborgfingertip002.scad", "cyborgfingermid002.scad"],
+      "parameters": [
+        {
+          "name": "palmW",
+          "type": "number",
+          "initial": 64,
+          "min": 50,
+          "max": 90,
+          "step": 1,
+          "caption": "Palm width (mm) — primary sizing parameter",
+          "group": "Palm"
+        },
+        {
+          "name": "knuckleR",
+          "type": "number",
+          "initial": 4.85,
+          "min": 3.0,
+          "max": 8.0,
+          "step": 0.05,
+          "caption": "Knuckle hinge radius (mm)",
+          "group": "Palm"
+        },
+        {
+          "name": "wristH",
+          "type": "number",
+          "initial": 10,
+          "min": 5,
+          "max": 20,
+          "step": 1,
+          "caption": "Wrist cuff height (mm)",
+          "group": "Palm"
+        },
+        {
+          "name": "palmH",
+          "type": "number",
+          "initial": 20,
+          "min": 10,
+          "max": 40,
+          "step": 1,
+          "caption": "Palm body height (mm)",
+          "group": "Palm"
+        },
+        {
+          "name": "th",
+          "type": "number",
+          "initial": 3,
+          "min": 1.5,
+          "max": 6.0,
+          "step": 0.5,
+          "caption": "Shell wall thickness (mm)",
+          "group": "Palm"
+        },
+        {
+          "name": "sp",
+          "type": "number",
+          "initial": 14.4,
+          "min": 10.0,
+          "max": 20.0,
+          "step": 0.2,
+          "caption": "Finger lateral spacing (mm)",
+          "group": "Fingers"
+        },
+        {
+          "name": "fn",
+          "type": "number",
+          "initial": 32,
+          "min": 8,
+          "max": 64,
+          "step": 8,
+          "caption": "Curve resolution — lower = faster preview",
+          "group": "Render"
+        }
+      ]
+    },
+    {
+      "id": "cyborgpalm001",
+      "name": "Cyborg Beast — Palm Only",
+      "description": "Palm and wrist shell component of the Cyborg Beast hand. Print separately or use to inspect/modify the palm geometry.",
+      "file": "cyborgpalm001.scad",
+      "renderCall": "cyborgbeastpalm();",
+      "parameters": [
+        {
+          "name": "palmW",
+          "type": "number",
+          "initial": 64,
+          "min": 50,
+          "max": 90,
+          "step": 1,
+          "caption": "Palm width (mm)",
+          "group": "Palm"
+        },
+        {
+          "name": "knuckleR",
+          "type": "number",
+          "initial": 4.85,
+          "min": 3.0,
+          "max": 8.0,
+          "step": 0.05,
+          "caption": "Knuckle hinge radius (mm)",
+          "group": "Palm"
+        },
+        {
+          "name": "wristH",
+          "type": "number",
+          "initial": 10,
+          "min": 5,
+          "max": 20,
+          "step": 1,
+          "caption": "Wrist cuff height (mm)",
+          "group": "Palm"
+        },
+        {
+          "name": "palmH",
+          "type": "number",
+          "initial": 20,
+          "min": 10,
+          "max": 40,
+          "step": 1,
+          "caption": "Palm body height (mm)",
+          "group": "Palm"
+        },
+        {
+          "name": "th",
+          "type": "number",
+          "initial": 3,
+          "min": 1.5,
+          "max": 6.0,
+          "step": 0.5,
+          "caption": "Shell wall thickness (mm)",
+          "group": "Palm"
+        },
+        {
+          "name": "fn",
+          "type": "number",
+          "initial": 32,
+          "min": 8,
+          "max": 64,
+          "step": 8,
+          "caption": "Curve resolution — lower = faster preview",
+          "group": "Render"
+        }
+      ]
+    },
+    {
+      "id": "cyborgfingermid002",
+      "name": "Cyborg Beast — Finger Mid Segment",
+      "description": "Middle phalange for the Cyborg Beast prosthetic finger. Printable flat; connects palm-side knuckle to fingertip.",
+      "file": "cyborgfingermid002.scad",
+      "renderCall": "fingermid(s=finger_s, len=finger_len, rad=finger_rad);",
+      "parameters": [
+        {
+          "name": "finger_len",
+          "type": "number",
+          "initial": 0,
+          "min": -12,
+          "max": 20,
+          "step": 1,
+          "caption": "Extra length (mm) — 0=standard, negative=shorter (thumb)",
+          "group": "Finger"
+        },
+        {
+          "name": "finger_s",
+          "type": "number",
+          "initial": 1,
+          "min": 0.8,
+          "max": 1.5,
+          "step": 0.05,
+          "caption": "Uniform scale",
+          "group": "Finger"
+        },
+        {
+          "name": "finger_rad",
+          "type": "number",
+          "initial": 5,
+          "min": 3.0,
+          "max": 8.0,
+          "step": 0.5,
+          "caption": "Hinge cylinder radius (mm)",
+          "group": "Finger"
+        },
+        {
+          "name": "fn",
+          "type": "number",
+          "initial": 32,
+          "min": 8,
+          "max": 64,
+          "step": 8,
+          "caption": "Curve resolution — lower = faster preview",
+          "group": "Render"
+        }
+      ]
+    },
+    {
+      "id": "cyborgfingertip002",
+      "name": "Cyborg Beast — Fingertip",
+      "description": "Distal phalange (fingertip) for the Cyborg Beast prosthetic hand. Includes textured grip surface and cable/elastic channels.",
+      "file": "cyborgfingertip002.scad",
+      "renderCall": "fingertip(s=finger_s, len=finger_len, grip=1);",
+      "parameters": [
+        {
+          "name": "finger_len",
+          "type": "number",
+          "initial": 0,
+          "min": -5,
+          "max": 20,
+          "step": 1,
+          "caption": "Extra length (mm) — 0=standard, negative=shorter (thumb tip)",
+          "group": "Finger"
+        },
+        {
+          "name": "finger_s",
+          "type": "number",
+          "initial": 1,
+          "min": 0.8,
+          "max": 1.5,
+          "step": 0.05,
+          "caption": "Uniform scale",
+          "group": "Finger"
+        },
+        {
+          "name": "fn",
+          "type": "number",
+          "initial": 32,
+          "min": 8,
+          "max": 64,
+          "step": 8,
+          "caption": "Curve resolution — lower = faster preview",
+          "group": "Render"
+        }
+      ]
+    },
+    {
       "id": "fingerator",
-      "name": "Fingerator - Prosthetic Finger",
-      "description": "Parametric prosthetic finger design with customizable scale, bearings, and pins",
+      "name": "Fingerator — Prosthetic Finger",
+      "description": "Parametric prosthetic finger for the Phoenix Reborn / paraglider hand. Scales all geometry uniformly and supports multiple pin/bearing styles.",
       "file": "fingerator.scad",
       "parameters": [
         {
@@ -13,7 +249,7 @@
           "min": 1.0,
           "max": 2.0,
           "step": 0.01,
-          "caption": "Size of fingers",
+          "caption": "Overall size scale (1.25 = average adult)",
           "group": "Scale"
         },
         {
@@ -21,9 +257,9 @@
           "type": "number",
           "initial": 0.5,
           "min": 0.1,
-          "max": 3,
+          "max": 3.0,
           "step": 0.01,
-          "caption": "Clearance on sides of tabs",
+          "caption": "Joint slot clearance (mm) — larger = looser fit",
           "group": "Scale"
         },
         {
@@ -31,35 +267,35 @@
           "type": "boolean",
           "initial": true,
           "caption": "Print long fingers",
-          "group": "Items to Print"
+          "group": "Parts to Print"
         },
         {
           "name": "print_short_fingers",
           "type": "boolean",
           "initial": false,
           "caption": "Print short fingers",
-          "group": "Items to Print"
+          "group": "Parts to Print"
         },
         {
           "name": "print_finger_phalanx",
           "type": "boolean",
           "initial": false,
           "caption": "Print finger phalanx",
-          "group": "Items to Print"
+          "group": "Parts to Print"
         },
         {
           "name": "print_thumb",
           "type": "boolean",
           "initial": false,
           "caption": "Print thumb",
-          "group": "Items to Print"
+          "group": "Parts to Print"
         },
         {
           "name": "print_thumb_phalanx",
           "type": "boolean",
           "initial": false,
           "caption": "Print thumb phalanx",
-          "group": "Items to Print"
+          "group": "Parts to Print"
         },
         {
           "name": "bearing_pocket_diameter",
@@ -68,8 +304,8 @@
           "min": 0,
           "max": 15,
           "step": 2,
-          "caption": "Bearing pocket diameter (mm) - 0 for none, 5,7,9,11,13,15",
-          "group": "Igus Bearing Material"
+          "caption": "Igus bearing pocket diameter (mm) — 0 = none, then 5/7/9/11/13/15",
+          "group": "Bearings"
         },
         {
           "name": "bearing_pocket_depth",
@@ -78,8 +314,8 @@
           "min": 0.2,
           "max": 0.6,
           "step": 0.05,
-          "caption": "Bearing pocket depth (%)",
-          "group": "Igus Bearing Material"
+          "caption": "Bearing pocket depth (fraction of wall)",
+          "group": "Bearings"
         },
         {
           "name": "pin_index",
@@ -88,25 +324,355 @@
           "min": 0,
           "max": 3,
           "step": 1,
-          "caption": "Pin style (0=Chicago, 1=Staple, 2=Headless, 3=Folding)",
-          "group": "Pin Style Selection"
+          "caption": "Pin style — 0=Chicago screws, 1=1/16\" pins+bearing, 2=headless, 3=folding",
+          "group": "Pin Style"
         },
         {
           "name": "pins_for_string",
           "type": "boolean",
           "initial": false,
-          "caption": "Pins for string",
-          "group": "Pin Style Selection"
+          "caption": "Use steel pins for string (vs plastic bars)",
+          "group": "Pin Style"
         },
         {
           "name": "pin_diameter_clearance",
           "type": "number",
           "initial": 0,
-          "min": -1,
-          "max": 1,
+          "min": -1.0,
+          "max": 1.0,
           "step": 0.01,
-          "caption": "Pin diameter clearance (mm)",
-          "group": "Pin Style Selection"
+          "caption": "Pin diameter clearance adjustment (mm)",
+          "group": "Pin Style"
+        }
+      ]
+    },
+    {
+      "id": "paraglider_palm_left",
+      "name": "Paraglider Palm — Prosthetic Hand",
+      "description": "Full palm and wrist assembly for the paraglider / flexible-flyer prosthetic hand. Mirrors to left or right hand.",
+      "file": "paraglider_palm_left.scad",
+      "dependencies": ["pipe.scad", "palm_left_v2_nobox.stl"],
+      "parameters": [
+        {
+          "name": "overall_scale",
+          "type": "number",
+          "initial": 1.25,
+          "min": 1.0,
+          "max": 2.0,
+          "step": 0.01,
+          "caption": "Overall size scale (1.25 = average adult)",
+          "group": "Scale"
+        },
+        {
+          "name": "mirrored",
+          "type": "boolean",
+          "initial": false,
+          "caption": "Mirror for right hand (default = left hand)",
+          "group": "Scale"
+        },
+        {
+          "name": "pivot_size",
+          "type": "number",
+          "initial": 1.5875,
+          "min": 1.5,
+          "max": 3.0,
+          "step": 0.0125,
+          "caption": "Pivot pin diameter (mm) — 1.5=M1.5, 1.5875=1/16\", 3.0=M3 screw",
+          "group": "Structure"
+        },
+        {
+          "name": "pivot_extra_clearance",
+          "type": "number",
+          "initial": 0,
+          "min": -0.5,
+          "max": 0.5,
+          "step": 0.01,
+          "caption": "Extra pivot clearance for printer tolerance (mm)",
+          "group": "Structure"
+        },
+        {
+          "name": "string_channel_scale",
+          "type": "number",
+          "initial": 0.9,
+          "min": 0.5,
+          "max": 1.0,
+          "step": 0.05,
+          "caption": "String channel scale",
+          "group": "Structure"
+        },
+        {
+          "name": "elastic_channel_scale",
+          "type": "number",
+          "initial": 0.9,
+          "min": 0.5,
+          "max": 1.5,
+          "step": 0.05,
+          "caption": "Elastic channel scale",
+          "group": "Structure"
+        },
+        {
+          "name": "pins",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Drill holes for steel pins (false = plastic pins)",
+          "group": "Structure"
+        },
+        {
+          "name": "plugs",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Include pin plugs",
+          "group": "Structure"
+        },
+        {
+          "name": "include_knuckle_covers",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Include knuckle covers",
+          "group": "Structure"
+        },
+        {
+          "name": "include_wrist_stamping_die",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Include wrist thermoforming stamping die",
+          "group": "Parts to Print"
+        },
+        {
+          "name": "include_mesh",
+          "type": "number",
+          "initial": 1,
+          "min": 0,
+          "max": 1,
+          "step": 1,
+          "caption": "Mesh style — 0=standard, 1=simplified (faster render)",
+          "group": "Parts to Print"
+        },
+        {
+          "name": "old_style_wrist",
+          "type": "boolean",
+          "initial": false,
+          "caption": "Old-style wrist (true) vs M3 wrist screws (false)",
+          "group": "Parts to Print"
+        },
+        {
+          "name": "fast_preview",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Fast preview mode (lower detail, faster render)",
+          "group": "Parts to Print"
+        },
+        {
+          "name": "serial_line1",
+          "type": "string",
+          "initial": "paraglider",
+          "caption": "Serial label line 1 (max 15 chars)",
+          "group": "Labels"
+        },
+        {
+          "name": "serial_line2",
+          "type": "string",
+          "initial": "serial 0001",
+          "caption": "Serial label line 2 (max 15 chars)",
+          "group": "Labels"
+        },
+        {
+          "name": "serial_line3",
+          "type": "string",
+          "initial": "2026-01-01",
+          "caption": "Serial label line 3 — date (max 15 chars)",
+          "group": "Labels"
+        }
+      ]
+    },
+    {
+      "id": "gripper_box_pieces",
+      "name": "Gripper Box — Prosthetic Hand Components",
+      "description": "Sliding dovetail gripper box pieces for the flexible-flyer / Phoenix Reborn prosthetic hand variant.",
+      "file": "gripper_box_pieces.scad",
+      "parameters": [
+        {
+          "name": "global_scale",
+          "type": "number",
+          "initial": 1.25,
+          "min": 1.0,
+          "max": 2.0,
+          "step": 0.01,
+          "caption": "Overall size scale (must match your hand/finger scale)",
+          "group": "Scale"
+        },
+        {
+          "name": "slide_clearance",
+          "type": "number",
+          "initial": 0.2,
+          "min": 0.0,
+          "max": 0.5,
+          "step": 0.01,
+          "caption": "Dovetail slide clearance (mm) — adjust for printer tolerance",
+          "group": "Fit"
+        },
+        {
+          "name": "screw_thread_dia",
+          "type": "number",
+          "initial": 2.8,
+          "min": 2.0,
+          "max": 4.0,
+          "step": 0.05,
+          "caption": "Screw thread hole diameter (mm) — 2.8 suits M3",
+          "group": "Fit"
+        }
+      ]
+    },
+    {
+      "id": "gear",
+      "name": "Parametric Involute Gear",
+      "description": "Standard involute spur gear. Adjust tooth count, pitch, and thickness for any gear ratio or application.",
+      "file": "gear.scad",
+      "parameters": [
+        {
+          "name": "number_of_teeth",
+          "type": "number",
+          "initial": 20,
+          "min": 4,
+          "max": 100,
+          "step": 1,
+          "caption": "Number of teeth",
+          "group": "Gear"
+        },
+        {
+          "name": "circular_pitch",
+          "type": "number",
+          "initial": 5,
+          "min": 1,
+          "max": 20,
+          "step": 0.5,
+          "caption": "Circular pitch (mm)",
+          "group": "Gear"
+        },
+        {
+          "name": "pressure_angle",
+          "type": "number",
+          "initial": 20,
+          "min": 14.5,
+          "max": 25,
+          "step": 0.5,
+          "caption": "Pressure angle (degrees) — standard is 20°",
+          "group": "Gear"
+        },
+        {
+          "name": "clearance",
+          "type": "number",
+          "initial": 0.2,
+          "min": 0.0,
+          "max": 1.0,
+          "step": 0.05,
+          "caption": "Tooth clearance (mm)",
+          "group": "Gear"
+        },
+        {
+          "name": "gear_thickness",
+          "type": "number",
+          "initial": 5,
+          "min": 1,
+          "max": 50,
+          "step": 1,
+          "caption": "Gear face thickness (mm)",
+          "group": "Dimensions"
+        },
+        {
+          "name": "rim_thickness",
+          "type": "number",
+          "initial": 5,
+          "min": 1,
+          "max": 50,
+          "step": 1,
+          "caption": "Rim thickness (mm) — should be ≥ gear thickness",
+          "group": "Dimensions"
+        },
+        {
+          "name": "hub_thickness",
+          "type": "number",
+          "initial": 10,
+          "min": 1,
+          "max": 50,
+          "step": 1,
+          "caption": "Hub thickness (mm) — should be ≥ rim thickness",
+          "group": "Dimensions"
+        },
+        {
+          "name": "bore",
+          "type": "number",
+          "initial": 5,
+          "min": 1,
+          "max": 40,
+          "step": 0.5,
+          "caption": "Bore (shaft hole) diameter (mm)",
+          "group": "Dimensions"
+        }
+      ]
+    },
+    {
+      "id": "box",
+      "name": "Parametric Box",
+      "description": "Simple parametric box with optional lid and rounded corners. Useful as a utility or enclosure model.",
+      "file": "box.scad",
+      "parameters": [
+        {
+          "name": "width",
+          "type": "number",
+          "initial": 50,
+          "min": 10,
+          "max": 300,
+          "step": 1,
+          "caption": "Width (mm)",
+          "group": "Dimensions"
+        },
+        {
+          "name": "depth",
+          "type": "number",
+          "initial": 50,
+          "min": 10,
+          "max": 300,
+          "step": 1,
+          "caption": "Depth (mm)",
+          "group": "Dimensions"
+        },
+        {
+          "name": "height",
+          "type": "number",
+          "initial": 30,
+          "min": 5,
+          "max": 200,
+          "step": 1,
+          "caption": "Height (mm)",
+          "group": "Dimensions"
+        },
+        {
+          "name": "wall_thickness",
+          "type": "number",
+          "initial": 2,
+          "min": 0.8,
+          "max": 10,
+          "step": 0.1,
+          "caption": "Wall thickness (mm)",
+          "group": "Dimensions"
+        },
+        {
+          "name": "corner_radius",
+          "type": "number",
+          "initial": 5,
+          "min": 0,
+          "max": 30,
+          "step": 0.5,
+          "caption": "Corner radius (mm) — 0 = sharp corners",
+          "group": "Dimensions"
+        },
+        {
+          "name": "lid",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Include lid",
+          "group": "Options"
         }
       ]
     }

@@ -1,101 +1,121 @@
 # Changelog
 
-## Version 2.0 - 3D Rendering Integration
+All notable changes are recorded here.
 
-### Added
-- **Full 3D Rendering**: Integrated OpenSCAD WASM for real-time 3D preview
-- **model-viewer**: Using Google's model-viewer for interactive 3D display
-- **Auto-render**: Parameters automatically trigger re-rendering (with 500ms debounce)
-- **STL Export**: Full STL export functionality
-- **GLB Preview**: Models are rendered to GLB format for smooth 3D viewing
+Version format: `MAJOR.MINOR.PATCH`
+- Bump **MAJOR** on breaking changes
+- Bump **MINOR** on new features
+- Bump **PATCH** on bug fixes
 
-### Changed
-- **Editor Hidden**: Code editor is now hidden by default (still updates in background)
-- **UI Updated**: Changed "Preview & Editor" to "3D Preview"
-- **Immediate Preview**: Models render automatically when loaded or parameters change
-- **Loading Indicator**: Added visual feedback during rendering
-
-### Technical Details
-
-#### Files Added
-- `openscad.wasm` (9.2MB) - OpenSCAD compiled to WebAssembly
-- `openscad-worker.js` (86KB) - Worker thread for non-blocking rendering
-- `24c27bd4337db6fc47cb.wasm` - Additional WASM module
-- `model-viewer.min.js` - 3D viewer component
-
-#### Integration
-The app now:
-1. Loads OpenSCAD code with parameters
-2. Sends code to Web Worker for rendering
-3. Receives GLB binary output
-4. Displays in model-viewer with camera controls
-5. Supports STL export for 3D printing
-
-#### Performance
-- Rendering happens in Web Worker (non-blocking)
-- Typical render time: 500ms - 3000ms depending on complexity
-- Debounced parameter changes: 500ms delay
-- 30-second timeout for complex models
-- Memory-efficient: Old renders are cleaned up automatically
-
-## Version 1.0 - Initial Release
-
-### Features
-- JSON/XML configuration support
-- Dynamic parameter UI generation
-- Multiple model support
-- Parameter grouping
-- Code generation with parameter replacement
+Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
+`type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
 ---
 
-## Usage
+## v3.3.0 — 2026-03-04
 
-### Start the Application
-```bash
-cd openscad-parameter-editor
-python3 -m http.server 8001
-# Open http://localhost:8001/public/
-```
-
-### What to Expect
-1. Select a model from dropdown
-2. 3D preview renders automatically
-3. Adjust parameters with sliders
-4. Model updates in real-time
-5. Export STL when ready
-
-### Browser Compatibility
-- Chrome 90+ ✅
-- Firefox 88+ ✅
-- Safari 14+ ✅
-- Edge 90+ ✅
-
-Requires:
-- WebAssembly support
-- Web Workers
-- ES6 JavaScript
-- model-viewer custom element
-
-### Known Issues
-- Large models (>5000 faces) may take 10+ seconds to render
-- First render is slower (WASM initialization)
-- STL export uses ASCII format (larger files)
-
-### Tips
-- Wait for "Rendered in Xms" status before making more changes
-- Use Reset button if model looks wrong
-- Check browser console for detailed error messages
-- Reduce `$fn` values in OpenSCAD for faster preview
+feat: add Cyborg Beast model set (full hand, palm, finger mid, fingertip) to model selector
+fix: correct double-comma syntax error in paraglider_palm_left.scad pin_coordinates array
+fix: binary STL dependencies (e.g. palm_left_v2_nobox.stl) now fetched as ArrayBuffer and injected into WASM virtual FS
+feat: add renderCall support in models-config.json for library-style SCAD files that define modules but have no top-level call
 
 ---
 
-## Future Improvements
-- [ ] Add render quality slider ($fn control)
-- [ ] Binary STL export (smaller files)
-- [ ] Render queue for rapid parameter changes
-- [ ] Thumbnail generation
-- [ ] Measurement tools
-- [ ] Section view/cutaway
-- [ ] Multiple material support
-- [ ] Animation support
+## v3.2.0 — 2026-02-27
+
+refactor: redesign anthropometric profiles as population-level reference datasets (not patient records)
+feat: add demographic fields to profiles — group_name, country, gender, age_group, percentile, sample_size, data_source
+refactor: remove user_id FK from anthropometric_profiles table; add db migration guard for old schema
+refactor: update admin panel profile table and filters to use country/gender/age_group instead of patient dropdown
+fix: update admin.js renderAnthroProfiles and setupAnthroTab for new demographic schema
+
+## v3.1.1 — 2026-02-27
+
+security: restrict all /api/anthropometric endpoints to admin role only
+refactor: move anthropometric importer from main app to admin backoffice
+feat: add Anthropometric Profiles tab to admin panel with patient filter and profile list
+fix: remove AnthropometricImporter integration from main app getAISuggestions
+
+---
+
+## v3.1.0 — 2026-02-27
+
+feat: add AnthropometricDataImporter service — unit conversion, range validation, outlier detection, derived-value computation
+feat: add `POST /api/anthropometric/preview` — process measurements without persisting
+feat: add `POST /api/anthropometric` — process and save profile to DB
+feat: add `GET/DELETE /api/anthropometric/:id` — retrieve or delete a saved profile
+feat: add `anthropometric_profiles` table to SQLite schema
+feat: add Measurements modal to main UI — manual entry form with collapsible sections per digit
+feat: add Import tab — paste CSV (key-value or flat-header) or JSON AnthropometricProfile
+feat: add "Apply to Model" — maps `global_scale` and `clearance_mm` → model parameter controls
+feat: integrate AI context into AI suggest prompt when a profile is active
+feat: expose `window.parameterEditor` globally so modules can call `applyGeometryParameters()`
+
+---
+
+## v3.0.2 — 2026-02-27
+
+feat: allow admins to edit username and email via PATCH /api/users/:id
+feat: add password reset for any user from the admin panel (PATCH /api/users/:id/password)
+feat: add Edit button and modal to admin panel users table
+
+---
+
+## v3.0.1 — 2026-02-27
+
+fix: return JSON from global rate limiter instead of plain text (prevented browser JSON.parse)
+fix: remove `Content-Type: undefined` header in `fetchWithAuth` when no body is present
+fix: wrap `res.json()` calls in `safeJson()` helper for actionable parse-error messages
+fix: add `/api/*` 404 JSON handler so unknown API paths never fall through to the SPA
+
+---
+
+## v3.0.0 — 2026-02-27
+
+feat: add Node.js/Express backend — replaces Python `http.server`; serves both API and static files
+feat: add SQLite database via `better-sqlite3`; schema auto-applied on first run
+feat: add user authentication — bcrypt passwords, JWT access tokens (15 min, HS256)
+feat: add rotating HttpOnly refresh cookies (7-day expiry, SHA-256 hashed in DB)
+feat: add role-based access control — Admin / Tech / User roles
+feat: add tech assignments — admins assign patient users to tech users
+feat: add saved configurations — named parameter sets per patient with ownership enforcement
+feat: add first-run setup flow — browser form creates initial admin; CLI fallback via `scripts/create-admin.js`
+feat: add AI proxy — AI API calls move server-side; keys read from `.env` and never sent to the browser
+feat: add admin panel (`admin.html`) — user management table, create/suspend/change-role, tech assignment UI
+feat: add frontend auth module (`auth.js`) — `Auth` singleton with `fetchWithAuth` and silent refresh
+feat: add login modal with login / register / setup sub-views
+feat: add rate limiting — login (5/15 min), register (3/hr), AI suggest (10/min)
+feat: add `CLAUDE.md` developer guide and `ARCHITECTURE.md` technical reference
+security: move AI API keys from client-side `config.json` to server-side `.env`
+security: store access tokens in JS memory only (no localStorage)
+security: store refresh tokens as SHA-256 hashes in DB; rotate on every use
+security: block `/.env` and `/config.json` at Express level — unconditional 404
+security: add `helmet` with restrictive CSP headers
+refactor: remove `loadAIConfiguration()` from `app.js`; AI calls now go through `/api/ai/suggest`
+refactor: add save/load config methods to `app.js`
+chore: replace Python `http.server` with `node server/index.js` in `start-server.sh`
+chore: add `.env`, `data/` to `.gitignore`
+docs: rewrite all documentation for Node.js stack
+
+---
+
+## v2.0.0 — 2025-10-10
+
+feat: integrate OpenSCAD WASM for real-time in-browser 3D preview (no server round-trip)
+feat: add `<model-viewer>` (Google) for interactive 3D display
+feat: add GLB render pipeline — OpenSCAD → Web Worker → WASM → `.off` → `.glb` → viewer
+feat: add STL export — download print-ready files directly from the browser
+feat: add auto-render on parameter change (500 ms debounce)
+feat: add loading spinner during rendering
+refactor: hide code editor by default; still updates in background
+chore: add `openscad.wasm`, `openscad-worker.js`, `24c27bd4337db6fc47cb.wasm`, `model-viewer.min.js`
+
+---
+
+## v1.0.0 — 2025-10-10
+
+feat: add JSON configuration support via `models/models-config.json`
+feat: add dynamic parameter UI generation — sliders, checkboxes, number inputs
+feat: add multiple model support with model selector dropdown
+feat: add parameter grouping
+feat: add OpenSCAD code generation with live parameter substitution

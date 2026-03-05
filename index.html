@@ -11,6 +11,200 @@
             box-sizing: border-box;
         }
 
+        /* ── Login Modal ── */
+        #login-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-box {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            width: 360px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        .login-box h2 {
+            color: #2c3e50;
+            margin-bottom: 1.25rem;
+            font-size: 1.3rem;
+        }
+
+        .login-box .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .login-box label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.25rem;
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.95rem;
+        }
+
+        .login-box .btn-submit {
+            width: 100%;
+            padding: 0.65rem;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 0.5rem;
+        }
+
+        .login-box .btn-submit:hover { background: #2980b9; }
+        .login-box .btn-submit:disabled { opacity: 0.6; cursor: default; }
+
+        .auth-error {
+            display: none;
+            color: #e74c3c;
+            font-size: 0.85rem;
+            margin-bottom: 0.75rem;
+            padding: 0.5rem;
+            background: #fdecea;
+            border-radius: 4px;
+        }
+
+        .auth-links {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .auth-links a {
+            color: #3498db;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        /* ── Header user menu ── */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-title { flex: 1; }
+        .header-title p { font-size: 0.9rem; opacity: 0.8; }
+
+        #login-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.4);
+            padding: 0.4rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        #user-menu {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+        }
+
+        #user-menu-toggle {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 0.4rem 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        #user-menu-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            min-width: 160px;
+            z-index: 1000;
+        }
+
+        #user-menu-dropdown a {
+            display: block;
+            padding: 0.6rem 1rem;
+            color: #2c3e50;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        #user-menu-dropdown a:hover { background: #f5f5f5; }
+
+        /* ── Saved Configurations panel ── */
+        .saved-configs {
+            padding: 1rem;
+            border-bottom: 1px solid #ddd;
+            background: #f0f7f0;
+        }
+
+        .saved-configs h3 {
+            color: #2c3e50;
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .saved-configs select,
+        .saved-configs input[type="text"] {
+            width: 100%;
+            padding: 0.4rem 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .saved-configs .config-name-row {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .saved-configs .config-name-row input {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .saved-configs .config-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .saved-configs .config-buttons button {
+            flex: 1;
+            padding: 0.4rem;
+            font-size: 0.8rem;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        .btn-danger:hover { background: #c0392b; }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             height: 100vh;
@@ -91,7 +285,6 @@
 
         .parameters {
             flex: 1;
-            overflow-y: auto;
             padding: 1rem;
         }
 
@@ -337,12 +530,103 @@
             background: #27ae60;
             color: white;
         }
-    </style>
+
+        /* Fix header layout for original styles */
+        header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+</style>
 </head>
 <body>
+    <!-- Login Modal -->
+    <div id="login-modal">
+        <div class="login-box">
+            <!-- Login view -->
+            <div id="login-view-login" class="login-view">
+                <h2>Sign In</h2>
+                <div class="auth-error" id="login-error"></div>
+                <form id="login-form" autocomplete="on">
+                    <div class="form-group">
+                        <label for="login-username">Username or Email</label>
+                        <input type="text" id="login-username" name="login" autocomplete="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" name="password" autocomplete="current-password" required>
+                    </div>
+                    <button type="submit" class="btn-submit">Sign In</button>
+                </form>
+                <div class="auth-links">
+                    Don't have an account? <a id="go-register">Register</a>
+                </div>
+            </div>
+
+            <!-- Register view -->
+            <div id="login-view-register" class="login-view" style="display:none">
+                <h2>Create Account</h2>
+                <div class="auth-error" id="register-error"></div>
+                <form id="register-form" autocomplete="on">
+                    <div class="form-group">
+                        <label for="register-username">Username</label>
+                        <input type="text" id="register-username" name="username" autocomplete="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">Email</label>
+                        <input type="email" id="register-email" name="email" autocomplete="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Password (min 8 chars)</label>
+                        <input type="password" id="register-password" name="password" autocomplete="new-password" required minlength="8">
+                    </div>
+                    <button type="submit" class="btn-submit">Create Account</button>
+                </form>
+                <div class="auth-links">
+                    Already have an account? <a id="go-login">Sign In</a>
+                </div>
+            </div>
+
+            <!-- First-run setup view -->
+            <div id="login-view-setup" class="login-view" style="display:none">
+                <h2>First-Run Setup</h2>
+                <p style="color:#666;font-size:0.85rem;margin-bottom:1rem;">No users exist yet. Create the administrator account.</p>
+                <div class="auth-error" id="setup-error"></div>
+                <form id="setup-form" autocomplete="on">
+                    <div class="form-group">
+                        <label for="setup-username">Admin Username</label>
+                        <input type="text" id="setup-username" name="username" autocomplete="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="setup-email">Admin Email</label>
+                        <input type="email" id="setup-email" name="email" autocomplete="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="setup-password">Password (min 8 chars)</label>
+                        <input type="password" id="setup-password" name="password" autocomplete="new-password" required minlength="8">
+                    </div>
+                    <button type="submit" class="btn-submit">Create Admin Account</button>
+                </form>
+                <div class="auth-links">
+                    <a id="go-login-from-setup">Already have an account?</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <header>
-        <h1>Prosthetic Hand AI Parameter Generator</h1>
-        <p>AI-powered prosthetic hand customization based on anthropometric data</p>
+        <div class="header-title">
+            <h1>Prosthetic Hand AI Parameter Generator</h1>
+            <p>AI-powered prosthetic hand customization based on anthropometric data</p>
+        </div>
+        <!-- User menu -->
+        <div id="user-menu">
+            <button id="user-menu-toggle"><span id="user-menu-name"></span> ▼</button>
+            <div id="user-menu-dropdown">
+                <a id="user-menu-admin" href="admin.html" style="display:none">Admin Panel</a>
+                <a id="logout-btn" href="#">Log Out</a>
+            </div>
+        </div>
+        <button id="login-btn">Sign In</button>
     </header>
 
     <div class="container">
@@ -357,6 +641,23 @@
             <div class="model-info" id="model-info" style="display: none;">
                 <h3 id="model-name"></h3>
                 <p id="model-description"></p>
+            </div>
+
+            <!-- Saved Configurations panel -->
+            <div class="saved-configs" id="saved-configs-panel" style="display:none">
+                <h3>Saved Configurations</h3>
+                <select id="saved-config-select">
+                    <option value="">-- Select saved config --</option>
+                </select>
+                <div class="config-name-row">
+                    <input type="text" id="config-name" placeholder="Config name">
+                </div>
+                <input type="text" id="config-notes" placeholder="Notes (optional)" style="margin-top:0.5rem">
+                <div class="config-buttons">
+                    <button class="btn-primary" id="config-load-btn">Load</button>
+                    <button class="btn-success" id="config-save-btn">Save</button>
+                    <button class="btn-danger" id="config-delete-btn">Delete</button>
+                </div>
             </div>
 
             <div class="ai-assistant" id="ai-assistant" style="display: none;">
@@ -421,7 +722,298 @@
         <p style="margin-top: 1rem; text-align: center;">Processing...</p>
     </div>
 
+    <div id="anthro-modal" style="display:none">
+        <div class="anthro-box">
+            <div class="anthro-header">
+                <h2>Anthropometric Data Importer</h2>
+                <button class="anthro-close" id="anthro-close-btn" title="Close">&times;</button>
+            </div>
+
+            <div class="anthro-tabs">
+                <button class="anthro-tab-btn active" data-tab="manual">Manual Entry</button>
+                <button class="anthro-tab-btn" data-tab="import">Import File / Paste</button>
+            </div>
+
+            <!-- ── Manual Entry tab ──────────────────────────────────── -->
+            <div class="anthro-tab-panel anthro-body" data-panel="manual">
+
+                <!-- Patient info -->
+                <div class="anthro-section">
+                    <div class="anthro-section-head">
+                        <button class="anthro-section-toggle">▼</button>
+                        Patient Info &amp; Units
+                    </div>
+                    <div class="anthro-section-body anthro-grid">
+                        <div class="anthro-field">
+                            <label>Participant ID (optional)</label>
+                            <input type="text" id="anthro-pid" placeholder="e.g. PT-001">
+                        </div>
+                        <div class="anthro-field">
+                            <label>Measurement Units</label>
+                            <select id="anthro-unit">
+                                <option value="mm">Millimetres (mm)</option>
+                                <option value="cm">Centimetres (cm)</option>
+                                <option value="in">Inches (in)</option>
+                            </select>
+                        </div>
+                        <div class="anthro-field">
+                            <label>Affected Side</label>
+                            <select id="anthro-side">
+                                <option value="left">Left</option>
+                                <option value="right">Right</option>
+                            </select>
+                        </div>
+                        <div class="anthro-field">
+                            <label>Dominant Hand</label>
+                            <select id="anthro-dominant">
+                                <option value="unknown">Unknown</option>
+                                <option value="right">Right</option>
+                                <option value="left">Left</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Palm & Wrist -->
+                <div class="anthro-section">
+                    <div class="anthro-section-head">
+                        <button class="anthro-section-toggle">▼</button>
+                        Palm &amp; Wrist
+                    </div>
+                    <div class="anthro-section-body anthro-grid">
+                        <div class="anthro-field">
+                            <label>Palm Length (wrist → MCP)</label>
+                            <input type="number" id="anthro-palm-length" placeholder="e.g. 95" step="0.1" min="0">
+                        </div>
+                        <div class="anthro-field">
+                            <label>Palm Width</label>
+                            <input type="number" id="anthro-palm-width" placeholder="e.g. 80" step="0.1" min="0">
+                        </div>
+                        <div class="anthro-field">
+                            <label>Wrist Circumference</label>
+                            <input type="number" id="anthro-wrist-circ" placeholder="e.g. 160" step="0.5" min="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Residual Limb -->
+                <div class="anthro-section">
+                    <div class="anthro-section-head">
+                        <button class="anthro-section-toggle">▼</button>
+                        Residual Limb
+                    </div>
+                    <div class="anthro-section-body anthro-grid">
+                        <div class="anthro-field">
+                            <label>Residual Limb Length</label>
+                            <input type="number" id="anthro-stump-length" placeholder="e.g. 120" step="1" min="0">
+                        </div>
+                        <div class="anthro-field">
+                            <label>Residual Limb Circumference (proximal)</label>
+                            <input type="number" id="anthro-stump-circ" placeholder="e.g. 210" step="0.5" min="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Index finger -->
+                <div class="anthro-section">
+                    <div class="anthro-section-head">
+                        <button class="anthro-section-toggle">▼</button>
+                        Index Finger — phalanx lengths &amp; circumference
+                    </div>
+                    <div class="anthro-section-body anthro-grid-4">
+                        <div class="anthro-field">
+                            <label>Proximal</label>
+                            <input type="number" id="anthro-idx-prox" placeholder="mm" step="0.1" min="0">
+                        </div>
+                        <div class="anthro-field">
+                            <label>Middle</label>
+                            <input type="number" id="anthro-idx-mid" placeholder="mm" step="0.1" min="0">
+                        </div>
+                        <div class="anthro-field">
+                            <label>Distal</label>
+                            <input type="number" id="anthro-idx-dist" placeholder="mm" step="0.1" min="0">
+                        </div>
+                        <div class="anthro-field">
+                            <label>Circumference</label>
+                            <input type="number" id="anthro-idx-circ" placeholder="mm" step="0.5" min="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Middle finger -->
+                <div class="anthro-section">
+                    <div class="anthro-section-head">
+                        <button class="anthro-section-toggle">▼</button>
+                        Middle Finger
+                    </div>
+                    <div class="anthro-section-body anthro-grid-4">
+                        <div class="anthro-field">
+                            <label>Proximal</label>
+                            <input type="number" id="anthro-mid-prox" placeholder="mm" step="0.1" min="0">
+                        </div>
+                        <div class="anthro-field">
+                            <label>Middle</label>
+                            <input type="number" id="anthro-mid-mid" placeholder="mm" step="0.1" min="0">
+                        </div>
+                        <div class="anthro-field">
+                            <label>Distal</label>
+                            <input type="number" id="anthro-mid-dist" placeholder="mm" step="0.1" min="0">
+                        </div>
+                        <div class="anthro-field">
+                            <label>Circumference</label>
+                            <input type="number" id="anthro-mid-circ" placeholder="mm" step="0.5" min="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ring finger -->
+                <div class="anthro-section">
+                    <div class="anthro-section-head">
+                        <button class="anthro-section-toggle">▼</button>
+                        Ring Finger
+                    </div>
+                    <div class="anthro-section-body anthro-grid-4">
+                        <div class="anthro-field">
+                            <label>Proximal</label>
+                            <input type="number" id="anthro-ring-prox" placeholder="mm" step="0.1" min="0">
+                        </div>
+                        <div class="anthro-field">
+                            <label>Middle</label>
+                            <input type="number" id="anthro-ring-mid" placeholder="mm" step="0.1" min="0">
+                        </div>
+                        <div class="anthro-field">
+                            <label>Distal</label>
+                            <input type="number" id="anthro-ring-dist" placeholder="mm" step="0.1" min="0">
+                        </div>
+                        <div class="anthro-field">
+                            <label>Circumference</label>
+                            <input type="number" id="anthro-ring-circ" placeholder="mm" step="0.5" min="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pinky finger -->
+                <div class="anthro-section">
+                    <div class="anthro-section-head">
+                        <button class="anthro-section-toggle">▼</button>
+                        Pinky Finger
+                    </div>
+                    <div class="anthro-section-body anthro-grid-4">
+                        <div class="anthro-field">
+                            <label>Proximal</label>
+                            <input type="number" id="anthro-pinky-prox" placeholder="mm" step="0.1" min="0">
+                        </div>
+                        <div class="anthro-field">
+                            <label>Middle</label>
+                            <input type="number" id="anthro-pinky-mid" placeholder="mm" step="0.1" min="0">
+                        </div>
+                        <div class="anthro-field">
+                            <label>Distal</label>
+                            <input type="number" id="anthro-pinky-dist" placeholder="mm" step="0.1" min="0">
+                        </div>
+                        <div class="anthro-field">
+                            <label>Circumference</label>
+                            <input type="number" id="anthro-pinky-circ" placeholder="mm" step="0.5" min="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Constraints -->
+                <div class="anthro-section">
+                    <div class="anthro-section-head">
+                        <button class="anthro-section-toggle">▼</button>
+                        Hardware &amp; Tolerance
+                    </div>
+                    <div class="anthro-section-body anthro-grid">
+                        <div class="anthro-field">
+                            <label>Hardware Standard</label>
+                            <select id="anthro-hardware">
+                                <option value="m3">M3 (standard)</option>
+                                <option value="m2">M2 (small)</option>
+                                <option value="m4">M4 (heavy)</option>
+                            </select>
+                        </div>
+                        <div class="anthro-field">
+                            <label>Tolerance Preference</label>
+                            <select id="anthro-tolerance">
+                                <option value="standard">Standard (0.4 mm)</option>
+                                <option value="snug">Snug (0.2 mm)</option>
+                                <option value="loose">Loose (0.6 mm)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- /manual tab -->
+
+            <!-- ── Import tab ─────────────────────────────────────────── -->
+            <div class="anthro-tab-panel anthro-body" data-panel="import" style="display:none">
+                <div class="anthro-grid" style="margin-bottom:0.75rem">
+                    <div class="anthro-field">
+                        <label>Format</label>
+                        <select id="anthro-import-format">
+                            <option value="csv">CSV</option>
+                            <option value="json">JSON (AnthropometricProfile)</option>
+                        </select>
+                    </div>
+                    <div class="anthro-field">
+                        <label>Default Unit (if not in file)</label>
+                        <select id="anthro-import-unit">
+                            <option value="mm">mm</option>
+                            <option value="cm">cm</option>
+                            <option value="in">in</option>
+                        </select>
+                    </div>
+                    <div class="anthro-field">
+                        <label>Participant ID (optional)</label>
+                        <input type="text" id="anthro-import-pid" placeholder="PT-001">
+                    </div>
+                    <div class="anthro-field">
+                        <label>Affected Side</label>
+                        <select id="anthro-import-side">
+                            <option value="left">Left</option>
+                            <option value="right">Right</option>
+                        </select>
+                    </div>
+                    <div class="anthro-field">
+                        <label>Hardware</label>
+                        <select id="anthro-import-hw">
+                            <option value="m3">M3</option>
+                            <option value="m2">M2</option>
+                            <option value="m4">M4</option>
+                        </select>
+                    </div>
+                    <div class="anthro-field">
+                        <label>Tolerance</label>
+                        <select id="anthro-import-tol">
+                            <option value="standard">Standard</option>
+                            <option value="snug">Snug</option>
+                            <option value="loose">Loose</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="anthro-field">
+                    <label>Paste CSV or JSON data</label>
+                    <textarea id="anthro-import-text"
+                        placeholder="CSV example (Format A):&#10;measurement,value,unit&#10;palm_length,95,mm&#10;palm_width,80,mm&#10;wrist_circumference,160,mm&#10;finger_index_proximal,40,mm&#10;..."
+                        style="width:100%;min-height:180px;padding:0.5rem;border:1px solid #ddd;border-radius:4px;font-size:0.82rem;font-family:monospace;resize:vertical"></textarea>
+                </div>
+            </div><!-- /import tab -->
+
+            <!-- ── Results ─────────────────────────────────────────────── -->
+            <div id="anthro-results"></div>
+
+            <!-- ── Footer ─────────────────────────────────────────────── -->
+            <div class="anthro-footer">
+                <button class="btn-primary" id="anthro-process-btn">Process</button>
+                <button class="btn-success" id="anthro-save-btn">Process &amp; Save Profile</button>
+                <button class="btn-warning" id="anthro-apply-btn" disabled>Apply to Model</button>
+                <span class="anthro-status" id="anthro-status"></span>
+            </div>
+        </div>
+    </div>
+
     <script type="module" src="./model-viewer.min.js"></script>
+    <script src="auth.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

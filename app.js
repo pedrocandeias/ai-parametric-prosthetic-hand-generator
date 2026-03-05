@@ -6,6 +6,7 @@ class ParameterEditor {
         this.currentModel = null;
         this.parameters = {};
         this.originalCode = '';
+        this.dependencyFiles = [];
         this.worker = null;
         this.currentGlbUrl = null;
 
@@ -13,15 +14,35 @@ class ParameterEditor {
     }
 
     async init() {
-        // Load configuration
+        // Load model configuration
         await this.loadConfiguration();
-        await this.loadAIConfiguration();
 
         // Setup event listeners
         this.setupEventListeners();
 
         // Populate model selector
         this.populateModelSelector();
+
+        // Set up save/load config UI (wired after auth ready)
+        this.setupConfigPanel();
+
+        // Listen for auth events
+        window.addEventListener('auth:login', () => this.onAuthChange());
+        window.addEventListener('auth:logout', () => this.onAuthChange());
+    }
+
+    onAuthChange() {
+        const user = Auth.getUser();
+        const configsPanel = document.getElementById('saved-configs-panel');
+        if (user) {
+            this.loadConfigList();
+            // Show configs panel if model is loaded
+            if (configsPanel && this.currentModel) configsPanel.style.display = 'block';
+        } else {
+            if (configsPanel) configsPanel.style.display = 'none';
+            const select = document.getElementById('saved-config-select');
+            if (select) select.innerHTML = '<option value="">-- Select saved config --</option>';
+        }
     }
 
     async loadConfiguration() {
@@ -35,25 +56,6 @@ class ParameterEditor {
         }
     }
 
-    async loadAIConfiguration() {
-        try {
-            const response = await fetch('config.json');
-            this.aiConfig = await response.json();
-
-            // Set the default provider from config
-            if (this.aiConfig && this.aiConfig.ai && this.aiConfig.ai.provider) {
-                const providerSelect = document.getElementById('ai-provider');
-                if (providerSelect) {
-                    providerSelect.value = this.aiConfig.ai.provider;
-                }
-            }
-
-            console.log('AI configuration loaded successfully');
-        } catch (error) {
-            console.error('Error loading AI configuration:', error);
-            this.updateStatus('Warning: AI configuration not found. Please configure API keys in config.json', 'error');
-        }
-    }
 
     populateModelSelector() {
         const select = document.getElementById('model-select');
@@ -105,6 +107,7 @@ class ParameterEditor {
 
         this.currentModel = model;
         this.parameters = {};
+        this.dependencyFiles = [];
 
         // Initialize parameters with default values
         model.parameters.forEach(param => {
@@ -116,6 +119,17 @@ class ParameterEditor {
             const response = await fetch(`models/${model.file}`);
             this.originalCode = await response.text();
 
+            // Load dependency files (e.g. pipe.scad, STL files for paraglider)
+            const deps = model.dependencies || [];
+            this.dependencyFiles = await Promise.all(deps.map(async (dep) => {
+                const r = await fetch(`models/${dep}`);
+                const isBinary = /\.(stl|amf|3mf|off|obj)$/i.test(dep);
+                const content = isBinary
+                    ? new Uint8Array(await r.arrayBuffer())
+                    : await r.text();
+                return { path: `/${dep}`, content };
+            }));
+
             // Display model info
             this.displayModelInfo(model);
 
@@ -125,10 +139,10 @@ class ParameterEditor {
             // Update editor
             this.updateEditor();
 
-            // Render preview immediately
-            this.renderPreview();
+            this.updateStatus(`Loaded: ${model.name} — click "Render Preview" to render`, 'success');
 
-            this.updateStatus(`Loaded model: ${model.name}`, 'success');
+            // Refresh saved configs list for this model
+            if (typeof Auth !== 'undefined') this.loadConfigList();
         } catch (error) {
             this.updateStatus('Error loading model file: ' + error.message, 'error');
             console.error('Error loading model:', error);
@@ -163,8 +177,12 @@ class ParameterEditor {
         document.getElementById('model-description').textContent = model.description;
         infoDiv.style.display = 'block';
 
-        // Show AI assistant
+        // Show AI assistant and saved configs panel (if authenticated)
         document.getElementById('ai-assistant').style.display = 'block';
+        const configsPanel = document.getElementById('saved-configs-panel');
+        if (configsPanel && typeof Auth !== 'undefined' && Auth.isAuthenticated()) {
+            configsPanel.style.display = 'block';
+        }
     }
 
     generateParameterControls(parameters) {
@@ -312,7 +330,7 @@ class ParameterEditor {
         clearTimeout(this.renderTimeout);
         this.renderTimeout = setTimeout(() => {
             this.renderPreview();
-        }, 500); // Wait 500ms after last change
+        }, 1500); // Wait 1.5s after last change before re-rendering
     }
 
     updateEditor() {
@@ -335,6 +353,11 @@ class ParameterEditor {
                 code = code.replace(pattern, `$1${paramValue};`);
             }
         });
+
+        // Append top-level render call for library-style files (no built-in call)
+        if (this.currentModel.renderCall) {
+            code += '\n' + this.currentModel.renderCall + '\n';
+        }
 
         document.getElementById('editor').value = code;
     }
@@ -376,15 +399,15 @@ class ParameterEditor {
         this.updateStatus('Rendering preview...', '');
 
         try {
-            // Terminate previous worker if exists
+            // Cancel any pending stale timeout and terminate previous worker
+            clearTimeout(this._renderAbortTimeout);
             if (this.worker) {
                 this.worker.terminate();
+                this.worker = null;
             }
 
-            // Create new worker
             this.worker = new Worker('openscad-worker.js');
 
-            // Setup worker message handler
             const resultPromise = new Promise((resolve, reject) => {
                 this.worker.onmessage = (e) => {
                     if (e.data.result) {
@@ -400,21 +423,21 @@ class ParameterEditor {
                     reject(error);
                 };
 
-                // Set timeout
-                setTimeout(() => {
-                    reject(new Error('Rendering timeout'));
-                }, 30000); // 30 second timeout
+                this._renderAbortTimeout = setTimeout(() => {
+                    reject(new Error('Rendering timeout (>120s)'));
+                }, 120000);
             });
 
-            // Send render request
-            // OpenSCAD renders to OFF format (which we'll convert to GLB)
             this.worker.postMessage({
-                inputs: [{path: '/input.scad', content: code}],
+                inputs: [
+                    {path: '/input.scad', content: code},
+                    ...(this.dependencyFiles || []),
+                ],
                 args: [
                     '/input.scad',
                     '-o', '/output.off',
                     '--export-format', 'off',
-                    '--backend', 'manifold'
+                    '--backend', 'manifold',
                 ],
                 outputPaths: ['/output.off'],
                 mountArchives: false
@@ -422,6 +445,7 @@ class ParameterEditor {
 
             // Wait for result
             const result = await resultPromise;
+            clearTimeout(this._renderAbortTimeout);
 
             // Clean up old URL
             if (this.currentGlbUrl) {
@@ -459,7 +483,12 @@ class ParameterEditor {
                     this.updateStatus('Failed to convert to GLB: ' + e.message, 'error');
                 }
             } else {
-                this.updateStatus('No output generated', 'error');
+                const errMsg = result.error || (result.mergedOutputs || [])
+                    .filter(m => m.stderr || m.error)
+                    .map(m => m.stderr || m.error)
+                    .join(' ') || 'No output generated';
+                this.updateStatus(errMsg.substring(0, 120), 'error');
+                console.error('OpenSCAD error:', result);
             }
 
         } catch (error) {
@@ -748,8 +777,8 @@ class ParameterEditor {
             return;
         }
 
-        if (!this.aiConfig || !this.aiConfig.ai) {
-            this.updateStatus('AI configuration not loaded. Please check config.json', 'error');
+        if (!Auth.isAuthenticated()) {
+            this.updateStatus('Please log in to use AI suggestions', 'error');
             return;
         }
 
@@ -761,24 +790,10 @@ class ParameterEditor {
             return;
         }
 
-        // Get API key from config based on provider
-        let apiKey;
-        if (apiProvider === 'anthropic') {
-            apiKey = this.aiConfig.ai.anthropic_api_key;
-        } else if (apiProvider === 'openai') {
-            apiKey = this.aiConfig.ai.openai_api_key;
-        }
-
-        if (!apiKey || apiKey === 'YOUR_ANTHROPIC_API_KEY_HERE' || apiKey === 'YOUR_OPENAI_API_KEY_HERE') {
-            this.updateStatus(`Please configure ${apiProvider} API key in config.json`, 'error');
-            return;
-        }
-
         this.showLoading(true);
         this.updateStatus('Getting AI suggestions...', '');
 
         try {
-            // Create prompt for AI to analyze anthropometric data and suggest parameters
             const promptText = `Based on the following anthropometric data for a prosthetic finger/hand:
 
 ${anthropometricInput}
@@ -806,67 +821,19 @@ Provide your response as a JSON object with parameter names as keys and suggeste
 
 Return ONLY a valid JSON object, no other text.`;
 
-            let aiResponse;
+            const res = await Auth.fetchWithAuth('/api/ai/suggest', {
+                method: 'POST',
+                body: JSON.stringify({ provider: apiProvider, prompt: promptText }),
+            });
 
-            if (apiProvider === 'anthropic') {
-                // Call Claude API
-                const response = await fetch('https://api.anthropic.com/v1/messages', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-api-key': apiKey,
-                        'anthropic-version': '2023-06-01'
-                    },
-                    body: JSON.stringify({
-                        model: 'claude-3-5-sonnet-20241022',
-                        max_tokens: 1024,
-                        messages: [{
-                            role: 'user',
-                            content: promptText
-                        }]
-                    })
-                });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'AI request failed');
 
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(`Anthropic API error: ${response.status} - ${errorData.error?.message || response.statusText}`);
-                }
-
-                const data = await response.json();
-                aiResponse = data.content[0].text;
-
-            } else if (apiProvider === 'openai') {
-                // Call OpenAI API
-                const response = await fetch('https://api.openai.com/v1/chat/completions', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiKey}`
-                    },
-                    body: JSON.stringify({
-                        model: 'gpt-4',
-                        messages: [{
-                            role: 'user',
-                            content: promptText
-                        }],
-                        max_tokens: 1024,
-                        temperature: 0.7
-                    })
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(`OpenAI API error: ${response.status} - ${errorData.error?.message || response.statusText}`);
-                }
-
-                const data = await response.json();
-                aiResponse = data.choices[0].message.content;
-            }
+            const aiResponse = data.text;
 
             // Parse AI response - handle both plain JSON and markdown code blocks
             let suggestions;
             try {
-                // Try to extract JSON from markdown code blocks if present
                 const jsonMatch = aiResponse.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
                 if (jsonMatch) {
                     suggestions = JSON.parse(jsonMatch[1]);
@@ -878,9 +845,7 @@ Return ONLY a valid JSON object, no other text.`;
                 throw new Error('AI response was not valid JSON. Please try again.');
             }
 
-            // Apply suggestions to parameters
             this.applySuggestions(suggestions);
-
             this.updateStatus('AI suggestions applied successfully', 'success');
 
         } catch (error) {
@@ -888,6 +853,152 @@ Return ONLY a valid JSON object, no other text.`;
             this.updateStatus('Error getting AI suggestions: ' + error.message, 'error');
         } finally {
             this.showLoading(false);
+        }
+    }
+
+    // ── Saved Configurations ──────────────────────────────────────────────
+
+    setupConfigPanel() {
+        const loadBtn = document.getElementById('config-load-btn');
+        const saveBtn = document.getElementById('config-save-btn');
+        const deleteBtn = document.getElementById('config-delete-btn');
+
+        if (loadBtn) loadBtn.addEventListener('click', () => this.loadSelectedConfig());
+        if (saveBtn) saveBtn.addEventListener('click', () => this.saveCurrentConfig());
+        if (deleteBtn) deleteBtn.addEventListener('click', () => this.deleteSelectedConfig());
+    }
+
+    async loadConfigList() {
+        if (!Auth.isAuthenticated()) return;
+        const modelFilter = this.currentModel ? `?model_id=${encodeURIComponent(this.currentModel.id)}` : '';
+        try {
+            const res = await Auth.fetchWithAuth(`/api/configurations${modelFilter}`);
+            if (!res.ok) return;
+            const configs = await res.json();
+            this._configList = configs;
+
+            const select = document.getElementById('saved-config-select');
+            if (!select) return;
+            select.innerHTML = '<option value="">-- Select saved config --</option>';
+            configs.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                const owner = c.username !== Auth.getUser()?.username ? ` (${c.username})` : '';
+                opt.textContent = `${c.name}${owner}`;
+                select.appendChild(opt);
+            });
+        } catch (err) {
+            console.error('Failed to load config list:', err);
+        }
+    }
+
+    async loadSelectedConfig() {
+        const select = document.getElementById('saved-config-select');
+        const id = select?.value;
+        if (!id) { this.updateStatus('Select a configuration to load', 'error'); return; }
+
+        try {
+            const res = await Auth.fetchWithAuth(`/api/configurations/${id}`);
+            const config = await res.json();
+            if (!res.ok) throw new Error(config.error || 'Load failed');
+
+            // Switch to the right model if needed
+            if (!this.currentModel || this.currentModel.id !== config.model_id) {
+                const modelSelect = document.getElementById('model-select');
+                if (modelSelect) modelSelect.value = config.model_id;
+                await this.loadModel(config.model_id);
+            }
+
+            this.applySuggestions(config.parameters);
+
+            // Populate name/notes fields
+            const nameEl = document.getElementById('config-name');
+            const notesEl = document.getElementById('config-notes');
+            if (nameEl) nameEl.value = config.name;
+            if (notesEl) notesEl.value = config.notes || '';
+
+            this._currentConfigId = config.id;
+            this.updateStatus(`Loaded config: ${config.name}`, 'success');
+        } catch (err) {
+            this.updateStatus('Error loading config: ' + err.message, 'error');
+        }
+    }
+
+    async saveCurrentConfig() {
+        if (!this.currentModel) { this.updateStatus('Select a model first', 'error'); return; }
+        if (!Auth.isAuthenticated()) { this.updateStatus('Please log in to save', 'error'); return; }
+
+        const nameEl = document.getElementById('config-name');
+        const notesEl = document.getElementById('config-notes');
+        const name = nameEl?.value.trim();
+        const notes = notesEl?.value.trim() || '';
+
+        if (!name) { this.updateStatus('Enter a name for the configuration', 'error'); return; }
+
+        const body = {
+            model_id: this.currentModel.id,
+            name,
+            parameters: { ...this.parameters },
+            notes,
+        };
+
+        try {
+            // If we have a current config selected and name matches, update; otherwise create new
+            const select = document.getElementById('saved-config-select');
+            const selectedId = select?.value;
+            const currentConfig = this._configList?.find(c => String(c.id) === selectedId);
+            const shouldUpdate = currentConfig && currentConfig.name === name;
+
+            let res;
+            if (shouldUpdate) {
+                res = await Auth.fetchWithAuth(`/api/configurations/${currentConfig.id}`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ parameters: body.parameters, notes: body.notes }),
+                });
+            } else {
+                res = await Auth.fetchWithAuth('/api/configurations', {
+                    method: 'POST',
+                    body: JSON.stringify(body),
+                });
+            }
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Save failed');
+
+            await this.loadConfigList();
+
+            // Select the saved config
+            if (select) select.value = data.id;
+            this._currentConfigId = data.id;
+
+            this.updateStatus(`Config "${name}" saved`, 'success');
+        } catch (err) {
+            this.updateStatus('Error saving config: ' + err.message, 'error');
+        }
+    }
+
+    async deleteSelectedConfig() {
+        const select = document.getElementById('saved-config-select');
+        const id = select?.value;
+        if (!id) { this.updateStatus('Select a configuration to delete', 'error'); return; }
+
+        if (!confirm('Delete this saved configuration?')) return;
+
+        try {
+            const res = await Auth.fetchWithAuth(`/api/configurations/${id}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Delete failed');
+
+            this._currentConfigId = null;
+            const nameEl = document.getElementById('config-name');
+            const notesEl = document.getElementById('config-notes');
+            if (nameEl) nameEl.value = '';
+            if (notesEl) notesEl.value = '';
+
+            await this.loadConfigList();
+            this.updateStatus('Configuration deleted', 'success');
+        } catch (err) {
+            this.updateStatus('Error deleting config: ' + err.message, 'error');
         }
     }
 
@@ -919,9 +1030,29 @@ Return ONLY a valid JSON object, no other text.`;
         this.updateEditor();
         this.renderPreview();
     }
+
+    applyGeometryParameters(geomParams) {
+        if (!this.currentModel || !geomParams) return;
+
+        const mapping = {
+            global_scale: 'global_scale',
+            clearance_mm: 'nominal_clearance',
+        };
+
+        const resolved = {};
+        for (const [src, dst] of Object.entries(mapping)) {
+            if (geomParams[src] !== undefined) resolved[dst] = geomParams[src];
+        }
+        for (const [key, val] of Object.entries(geomParams)) {
+            if (this.parameters.hasOwnProperty(key)) resolved[key] = val;
+        }
+
+        this.applySuggestions(resolved);
+        this.updateStatus('Anthropometric parameters applied', 'success');
+    }
 }
 
 // Initialize the application when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    new ParameterEditor();
+    window.parameterEditor = new ParameterEditor();
 });

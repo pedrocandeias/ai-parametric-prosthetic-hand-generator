@@ -1,5 +1,11 @@
-# API Configuration (contains sensitive keys)
+# API Configuration (contains sensitive keys — deprecated, use .env)
 config.json
+
+# Environment variables (contain API keys and secrets)
+.env
+
+# SQLite database
+data/
 
 # Node modules
 node_modules/

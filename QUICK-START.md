@@ -1,167 +1,173 @@
-# Quick Start Guide
+# Quick Start
 
-## Get Running in 30 Seconds
+## Prerequisites
 
-### Step 1: Start the Server
+- **Node.js 18+** — [nodejs.org](https://nodejs.org/)
+- An Anthropic or OpenAI API key (optional — required for AI suggestions)
+
+---
+
+## Step 1 — Install & Configure
+
 ```bash
-cd openscad-parameter-editor
+cd ai-parametric-prosthetic-hand-generator
+
+# Install dependencies
+npm install
+
+# Create your environment file
+cp .env.example .env
+```
+
+Edit `.env` and set at minimum:
+
+```bash
+# Generate a secure secret:
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+
+JWT_SECRET=<paste the output here>
+ANTHROPIC_API_KEY=sk-ant-...     # optional
+OPENAI_API_KEY=sk-...            # optional
+```
+
+---
+
+## Step 2 — Start the Server
+
+```bash
+npm start
+```
+
+Or use the shell script:
+
+```bash
 ./start-server.sh
 ```
 
-Or manually:
+Server starts at **http://localhost:3000**
+
+---
+
+## Step 3 — Create the First Admin
+
+On first run the app shows a **First-Run Setup** screen in the browser.
+
+Fill in a username, email, and password to create the administrator account.
+
+**Alternative (CLI):**
 ```bash
-python3 -m http.server 8000
+node scripts/create-admin.js admin admin@example.com MyPassword123
 ```
 
-### Step 2: Open in Browser
-Navigate to: **http://localhost:8000/public/**
+---
 
-### Step 3: Try It Out!
-1. Select "Parametric Box" from the dropdown
-2. Move the "width" slider
-3. Watch the code update in real-time
-4. Click "Reset to Defaults" to restore initial values
-5. Click "Export STL" to download the OpenSCAD file
+## Step 4 — Use the App
 
-## What You'll See
+1. Log in with the admin account
+2. Select **Fingerator - Prosthetic Finger** from the model dropdown
+3. Adjust parameter sliders — the 3D preview re-renders automatically
+4. To get AI parameter suggestions:
+   - Select AI provider (Claude or GPT-4)
+   - Type anthropometric data, e.g.: `woman, 42 years old, 75kg, 172cm height, arm length 65cm`
+   - Click **Get AI Suggestions**
+5. Give the config a name and click **Save** to store it
+6. Click **Export STL** to download the model for printing
 
-### Main Interface Layout
+---
+
+## Step 5 — Create More Users (optional)
+
+Open the **Admin Panel** from the user menu (top-right).
+
+- Create a **Tech** user for each prosthetist
+- Create **User** accounts for patients
+- On the **Tech Assignments** tab, assign patients to techs
+
+Techs can then log in and see the saved configurations of their assigned patients.
+
+---
+
+## Interface Overview
 
 ```
-┌──────────────────────────────────────────────────────────────┐
-│ OpenSCAD Parameter Editor                                     │
-│ Edit parameters of predefined OpenSCAD models                │
-└──────────────────────────────────────────────────────────────┘
-┌──────────────────┬────────────────────────────────────────────┐
-│ Select Model:    │ Preview & Editor                           │
-│ [Parametric Box ▼]  [Reset] [Render] [Export]                │
-├──────────────────┤                                            │
-│ Parametric Box   ├────────────────────────────────────────────┤
-│ A simple box...  │                                            │
-├──────────────────┤  /* [Dimensions] */                        │
-│ === Dimensions ===  width = 75;                               │
-│                  │  depth = 50;                               │
-│ width: 75        │  height = 30;                              │
-│ [━━━━━●━━━━━━]   │  wall_thickness = 2;                       │
-│ 10          200  │                                            │
-│                  │  /* [Style] */                             │
-│ depth: 50        │  corner_radius = 5;                        │
-│ [━━━━●━━━━━━━]   │                                            │
-│ 10          200  │  /* [Features] */                          │
-│                  │  lid = true;                               │
-│ height: 30       │                                            │
-│ [━━━●━━━━━━━━]   │  // Main module                            │
-│ 5           100  │  module box() { ...                        │
-│                  │                                            │
-│ === Features ===  │                                            │
-│ lid: true        │                                            │
-│ [✓] Enable       │                                            │
-└──────────────────┴────────────────────────────────────────────┘
-│ Ready                                                          │
-└────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│ Prosthetic Hand AI Parameter Generator          [username ▼] [Sign In]│
+└─────────────────────────────────────────────────────────────────────┘
+┌─────────────────────┬───────────────────────────────────────────────┐
+│ Select Model:       │  3D Preview                                    │
+│ [Fingerator ▼]      │              [Reset] [Render] [Export STL]     │
+├─────────────────────┤                                                │
+│ Fingerator -        ├────────────────────────────────────────────────│
+│ Prosthetic Finger   │                                                │
+├─────────────────────┤                                                │
+│ Saved Configs       │         (interactive 3D model)                 │
+│ [Select config ▼]   │                                                │
+│ Name: [__________]  │                                                │
+│ Notes:[__________]  │                                                │
+│ [Load][Save][Delete]│                                                │
+├─────────────────────┤                                                │
+│ AI Parameter        │                                                │
+│ Assistant           │                                                │
+│ Provider:[Claude ▼] │                                                │
+│ [patient data...]   │                                                │
+│ [Get AI Suggestions]│                                                │
+├─────────────────────┤                                                │
+│ === Scale ===       │                                                │
+│ global_scale: 1.25  │                                                │
+│ [━━━━━●━━━━━━━━]    │                                                │
+│                     │                                                │
+│ === Items to Print  │                                                │
+│ [✓] long fingers    │                                                │
+│ [ ] short fingers   │                                                │
+└─────────────────────┴────────────────────────────────────────────────│
+│ Ready                                                                │
+└──────────────────────────────────────────────────────────────────────┘
 ```
 
-## Example Workflow
+---
 
-### Creating a Custom Box
+## Adding Your Own Models
 
-1. **Select Model**: Choose "Parametric Box"
+### 1. Create an OpenSCAD file
 
-2. **Adjust Dimensions**:
-   - Width: Move slider to 100mm
-   - Depth: Move slider to 75mm
-   - Height: Set to 40mm
-   - Wall thickness: Adjust to 3mm
+Place it in `models/mymodel.scad`:
 
-3. **Style Options**:
-   - Corner radius: Set to 8mm for rounded corners
-
-4. **Features**:
-   - Check "Include lid" to add a lid
-
-5. **Export**:
-   - Click "Export STL" to download `box_[timestamp].scad`
-   - Open in OpenSCAD desktop app to render
-
-### Creating a Gear
-
-1. **Select Model**: Choose "Parametric Gear"
-
-2. **Gear Properties**:
-   - Number of teeth: 30
-   - Circular pitch: 8
-   - Pressure angle: 20°
-
-3. **Dimensions**:
-   - Gear thickness: 6mm
-   - Hub thickness: 12mm
-   - Center bore: 6mm (for 6mm shaft)
-
-4. **Export**: Download and render in OpenSCAD
-
-## Testing Your Own Models
-
-### 1. Create an OpenSCAD File
-
-Create `models/mymodel.scad`:
 ```openscad
-/* [Basic] */
-size = 20;
-quality = 50;
+/* [Dimensions] */
+scale = 1.0;
+wall = 2;
 
-/* [Advanced] */
+/* [Features] */
 hollow = false;
-
-$fn = quality;
-
-if (hollow) {
-    difference() {
-        cube(size);
-        translate([2,2,2]) cube(size-4);
-    }
-} else {
-    cube(size);
-}
 ```
 
-### 2. Add to Configuration
+### 2. Register it in `models/models-config.json`
 
-Edit `models/models-config.json`:
 ```json
 {
   "models": [
     {
       "id": "mymodel",
-      "name": "My Custom Model",
-      "description": "A test model",
+      "name": "My Model",
+      "description": "A custom parametric model",
       "file": "mymodel.scad",
       "parameters": [
         {
-          "name": "size",
+          "name": "scale",
           "type": "number",
-          "initial": 20,
-          "min": 5,
-          "max": 100,
-          "step": 1,
-          "caption": "Size of the cube",
-          "group": "Basic"
-        },
-        {
-          "name": "quality",
-          "type": "number",
-          "initial": 50,
-          "min": 10,
-          "max": 200,
-          "step": 10,
-          "caption": "Render quality ($fn)",
-          "group": "Basic"
+          "initial": 1.0,
+          "min": 0.5,
+          "max": 3.0,
+          "step": 0.01,
+          "caption": "Overall scale factor",
+          "group": "Dimensions"
         },
         {
           "name": "hollow",
           "type": "boolean",
           "initial": false,
-          "caption": "Make it hollow",
-          "group": "Advanced"
+          "caption": "Make hollow",
+          "group": "Features"
         }
       ]
     }
@@ -169,90 +175,31 @@ Edit `models/models-config.json`:
 }
 ```
 
-### 3. Reload and Test
+### 3. Restart the server
 
-1. Refresh the browser page
-2. Your model should appear in the dropdown
-3. Test all parameters
+Your model appears in the dropdown immediately.
 
-## Tips & Tricks
+---
 
-### Parameter Names Must Match
-- JSON config: `"name": "width"`
-- OpenSCAD file: `width = 50;`
-- These MUST be identical!
+## Quick Reference
 
-### Use Descriptive Groups
-Group related parameters for better UX:
-- "Dimensions" - sizes, lengths, thicknesses
-- "Features" - boolean options
-- "Style" - aesthetic choices
-- "Advanced" - expert settings
+| Task | Command |
+|------|---------|
+| Start server | `npm start` |
+| Dev (auto-restart) | `npm run dev` |
+| Create first admin (CLI) | `node scripts/create-admin.js <user> <email> <pass>` |
+| Generate JWT secret | `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` |
 
-### Set Reasonable Ranges
-```json
-{
-  "name": "wall_thickness",
-  "min": 1,    // Too thin won't print well
-  "max": 10,   // Too thick is wasteful
-  "step": 0.5  // Precision appropriate for 3D printing
-}
-```
-
-### Use Step Values Wisely
-- **0.1**: High precision (0.1, 0.2, 0.3...)
-- **0.5**: Medium precision (0.5, 1.0, 1.5...)
-- **1**: Whole numbers (1, 2, 3...)
-- **5**: Coarse adjustments (5, 10, 15...)
+---
 
 ## Troubleshooting
 
-### "Configuration loaded successfully" but no models?
-- Check JSON syntax with a validator
-- Ensure `models` array is not empty
-- Check browser console for errors
+| Problem | Fix |
+|---------|-----|
+| Server won't start | Check `.env` has `JWT_SECRET` set |
+| First-run setup not showing | Clear cookies and reload |
+| AI suggestions fail | Check `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` in `.env` |
+| 3D viewer blank | Check browser console; try Chrome if using Firefox |
+| Login loop | Clear `refresh_token` cookie; regenerate `JWT_SECRET` |
 
-### Parameter not updating in code?
-- Verify parameter name matches exactly
-- Check for typos in OpenSCAD variable name
-- Ensure parameter has a default value in .scad file
-
-### Model selector says "Loading models..."?
-- Check that server is running
-- Verify `models-config.json` path is correct
-- Check browser console for 404 errors
-
-### Code updates but parameters don't?
-- Clear browser cache
-- Hard refresh (Ctrl+Shift+R)
-- Check for JavaScript errors in console
-
-## Next: Add 3D Preview
-
-To add live 3D rendering:
-
-1. **Copy from openscad-playground**:
-   ```bash
-   cp openscad-playground/dist/openscad.wasm public/
-   cp openscad-playground/dist/openscad-worker.js public/
-   ```
-
-2. **Integrate renderer** (see OVERVIEW.md)
-
-3. **Update viewer** to show 3D model
-
-## Support
-
-- Check README.md for full documentation
-- See OVERVIEW.md for technical details
-- Review openscad-playground examples
-
-## Have Fun!
-
-You now have a working parameter editor. Experiment with:
-- Different parameter types
-- Complex OpenSCAD models
-- Custom configurations
-- Your own 3D printable designs
-
-Happy making! 🎉
+Full details: [TROUBLESHOOTING.md](TROUBLESHOOTING.md)

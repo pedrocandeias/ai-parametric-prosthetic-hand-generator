@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel — Prosthetic Hand Generator</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #2c3e50;
+        }
+
+        header {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        header h1 { font-size: 1.3rem; }
+
+        header nav a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-size: 0.9rem;
+        }
+        header nav a:hover { color: white; }
+
+        .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #ddd;
+            margin-bottom: 1.5rem;
+        }
+
+        .tab-btn {
+            padding: 0.6rem 1.25rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab-btn.active {
+            color: #3498db;
+            border-bottom-color: #3498db;
+            font-weight: 600;
+        }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        .card {
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-header h2 { font-size: 1rem; color: #2c3e50; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+        th { background: #f8f9fa; font-weight: 600; color: #555; }
+        tr:hover td { background: #fafafa; }
+
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-admin { background: #fdecea; color: #c0392b; }
+        .badge-tech  { background: #fef9e7; color: #b7950b; }
+        .badge-user  { background: #eaf4fb; color: #2980b9; }
+        .badge-active   { background: #e9f7ef; color: #1e8449; }
+        .badge-inactive { background: #f0f0f0; color: #888; }
+
+        button {
+            padding: 0.35rem 0.75rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .btn-primary   { background: #3498db; color: white; }
+        .btn-primary:hover { background: #2980b9; }
+        .btn-success   { background: #27ae60; color: white; }
+        .btn-success:hover { background: #1e8449; }
+        .btn-warning   { background: #f39c12; color: white; }
+        .btn-warning:hover { background: #d68910; }
+        .btn-danger    { background: #e74c3c; color: white; }
+        .btn-danger:hover { background: #c0392b; }
+        .btn-secondary { background: #95a5a6; color: white; }
+        .btn-secondary:hover { background: #7f8c8d; }
+
+        .action-cell { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+        /* Inline form */
+        .inline-form {
+            display: none;
+            padding: 1.25rem 1.5rem;
+            border-top: 1px solid #eee;
+            background: #f8f9fa;
+        }
+        .inline-form.open { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+        .inline-form .full { grid-column: 1 / -1; }
+
+        .inline-form label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 0.2rem;
+        }
+
+        .inline-form input,
+        .inline-form select {
+            width: 100%;
+            padding: 0.4rem 0.6rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .inline-form .form-actions { display: flex; gap: 0.5rem; }
+
+        .error-msg {
+            color: #e74c3c;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            display: none;
+        }
+
+        /* Assignment section */
+        .assignment-row td { vertical-align: top; }
+
+        .patient-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .patient-list li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.3rem 0;
+            border-bottom: 1px solid #eee;
+            font-size: 0.85rem;
+        }
+
+        .patient-list li:last-child { border-bottom: none; }
+
+        #toast {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            padding: 0.75rem 1.25rem;
+            border-radius: 4px;
+            color: white;
+            font-size: 0.9rem;
+            z-index: 9999;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        #toast.success { background: #27ae60; }
+        #toast.error   { background: #e74c3c; }
+
+        #admin-loading {
+            text-align: center;
+            padding: 3rem;
+            color: #888;
+        }
+
+        /* ── Anthropometric modal ── */
+        #anthro-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 5000;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 2rem 1rem;
+            overflow-y: auto;
+        }
+        .anthro-box {
+            background: white;
+            border-radius: 8px;
+            width: 860px;
+            max-width: 100%;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+        }
+        .anthro-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        .anthro-header h2 { font-size: 1.15rem; color: #2c3e50; }
+        .anthro-close { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: #888; padding: 0 0.25rem; }
+        .anthro-close:hover { color: #333; }
+        .anthro-tabs {
+            display: flex;
+            border-bottom: 2px solid #eee;
+            padding: 0 1.5rem;
+        }
+        .anthro-tab-btn {
+            padding: 0.6rem 1.1rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+        .anthro-tab-btn.active { color: #3498db; border-bottom-color: #3498db; font-weight: 600; }
+        .anthro-body { padding: 1.25rem 1.5rem; }
+        .anthro-section {
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+            margin-bottom: 0.75rem;
+            overflow: hidden;
+        }
+        .anthro-section-head {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1rem;
+            background: #f8f9fa;
+            font-weight: 600;
+            font-size: 0.88rem;
+            color: #2c3e50;
+        }
+        .anthro-section-toggle {
+            background: none; border: none; cursor: pointer;
+            font-size: 0.8rem; color: #888; padding: 0; line-height: 1;
+        }
+        .anthro-section-body { padding: 0.75rem 1rem; }
+        .anthro-grid   { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+        .anthro-grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 0.5rem; }
+        .anthro-field label { display: block; font-size: 0.75rem; font-weight: 600; color: #555; margin-bottom: 0.2rem; }
+        .anthro-field input, .anthro-field select {
+            width: 100%; padding: 0.35rem 0.5rem;
+            border: 1px solid #ddd; border-radius: 4px; font-size: 0.85rem;
+        }
+        .anthro-footer {
+            display: flex; align-items: center; gap: 0.6rem;
+            padding: 1rem 1.5rem; border-top: 1px solid #eee; flex-wrap: wrap;
+        }
+        .anthro-status { font-size: 0.85rem; color: #666; margin-left: auto; }
+        .anthro-status.success { color: #27ae60; }
+        .anthro-status.error   { color: #e74c3c; }
+        #anthro-results { display: none; padding: 0 1.5rem 1rem; }
+        .anthro-results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        @media (max-width:600px) { .anthro-results-grid { grid-template-columns: 1fr; } }
+        .anthro-result-card { border: 1px solid #e8e8e8; border-radius: 6px; padding: 0.9rem; }
+        .anthro-result-card h4 { font-size: 0.9rem; color: #2c3e50; margin-bottom: 0.6rem; }
+        .anthro-param-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+        .anthro-param-table th, .anthro-param-table td { text-align: left; padding: 0.25rem 0.4rem; border-bottom: 1px solid #f0f0f0; }
+        .anthro-param-table th { font-weight: 600; color: #555; background: #f8f9fa; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Admin Panel</h1>
+        <nav>
+            <a href="index.html">← Back to App</a>
+            <a href="#" id="admin-logout">Log Out</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div id="admin-loading">Loading...</div>
+
+        <div id="admin-content" style="display:none">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="users">Users</button>
+                <button class="tab-btn" data-tab="assignments">Tech Assignments</button>
+                <button class="tab-btn" data-tab="anthropometric">Anthropometric Profiles</button>
+            </div>
+
+            <!-- Users tab -->
+            <div class="tab-panel active" id="tab-users">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Users</h2>
+                        <button class="btn-success" id="create-user-btn">+ Create User</button>
+                    </div>
+
+                    <div class="inline-form" id="create-user-form">
+                        <div class="full">
+                            <div class="error-msg" id="create-user-error"></div>
+                        </div>
+                        <div>
+                            <label>Username</label>
+                            <input type="text" id="new-username" placeholder="username">
+                        </div>
+                        <div>
+                            <label>Email</label>
+                            <input type="email" id="new-email" placeholder="user@example.com">
+                        </div>
+                        <div>
+                            <label>Password</label>
+                            <input type="password" id="new-password" placeholder="min 8 chars">
+                        </div>
+                        <div>
+                            <label>Role</label>
+                            <select id="new-role">
+                                <option value="user">User</option>
+                                <option value="tech">Tech</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+                        <div class="full form-actions">
+                            <button class="btn-primary" id="save-new-user-btn">Create</button>
+                            <button class="btn-secondary" id="cancel-create-btn">Cancel</button>
+                        </div>
+                    </div>
+
+                    <table id="users-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Anthropometric tab -->
+            <div class="tab-panel" id="tab-anthropometric">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Anthropometric Profiles</h2>
+                        <button class="btn-success" id="anthro-new-btn">+ New Profile</button>
+                    </div>
+
+                    <!-- Filters -->
+                    <div style="padding:0.75rem 1rem;border-bottom:1px solid #eee;display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap">
+                        <label style="font-size:0.85rem;font-weight:600;color:#555;white-space:nowrap">Filter:</label>
+                        <input type="text" id="anthro-filter-country" placeholder="Country / Region"
+                            style="padding:0.3rem 0.5rem;border:1px solid #ddd;border-radius:4px;font-size:0.85rem;width:160px">
+                        <select id="anthro-filter-gender"
+                            style="padding:0.3rem 0.5rem;border:1px solid #ddd;border-radius:4px;font-size:0.85rem">
+                            <option value="">All genders</option>
+                            <option value="female">Female</option>
+                            <option value="male">Male</option>
+                            <option value="mixed">Mixed</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <input type="text" id="anthro-filter-age-group" placeholder="Age group"
+                            style="padding:0.3rem 0.5rem;border:1px solid #ddd;border-radius:4px;font-size:0.85rem;width:130px">
+                        <button class="btn-primary" id="anthro-filter-btn" style="padding:0.3rem 0.7rem;font-size:0.85rem">Apply</button>
+                    </div>
+
+                    <table id="anthro-profiles-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Group Name</th>
+                                <th>Country</th>
+                                <th>Gender</th>
+                                <th>Age Group</th>
+                                <th>Percentile</th>
+                                <th>n</th>
+                                <th>Uncertainty</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="anthro-profiles-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Assignments tab -->
+            <div class="tab-panel" id="tab-assignments">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Tech → Patient Assignments</h2>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tech</th>
+                                <th>Assigned Patients</th>
+                                <th>Add Patient</th>
+                            </tr>
+                        </thead>
+                        <tbody id="assignments-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Anthropometric importer modal -->
+    <div id="anthro-modal">
+        <div class="anthro-box">
+            <div class="anthro-header">
+                <h2>New Anthropometric Profile</h2>
+                <button class="anthro-close" id="anthro-close-btn" title="Close">&times;</button>
+            </div>
+
+            <div class="anthro-tabs">
+                <button class="anthro-tab-btn active" data-tab="manual">Manual Entry</button>
+                <button class="anthro-tab-btn" data-tab="import">Import / Paste</button>
+            </div>
+
+            <!-- Manual tab -->
+            <div class="anthro-tab-panel anthro-body" data-panel="manual">
+                <div class="anthro-section">
+                    <div class="anthro-section-head">
+                        <button class="anthro-section-toggle">▼</button>
+                        Group / Dataset Identity
+                    </div>
+                    <div class="anthro-section-body">
+                        <div class="anthro-grid" style="margin-bottom:0.5rem">
+                            <div class="anthro-field" style="grid-column:1/-1">
+                                <label>Group Name <span style="color:#e74c3c">*</span></label>
+                                <input type="text" id="anthro-group-name" placeholder="e.g. Northern European Adult Female — 50th percentile">
+                            </div>
+                        </div>
+                        <div class="anthro-grid">
+                            <div class="anthro-field">
+                                <label>Country / Region</label>
+                                <input type="text" id="anthro-country" placeholder="e.g. Norway, Scandinavia, Global">
+                            </div>
+                            <div class="anthro-field">
+                                <label>Gender</label>
+                                <select id="anthro-gender">
+                                    <option value="">— unspecified —</option>
+                                    <option value="female">Female</option>
+                                    <option value="male">Male</option>
+                                    <option value="mixed">Mixed</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="anthro-field">
+                                <label>Age Group</label>
+                                <input type="text" id="anthro-age-group" placeholder="e.g. adult, child, 8–12 years">
+                            </div>
+                            <div class="anthro-field">
+                                <label>Percentile</label>
+                                <input type="text" id="anthro-percentile" placeholder="e.g. 5th, 50th, 95th">
+                            </div>
+                            <div class="anthro-field">
+                                <label>Sample Size (n)</label>
+                                <input type="number" id="anthro-sample-size" placeholder="e.g. 250" min="1" step="1">
+                            </div>
+                            <div class="anthro-field">
+                                <label>Data Source / Citation</label>
+                                <input type="text" id="anthro-data-source" placeholder="e.g. ISO 15535:2012, ANSUR II">
+                            </div>
+                            <div class="anthro-field">
+                                <label>Measurement Units</label>
+                                <select id="anthro-unit">
+                                    <option value="mm">Millimetres (mm)</option>
+                                    <option value="cm">Centimetres (cm)</option>
+                                    <option value="in">Inches (in)</option>
+                                </select>
+                            </div>
+                            <div class="anthro-field" style="grid-column:1/-1">
+                                <label>Notes</label>
+                                <input type="text" id="anthro-notes" placeholder="Optional notes about this dataset">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="anthro-section">
+                    <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> Palm &amp; Wrist</div>
+                    <div class="anthro-section-body anthro-grid">
+                        <div class="anthro-field"><label>Palm Length (wrist → MCP)</label><input type="number" id="anthro-palm-length" placeholder="e.g. 95" step="0.1" min="0"></div>
+                        <div class="anthro-field"><label>Palm Width</label><input type="number" id="anthro-palm-width" placeholder="e.g. 80" step="0.1" min="0"></div>
+                        <div class="anthro-field"><label>Wrist Circumference</label><input type="number" id="anthro-wrist-circ" placeholder="e.g. 160" step="0.5" min="0"></div>
+                    </div>
+                </div>
+
+                <div class="anthro-section">
+                    <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> Residual Limb</div>
+                    <div class="anthro-section-body anthro-grid">
+                        <div class="anthro-field"><label>Length</label><input type="number" id="anthro-stump-length" placeholder="e.g. 120" step="1" min="0"></div>
+                        <div class="anthro-field"><label>Circumference (proximal)</label><input type="number" id="anthro-stump-circ" placeholder="e.g. 210" step="0.5" min="0"></div>
+                    </div>
+                </div>
+
+                <div class="anthro-section">
+                    <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> Index Finger — phalanx lengths &amp; circumference</div>
+                    <div class="anthro-section-body anthro-grid-4">
+                        <div class="anthro-field"><label>Proximal</label><input type="number" id="anthro-idx-prox" placeholder="mm" step="0.1" min="0"></div>
+                        <div class="anthro-field"><label>Middle</label><input type="number" id="anthro-idx-mid" placeholder="mm" step="0.1" min="0"></div>
+                        <div class="anthro-field"><label>Distal</label><input type="number" id="anthro-idx-dist" placeholder="mm" step="0.1" min="0"></div>
+                        <div class="anthro-field"><label>Circumference</label><input type="number" id="anthro-idx-circ" placeholder="mm" step="0.5" min="0"></div>
+                    </div>
+                </div>
+
+                <div class="anthro-section">
+                    <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> Middle Finger</div>
+                    <div class="anthro-section-body anthro-grid-4">
+                        <div class="anthro-field"><label>Proximal</label><input type="number" id="anthro-mid-prox" placeholder="mm" step="0.1" min="0"></div>
+                        <div class="anthro-field"><label>Middle</label><input type="number" id="anthro-mid-mid" placeholder="mm" step="0.1" min="0"></div>
+                        <div class="anthro-field"><label>Distal</label><input type="number" id="anthro-mid-dist" placeholder="mm" step="0.1" min="0"></div>
+                        <div class="anthro-field"><label>Circumference</label><input type="number" id="anthro-mid-circ" placeholder="mm" step="0.5" min="0"></div>
+                    </div>
+                </div>
+
+                <div class="anthro-section">
+                    <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> Ring Finger</div>
+                    <div class="anthro-section-body anthro-grid-4">
+                        <div class="anthro-field"><label>Proximal</label><input type="number" id="anthro-ring-prox" placeholder="mm" step="0.1" min="0"></div>
+                        <div class="anthro-field"><label>Middle</label><input type="number" id="anthro-ring-mid" placeholder="mm" step="0.1" min="0"></div>
+                        <div class="anthro-field"><label>Distal</label><input type="number" id="anthro-ring-dist" placeholder="mm" step="0.1" min="0"></div>
+                        <div class="anthro-field"><label>Circumference</label><input type="number" id="anthro-ring-circ" placeholder="mm" step="0.5" min="0"></div>
+                    </div>
+                </div>
+
+                <div class="anthro-section">
+                    <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> Pinky Finger</div>
+                    <div class="anthro-section-body anthro-grid-4">
+                        <div class="anthro-field"><label>Proximal</label><input type="number" id="anthro-pinky-prox" placeholder="mm" step="0.1" min="0"></div>
+                        <div class="anthro-field"><label>Middle</label><input type="number" id="anthro-pinky-mid" placeholder="mm" step="0.1" min="0"></div>
+                        <div class="anthro-field"><label>Distal</label><input type="number" id="anthro-pinky-dist" placeholder="mm" step="0.1" min="0"></div>
+                        <div class="anthro-field"><label>Circumference</label><input type="number" id="anthro-pinky-circ" placeholder="mm" step="0.5" min="0"></div>
+                    </div>
+                </div>
+
+                <div class="anthro-section">
+                    <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> Hardware &amp; Tolerance</div>
+                    <div class="anthro-section-body anthro-grid">
+                        <div class="anthro-field">
+                            <label>Hardware Standard</label>
+                            <select id="anthro-hardware"><option value="m3">M3 (standard)</option><option value="m2">M2 (small)</option><option value="m4">M4 (heavy)</option></select>
+                        </div>
+                        <div class="anthro-field">
+                            <label>Tolerance Preference</label>
+                            <select id="anthro-tolerance"><option value="standard">Standard (0.4 mm)</option><option value="snug">Snug (0.2 mm)</option><option value="loose">Loose (0.6 mm)</option></select>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- /manual tab -->
+
+            <!-- Import tab -->
+            <div class="anthro-tab-panel anthro-body" data-panel="import" style="display:none">
+                <div class="anthro-grid" style="margin-bottom:0.75rem">
+                    <div class="anthro-field" style="grid-column:1/-1">
+                        <label>Group Name <span style="color:#e74c3c">*</span></label>
+                        <input type="text" id="anthro-import-group-name" placeholder="e.g. Norwegian Children 8–12 years — 50th percentile">
+                    </div>
+                    <div class="anthro-field">
+                        <label>Country / Region</label>
+                        <input type="text" id="anthro-import-country" placeholder="e.g. Norway">
+                    </div>
+                    <div class="anthro-field">
+                        <label>Gender</label>
+                        <select id="anthro-import-gender">
+                            <option value="">— unspecified —</option>
+                            <option value="female">Female</option>
+                            <option value="male">Male</option>
+                            <option value="mixed">Mixed</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="anthro-field">
+                        <label>Age Group</label>
+                        <input type="text" id="anthro-import-age-group" placeholder="e.g. child, adult">
+                    </div>
+                    <div class="anthro-field">
+                        <label>Percentile</label>
+                        <input type="text" id="anthro-import-percentile" placeholder="e.g. 50th">
+                    </div>
+                    <div class="anthro-field">
+                        <label>Data Source</label>
+                        <input type="text" id="anthro-import-data-source" placeholder="e.g. ISO 15535:2012">
+                    </div>
+                    <div class="anthro-field">
+                        <label>Format</label>
+                        <select id="anthro-import-format"><option value="csv">CSV</option><option value="json">JSON</option></select>
+                    </div>
+                    <div class="anthro-field">
+                        <label>Default Unit</label>
+                        <select id="anthro-import-unit"><option value="mm">mm</option><option value="cm">cm</option><option value="in">in</option></select>
+                    </div>
+                    <div class="anthro-field">
+                        <label>Hardware</label>
+                        <select id="anthro-import-hw"><option value="m3">M3</option><option value="m2">M2</option><option value="m4">M4</option></select>
+                    </div>
+                    <div class="anthro-field">
+                        <label>Tolerance</label>
+                        <select id="anthro-import-tol"><option value="standard">Standard</option><option value="snug">Snug</option><option value="loose">Loose</option></select>
+                    </div>
+                </div>
+                <div class="anthro-field">
+                    <label>Paste CSV or JSON data</label>
+                    <textarea id="anthro-import-text"
+                        placeholder="CSV (Format A):&#10;measurement,value,unit&#10;palm_length,95,mm&#10;palm_width,80,mm&#10;wrist_circumference,160,mm&#10;finger_index_proximal,40,mm&#10;..."
+                        style="width:100%;min-height:180px;padding:0.5rem;border:1px solid #ddd;border-radius:4px;font-size:0.82rem;font-family:monospace;resize:vertical"></textarea>
+                </div>
+            </div><!-- /import tab -->
+
+            <div id="anthro-results"></div>
+
+            <div class="anthro-footer">
+                <button class="btn-primary" id="anthro-process-btn">Preview</button>
+                <button class="btn-success" id="anthro-save-btn">Save Profile</button>
+                <span class="anthro-status" id="anthro-status"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit user modal -->
+    <div id="edit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center">
+        <div style="background:white;border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,0.25);padding:1.75rem;width:420px;max-width:95vw">
+            <h2 style="font-size:1.05rem;margin-bottom:1.25rem;color:#2c3e50">Edit User</h2>
+            <div class="error-msg" id="edit-error" style="margin-bottom:0.75rem"></div>
+            <div style="display:grid;gap:0.75rem">
+                <input type="hidden" id="edit-user-id">
+                <div>
+                    <label style="display:block;font-size:0.8rem;font-weight:600;color:#555;margin-bottom:0.2rem">Username</label>
+                    <input type="text" id="edit-username" style="width:100%;padding:0.4rem 0.6rem;border:1px solid #ddd;border-radius:4px;font-size:0.9rem">
+                </div>
+                <div>
+                    <label style="display:block;font-size:0.8rem;font-weight:600;color:#555;margin-bottom:0.2rem">Email</label>
+                    <input type="email" id="edit-email" style="width:100%;padding:0.4rem 0.6rem;border:1px solid #ddd;border-radius:4px;font-size:0.9rem">
+                </div>
+                <div>
+                    <label style="display:block;font-size:0.8rem;font-weight:600;color:#555;margin-bottom:0.2rem">New Password <span style="font-weight:400;color:#999">(leave blank to keep current)</span></label>
+                    <input type="password" id="edit-password" placeholder="min 8 chars" style="width:100%;padding:0.4rem 0.6rem;border:1px solid #ddd;border-radius:4px;font-size:0.9rem">
+                </div>
+            </div>
+            <div style="display:flex;gap:0.5rem;margin-top:1.25rem;justify-content:flex-end">
+                <button class="btn-secondary" id="edit-cancel-btn">Cancel</button>
+                <button class="btn-primary" id="edit-save-btn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script src="auth.js"></script>
+    <script src="anthropometric.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>
