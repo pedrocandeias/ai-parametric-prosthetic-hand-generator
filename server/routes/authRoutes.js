@@ -11,8 +11,10 @@ const {
     issueRefreshToken,
     consumeRefreshToken,
     revokeRefreshToken,
+    issueResetToken,
+    consumeResetToken,
 } = require('../services/authService');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, requireRole } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -42,6 +44,14 @@ const registerLimiter = rateLimit({
     legacyHeaders: false,
 });
 
+const resetLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    message: { error: 'Too many reset attempts, try again later' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
 // --- Validation schemas ---
 const LoginSchema = z.object({
     login: z.string().min(1), // username or email
@@ -52,6 +62,15 @@ const RegisterSchema = z.object({
     username: z.string().min(2).max(50).regex(/^\w+$/, 'Username may only contain letters, digits, and underscores'),
     email: z.string().email(),
     password: z.string().min(8).max(128),
+});
+
+const ResetRequestSchema = z.object({
+    user_id: z.number().int().positive(),
+});
+
+const ResetRedeemSchema = z.object({
+    token: z.string().min(1),
+    new_password: z.string().min(8).max(128),
 });
 
 // --- Helpers ---
@@ -160,6 +179,55 @@ router.post('/refresh', (req, res, next) => {
         const newRefreshToken = issueRefreshToken(user.id);
 
         setRefreshCookie(res, newRefreshToken);
+        res.json({ accessToken, user });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// POST /api/auth/reset-request — admin only, generates a reset token for a user
+router.post('/reset-request', requireAuth, requireRole('admin'), async (req, res, next) => {
+    try {
+        const result = ResetRequestSchema.safeParse(req.body);
+        if (!result.success) {
+            return res.status(400).json({ error: result.error.errors[0].message });
+        }
+
+        const { user_id } = result.data;
+        const user = db.prepare(
+            `SELECT id FROM users WHERE id = ? AND is_active = 1`
+        ).get(user_id);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const token = issueResetToken(user_id);
+        res.json({ token, expires_in: '1 hour' });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// POST /api/auth/reset — public, redeems a reset token and sets a new password
+router.post('/reset', resetLimiter, async (req, res, next) => {
+    try {
+        const result = ResetRedeemSchema.safeParse(req.body);
+        if (!result.success) {
+            return res.status(400).json({ error: result.error.errors[0].message });
+        }
+
+        const { token, new_password } = result.data;
+        const newPasswordHash = await hashPassword(new_password);
+        const user = consumeResetToken(token, newPasswordHash);
+
+        if (!user) {
+            return res.status(400).json({ error: 'Invalid or expired reset token' });
+        }
+
+        const accessToken = signAccessToken(user);
+        const refreshToken = issueRefreshToken(user.id);
+
+        setRefreshCookie(res, refreshToken);
         res.json({ accessToken, user });
     } catch (err) {
         next(err);

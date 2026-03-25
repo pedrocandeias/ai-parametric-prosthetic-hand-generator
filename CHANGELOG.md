@@ -12,6 +12,35 @@ Entry format follows [Conventional Commits](https://www.conventionalcommits.org/
 
 ---
 
+## v4.0.0 — 2026-03-25
+
+feat: add full primary anthropometric input structure (palm_breadth, palm_length, palm_thickness, thumb/index/middle/ring/little total lengths, average_finger_width, residual_length, residual_circumference_proximal, residual_circumference_distal)
+feat: derive proximal/middle/distal phalanx lengths from total finger lengths using anatomical ratios (0.45 / 0.31 / 0.24)
+feat: compute joint_positions (PIP, DIP, tip) from derived phalanx lengths
+feat: compute palm_structural_thickness (35% of palm_thickness), finger_base_width (average_finger_width or palm_breadth÷5), internal_channel_diameter (25% of finger_base_width, clamped 2–4 mm)
+feat: compute local_reinforcement_zones and socket_internal_geometry from proximal + distal residual circumferences
+feat: add thumb digit to measurements structure with 2-phalanx ratio derivation (0.54 / 0.46)
+feat: add dedicated residual_circumference_proximal and residual_circumference_distal scalar fields (retain legacy circumferences_mm array for backwards compat)
+feat: expand geometry_parameters output with proximal_phalanx_length, middle_phalanx_length, distal_phalanx_length, joint_pos_pip_mm, joint_pos_dip_mm, palm_structural_thickness, finger_base_width, internal_channel_diameter, socket_diameter_proximal_mm, socket_diameter_distal_mm, socket_depth_mm, socket_taper_angle_deg, socket_rim_thickness_mm, socket_distal_cap_thickness_mm
+feat: update admin panel manual entry form with grouped primary / optional-detail layout for all finger sections
+feat: add palm_thickness and average_finger_width inputs to Hand Measurements section
+feat: add separate proximal + distal circumference inputs to Residual Limb section
+feat: add Thumb section with total length input
+feat: add cross-field validation for residual circumference order, palm thickness vs width, and finger total vs segment sum consistency
+refactor: update detectMissing() to accept either total or segments for each finger — no false positives when only total is given
+
+---
+
+## v3.4.0 — 2026-03-25
+
+feat: add admin-initiated password reset via short-lived single-use token
+feat: add POST /api/auth/reset-request (admin only) and POST /api/auth/reset (public) endpoints
+feat: add password_reset_tokens DB table with 1-hour TTL and single-use enforcement
+feat: add Reset Token button and modal to admin panel user management
+feat: add reset password view to main app login modal
+
+---
+
 ## v3.3.0 — 2026-03-04
 
 feat: add Cyborg Beast model set (full hand, palm, finger mid, fingertip) to model selector

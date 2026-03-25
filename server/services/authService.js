@@ -100,6 +100,59 @@ function pruneExpiredTokens() {
     db.prepare(
         `DELETE FROM refresh_tokens WHERE expires_at < datetime('now') OR revoked = 1`
     ).run();
+    db.prepare(
+        `DELETE FROM password_reset_tokens WHERE expires_at < datetime('now') OR used = 1`
+    ).run();
+}
+
+// ── Password reset tokens ─────────────────────────────────────────────────
+
+const RESET_TOKEN_TTL_HOURS = 1;
+
+function issueResetToken(userId) {
+    // Invalidate any existing unused tokens for this user
+    db.prepare(
+        `UPDATE password_reset_tokens SET used = 1 WHERE user_id = ? AND used = 0`
+    ).run(userId);
+
+    const token = uuidv4();
+    const tokenHash = hashToken(token);
+    const expiresAt = new Date(Date.now() + RESET_TOKEN_TTL_HOURS * 3600 * 1000)
+        .toISOString()
+        .replace('T', ' ')
+        .substring(0, 19);
+
+    db.prepare(
+        `INSERT INTO password_reset_tokens (user_id, token_hash, expires_at) VALUES (?, ?, ?)`
+    ).run(userId, tokenHash, expiresAt);
+
+    return token;
+}
+
+function consumeResetToken(plainToken, newPasswordHash) {
+    const tokenHash = hashToken(plainToken);
+    const row = db.prepare(
+        `SELECT prt.id, prt.user_id, prt.expires_at, prt.used,
+                u.id AS uid, u.username, u.email, u.role, u.is_active
+         FROM password_reset_tokens prt
+         JOIN users u ON u.id = prt.user_id
+         WHERE prt.token_hash = ?`
+    ).get(tokenHash);
+
+    if (!row) return null;
+    if (row.used) return null;
+    if (new Date(row.expires_at) < new Date()) return null;
+    if (!row.is_active) return null;
+
+    db.transaction(() => {
+        db.prepare(`UPDATE password_reset_tokens SET used = 1 WHERE id = ?`).run(row.id);
+        db.prepare(
+            `UPDATE users SET password_hash = ?, updated_at = datetime('now') WHERE id = ?`
+        ).run(newPasswordHash, row.user_id);
+        db.prepare(`UPDATE refresh_tokens SET revoked = 1 WHERE user_id = ?`).run(row.user_id);
+    })();
+
+    return { id: row.uid, username: row.username, email: row.email, role: row.role };
 }
 
 module.exports = {
@@ -111,4 +164,6 @@ module.exports = {
     consumeRefreshToken,
     revokeRefreshToken,
     pruneExpiredTokens,
+    issueResetToken,
+    consumeResetToken,
 };

@@ -78,11 +78,19 @@ const AnthropometricImporter = (() => {
 
         const data = {};
         const fields = {
+            // ── Hand measurements (primary) ──────────────────────────────────
             palm_length:               'anthro-palm-length',
-            palm_width:                'anthro-palm-width',
+            palm_breadth:              'anthro-palm-width',       // breadth = width alias
+            palm_thickness:            'anthro-palm-thickness',   // new primary
+            average_finger_width:      'anthro-avg-finger-width', // new primary
             wrist_circumference:       'anthro-wrist-circ',
-            residual_limb_length:      'anthro-stump-length',
-            residual_limb_circumference: 'anthro-stump-circ',
+            // ── Finger total lengths (new primary inputs) ────────────────────
+            thumb_length_total:        'anthro-thumb-total',
+            index_length_total:        'anthro-idx-total',
+            middle_length_total:       'anthro-mid-total',
+            ring_length_total:         'anthro-ring-total',
+            little_length_total:       'anthro-pinky-total',
+            // ── Finger segment breakdown (optional detail) ───────────────────
             finger_index_proximal:     'anthro-idx-prox',
             finger_index_middle:       'anthro-idx-mid',
             finger_index_distal:       'anthro-idx-dist',
@@ -99,6 +107,10 @@ const AnthropometricImporter = (() => {
             finger_pinky_middle:       'anthro-pinky-mid',
             finger_pinky_distal:       'anthro-pinky-dist',
             finger_pinky_circumference: 'anthro-pinky-circ',
+            // ── Residual limb (primary) ──────────────────────────────────────
+            residual_length:                 'anthro-stump-length',
+            residual_circumference_proximal: 'anthro-stump-circ-prox',  // new primary
+            residual_circumference_distal:   'anthro-stump-circ-dist',  // new primary
         };
 
         for (const [key, elId] of Object.entries(fields)) {

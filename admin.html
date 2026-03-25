@@ -505,59 +505,136 @@
                 </div>
 
                 <div class="anthro-section">
-                    <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> Palm &amp; Wrist</div>
-                    <div class="anthro-section-body anthro-grid">
-                        <div class="anthro-field"><label>Palm Length (wrist → MCP)</label><input type="number" id="anthro-palm-length" placeholder="e.g. 95" step="0.1" min="0"></div>
-                        <div class="anthro-field"><label>Palm Width</label><input type="number" id="anthro-palm-width" placeholder="e.g. 80" step="0.1" min="0"></div>
-                        <div class="anthro-field"><label>Wrist Circumference</label><input type="number" id="anthro-wrist-circ" placeholder="e.g. 160" step="0.5" min="0"></div>
+                    <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> Hand Measurements</div>
+                    <div class="anthro-section-body">
+                        <div class="anthro-grid">
+                            <div class="anthro-field">
+                                <label>Palm Length <span style="font-weight:400;color:#999">(wrist → MCP)</span></label>
+                                <input type="number" id="anthro-palm-length" placeholder="e.g. 95" step="0.1" min="0">
+                            </div>
+                            <div class="anthro-field">
+                                <label>Palm Breadth <span style="font-weight:400;color:#999">(knuckle width)</span></label>
+                                <input type="number" id="anthro-palm-width" placeholder="e.g. 80" step="0.1" min="0">
+                            </div>
+                            <div class="anthro-field">
+                                <label>Palm Thickness <span style="font-weight:400;color:#999">(dorsal → volar)</span></label>
+                                <input type="number" id="anthro-palm-thickness" placeholder="e.g. 24" step="0.1" min="0">
+                            </div>
+                            <div class="anthro-field">
+                                <label>Average Finger Width <span style="font-weight:400;color:#999">(at base)</span></label>
+                                <input type="number" id="anthro-avg-finger-width" placeholder="e.g. 17" step="0.1" min="0">
+                            </div>
+                            <div class="anthro-field">
+                                <label>Wrist Circumference</label>
+                                <input type="number" id="anthro-wrist-circ" placeholder="e.g. 160" step="0.5" min="0">
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="anthro-section">
                     <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> Residual Limb</div>
                     <div class="anthro-section-body anthro-grid">
-                        <div class="anthro-field"><label>Length</label><input type="number" id="anthro-stump-length" placeholder="e.g. 120" step="1" min="0"></div>
-                        <div class="anthro-field"><label>Circumference (proximal)</label><input type="number" id="anthro-stump-circ" placeholder="e.g. 210" step="0.5" min="0"></div>
+                        <div class="anthro-field">
+                            <label>Length</label>
+                            <input type="number" id="anthro-stump-length" placeholder="e.g. 120" step="1" min="0">
+                        </div>
+                        <div class="anthro-field">
+                            <label>Circumference — Proximal</label>
+                            <input type="number" id="anthro-stump-circ-prox" placeholder="e.g. 210" step="0.5" min="0">
+                        </div>
+                        <div class="anthro-field">
+                            <label>Circumference — Distal</label>
+                            <input type="number" id="anthro-stump-circ-dist" placeholder="e.g. 175" step="0.5" min="0">
+                        </div>
                     </div>
                 </div>
 
                 <div class="anthro-section">
-                    <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> Index Finger — phalanx lengths &amp; circumference</div>
-                    <div class="anthro-section-body anthro-grid-4">
-                        <div class="anthro-field"><label>Proximal</label><input type="number" id="anthro-idx-prox" placeholder="mm" step="0.1" min="0"></div>
-                        <div class="anthro-field"><label>Middle</label><input type="number" id="anthro-idx-mid" placeholder="mm" step="0.1" min="0"></div>
-                        <div class="anthro-field"><label>Distal</label><input type="number" id="anthro-idx-dist" placeholder="mm" step="0.1" min="0"></div>
-                        <div class="anthro-field"><label>Circumference</label><input type="number" id="anthro-idx-circ" placeholder="mm" step="0.5" min="0"></div>
+                    <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> Thumb</div>
+                    <div class="anthro-section-body">
+                        <div class="anthro-grid">
+                            <div class="anthro-field">
+                                <label>Total Length</label>
+                                <input type="number" id="anthro-thumb-total" placeholder="e.g. 58" step="0.1" min="0">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="anthro-section">
+                    <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> Index Finger</div>
+                    <div class="anthro-section-body">
+                        <div class="anthro-grid" style="margin-bottom:0.5rem">
+                            <div class="anthro-field">
+                                <label>Total Length <span style="font-weight:400;color:#6cb6e8">primary</span></label>
+                                <input type="number" id="anthro-idx-total" placeholder="e.g. 68" step="0.1" min="0">
+                            </div>
+                        </div>
+                        <p style="font-size:0.74rem;color:#aaa;margin:0 0 0.4rem">Segment detail — optional, auto-derived if only total is provided</p>
+                        <div class="anthro-grid-4">
+                            <div class="anthro-field"><label>Proximal</label><input type="number" id="anthro-idx-prox" placeholder="mm" step="0.1" min="0"></div>
+                            <div class="anthro-field"><label>Middle</label><input type="number" id="anthro-idx-mid" placeholder="mm" step="0.1" min="0"></div>
+                            <div class="anthro-field"><label>Distal</label><input type="number" id="anthro-idx-dist" placeholder="mm" step="0.1" min="0"></div>
+                            <div class="anthro-field"><label>Circumference</label><input type="number" id="anthro-idx-circ" placeholder="mm" step="0.5" min="0"></div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="anthro-section">
                     <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> Middle Finger</div>
-                    <div class="anthro-section-body anthro-grid-4">
-                        <div class="anthro-field"><label>Proximal</label><input type="number" id="anthro-mid-prox" placeholder="mm" step="0.1" min="0"></div>
-                        <div class="anthro-field"><label>Middle</label><input type="number" id="anthro-mid-mid" placeholder="mm" step="0.1" min="0"></div>
-                        <div class="anthro-field"><label>Distal</label><input type="number" id="anthro-mid-dist" placeholder="mm" step="0.1" min="0"></div>
-                        <div class="anthro-field"><label>Circumference</label><input type="number" id="anthro-mid-circ" placeholder="mm" step="0.5" min="0"></div>
+                    <div class="anthro-section-body">
+                        <div class="anthro-grid" style="margin-bottom:0.5rem">
+                            <div class="anthro-field">
+                                <label>Total Length <span style="font-weight:400;color:#6cb6e8">primary</span></label>
+                                <input type="number" id="anthro-mid-total" placeholder="e.g. 73" step="0.1" min="0">
+                            </div>
+                        </div>
+                        <p style="font-size:0.74rem;color:#aaa;margin:0 0 0.4rem">Segment detail — optional, auto-derived if only total is provided</p>
+                        <div class="anthro-grid-4">
+                            <div class="anthro-field"><label>Proximal</label><input type="number" id="anthro-mid-prox" placeholder="mm" step="0.1" min="0"></div>
+                            <div class="anthro-field"><label>Middle</label><input type="number" id="anthro-mid-mid" placeholder="mm" step="0.1" min="0"></div>
+                            <div class="anthro-field"><label>Distal</label><input type="number" id="anthro-mid-dist" placeholder="mm" step="0.1" min="0"></div>
+                            <div class="anthro-field"><label>Circumference</label><input type="number" id="anthro-mid-circ" placeholder="mm" step="0.5" min="0"></div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="anthro-section">
                     <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> Ring Finger</div>
-                    <div class="anthro-section-body anthro-grid-4">
-                        <div class="anthro-field"><label>Proximal</label><input type="number" id="anthro-ring-prox" placeholder="mm" step="0.1" min="0"></div>
-                        <div class="anthro-field"><label>Middle</label><input type="number" id="anthro-ring-mid" placeholder="mm" step="0.1" min="0"></div>
-                        <div class="anthro-field"><label>Distal</label><input type="number" id="anthro-ring-dist" placeholder="mm" step="0.1" min="0"></div>
-                        <div class="anthro-field"><label>Circumference</label><input type="number" id="anthro-ring-circ" placeholder="mm" step="0.5" min="0"></div>
+                    <div class="anthro-section-body">
+                        <div class="anthro-grid" style="margin-bottom:0.5rem">
+                            <div class="anthro-field">
+                                <label>Total Length <span style="font-weight:400;color:#6cb6e8">primary</span></label>
+                                <input type="number" id="anthro-ring-total" placeholder="e.g. 68" step="0.1" min="0">
+                            </div>
+                        </div>
+                        <p style="font-size:0.74rem;color:#aaa;margin:0 0 0.4rem">Segment detail — optional, auto-derived if only total is provided</p>
+                        <div class="anthro-grid-4">
+                            <div class="anthro-field"><label>Proximal</label><input type="number" id="anthro-ring-prox" placeholder="mm" step="0.1" min="0"></div>
+                            <div class="anthro-field"><label>Middle</label><input type="number" id="anthro-ring-mid" placeholder="mm" step="0.1" min="0"></div>
+                            <div class="anthro-field"><label>Distal</label><input type="number" id="anthro-ring-dist" placeholder="mm" step="0.1" min="0"></div>
+                            <div class="anthro-field"><label>Circumference</label><input type="number" id="anthro-ring-circ" placeholder="mm" step="0.5" min="0"></div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="anthro-section">
-                    <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> Pinky Finger</div>
-                    <div class="anthro-section-body anthro-grid-4">
-                        <div class="anthro-field"><label>Proximal</label><input type="number" id="anthro-pinky-prox" placeholder="mm" step="0.1" min="0"></div>
-                        <div class="anthro-field"><label>Middle</label><input type="number" id="anthro-pinky-mid" placeholder="mm" step="0.1" min="0"></div>
-                        <div class="anthro-field"><label>Distal</label><input type="number" id="anthro-pinky-dist" placeholder="mm" step="0.1" min="0"></div>
-                        <div class="anthro-field"><label>Circumference</label><input type="number" id="anthro-pinky-circ" placeholder="mm" step="0.5" min="0"></div>
+                    <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> Little Finger (Pinky)</div>
+                    <div class="anthro-section-body">
+                        <div class="anthro-grid" style="margin-bottom:0.5rem">
+                            <div class="anthro-field">
+                                <label>Total Length <span style="font-weight:400;color:#6cb6e8">primary</span></label>
+                                <input type="number" id="anthro-pinky-total" placeholder="e.g. 55" step="0.1" min="0">
+                            </div>
+                        </div>
+                        <p style="font-size:0.74rem;color:#aaa;margin:0 0 0.4rem">Segment detail — optional, auto-derived if only total is provided</p>
+                        <div class="anthro-grid-4">
+                            <div class="anthro-field"><label>Proximal</label><input type="number" id="anthro-pinky-prox" placeholder="mm" step="0.1" min="0"></div>
+                            <div class="anthro-field"><label>Middle</label><input type="number" id="anthro-pinky-mid" placeholder="mm" step="0.1" min="0"></div>
+                            <div class="anthro-field"><label>Distal</label><input type="number" id="anthro-pinky-dist" placeholder="mm" step="0.1" min="0"></div>
+                            <div class="anthro-field"><label>Circumference</label><input type="number" id="anthro-pinky-circ" placeholder="mm" step="0.5" min="0"></div>
+                        </div>
                     </div>
                 </div>
 
@@ -667,6 +744,20 @@
             <div style="display:flex;gap:0.5rem;margin-top:1.25rem;justify-content:flex-end">
                 <button class="btn-secondary" id="edit-cancel-btn">Cancel</button>
                 <button class="btn-primary" id="edit-save-btn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset token modal -->
+    <div id="reset-token-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center">
+        <div style="background:white;border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,0.25);padding:1.75rem;width:420px;max-width:95vw">
+            <h2 style="font-size:1.05rem;margin-bottom:0.5rem;color:#2c3e50">Reset Token Generated</h2>
+            <p style="font-size:0.85rem;color:#666;margin-bottom:1rem">Give this token to the user. It expires in 1 hour and can only be used once.</p>
+            <div class="error-msg" id="reset-token-error" style="margin-bottom:0.75rem;display:none"></div>
+            <div id="reset-token-display" style="font-family:monospace;background:#f4f4f4;padding:0.75rem;border-radius:4px;word-break:break-all;font-size:0.85rem;min-height:2rem;margin-bottom:1rem"></div>
+            <div style="display:flex;gap:0.5rem;justify-content:flex-end">
+                <button class="btn-secondary" id="copy-reset-token-btn">Copy</button>
+                <button class="btn-primary" id="close-reset-token-btn">Done</button>
             </div>
         </div>
     </div>

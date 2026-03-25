@@ -60,6 +60,7 @@ function renderUsersTable(users) {
                 <div class="action-cell">
                     <button class="btn-primary btn-edit" data-id="${u.id}">Edit</button>
                     <button class="btn-warning btn-change-role" data-id="${u.id}" data-role="${u.role}">Role</button>
+                    <button class="btn-secondary btn-reset-token" data-id="${u.id}">Reset Token</button>
                     ${u.is_active
                         ? `<button class="btn-secondary btn-suspend" data-id="${u.id}">Suspend</button>`
                         : `<button class="btn-success btn-activate" data-id="${u.id}">Activate</button>`}
@@ -76,11 +77,56 @@ function renderUsersTable(users) {
     tbody.querySelectorAll('.btn-change-role').forEach(btn => {
         btn.addEventListener('click', () => changeRole(Number(btn.dataset.id), btn.dataset.role));
     });
+    tbody.querySelectorAll('.btn-reset-token').forEach(btn => {
+        btn.addEventListener('click', () => generateResetToken(Number(btn.dataset.id)));
+    });
     tbody.querySelectorAll('.btn-suspend').forEach(btn => {
         btn.addEventListener('click', () => setActive(Number(btn.dataset.id), false));
     });
     tbody.querySelectorAll('.btn-activate').forEach(btn => {
         btn.addEventListener('click', () => setActive(Number(btn.dataset.id), true));
+    });
+}
+
+// ── Reset token modal ──────────────────────────────────────────────────────
+
+async function generateResetToken(userId) {
+    const modal = document.getElementById('reset-token-modal');
+    const display = document.getElementById('reset-token-display');
+    const errEl = document.getElementById('reset-token-error');
+    errEl.style.display = 'none';
+    display.textContent = 'Generating…';
+    modal.style.display = 'flex';
+
+    try {
+        const res = await Auth.fetchWithAuth('/api/auth/reset-request', {
+            method: 'POST',
+            body: JSON.stringify({ user_id: userId }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to generate token');
+        display.textContent = data.token;
+    } catch (err) {
+        display.textContent = '';
+        errEl.textContent = err.message;
+        errEl.style.display = 'block';
+    }
+}
+
+function setupResetTokenModal() {
+    document.getElementById('close-reset-token-btn')?.addEventListener('click', () => {
+        document.getElementById('reset-token-modal').style.display = 'none';
+        document.getElementById('reset-token-display').textContent = '';
+    });
+    document.getElementById('copy-reset-token-btn')?.addEventListener('click', () => {
+        const text = document.getElementById('reset-token-display').textContent;
+        if (text) navigator.clipboard.writeText(text).then(() => toast('Token copied'));
+    });
+    document.getElementById('reset-token-modal')?.addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) {
+            document.getElementById('reset-token-modal').style.display = 'none';
+            document.getElementById('reset-token-display').textContent = '';
+        }
     });
 }
 
@@ -471,6 +517,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     setupTabs();
     setupEditModal();
+    setupResetTokenModal();
     setupCreateUserForm();
     setupAnthroTab();
     loadUsers();

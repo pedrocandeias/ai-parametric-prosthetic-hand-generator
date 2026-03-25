@@ -110,6 +110,19 @@ const Auth = (() => {
         return data.user;
     }
 
+    async function resetPassword(token, newPassword) {
+        const res = await fetch('/api/auth/reset', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ token, new_password: newPassword }),
+        });
+        const data = await safeJson(res);
+        if (!res.ok) throw new Error(data.error || 'Reset failed');
+        setSession(data.accessToken, data.user);
+        return data.user;
+    }
+
     async function setupAdmin(username, email, password) {
         const res = await fetch('/api/setup/admin', {
             method: 'POST',
@@ -171,6 +184,7 @@ const Auth = (() => {
         tryRestoreSession,
         fetchWithAuth,
         setupAdmin,
+        resetPassword,
         getUser,
         getToken,
         isAuthenticated,
@@ -321,6 +335,27 @@ function setupLoginModalEvents() {
         });
     }
 
+    // ── Reset form ──
+    const resetForm = document.getElementById('reset-form');
+    if (resetForm) {
+        resetForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearAuthErrors();
+            const token = document.getElementById('reset-token-input').value.trim();
+            const newPassword = document.getElementById('reset-new-password').value;
+            const btn = resetForm.querySelector('button[type=submit]');
+            btn.disabled = true;
+            try {
+                await Auth.resetPassword(token, newPassword);
+                hideLoginModal();
+            } catch (err) {
+                showAuthError('reset', err.message);
+            } finally {
+                btn.disabled = false;
+            }
+        });
+    }
+
     // ── View switchers ──
     document.getElementById('go-register')?.addEventListener('click', (e) => {
         e.preventDefault(); clearAuthErrors(); switchLoginView('register');
@@ -329,6 +364,12 @@ function setupLoginModalEvents() {
         e.preventDefault(); clearAuthErrors(); switchLoginView('login');
     });
     document.getElementById('go-login-from-setup')?.addEventListener('click', (e) => {
+        e.preventDefault(); clearAuthErrors(); switchLoginView('login');
+    });
+    document.getElementById('go-reset')?.addEventListener('click', (e) => {
+        e.preventDefault(); clearAuthErrors(); switchLoginView('reset');
+    });
+    document.getElementById('go-login-from-reset')?.addEventListener('click', (e) => {
         e.preventDefault(); clearAuthErrors(); switchLoginView('login');
     });
 

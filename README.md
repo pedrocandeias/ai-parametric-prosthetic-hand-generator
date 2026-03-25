@@ -63,6 +63,7 @@ Navigate to `http://localhost:3000` — the app shows a **First-Run Setup** form
 Create the admin account. You can then log in and create tech/user accounts from the Admin Panel.
 
 **CLI alternative:**
+
 ```bash
 node scripts/create-admin.js admin admin@example.com MyPassword123
 ```
@@ -103,13 +104,13 @@ node scripts/create-admin.js admin admin@example.com MyPassword123
 
 ### `.env` variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `JWT_SECRET` | Yes | 256-bit hex secret for JWT signing |
-| `ANTHROPIC_API_KEY` | For AI | Claude API key |
-| `OPENAI_API_KEY` | For AI | OpenAI API key |
-| `PORT` | No | HTTP port (default: 3000) |
-| `NODE_ENV` | No | `development` or `production` |
+| Variable            | Required | Description                        |
+| ------------------- | -------- | ---------------------------------- |
+| `JWT_SECRET`        | Yes      | 256-bit hex secret for JWT signing |
+| `ANTHROPIC_API_KEY` | For AI   | Claude API key                     |
+| `OPENAI_API_KEY`    | For AI   | OpenAI API key                     |
+| `PORT`              | No       | HTTP port (default: 3000)          |
+| `NODE_ENV`          | No       | `development` or `production`      |
 
 ### `models/models-config.json` — parameter types
 
@@ -126,12 +127,12 @@ node scripts/create-admin.js admin admin@example.com MyPassword123
 }
 ```
 
-| Type | Control | Notes |
-|------|---------|-------|
-| `number` (with min/max) | Slider | |
-| `number` (no min/max) | Number input | |
-| `boolean` | Checkbox | |
-| `string` | Text input | |
+| Type                    | Control      | Notes |
+| ----------------------- | ------------ | ----- |
+| `number` (with min/max) | Slider       |       |
+| `number` (no min/max)   | Number input |       |
+| `boolean`               | Checkbox     |       |
+| `string`                | Text input   |       |
 
 Parameter names must match variable names in the `.scad` file exactly.
 
@@ -139,29 +140,29 @@ Parameter names must match variable names in the `.scad` file exactly.
 
 ## User Roles
 
-| Role | Capabilities |
-|------|-------------|
+| Role      | Capabilities                                                  |
+| --------- | ------------------------------------------------------------- |
 | **admin** | Full access: manage users, view all configs, tech assignments |
-| **tech** | Own configs + read/write configs for assigned patients |
-| **user** | Own saved configurations only |
+| **tech**  | Own configs + read/write configs for assigned patients        |
+| **user**  | Own saved configurations only                                 |
 
 ---
 
 ## API Overview
 
-| Base path | Description |
-|-----------|-------------|
-| `GET /api/setup/status` | First-run check |
-| `POST /api/setup/admin` | Create first admin |
-| `POST /api/auth/login` | Login |
-| `POST /api/auth/register` | Self-register |
-| `POST /api/auth/refresh` | Rotate tokens via cookie |
-| `POST /api/auth/logout` | Revoke token |
-| `GET /api/users` | List users (admin) |
-| `POST /api/users` | Create user (admin) |
-| `GET /api/configurations` | List accessible configs |
-| `POST /api/configurations` | Save config |
-| `POST /api/ai/suggest` | AI parameter suggestion proxy |
+| Base path                  | Description                   |
+| -------------------------- | ----------------------------- |
+| `GET /api/setup/status`    | First-run check               |
+| `POST /api/setup/admin`    | Create first admin            |
+| `POST /api/auth/login`     | Login                         |
+| `POST /api/auth/register`  | Self-register                 |
+| `POST /api/auth/refresh`   | Rotate tokens via cookie      |
+| `POST /api/auth/logout`    | Revoke token                  |
+| `GET /api/users`           | List users (admin)            |
+| `POST /api/users`          | Create user (admin)           |
+| `GET /api/configurations`  | List accessible configs       |
+| `POST /api/configurations` | Save config                   |
+| `POST /api/ai/suggest`     | AI parameter suggestion proxy |
 
 Full API docs: [ARCHITECTURE.md](ARCHITECTURE.md)
 
@@ -194,6 +195,23 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for full production setup with pm2 / systemd 
 The new model appears in the dropdown immediately.
 
 ---
+
+## Password Reset (CLI)
+
+If you lose admin credentials, reset via Node:
+
+```bash
+node -e "
+const db = require('./server/db');
+const bcrypt = require('bcrypt');
+const hash = bcrypt.hashSync('newpassword', 12);
+db.prepare('UPDATE users SET password_hash = ? WHERE username = ?').run(hash, 'USERNAME');
+console.log('done');
+"
+```
+
+Replace `newpassword` and `USERNAME` with your new password and target username.
+
 
 ## Credits
 

@@ -559,6 +559,7 @@
                 </form>
                 <div class="auth-links">
                     Don't have an account? <a id="go-register">Register</a>
+                    &nbsp;&middot;&nbsp; <a id="go-reset">Reset Password</a>
                 </div>
             </div>
 
@@ -583,6 +584,27 @@
                 </form>
                 <div class="auth-links">
                     Already have an account? <a id="go-login">Sign In</a>
+                </div>
+            </div>
+
+            <!-- Password reset view -->
+            <div id="login-view-reset" class="login-view" style="display:none">
+                <h2>Reset Password</h2>
+                <p style="color:#666;font-size:0.85rem;margin-bottom:1rem;">Enter the reset token provided by your administrator and choose a new password.</p>
+                <div class="auth-error" id="reset-error"></div>
+                <form id="reset-form" autocomplete="off">
+                    <div class="form-group">
+                        <label for="reset-token-input">Reset Token</label>
+                        <input type="text" id="reset-token-input" name="token" autocomplete="off" required placeholder="Paste your token here">
+                    </div>
+                    <div class="form-group">
+                        <label for="reset-new-password">New Password (min 8 chars)</label>
+                        <input type="password" id="reset-new-password" name="new_password" autocomplete="new-password" required minlength="8">
+                    </div>
+                    <button type="submit" class="btn-submit">Set New Password</button>
+                </form>
+                <div class="auth-links">
+                    <a id="go-login-from-reset">Back to Sign In</a>
                 </div>
             </div>
 
