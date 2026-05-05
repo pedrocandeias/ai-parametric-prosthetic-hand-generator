@@ -201,6 +201,17 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for full production setup with pm2 / systemd 
 
 ---
 
+## Available Models
+
+| Model | File | Description |
+|-------|------|-------------|
+| **PeKwawu** | `pekwawu.scad` | Kwawu Arm 3.0 Wrap (CC BY 4.0) — for long forearm residual limbs. Parameters map directly to anthropometric profile fields. |
+| **Anthropometric Hand** | `anthropometric_hand.scad` | Full parametric prosthetic hand driven by per-finger phalanx lengths, palm dimensions, and wrist socket geometry. |
+| **Anthropometric Cyborg Beast** | `anthropometric_cyborgbeast.scad` | Cyborg Beast geometry reparametrized with anthropometric measurements. |
+| **Cyborg Beast** | `cyborgbeast07l.scad` | Classic Cyborg Beast full assembly. |
+| **Fingerator** | `fingerator.scad` | Phoenix Reborn / Fingerator prosthetic finger. |
+| **Paraglider Palm** | `paraglider_palm_left.scad` | Paraglider Palm left-hand model. |
+
 ## Adding Models
 
 1. Put your `.scad` file in `models/`
@@ -208,6 +219,24 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for full production setup with pm2 / systemd 
 3. Restart the server
 
 The new model appears in the dropdown immediately.
+
+## Anthropometric Profiles
+
+The admin panel's **Anthropometric Profiles** tab lets you build a library of population-level hand measurement datasets. Profiles are processed by `server/services/anthropometricImporter.js` which derives:
+
+- Per-finger phalanx segment lengths (from totals via anatomical ratios)
+- Palm structural thickness, finger base width, tendon channel diameter
+- Socket internal geometry (diameter, depth, taper) from residual limb measurements
+- A `pekwawu` block mapping measurements to Kwawu Arm parameters
+
+### Importing multi_population_hand.csv
+
+The repo ships with `data/multi_population_hand.csv` — 96 population groups from published anthropometric studies. To load them all at once:
+
+1. Log in as admin → open **Admin Panel**
+2. Go to **Anthropometric Profiles** tab
+3. Click **⬆ Import CSV Dataset** and select `data/multi_population_hand.csv`
+4. A toast confirms how many profiles were created (re-importing is safe — duplicates are skipped)
 
 ---
 
@@ -233,3 +262,4 @@ Replace `newpassword` and `USERNAME` with your new password and target username.
 - [OpenSCAD Playground](https://github.com/openscad/openscad-playground) — WASM rendering
 - [OpenSCAD](https://openscad.org/) — parametric 3D modelling
 - [Fingerator](https://www.thingiverse.com/thing:2729448) — prosthetic finger model
+- [Kwawu Arm 3.0 Wrap](https://github.com/JacquinBuchanan/Kwawu3Wrap) by Jacqun Buchanan / e-NABLE community — basis for the PeKwawu model (CC BY 4.0)

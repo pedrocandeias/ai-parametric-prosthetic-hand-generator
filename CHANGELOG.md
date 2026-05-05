@@ -12,6 +12,17 @@ Entry format follows [Conventional Commits](https://www.conventionalcommits.org/
 
 ---
 
+## v6.1.0 — 2026-05-05
+
+fix: wrap string parameter values in OpenSCAD quotes when substituting into SCAD code — was rendering part = Cuff1 (unquoted variable) causing all if(Part==...) comparisons to fail with empty geometry
+fix: remove STL-import parts from PeKwawu part selector (IndexFingerEnd, arm segments, Ratchet, WhippleTrees, etc.) — these depend on external .stl files unavailable in the WASM renderer
+chore: rename PeKwawu model to "PeKwawu v1 (Long Residual Limb)"
+chore: move all non-PeKwawu model files to models/old_models/ and remove from models-config.json
+docs: update CLAUDE.md — CHANGELOG update and package.json version bump are now mandatory on every change
+docs: update README.md with anthropometric profiles, PeKwawu, bulk CSV import, and full API table
+
+---
+
 ## v6.0.0 — 2026-05-05
 
 feat: add PeKwawu model — Kwawu Arm 3.0 Wrap Version (CC BY 4.0, JacquinBuchanan/e-NABLE) adapted for the platform; designed for long forearm residual limbs using a wrap-style socket

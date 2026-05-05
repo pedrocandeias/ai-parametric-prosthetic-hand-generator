@@ -350,7 +350,8 @@ class ParameterEditor {
             );
 
             if (code.match(pattern)) {
-                code = code.replace(pattern, `$1${paramValue};`);
+                const scadValue = (param.type === 'string') ? `"${paramValue}"` : paramValue;
+                code = code.replace(pattern, `$1${scadValue};`);
             }
         });
 

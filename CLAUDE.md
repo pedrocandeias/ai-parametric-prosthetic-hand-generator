@@ -122,7 +122,7 @@ After login, `Auth.fetchWithAuth(url, opts)` handles token injection and silent 
 
 ## Changelog Maintenance
 
-Update `CHANGELOG.md` whenever you make a change. Add a new version block at the top:
+**Always update `CHANGELOG.md` as part of every change — no exceptions.** Every code change, however small, must be accompanied by a CHANGELOG entry before the work is considered done. Add a new version block at the top:
 
 ```
 ## vX.Y.Z — YYYY-MM-DD
@@ -147,3 +147,5 @@ feat: add password reset via email token
 fix: correct timezone handling in token expiry
 docs: add API rate limit table to ARCHITECTURE.md
 ```
+
+**Always keep `package.json` `version` in sync with the latest CHANGELOG version.** After writing the CHANGELOG entry, update the `version` field in `package.json` to match (e.g. `"version": "3.1.0"`).
