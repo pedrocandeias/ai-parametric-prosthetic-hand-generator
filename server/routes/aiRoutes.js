@@ -11,7 +11,7 @@ const router = express.Router();
 // 10 requests per minute per IP (authenticated users only)
 const aiLimiter = rateLimit({
     windowMs: 60 * 1000,
-    max: 10,
+    max: 30,
     keyGenerator: (req) => String(req.user?.sub ?? req.ip),
     message: { error: 'AI rate limit exceeded, please wait a moment' },
     standardHeaders: true,
@@ -20,7 +20,7 @@ const aiLimiter = rateLimit({
 
 const SuggestSchema = z.object({
     provider: z.enum(['anthropic', 'openai']).default('anthropic'),
-    prompt: z.string().min(1).max(4000),
+    prompt: z.string().min(1).max(16000),
 });
 
 // POST /api/ai/suggest

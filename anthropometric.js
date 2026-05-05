@@ -14,6 +14,10 @@
 
 const AnthropometricImporter = (() => {
 
+    // ── State ─────────────────────────────────────────────────────────────────
+
+    let _editId = null;
+
     // ── Open / close ──────────────────────────────────────────────────────────
 
     function openNew() {
@@ -22,22 +26,133 @@ const AnthropometricImporter = (() => {
         if (modal) modal.style.display = 'flex';
     }
 
+    async function openEdit(id) {
+        resetModal();
+        _editId = id;
+
+        const title = document.getElementById('anthro-modal-title');
+        if (title) title.textContent = `Edit Anthropometric Profile #${id}`;
+
+        const saveBtn = document.getElementById('anthro-save-btn');
+        if (saveBtn) saveBtn.textContent = 'Save Changes';
+
+        setStatus('Loading…', '');
+        const modal = document.getElementById('anthro-modal');
+        if (modal) modal.style.display = 'flex';
+
+        try {
+            const res = await Auth.fetchWithAuth(`/api/anthropometric/${id}`);
+            if (!res.ok) throw new Error('Failed to load profile');
+            const data = await res.json();
+            populateFromProfile(data.profile);
+            renderResults(data);
+            setStatus('', '');
+        } catch (err) {
+            setStatus(err.message, 'error');
+        }
+    }
+
     function close() {
         const modal = document.getElementById('anthro-modal');
         if (modal) modal.style.display = 'none';
     }
 
     function resetModal() {
+        _editId = null;
         document.querySelectorAll('#anthro-modal input[type=number], #anthro-modal input[type=text]')
             .forEach(el => { el.value = ''; });
+        document.querySelectorAll('#anthro-modal select')
+            .forEach(el => { el.selectedIndex = 0; });
         const ta = document.getElementById('anthro-import-text');
         if (ta) ta.value = '';
         const res = document.getElementById('anthro-results');
         if (res) { res.style.display = 'none'; res.innerHTML = ''; }
         setStatus('', '');
         const saveBtn = document.getElementById('anthro-save-btn');
-        if (saveBtn) saveBtn.disabled = false;
+        if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save Profile'; }
+        const title = document.getElementById('anthro-modal-title');
+        if (title) title.textContent = 'New Anthropometric Profile';
         switchTab('manual');
+    }
+
+    // ── Populate form from stored profile ─────────────────────────────────────
+
+    function sv(id, val) {
+        const el = document.getElementById(id);
+        if (el && val != null) el.value = val;
+    }
+
+    function sel(id, val) {
+        const el = document.getElementById(id);
+        if (el && val != null) el.value = val;
+    }
+
+    function populateFromProfile(profile) {
+        if (!profile) return;
+        const meta = profile.metadata     || {};
+        const m    = profile.measurements || {};
+        const palm = m.palm               || {};
+        const d    = m.digits             || {};
+        const wrist = m.wrist             || {};
+        const rl   = m.residual_limb      || {};
+        const con  = profile.constraints  || {};
+
+        // Metadata
+        sv('anthro-group-name',  meta.group_name  || '');
+        sv('anthro-country',     meta.country     || '');
+        sv('anthro-age-group',   meta.age_group   || '');
+        sv('anthro-percentile',  meta.percentile  || '');
+        sv('anthro-data-source', meta.data_source || '');
+        sv('anthro-notes',       meta.notes       || '');
+        if (meta.sample_size) sv('anthro-sample-size', meta.sample_size);
+
+        sel('anthro-gender',    meta.gender                 || '');
+        sel('anthro-hardware',  con.hardware_standard       || 'm3');
+        sel('anthro-tolerance', con.tolerance_preference    || 'standard');
+        sel('anthro-unit', 'mm'); // always stored in mm
+
+        // Palm
+        sv('anthro-palm-length',      palm.length_mm);
+        sv('anthro-palm-width',       palm.width_mm);
+        sv('anthro-palm-thickness',   palm.thickness_mm);
+        sv('anthro-avg-finger-width', palm.average_finger_width_mm);
+        sv('anthro-wrist-circ',       wrist.circumference_mm);
+
+        // Residual limb
+        sv('anthro-stump-length',    rl.length_mm);
+        sv('anthro-stump-circ-prox', rl.circumference_proximal_mm);
+        sv('anthro-stump-circ-dist', rl.circumference_distal_mm);
+
+        // Thumb
+        sv('anthro-thumb-total', (d.thumb  || {}).total_length_mm);
+
+        // Index
+        sv('anthro-idx-total', (d.index || {}).total_length_mm);
+        sv('anthro-idx-prox',  (d.index || {}).proximal_length_mm);
+        sv('anthro-idx-mid',   (d.index || {}).middle_length_mm);
+        sv('anthro-idx-dist',  (d.index || {}).distal_length_mm);
+        sv('anthro-idx-circ',  (d.index || {}).circumference_mm);
+
+        // Middle
+        sv('anthro-mid-total', (d.middle || {}).total_length_mm);
+        sv('anthro-mid-prox',  (d.middle || {}).proximal_length_mm);
+        sv('anthro-mid-mid',   (d.middle || {}).middle_length_mm);
+        sv('anthro-mid-dist',  (d.middle || {}).distal_length_mm);
+        sv('anthro-mid-circ',  (d.middle || {}).circumference_mm);
+
+        // Ring
+        sv('anthro-ring-total', (d.ring || {}).total_length_mm);
+        sv('anthro-ring-prox',  (d.ring || {}).proximal_length_mm);
+        sv('anthro-ring-mid',   (d.ring || {}).middle_length_mm);
+        sv('anthro-ring-dist',  (d.ring || {}).distal_length_mm);
+        sv('anthro-ring-circ',  (d.ring || {}).circumference_mm);
+
+        // Pinky
+        sv('anthro-pinky-total', (d.pinky || {}).total_length_mm);
+        sv('anthro-pinky-prox',  (d.pinky || {}).proximal_length_mm);
+        sv('anthro-pinky-mid',   (d.pinky || {}).middle_length_mm);
+        sv('anthro-pinky-dist',  (d.pinky || {}).distal_length_mm);
+        sv('anthro-pinky-circ',  (d.pinky || {}).circumference_mm);
     }
 
     // ── Tab switching ─────────────────────────────────────────────────────────
@@ -170,15 +285,18 @@ const AnthropometricImporter = (() => {
             const activeTab = document.querySelector('.anthro-tab-btn.active')?.dataset.tab || 'manual';
             const payload   = activeTab === 'import' ? collectImportData() : collectManualData();
 
-            const url = save ? '/api/anthropometric' : '/api/anthropometric/preview';
-            const res = await Auth.fetchWithAuth(url, { method: 'POST', body: JSON.stringify(payload) });
+            const url = save
+                ? (_editId ? `/api/anthropometric/${_editId}` : '/api/anthropometric')
+                : '/api/anthropometric/preview';
+            const method = save && _editId ? 'PUT' : 'POST';
+            const res = await Auth.fetchWithAuth(url, { method, body: JSON.stringify(payload) });
             const result = await res.json();
             if (!res.ok) throw new Error(result.error || 'Processing failed');
 
             renderResults(result);
 
             if (save) {
-                setStatus(`Saved — profile #${result.id}`, 'success');
+                setStatus(`${_editId ? 'Updated' : 'Saved'} — profile #${result.id}`, 'success');
                 document.getElementById('anthro-save-btn').disabled = true;
                 if (typeof window.loadAnthroProfiles === 'function') window.loadAnthroProfiles();
             } else {
@@ -302,5 +420,5 @@ const AnthropometricImporter = (() => {
         });
     });
 
-    return { openNew, close, loadProfiles, deleteProfile };
+    return { openNew, openEdit, close, loadProfiles, deleteProfile };
 })();

@@ -368,7 +368,11 @@
                 <div class="card">
                     <div class="card-header">
                         <h2>Anthropometric Profiles</h2>
-                        <button class="btn-success" id="anthro-new-btn">+ New Profile</button>
+                        <div style="display:flex;gap:0.5rem;align-items:center">
+                            <button class="btn-secondary" id="anthro-bulk-import-btn" title="Import population profiles from multi_population_hand.csv">⬆ Import CSV Dataset</button>
+                            <button class="btn-success" id="anthro-new-btn">+ New Profile</button>
+                        </div>
+                        <input type="file" id="anthro-bulk-file" accept=".csv" style="display:none">
                     </div>
 
                     <!-- Filters -->
@@ -434,7 +438,7 @@
     <div id="anthro-modal">
         <div class="anthro-box">
             <div class="anthro-header">
-                <h2>New Anthropometric Profile</h2>
+                <h2 id="anthro-modal-title">New Anthropometric Profile</h2>
                 <button class="anthro-close" id="anthro-close-btn" title="Close">&times;</button>
             </div>
 

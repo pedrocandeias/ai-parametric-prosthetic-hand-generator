@@ -1,6 +1,590 @@
 {
   "models": [
     {
+      "id": "anthropometric_hand",
+      "name": "Anthropometric Hand — Full Parametric Prosthetic",
+      "description": "Complete parametric prosthetic hand driven by anthropometric measurements from the importer. All parameters match the geometry_parameters output: per-finger phalanx lengths, palm dimensions, wrist socket sizing, hardware specs, and tendon channel routing. Supports left/right mirror and assembled/print-flat views.",
+      "file": "anthropometric_hand.scad",
+      "parameters": [
+        {
+          "name": "right_hand",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Right hand (false = left hand mirror)",
+          "group": "Orientation"
+        },
+        {
+          "name": "global_scale",
+          "type": "number",
+          "initial": 1.0,
+          "min": 0.5,
+          "max": 2.0,
+          "step": 0.01,
+          "caption": "Overall scale factor — set to palm_length_mm / 100",
+          "group": "Scale"
+        },
+        {
+          "name": "palm_width_mm",
+          "type": "number",
+          "initial": 85,
+          "min": 40,
+          "max": 130,
+          "step": 1,
+          "caption": "Palm width / breadth (mm)",
+          "group": "Palm"
+        },
+        {
+          "name": "palm_length_mm",
+          "type": "number",
+          "initial": 100,
+          "min": 60,
+          "max": 180,
+          "step": 1,
+          "caption": "Palm length (mm)",
+          "group": "Palm"
+        },
+        {
+          "name": "palm_thickness_mm",
+          "type": "number",
+          "initial": 26,
+          "min": 10,
+          "max": 60,
+          "step": 1,
+          "caption": "Palm external thickness (mm)",
+          "group": "Palm"
+        },
+        {
+          "name": "palm_wall_thickness_mm",
+          "type": "number",
+          "initial": 2.5,
+          "min": 1.5,
+          "max": 5.0,
+          "step": 0.5,
+          "caption": "Shell wall thickness (mm)",
+          "group": "Palm"
+        },
+        {
+          "name": "palm_structural_thickness",
+          "type": "number",
+          "initial": 9.1,
+          "min": 3.5,
+          "max": 21.0,
+          "step": 0.1,
+          "caption": "Structural slab thickness — 35% of palm_thickness (mm)",
+          "group": "Palm"
+        },
+        {
+          "name": "finger_length_index",
+          "type": "number",
+          "initial": 68,
+          "min": 40,
+          "max": 100,
+          "step": 1,
+          "caption": "Index finger total length (mm)",
+          "group": "Finger Lengths"
+        },
+        {
+          "name": "finger_length_middle",
+          "type": "number",
+          "initial": 73,
+          "min": 40,
+          "max": 110,
+          "step": 1,
+          "caption": "Middle finger total length (mm)",
+          "group": "Finger Lengths"
+        },
+        {
+          "name": "finger_length_ring",
+          "type": "number",
+          "initial": 68,
+          "min": 40,
+          "max": 100,
+          "step": 1,
+          "caption": "Ring finger total length (mm)",
+          "group": "Finger Lengths"
+        },
+        {
+          "name": "finger_length_pinky",
+          "type": "number",
+          "initial": 55,
+          "min": 30,
+          "max": 85,
+          "step": 1,
+          "caption": "Pinky finger total length (mm)",
+          "group": "Finger Lengths"
+        },
+        {
+          "name": "finger_length_thumb",
+          "type": "number",
+          "initial": 58,
+          "min": 25,
+          "max": 90,
+          "step": 1,
+          "caption": "Thumb total length (mm)",
+          "group": "Finger Lengths"
+        },
+        {
+          "name": "proximal_phalanx_length",
+          "type": "number",
+          "initial": 30.6,
+          "min": 12,
+          "max": 60,
+          "step": 0.1,
+          "caption": "Index proximal phalanx length — 45% of index total (mm)",
+          "group": "Phalanx Reference"
+        },
+        {
+          "name": "middle_phalanx_length",
+          "type": "number",
+          "initial": 21.1,
+          "min": 8,
+          "max": 50,
+          "step": 0.1,
+          "caption": "Index middle phalanx length — 31% of index total (mm)",
+          "group": "Phalanx Reference"
+        },
+        {
+          "name": "distal_phalanx_length",
+          "type": "number",
+          "initial": 16.3,
+          "min": 6,
+          "max": 35,
+          "step": 0.1,
+          "caption": "Index distal phalanx length — 24% of index total (mm)",
+          "group": "Phalanx Reference"
+        },
+        {
+          "name": "finger_base_width",
+          "type": "number",
+          "initial": 17,
+          "min": 8,
+          "max": 35,
+          "step": 0.5,
+          "caption": "Finger width — average_finger_width (mm)",
+          "group": "Finger Geometry"
+        },
+        {
+          "name": "joint_spacing_mm",
+          "type": "number",
+          "initial": 1.5,
+          "min": 0.5,
+          "max": 3.0,
+          "step": 0.1,
+          "caption": "Gap between phalanges at each joint (mm)",
+          "group": "Finger Geometry"
+        },
+        {
+          "name": "internal_channel_diameter",
+          "type": "number",
+          "initial": 2.0,
+          "min": 1.5,
+          "max": 4.0,
+          "step": 0.1,
+          "caption": "Palmar tendon channel diameter (mm)",
+          "group": "Finger Geometry"
+        },
+        {
+          "name": "pivot_diameter_mm",
+          "type": "number",
+          "initial": 3.0,
+          "min": 2.0,
+          "max": 4.0,
+          "step": 0.5,
+          "caption": "Hinge pin diameter — 2.0=M2, 3.0=M3, 4.0=M4 (mm)",
+          "group": "Hardware"
+        },
+        {
+          "name": "clearance_mm",
+          "type": "number",
+          "initial": 0.4,
+          "min": 0.2,
+          "max": 0.6,
+          "step": 0.1,
+          "caption": "Joint clearance — 0.2=snug, 0.4=standard, 0.6=loose (mm)",
+          "group": "Hardware"
+        },
+        {
+          "name": "socket_diameter_proximal_mm",
+          "type": "number",
+          "initial": 63.7,
+          "min": 22,
+          "max": 120,
+          "step": 0.5,
+          "caption": "Socket opening (proximal) inner diameter (mm)",
+          "group": "Wrist Socket"
+        },
+        {
+          "name": "socket_diameter_distal_mm",
+          "type": "number",
+          "initial": 54.1,
+          "min": 16,
+          "max": 95,
+          "step": 0.5,
+          "caption": "Socket palm-side inner diameter (mm)",
+          "group": "Wrist Socket"
+        },
+        {
+          "name": "socket_inner_diameter_mm",
+          "type": "number",
+          "initial": 58.9,
+          "min": 18,
+          "max": 105,
+          "step": 0.5,
+          "caption": "Socket mid-point reference diameter (mm)",
+          "group": "Wrist Socket"
+        },
+        {
+          "name": "socket_depth_mm",
+          "type": "number",
+          "initial": 60,
+          "min": 30,
+          "max": 150,
+          "step": 1,
+          "caption": "Socket depth (mm)",
+          "group": "Wrist Socket"
+        },
+        {
+          "name": "socket_taper_angle_deg",
+          "type": "number",
+          "initial": 4.5,
+          "min": 2,
+          "max": 8,
+          "step": 0.5,
+          "caption": "Socket wall taper angle (degrees)",
+          "group": "Wrist Socket"
+        },
+        {
+          "name": "socket_rim_thickness_mm",
+          "type": "number",
+          "initial": 4.5,
+          "min": 2,
+          "max": 8,
+          "step": 0.5,
+          "caption": "Socket proximal rim reinforcement thickness (mm)",
+          "group": "Wrist Socket"
+        },
+        {
+          "name": "socket_distal_cap_thickness_mm",
+          "type": "number",
+          "initial": 3,
+          "min": 2,
+          "max": 6,
+          "step": 0.5,
+          "caption": "Socket distal cap / flange thickness (mm)",
+          "group": "Wrist Socket"
+        },
+        {
+          "name": "show_assembled",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Assembled view (false = flat print layout)",
+          "group": "View"
+        },
+        {
+          "name": "$fn",
+          "type": "number",
+          "initial": 48,
+          "min": 12,
+          "max": 128,
+          "step": 4,
+          "caption": "Curve resolution — lower = faster preview",
+          "group": "View"
+        }
+      ]
+    },
+    {
+      "id": "anthropometric_cyborgbeast",
+      "name": "Anthropometric Cyborg Beast — CB Geometry + Measurements",
+      "description": "Cyborg Beast prosthetic hand geometry reparametrized with anthropometric inputs. Preserves the proven CB organic hull shapes, tongue-and-fork hinges, grip-textured fingertips, and wrist arms — but all dimensions scale from anthropometric palm/finger measurements via q = palm_width / 64 master factor. Hardware holes stay at physical size.",
+      "file": "anthropometric_cyborgbeast.scad",
+      "parameters": [
+        {
+          "name": "right_hand",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Right hand (false = left hand mirror)",
+          "group": "Orientation"
+        },
+        {
+          "name": "global_scale",
+          "type": "number",
+          "initial": 1.0,
+          "min": 0.5,
+          "max": 2.0,
+          "step": 0.01,
+          "caption": "Overall scale factor",
+          "group": "Scale"
+        },
+        {
+          "name": "palm_width_mm",
+          "type": "number",
+          "initial": 85,
+          "min": 40,
+          "max": 130,
+          "step": 1,
+          "caption": "Palm width / breadth (mm)",
+          "group": "Palm"
+        },
+        {
+          "name": "palm_length_mm",
+          "type": "number",
+          "initial": 100,
+          "min": 60,
+          "max": 180,
+          "step": 1,
+          "caption": "Palm length (mm)",
+          "group": "Palm"
+        },
+        {
+          "name": "palm_thickness_mm",
+          "type": "number",
+          "initial": 26,
+          "min": 10,
+          "max": 60,
+          "step": 1,
+          "caption": "Palm external thickness (mm)",
+          "group": "Palm"
+        },
+        {
+          "name": "palm_wall_thickness_mm",
+          "type": "number",
+          "initial": 2.5,
+          "min": 1.5,
+          "max": 5.0,
+          "step": 0.5,
+          "caption": "Shell wall thickness (mm)",
+          "group": "Palm"
+        },
+        {
+          "name": "palm_structural_thickness",
+          "type": "number",
+          "initial": 9.1,
+          "min": 3.5,
+          "max": 21.0,
+          "step": 0.1,
+          "caption": "Structural slab thickness — 35% of palm_thickness (mm)",
+          "group": "Palm"
+        },
+        {
+          "name": "finger_length_index",
+          "type": "number",
+          "initial": 68,
+          "min": 40,
+          "max": 100,
+          "step": 1,
+          "caption": "Index finger total length (mm)",
+          "group": "Finger Lengths"
+        },
+        {
+          "name": "finger_length_middle",
+          "type": "number",
+          "initial": 73,
+          "min": 40,
+          "max": 110,
+          "step": 1,
+          "caption": "Middle finger total length (mm)",
+          "group": "Finger Lengths"
+        },
+        {
+          "name": "finger_length_ring",
+          "type": "number",
+          "initial": 68,
+          "min": 40,
+          "max": 100,
+          "step": 1,
+          "caption": "Ring finger total length (mm)",
+          "group": "Finger Lengths"
+        },
+        {
+          "name": "finger_length_pinky",
+          "type": "number",
+          "initial": 55,
+          "min": 30,
+          "max": 85,
+          "step": 1,
+          "caption": "Pinky finger total length (mm)",
+          "group": "Finger Lengths"
+        },
+        {
+          "name": "finger_length_thumb",
+          "type": "number",
+          "initial": 58,
+          "min": 25,
+          "max": 90,
+          "step": 1,
+          "caption": "Thumb total length (mm)",
+          "group": "Finger Lengths"
+        },
+        {
+          "name": "proximal_phalanx_length",
+          "type": "number",
+          "initial": 30.6,
+          "min": 12,
+          "max": 60,
+          "step": 0.1,
+          "caption": "Index proximal phalanx length — 45% of index total (mm)",
+          "group": "Phalanx Reference"
+        },
+        {
+          "name": "middle_phalanx_length",
+          "type": "number",
+          "initial": 21.1,
+          "min": 8,
+          "max": 50,
+          "step": 0.1,
+          "caption": "Index middle phalanx length — 31% of index total (mm)",
+          "group": "Phalanx Reference"
+        },
+        {
+          "name": "distal_phalanx_length",
+          "type": "number",
+          "initial": 16.3,
+          "min": 6,
+          "max": 35,
+          "step": 0.1,
+          "caption": "Index distal phalanx length — 24% of index total (mm)",
+          "group": "Phalanx Reference"
+        },
+        {
+          "name": "finger_base_width",
+          "type": "number",
+          "initial": 17,
+          "min": 8,
+          "max": 35,
+          "step": 0.5,
+          "caption": "Finger width — average_finger_width (mm)",
+          "group": "Finger Geometry"
+        },
+        {
+          "name": "joint_spacing_mm",
+          "type": "number",
+          "initial": 1.5,
+          "min": 0.5,
+          "max": 3.0,
+          "step": 0.1,
+          "caption": "Gap between phalanges at each joint (mm)",
+          "group": "Finger Geometry"
+        },
+        {
+          "name": "internal_channel_diameter",
+          "type": "number",
+          "initial": 2.0,
+          "min": 1.5,
+          "max": 4.0,
+          "step": 0.1,
+          "caption": "Palmar tendon channel diameter (mm)",
+          "group": "Finger Geometry"
+        },
+        {
+          "name": "pivot_diameter_mm",
+          "type": "number",
+          "initial": 3.0,
+          "min": 2.0,
+          "max": 4.0,
+          "step": 0.5,
+          "caption": "Hinge pin diameter — 2.0=M2, 3.0=M3, 4.0=M4 (mm)",
+          "group": "Hardware"
+        },
+        {
+          "name": "clearance_mm",
+          "type": "number",
+          "initial": 0.4,
+          "min": 0.2,
+          "max": 0.6,
+          "step": 0.1,
+          "caption": "Joint clearance — 0.2=snug, 0.4=standard, 0.6=loose (mm)",
+          "group": "Hardware"
+        },
+        {
+          "name": "socket_diameter_proximal_mm",
+          "type": "number",
+          "initial": 63.7,
+          "min": 22,
+          "max": 120,
+          "step": 0.5,
+          "caption": "Socket opening (proximal) inner diameter (mm)",
+          "group": "Wrist Socket"
+        },
+        {
+          "name": "socket_diameter_distal_mm",
+          "type": "number",
+          "initial": 54.1,
+          "min": 16,
+          "max": 95,
+          "step": 0.5,
+          "caption": "Socket palm-side inner diameter (mm)",
+          "group": "Wrist Socket"
+        },
+        {
+          "name": "socket_inner_diameter_mm",
+          "type": "number",
+          "initial": 58.9,
+          "min": 18,
+          "max": 105,
+          "step": 0.5,
+          "caption": "Socket mid-point reference diameter (mm)",
+          "group": "Wrist Socket"
+        },
+        {
+          "name": "socket_depth_mm",
+          "type": "number",
+          "initial": 60,
+          "min": 30,
+          "max": 150,
+          "step": 1,
+          "caption": "Socket depth (mm)",
+          "group": "Wrist Socket"
+        },
+        {
+          "name": "socket_taper_angle_deg",
+          "type": "number",
+          "initial": 4.5,
+          "min": 2,
+          "max": 8,
+          "step": 0.5,
+          "caption": "Socket wall taper angle (degrees)",
+          "group": "Wrist Socket"
+        },
+        {
+          "name": "socket_rim_thickness_mm",
+          "type": "number",
+          "initial": 4.5,
+          "min": 2,
+          "max": 8,
+          "step": 0.5,
+          "caption": "Socket proximal rim reinforcement thickness (mm)",
+          "group": "Wrist Socket"
+        },
+        {
+          "name": "socket_distal_cap_thickness_mm",
+          "type": "number",
+          "initial": 3,
+          "min": 2,
+          "max": 6,
+          "step": 0.5,
+          "caption": "Socket distal cap / flange thickness (mm)",
+          "group": "Wrist Socket"
+        },
+        {
+          "name": "show_assembled",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Assembled view (false = palm only)",
+          "group": "View"
+        },
+        {
+          "name": "$fn",
+          "type": "number",
+          "initial": 32,
+          "min": 12,
+          "max": 128,
+          "step": 4,
+          "caption": "Curve resolution — lower = faster preview",
+          "group": "View"
+        }
+      ]
+    },
+    {
       "id": "cyborgbeast07l",
       "name": "Cyborg Beast — Full Hand Assembly",
       "description": "Complete parametric prosthetic hand: palm, wrist, four fingers, and thumb. Scale palmW to fit the user's hand.",
@@ -673,6 +1257,151 @@
           "initial": true,
           "caption": "Include lid",
           "group": "Options"
+        }
+      ]
+    },
+    {
+      "id": "pekwawu",
+      "name": "PeKwawu — Kwawu Arm Wrap (Long Residual Limb)",
+      "description": "Kwawu Arm 3.0 Wrap Version adapted for the platform. Designed for individuals with long forearm residual limbs. All parameters map directly to anthropometric measurements: palm breadth drives the master hand scale, residual limb length sets arm length, and circumferences size the wrap socket. Renders one printable component at a time via the Part selector.",
+      "file": "pekwawu.scad",
+      "parameters": [
+        {
+          "name": "right_arm",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Right arm (false = left arm mirror)",
+          "group": "Orientation"
+        },
+        {
+          "name": "palm_breadth_mm",
+          "type": "number",
+          "initial": 96,
+          "min": 65,
+          "max": 186,
+          "step": 1,
+          "caption": "Palm breadth / knuckle width — master scale driver (mm)",
+          "group": "Hand & Arm Measurements"
+        },
+        {
+          "name": "residual_length_mm",
+          "type": "number",
+          "initial": 282,
+          "min": 50,
+          "max": 500,
+          "step": 1,
+          "caption": "Residual limb length — elbow crease to wrist attachment (mm)",
+          "group": "Hand & Arm Measurements"
+        },
+        {
+          "name": "residual_circumference_proximal_mm",
+          "type": "number",
+          "initial": 270,
+          "min": 70,
+          "max": 542,
+          "step": 1,
+          "caption": "Forearm circumference just below elbow crease (mm)",
+          "group": "Hand & Arm Measurements"
+        },
+        {
+          "name": "bicep_circumference_mm",
+          "type": "number",
+          "initial": 294,
+          "min": 100,
+          "max": 600,
+          "step": 1,
+          "caption": "Bicep / upper arm circumference (mm)",
+          "group": "Hand & Arm Measurements"
+        },
+        {
+          "name": "padding_thickness_mm",
+          "type": "number",
+          "initial": 2,
+          "min": 0,
+          "max": 10,
+          "step": 0.5,
+          "caption": "Inner padding thickness (mm)",
+          "group": "Comfort & Hardware"
+        },
+        {
+          "name": "palm_bolt_diameter_mm",
+          "type": "number",
+          "initial": 6,
+          "min": 4,
+          "max": 8,
+          "step": 2,
+          "caption": "Palm bolt diameter — ISO metric (mm)",
+          "group": "Comfort & Hardware"
+        },
+        {
+          "name": "elbow_bolt_diameter_mm",
+          "type": "number",
+          "initial": 8,
+          "min": 4,
+          "max": 14,
+          "step": 2,
+          "caption": "Elbow bolt diameter — ISO metric (mm)",
+          "group": "Comfort & Hardware"
+        },
+        {
+          "name": "rivet_shaft_diameter_mm",
+          "type": "number",
+          "initial": 5,
+          "min": 2.4,
+          "max": 6,
+          "step": 0.1,
+          "caption": "Leather rivet shaft diameter (mm)",
+          "group": "Comfort & Hardware"
+        },
+        {
+          "name": "strap_width_mm",
+          "type": "number",
+          "initial": 25,
+          "min": 10,
+          "max": 60,
+          "step": 1,
+          "caption": "Velcro strap width (mm)",
+          "group": "Comfort & Hardware"
+        },
+        {
+          "name": "material",
+          "type": "string",
+          "initial": "Leather",
+          "options": ["Leather", "Plastic"],
+          "caption": "Wrap material — affects fastener geometry",
+          "group": "Material"
+        },
+        {
+          "name": "pencil_holder",
+          "type": "boolean",
+          "initial": false,
+          "caption": "Include pencil holder accessory",
+          "group": "Options"
+        },
+        {
+          "name": "part",
+          "type": "string",
+          "initial": "Cuff1",
+          "options": [
+            "Cuff1", "Cuff2", "Cuff3", "CuffLeatherTemplate",
+            "Palm", "PalmTop",
+            "WristButton", "WristCover", "WristAttachment", "WristBolt", "WristBoltPin",
+            "PalmBolt",
+            "IndexFingerEnd", "IndexFingerPhalanx",
+            "MiddleFingerEnd", "MiddleFingerPhalanx",
+            "RingFingerEnd", "RingFingerPhalanx",
+            "PinkyFingerEnd", "PinkyFingerPhalanx",
+            "ThumbEnd", "ThumbPhalanx",
+            "UpperArm1", "UpperArm2", "UpperArm3",
+            "LowerArm1", "LowerArm2", "LowerArm3",
+            "UpperArmLeatherTemplate", "LowerArmLeatherTemplate",
+            "Ratchet", "Latch", "LatchCover",
+            "Tensioner", "WhippleTreePrimary", "WhippleTreeSecondary",
+            "ElbowBolt1", "ElbowBolt2",
+            "PencilHolderCover", "Hinges"
+          ],
+          "caption": "Component to render for 3D printing",
+          "group": "Part"
         }
       ]
     }

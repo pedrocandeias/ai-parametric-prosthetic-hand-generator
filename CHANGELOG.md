@@ -12,6 +12,45 @@ Entry format follows [Conventional Commits](https://www.conventionalcommits.org/
 
 ---
 
+## v6.0.0 — 2026-05-05
+
+feat: add PeKwawu model — Kwawu Arm 3.0 Wrap Version (CC BY 4.0, JacquinBuchanan/e-NABLE) adapted for the platform; designed for long forearm residual limbs using a wrap-style socket
+feat: pekwawu.scad platform parameter block maps palm_breadth_mm → HandWidth, residual_length_mm → ArmLength, residual_circumference_proximal_mm → ForearmCircumference, bicep_circumference_mm → BicepCircumference, plus material/part/comfort/hardware selectors
+feat: add PeKwawu entry to models-config.json with full parameter groups (Orientation, Hand & Arm Measurements, Comfort & Hardware, Material, Options, Part)
+feat: extend anthropometricImporter.buildGeometryParameters() to include pekwawu block deriving HandWidth, ArmLength, ForearmCircumference from stored profile fields
+feat: add POST /api/anthropometric/import-csv-bulk endpoint — parses long-format multi_population_hand.csv, groups rows by (population, country, sex, age_group, percentile), calls importer.process() per group, idempotent by group_name
+feat: add "Import CSV Dataset" button to admin Anthropometric Profiles tab — triggers file picker, POSTs to /import-csv-bulk, shows created/skipped toast
+
+---
+
+## v5.1.0 — 2026-03-30
+
+feat: add Edit button to anthropometric profiles table in admin panel
+feat: add PUT /api/anthropometric/:id endpoint to update existing profiles
+feat: openEdit(id) fetches stored profile and pre-populates the manual entry modal with all measurement and metadata fields
+feat: modal title and save button label update dynamically for new vs edit mode
+
+## v5.0.0 — 2026-03-26
+
+feat: add anthropometric_cyborgbeast.scad — Cyborg Beast prosthetic hand geometry reparametrized with all 29 anthropometric measurement inputs
+feat: master CB scale factor q = palm_width / 64 drives all proportional geometry; per-finger len values computed from anthropometric finger lengths
+feat: preserve original CB organic hull palm, knuckle blocks, thumb boss, cosmetic through-cuts, wrist hinge arms, and finger grip texture
+feat: hardware holes (pins, tendons, elastic channels) at physical dimensions — not scaled with hand size
+feat: thumb split into mid/tip segments using 54% / 46% anatomical ratio with independent CB len computation
+feat: gauntlet module driven by anthropometric socket dimensions (proximal/distal diameters, depth, rim, cap)
+feat: register anthropometric_cyborgbeast in models-config.json with full 29-parameter schema
+
+## v4.1.0 — 2026-03-26
+
+feat: add anthropometric_hand.scad — full parametric prosthetic hand OpenSCAD model driven by anthropometric geometry_parameters (palm dimensions, per-finger phalanx lengths, wrist socket sizing, hardware specs, tendon channel diameter)
+feat: tongue-and-fork hinge design at MCP / PIP / DIP joints with correct clearance and pivot-pin holes
+feat: tapered wrist socket module sized from socket_diameter_proximal/distal_mm, socket_depth_mm, socket_rim_thickness_mm, and socket_distal_cap_thickness_mm
+feat: two-phalanx thumb using 54% / 46% anatomical split, four three-phalanx fingers using 45% / 31% / 24% split
+feat: continuous palmar tendon channel through all phalanges and palm for passive closure actuation
+feat: interior hollowing on all segments and palm slab with configurable wall thickness (palm_wall_thickness_mm)
+feat: left/right mirror via right_hand boolean; assembled view and print-flat layout via show_assembled
+feat: register anthropometric_hand in models-config.json with full parameter schema for all 29 geometry_parameters fields
+
 ## v4.0.0 — 2026-03-25
 
 feat: add full primary anthropometric input structure (palm_breadth, palm_length, palm_thickness, thumb/index/middle/ring/little total lengths, average_finger_width, residual_length, residual_circumference_proximal, residual_circumference_distal)

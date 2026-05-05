@@ -430,11 +430,18 @@ function renderAnthroProfiles(profiles) {
             <td>${fmtDate(p.created_at)}</td>
             <td>
                 <div class="action-cell">
+                    <button class="btn-secondary btn-anthro-edit" data-id="${p.id}">Edit</button>
                     <button class="btn-danger btn-anthro-delete" data-id="${p.id}">Delete</button>
                 </div>
             </td>
         </tr>`;
     }).join('');
+
+    tbody.querySelectorAll('.btn-anthro-edit').forEach(btn => {
+        btn.addEventListener('click', () => {
+            AnthropometricImporter.openEdit(Number(btn.dataset.id));
+        });
+    });
 
     tbody.querySelectorAll('.btn-anthro-delete').forEach(btn => {
         btn.addEventListener('click', async () => {
@@ -457,6 +464,41 @@ function setupAnthroTab() {
     document.getElementById('anthro-new-btn')
         ?.addEventListener('click', () => {
             AnthropometricImporter.openNew();
+        });
+
+    document.getElementById('anthro-bulk-import-btn')
+        ?.addEventListener('click', () => {
+            document.getElementById('anthro-bulk-file').click();
+        });
+
+    document.getElementById('anthro-bulk-file')
+        ?.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            e.target.value = '';
+
+            const btn = document.getElementById('anthro-bulk-import-btn');
+            const orig = btn.textContent;
+            btn.textContent = 'Importing…';
+            btn.disabled = true;
+
+            try {
+                const csv_text = await file.text();
+                const res = await Auth.fetchWithAuth('/api/anthropometric/import-csv-bulk', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ csv_text }),
+                });
+                const json = await res.json();
+                if (!res.ok) throw new Error(json.error || 'Import failed');
+                toast(`Imported ${json.created} profile(s) — ${json.skipped} skipped (already exist)`);
+                loadAnthroProfiles();
+            } catch (err) {
+                toast('Import error: ' + err.message, 'error');
+            } finally {
+                btn.textContent = orig;
+                btn.disabled = false;
+            }
         });
 }
 

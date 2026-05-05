@@ -14,7 +14,9 @@ Built on [OpenSCAD Playground](https://github.com/openscad/openscad-playground) 
 - **Multi-user RBAC** — Admin / Tech / User roles; techs manage their assigned patients
 - **Secure API Proxy** — AI keys live server-side; clients never see them
 - **STL Export** — Download print-ready files directly from the browser
-- **Admin Panel** — Create users, assign patients to techs
+- **Admin Panel** — Create users, assign patients to techs, manage anthropometric profiles
+- **Anthropometric Profile Library** — Import and store population-level hand measurement datasets; geometry parameters are auto-derived and made available to models
+- **Bulk CSV Import** — Load the bundled `multi_population_hand.csv` (96 population groups) into the profile library in one click
 
 ---
 
@@ -79,20 +81,26 @@ node scripts/create-admin.js admin admin@example.com MyPassword123
 ├── app.js                  ParameterEditor — rendering, UI, save/load
 ├── admin.html              Admin panel
 ├── admin.js                Admin panel logic
+├── anthropometric.js       Anthropometric importer modal (admin)
 ├── openscad-worker.js      WASM rendering worker
 ├── models/
 │   ├── models-config.json  Model definitions + parameter specs
-│   └── fingerator.scad     Fingerator prosthetic model
+│   ├── pekwawu.scad        PeKwawu — Kwawu Arm Wrap for long residual limbs
+│   ├── anthropometric_hand.scad     Full parametric prosthetic hand
+│   ├── anthropometric_cyborgbeast.scad  Cyborg Beast with anthropometric params
+│   └── fingerator.scad     Fingerator prosthetic model (and others)
+├── data/
+│   ├── app.db              SQLite DB (gitignored)
+│   └── multi_population_hand.csv   Population hand measurement reference dataset
 ├── server/
 │   ├── index.js            Express server
 │   ├── db.js               SQLite connection (auto-migrates)
 │   ├── schema.sql          DB schema
 │   ├── middleware/         auth.js, errorHandler.js
-│   ├── routes/             setup, auth, users, configs, ai
-│   └── services/           authService.js, aiService.js
+│   ├── routes/             setup, auth, users, configs, ai, anthropometric
+│   └── services/           authService.js, aiService.js, anthropometricImporter.js
 ├── scripts/
 │   └── create-admin.js     CLI admin creation
-├── data/                   SQLite DB (gitignored)
 ├── .env                    Secrets (gitignored)
 ├── .env.example            Template
 └── package.json
@@ -150,19 +158,26 @@ Parameter names must match variable names in the `.scad` file exactly.
 
 ## API Overview
 
-| Base path                  | Description                   |
-| -------------------------- | ----------------------------- |
-| `GET /api/setup/status`    | First-run check               |
-| `POST /api/setup/admin`    | Create first admin            |
-| `POST /api/auth/login`     | Login                         |
-| `POST /api/auth/register`  | Self-register                 |
-| `POST /api/auth/refresh`   | Rotate tokens via cookie      |
-| `POST /api/auth/logout`    | Revoke token                  |
-| `GET /api/users`           | List users (admin)            |
-| `POST /api/users`          | Create user (admin)           |
-| `GET /api/configurations`  | List accessible configs       |
-| `POST /api/configurations` | Save config                   |
-| `POST /api/ai/suggest`     | AI parameter suggestion proxy |
+| Base path                                    | Description                                  |
+| -------------------------------------------- | -------------------------------------------- |
+| `GET /api/setup/status`                      | First-run check                              |
+| `POST /api/setup/admin`                      | Create first admin                           |
+| `POST /api/auth/login`                       | Login                                        |
+| `POST /api/auth/register`                    | Self-register                                |
+| `POST /api/auth/refresh`                     | Rotate tokens via cookie                     |
+| `POST /api/auth/logout`                      | Revoke token                                 |
+| `GET /api/users`                             | List users (admin)                           |
+| `POST /api/users`                            | Create user (admin)                          |
+| `GET /api/configurations`                    | List accessible configs                      |
+| `POST /api/configurations`                   | Save config                                  |
+| `POST /api/ai/suggest`                       | AI parameter suggestion proxy                |
+| `GET /api/anthropometric`                    | List anthropometric profiles (admin)         |
+| `POST /api/anthropometric`                   | Create profile from manual/CSV/JSON (admin)  |
+| `POST /api/anthropometric/preview`           | Process profile without saving (admin)       |
+| `POST /api/anthropometric/import-csv-bulk`   | Bulk-import multi_population_hand.csv (admin)|
+| `GET /api/anthropometric/:id`                | Fetch full profile with geometry params      |
+| `PUT /api/anthropometric/:id`                | Update existing profile                      |
+| `DELETE /api/anthropometric/:id`             | Delete profile                               |
 
 Full API docs: [ARCHITECTURE.md](ARCHITECTURE.md)
 

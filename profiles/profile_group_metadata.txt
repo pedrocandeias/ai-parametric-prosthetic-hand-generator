@@ -1,0 +1,58 @@
+================================================================================
+PROFILE GROUP METADATA
+Generated from: anthropometric_import_filled_profiles.csv
+Valid enum values per importer:
+  Gender       : male | female | mixed | other
+  Default Unit : mm | cm | in
+  Hardware     : m2 | m3 | m4
+  Format       : csv | json
+================================================================================
+
+--------------------------------------------------------------------------------
+Profile 1 → ansur1_female_p50_plus_handsurvey.csv
+--------------------------------------------------------------------------------
+Group Name *    : ANSUR I Female 50th Percentile + Hand Survey
+Country / Region: United States
+Gender          : female
+Age Group       : Adult (Military, 17–40)
+Percentile      : 50th
+Data Source     : ANSUR I (1988 US Army Anthropometric Survey) supplemented with firefighter hand survey means for finger-level fields
+Format          : csv
+Default Unit    : mm
+Hardware        : m3
+
+--------------------------------------------------------------------------------
+Profile 2 → ansur1_male_p50_plus_handsurvey.csv
+--------------------------------------------------------------------------------
+Group Name *    : ANSUR I Male 50th Percentile + Hand Survey
+Country / Region: United States
+Gender          : male
+Age Group       : Adult (Military, 17–40)
+Percentile      : 50th
+Data Source     : ANSUR I (1988 US Army Anthropometric Survey) supplemented with firefighter hand survey means for finger-level fields
+Format          : csv
+Default Unit    : mm
+Hardware        : m3
+
+--------------------------------------------------------------------------------
+Profile 3 → ansur2_female_p50_plus_handsurvey.csv
+--------------------------------------------------------------------------------
+Group Name *    : ANSUR II Female Median + Hand Survey
+Country / Region: United States
+Gender          : female
+Age Group       : Adult (Military, 17–40)
+Percentile      : 50th (median)
+Data Source     : ANSUR II (2012 US Army Anthropometric Survey) supplemented with firefighter hand survey means for finger-level fields
+Format          : csv
+Default Unit    : mm
+Hardware        : m3
+
+================================================================================
+NOTES
+- Residual-limb fields and palm_thickness are absent from ANSUR/firefighter
+  source databases — columns are present but left empty in each CSV.
+- Hardware defaults to m3 (3 mm pivot); change to m2 or m4 if needed.
+- profile_id, population, sex, hand_length_reference, thumbtipreach_reference,
+  and notes were removed from the CSVs — not recognised as measurement fields
+  by the importer. Metadata is entered via the form fields above.
+================================================================================

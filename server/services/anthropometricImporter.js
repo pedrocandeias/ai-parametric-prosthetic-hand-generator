@@ -689,6 +689,24 @@ function buildGeometryParameters(measurements, derived, constraints) {
     // Palm wall (alias for palm_structural_thickness, matches cyborgbeast 'th' concept)
     if (derived.palm_structural_thickness != null) params.palm_wall_thickness_mm = derived.palm_structural_thickness;
 
+    // ── PeKwawu parameter block ───────────────────────────────────────────────
+    // Maps the platform's anthropometric fields to the Kwawu Arm 3.0 Wrap variables.
+    // palm_breadth_mm drives HandWidth (master scale); residual fields size the socket.
+    const palmBreadth  = getDeep(measurements, 'palm.width_mm');
+    const residLen     = getDeep(measurements, 'residual_limb.length_mm');
+    const circProximal = getDeep(measurements, 'residual_limb.circumference_proximal_mm') ||
+        (() => { const c = getDeep(measurements, 'residual_limb.circumferences_mm'); return Array.isArray(c) ? c[0] : undefined; })();
+
+    params.pekwawu = {
+        palm_breadth_mm:                   palmBreadth  ?? null,
+        residual_length_mm:                residLen     ?? null,
+        residual_circumference_proximal_mm: circProximal ?? null,
+        // HandWidth = palm_breadth_mm (Kwawu master scale: HandScale = HandWidth / 96)
+        HandWidth:            palmBreadth  != null ? r1(palmBreadth)  : null,
+        ArmLength:            residLen     != null ? r1(residLen)     : null,
+        ForearmCircumference: circProximal != null ? r1(circProximal) : null,
+    };
+
     return params;
 }
 
