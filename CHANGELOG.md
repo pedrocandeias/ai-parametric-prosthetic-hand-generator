@@ -12,6 +12,20 @@ Entry format follows [Conventional Commits](https://www.conventionalcommits.org/
 
 ---
 
+## v6.2.0 — 2026-05-06
+
+feat: rewrite pekwawu.scad as fully procedural parametric arm — no STL imports, renders completely in browser WASM
+feat: forearm_socket() — tapered hollow cylinder scaled from residual_circumference_proximal_mm and residual_length_mm with proximal rim flange and strap slots
+feat: structural_frame() — two hull-sphere rods bridging palm wrist attachment to socket body, proportional to palm_breadth_mm
+feat: palm_base() — organic hull palm adapted from anthropometric_hand, with knuckle blocks, thumb boss, wrist hinge arms, tendon channels
+feat: finger_seg(), finger_tip(), fingerpoints(), knuckle_block(), thumb_boss() — all procedural finger modules reused from anthropometric_hand pattern
+feat: show_assembled parameter toggles full arm + fingers vs socket + palm only
+feat: unified pivot_diameter_mm and clearance_mm replace separate bolt/rivet selectors
+refactor: remove part and material string selectors from models-config.json — no longer needed
+chore: rename model to "PeKwawu v2 (Long Residual Limb)" in models-config.json
+
+---
+
 ## v6.1.0 — 2026-05-05
 
 fix: wrap string parameter values in OpenSCAD quotes when substituting into SCAD code — was rendering part = Cuff1 (unquoted variable) causing all if(Part==...) comparisons to fail with empty geometry

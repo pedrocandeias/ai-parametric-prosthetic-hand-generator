@@ -2,8 +2,8 @@
   "models": [
     {
       "id": "pekwawu",
-      "name": "PeKwawu v1 (Long Residual Limb)",
-      "description": "Kwawu Arm 3.0 Wrap Version adapted for the platform. Designed for individuals with long forearm residual limbs. All parameters map directly to anthropometric measurements: palm breadth drives the master hand scale, residual limb length sets arm length, and circumferences size the wrap socket. Renders one printable component at a time via the Part selector.",
+      "name": "PeKwawu v2 (Long Residual Limb)",
+      "description": "Fully procedural parametric prosthetic arm for long forearm residual limbs. All geometry is computed from code — no STL imports, renders completely in the browser. Palm breadth drives the master scale, residual limb length and circumference size the forearm socket, and structural frame rods bridge socket to hand. Assembled view shows full arm with fingers; toggle show_assembled off to see the socket and palm separately.",
       "file": "pekwawu.scad",
       "parameters": [
         {
@@ -20,7 +20,7 @@
           "min": 65,
           "max": 186,
           "step": 1,
-          "caption": "Palm breadth / knuckle width \u2014 master scale driver (mm)",
+          "caption": "Palm breadth / knuckle width — master scale driver (mm)",
           "group": "Hand & Arm Measurements"
         },
         {
@@ -30,7 +30,7 @@
           "min": 50,
           "max": 500,
           "step": 1,
-          "caption": "Residual limb length \u2014 elbow crease to wrist attachment (mm)",
+          "caption": "Residual limb length — elbow crease to wrist attachment (mm)",
           "group": "Hand & Arm Measurements"
         },
         {
@@ -60,37 +60,27 @@
           "min": 0,
           "max": 10,
           "step": 0.5,
-          "caption": "Inner padding thickness (mm)",
+          "caption": "Inner padding thickness added to socket bore (mm)",
           "group": "Comfort & Hardware"
         },
         {
-          "name": "palm_bolt_diameter_mm",
+          "name": "pivot_diameter_mm",
           "type": "number",
-          "initial": 6,
-          "min": 4,
-          "max": 8,
-          "step": 2,
-          "caption": "Palm bolt diameter \u2014 ISO metric (mm)",
-          "group": "Comfort & Hardware"
-        },
-        {
-          "name": "elbow_bolt_diameter_mm",
-          "type": "number",
-          "initial": 8,
-          "min": 4,
-          "max": 14,
-          "step": 2,
-          "caption": "Elbow bolt diameter \u2014 ISO metric (mm)",
-          "group": "Comfort & Hardware"
-        },
-        {
-          "name": "rivet_shaft_diameter_mm",
-          "type": "number",
-          "initial": 5,
-          "min": 2.4,
+          "initial": 4,
+          "min": 2,
           "max": 6,
+          "step": 0.5,
+          "caption": "Hinge pin diameter — all joints use the same pin (mm)",
+          "group": "Comfort & Hardware"
+        },
+        {
+          "name": "clearance_mm",
+          "type": "number",
+          "initial": 0.4,
+          "min": 0.1,
+          "max": 1.0,
           "step": 0.1,
-          "caption": "Leather rivet shaft diameter (mm)",
+          "caption": "Print clearance for moving joints (mm)",
           "group": "Comfort & Hardware"
         },
         {
@@ -100,53 +90,15 @@
           "min": 10,
           "max": 60,
           "step": 1,
-          "caption": "Velcro strap width (mm)",
+          "caption": "Velcro strap width — drives socket slot size (mm)",
           "group": "Comfort & Hardware"
         },
         {
-          "name": "material",
-          "type": "string",
-          "initial": "Leather",
-          "options": [
-            "Leather",
-            "Plastic"
-          ],
-          "caption": "Wrap material \u2014 affects fastener geometry",
-          "group": "Material"
-        },
-        {
-          "name": "pencil_holder",
+          "name": "show_assembled",
           "type": "boolean",
-          "initial": false,
-          "caption": "Include pencil holder accessory",
-          "group": "Options"
-        },
-        {
-          "name": "part",
-          "type": "string",
-          "initial": "Cuff1",
-          "options": [
-            "Cuff1",
-            "Cuff2",
-            "Cuff3",
-            "CuffLeatherTemplate",
-            "Palm",
-            "PalmTop",
-            "WristButton",
-            "WristCover",
-            "WristAttachment",
-            "WristBolt",
-            "WristBoltPin",
-            "PalmBolt",
-            "UpperArmLeatherTemplate",
-            "LowerArmLeatherTemplate",
-            "ElbowBolt1",
-            "ElbowBolt2",
-            "PencilHolderCover",
-            "Hinges"
-          ],
-          "caption": "Component to render for 3D printing",
-          "group": "Part"
+          "initial": true,
+          "caption": "Show full assembly with fingers (false = socket + palm only)",
+          "group": "View"
         }
       ]
     }
