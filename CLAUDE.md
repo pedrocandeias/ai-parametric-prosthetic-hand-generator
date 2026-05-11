@@ -98,6 +98,30 @@ Do not add any route that reads from `.env` or `config.json` and forwards values
 2. Add entry to `models/models-config.json`
 3. The `model_id` validation in `configRoutes.js` picks up new models automatically on restart
 
+## Anthropometric Parameter Alignment
+
+All prosthetic model parameters **must** use the same measurement definitions as the platform's anthropometric import pipeline so that patient profiles imported from CSV auto-populate the correct fields.
+
+**Canonical field names and units** (match these exactly in `.scad` variables and `models-config.json` `name` fields):
+
+| SCAD / config `name` | Anatomical measurement | Typical adult range | Platform source |
+|---|---|---|---|
+| `palm_breadth_mm` | Knuckle-to-knuckle breadth (metacarpal) | 70–100 mm | `palm_breadth` → `palm.width_mm` |
+| `palm_length_mm` | Wrist base to middle MCP line | 90–120 mm | `palm_length` → `palm.length_mm` |
+| `palm_thickness_mm` | Palmar to dorsal surface | 22–38 mm | `palm_thickness` → `palm.thickness_mm` |
+| `index_finger_length_mm` | Index MCP crease to tip | 55–110 mm | `index_length_total` → `digits.index.total_length_mm` |
+| `middle_finger_length_mm` | Middle MCP crease to tip | 60–115 mm | `middle_length_total` → `digits.middle.total_length_mm` |
+| `ring_finger_length_mm` | Ring MCP crease to tip | 55–110 mm | `ring_length_total` → `digits.ring.total_length_mm` |
+| `pinky_finger_length_mm` | Pinky MCP crease to tip | 40–85 mm | `little_length_total` → `digits.pinky.total_length_mm` |
+| `thumb_length_mm` | Thumb MCP crease to tip | 45–80 mm | `thumb_length_total` → `digits.thumb.total_length_mm` |
+| `gauntlet_width_mm` | Forearm socket width | 40–90 mm | no direct import; derive as `wrist_circumference_mm / π + clearance` |
+
+**Rules:**
+- Use **anatomical MCP-to-tip** for finger lengths — not the finger's Z-span in assembly coordinate space, which is a design-specific fraction of the anatomical length.
+- All measurements are in **millimetres**.
+- When a SCAD model uses internal reference geometry that differs from the anatomical reference (e.g., an STL finger reach of 48 mm for a 72 mm anatomical reference), encode the anatomical value as `REF_FINGER` and derive the internal scaling ratio, keeping the input parameter anatomically meaningful.
+- If a measurement has no platform import equivalent (e.g., `gauntlet_width_mm`), document the derivation in the `caption` field so a clinician can compute it manually.
+
 ## Frontend Auth Flow
 
 ```

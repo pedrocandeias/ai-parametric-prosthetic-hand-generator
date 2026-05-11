@@ -1,0 +1,1 @@
+FOR %%f in (*.scad)  DO "C:\Program Files\OpenSCAD\openscad" -o "%%~nf.stl" "%%f"

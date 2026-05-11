@@ -21,6 +21,13 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const ROOT = path.join(__dirname, '..');
 
+// --- Cross-Origin Isolation (required for SharedArrayBuffer / OpenSCAD WASM) ---
+app.use((req, res, next) => {
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+    res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+    next();
+});
+
 // --- Security headers ---
 app.use(helmet({
     contentSecurityPolicy: {

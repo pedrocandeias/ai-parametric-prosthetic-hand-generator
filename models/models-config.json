@@ -1,104 +1,791 @@
 {
   "models": [
     {
-      "id": "pekwawu",
-      "name": "PeKwawu v2 (Long Residual Limb)",
-      "description": "Fully procedural parametric prosthetic arm for long forearm residual limbs. All geometry is computed from code — no STL imports, renders completely in the browser. Palm breadth drives the master scale, residual limb length and circumference size the forearm socket, and structural frame rods bridge socket to hand. Assembled view shows full arm with fingers; toggle show_assembled off to see the socket and palm separately.",
-      "file": "pekwawu.scad",
+      "id": "paraglider_hand",
+      "renderBackend": "manifold",
+      "name": "Paraglider Hand (Flexible Flyer)",
+      "description": "Parametric wrist-powered prosthetic hand derived from the Phoenix Reborn / Unlimbited Phoenix v3 lineage. Fully OpenSCAD-native \u2014 no STL imports for the finger parts; the palm imports a repaired Phoenix v2 mesh as its base body and applies parametric pin drilling, string/elastic channels, knuckle covers, and a palm mesh overlay on top. Scale is driven by palm_breadth_mm: 83 mm \u2192 1.25\u00d7 (medium adult). Generates a flat print layout: palm on the left, long finger, short finger, finger phalanx, thumb, and thumb phalanx to the right. Hardware style (3 mm screws, 1/16\" pins, 13 ga nails) controls all hole diameters consistently across palm and phalanges.",
+      "file": "active/paraglider_hand/paraglider_hand.scad",
+      "dependencies": [
+        {
+          "url": "active/paraglider_hand/fingerator.scad",
+          "path": "fingerator.scad"
+        },
+        {
+          "url": "active/paraglider_hand/paraglider_palm_left.scad",
+          "path": "paraglider_palm_left.scad"
+        },
+        {
+          "url": "active/paraglider_hand/pipe.scad",
+          "path": "pipe.scad"
+        },
+        {
+          "url": "flexible_flyer-master/files/palm_left_v2_nobox.stl",
+          "path": "palm_left_v2_nobox.stl"
+        }
+      ],
       "parameters": [
         {
-          "name": "right_arm",
+          "name": "palm_breadth_mm",
+          "type": "number",
+          "initial": 83,
+          "min": 55,
+          "max": 110,
+          "step": 1,
+          "caption": "Knuckle-to-knuckle metacarpal breadth \u2014 drives uniform palm scale (mm); 83 mm \u2192 1.25\u00d7",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "palm_length_mm",
+          "type": "number",
+          "initial": 95,
+          "min": 60,
+          "max": 140,
+          "step": 1,
+          "caption": "Wrist base to middle MCP crease length \u2014 stored for AI/profile alignment; palm uses uniform scale from palm_breadth_mm (mm)",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "palm_thickness_mm",
+          "type": "number",
+          "initial": 32,
+          "min": 18,
+          "max": 50,
+          "step": 1,
+          "caption": "Palmar to dorsal surface thickness \u2014 stored for AI/profile alignment; palm uses uniform scale from palm_breadth_mm (mm)",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "index_finger_length_mm",
+          "type": "number",
+          "initial": 68,
+          "min": 40,
+          "max": 120,
+          "step": 1,
+          "caption": "Index finger MCP crease to tip \u2014 drives index finger tip and phalanx scale (mm)",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "middle_finger_length_mm",
+          "type": "number",
+          "initial": 72,
+          "min": 40,
+          "max": 120,
+          "step": 1,
+          "caption": "Middle finger MCP crease to tip \u2014 drives middle finger scale and global_scale base (mm); 72 mm \u2192 1.25\u00d7",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "ring_finger_length_mm",
+          "type": "number",
+          "initial": 68,
+          "min": 40,
+          "max": 120,
+          "step": 1,
+          "caption": "Ring finger MCP crease to tip \u2014 drives ring finger tip and phalanx scale (mm)",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "pinky_finger_length_mm",
+          "type": "number",
+          "initial": 55,
+          "min": 30,
+          "max": 100,
+          "step": 1,
+          "caption": "Pinky finger MCP crease to tip \u2014 drives pinky finger tip and phalanx scale (mm)",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "thumb_length_mm",
+          "type": "number",
+          "initial": 65,
+          "min": 35,
+          "max": 100,
+          "step": 1,
+          "caption": "Thumb MCP crease to tip \u2014 stored for AI/profile alignment; thumb uses finger scale from middle_finger_length_mm (mm)",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "mirrored",
+          "type": "enum",
+          "initial": false,
+          "options": [
+            {
+              "label": "Left hand",
+              "value": false
+            },
+            {
+              "label": "Right hand",
+              "value": true
+            }
+          ],
+          "caption": "Which hand to generate \u2014 Right hand mirrors the palm along X",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "pin_index",
+          "type": "number",
+          "initial": 1,
+          "min": 0,
+          "max": 3,
+          "step": 1,
+          "caption": "Pivot hardware: 0 = 3 mm screws + Delrin, 1 = 1/16\" pins + bearing, 2 = 13 ga nails + PTFE, 3 = 1/16\" pins bare",
+          "group": "Hardware"
+        },
+        {
+          "name": "string_channel_scale",
+          "type": "number",
+          "initial": 0.9,
+          "min": 0.5,
+          "max": 1.0,
+          "step": 0.05,
+          "caption": "String channel diameter scale (relative to hand scale)",
+          "group": "Hardware"
+        },
+        {
+          "name": "elastic_channel_scale",
+          "type": "number",
+          "initial": 0.9,
+          "min": 0.5,
+          "max": 1.5,
+          "step": 0.05,
+          "caption": "Elastic channel diameter scale (relative to hand scale)",
+          "group": "Hardware"
+        },
+        {
+          "name": "old_style_wrist",
+          "type": "boolean",
+          "initial": false,
+          "caption": "Use old-style plastic wrist pins instead of M3 screws",
+          "group": "Hardware"
+        },
+        {
+          "name": "color_palm",
+          "type": "string",
+          "initial": "#d4a574",
+          "caption": "Palm color (CSS color name or hex)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_index",
+          "type": "string",
+          "initial": "#4a9eff",
+          "caption": "Index finger color",
+          "group": "Colors"
+        },
+        {
+          "name": "color_middle",
+          "type": "string",
+          "initial": "#ff6b6b",
+          "caption": "Middle finger color",
+          "group": "Colors"
+        },
+        {
+          "name": "color_ring",
+          "type": "string",
+          "initial": "#51cf66",
+          "caption": "Ring finger color",
+          "group": "Colors"
+        },
+        {
+          "name": "color_pinky",
+          "type": "string",
+          "initial": "#ffd43b",
+          "caption": "Pinky finger color",
+          "group": "Colors"
+        },
+        {
+          "name": "color_thumb",
+          "type": "string",
+          "initial": "#cc5de8",
+          "caption": "Thumb color",
+          "group": "Colors"
+        },
+        {
+          "name": "color_pins",
+          "type": "string",
+          "initial": "#aaaaaa",
+          "caption": "Pivot pin color (metal hardware)",
+          "group": "Colors"
+        },
+        {
+          "name": "show_palm",
           "type": "boolean",
           "initial": true,
-          "caption": "Right arm (false = left arm mirror)",
-          "group": "Orientation"
+          "caption": "Show palm body",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_channels",
+          "type": "boolean",
+          "initial": false,
+          "caption": "Enable string/elastic channel routing in palm (slow CSG \u2014 keep off for preview, enable for print-ready export)",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_palm_mesh",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show fused palm mesh overlay",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_knuckle_covers",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show smooth knuckle covers",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_index",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show index finger (tip + phalanx)",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_middle",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show middle finger (tip + phalanx)",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_ring",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show ring finger (tip + phalanx)",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_pinky",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show pinky finger (tip + phalanx)",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_thumb",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show thumb (tip + phalanx)",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_pins",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show pivot pins at wrist and knuckle positions (assembled view only)",
+          "group": "Visibility"
+        }
+      ]
+    },
+    {
+      "id": "kinetic_hand_rh60_parametric",
+      "renderBackend": "manifold",
+      "name": "Kinetic Hand RH60 (Parametric)",
+      "description": "Kinetic Hand RH60 right-hand assembly rebuilt as a fully parametric SCAD model \u2014 no external STL imports required. All five component groups (gauntlet, wrist hinges, palm, thumb, four finger columns) are encoded as polyhedron() geometry and driven by six anthropometric inputs. palm_breadth_mm scales all hand parts uniformly in XY; palm_length_mm and palm_thickness_mm independently scale the palm body; middle_finger_length_mm stretches the finger reach above the knuckle line; thumb_length_mm stretches the thumb above its MCP origin; gauntlet_width_mm scales the forearm socket. Toggle component groups for inspection or print-layout separation.",
+      "file": "active/kinetic_hand_rh60/kinetic_hand_rh60_parametric.scad",
+      "dependencies": [
+        {
+          "url": "active/kinetic_hand_rh60/kinetic_hand_finger_middle.scad",
+          "path": "kinetic_hand_finger_middle.scad"
+        },
+        {
+          "url": "active/kinetic_hand_rh60/kinetic_hand_thumb.scad",
+          "path": "kinetic_hand_thumb.scad"
+        },
+        {
+          "url": "active/kinetic_hand_rh60/kinetic_hand_palm.scad",
+          "path": "kinetic_hand_palm.scad"
+        },
+        {
+          "url": "active/kinetic_hand_rh60/kinetic_hand_gauntlet.scad",
+          "path": "kinetic_hand_gauntlet.scad"
+        },
+        {
+          "url": "active/kinetic_hand_rh60/kinetic_hand_wrist.scad",
+          "path": "kinetic_hand_wrist.scad"
+        }
+      ],
+      "parameters": [
+        {
+          "name": "palm_breadth_mm",
+          "type": "number",
+          "initial": 83,
+          "min": 50,
+          "max": 120,
+          "step": 1,
+          "caption": "Knuckle-to-knuckle palm breadth \u2014 drives XY scale for all hand parts (mm)",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "palm_length_mm",
+          "type": "number",
+          "initial": 95,
+          "min": 60,
+          "max": 140,
+          "step": 1,
+          "caption": "Wrist base to middle MCP crease length \u2014 scales palm Z span (mm)",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "palm_thickness_mm",
+          "type": "number",
+          "initial": 32,
+          "min": 18,
+          "max": 50,
+          "step": 1,
+          "caption": "Palmar to dorsal surface thickness \u2014 scales palm Y depth (mm)",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "middle_finger_length_mm",
+          "type": "number",
+          "initial": 72,
+          "min": 40,
+          "max": 120,
+          "step": 1,
+          "caption": "Middle finger MCP crease to tip \u2014 stretches finger reach above knuckle line (mm)",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "thumb_length_mm",
+          "type": "number",
+          "initial": 65,
+          "min": 35,
+          "max": 100,
+          "step": 1,
+          "caption": "Thumb MCP crease to tip \u2014 stretches thumb reach above its MCP origin (mm)",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "gauntlet_width_mm",
+          "type": "number",
+          "initial": 62,
+          "min": 40,
+          "max": 90,
+          "step": 1,
+          "caption": "Forearm socket width \u2014 approx. wrist circumference \u00f7 \u03c0 + 5 mm clearance (mm)",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "show_palm",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show palm body",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_fingers",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show all four fingers (index / middle / ring / pinky)",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_thumb",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show thumb",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_gauntlet",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show gauntlet forearm socket and cover",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_wrist_hinges",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show wrist hinges",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_hinges",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show finger and thumb joint hinges",
+          "group": "Visibility"
+        }
+      ]
+    },
+    {
+      "id": "phoenix_v3_palm",
+      "renderBackend": "manifold",
+      "name": "Phoenix Hand v3 Palm",
+      "description": "Exact legacy Phoenix v3 palm extracted into a standalone OpenSCAD wrapper. Preserves the original native polyhedron geometry and uses uniform hand scaling by default, with optional anisotropic scaling for study and fit experiments.",
+      "file": "active/phoenix_v3/phoenix_v3_palm.scad",
+      "dependencies": [
+        {
+          "url": "active/phoenix_v3/phoenix_v3_palm_legacy_geometry.scad",
+          "path": "phoenix_v3_palm_legacy_geometry.scad"
+        }
+      ],
+      "parameters": [
+        {
+          "name": "hand_length_mm",
+          "type": "number",
+          "initial": 135,
+          "min": 120,
+          "max": 230,
+          "step": 1,
+          "caption": "Global legacy hand scale driver (mm)",
+          "group": "Scaling"
+        },
+        {
+          "name": "use_anisotropic_scaling",
+          "type": "boolean",
+          "initial": false,
+          "caption": "Allow independent X/Y/Z scaling instead of legacy uniform scaling",
+          "group": "Scaling"
         },
         {
           "name": "palm_breadth_mm",
           "type": "number",
-          "initial": 96,
-          "min": 65,
-          "max": 186,
+          "initial": 82.17,
+          "min": 55,
+          "max": 120,
           "step": 1,
-          "caption": "Palm breadth / knuckle width — master scale driver (mm)",
-          "group": "Hand & Arm Measurements"
+          "caption": "Exact palm X span target used only when anisotropic scaling is enabled (mm)",
+          "group": "Scaling"
         },
         {
-          "name": "residual_length_mm",
+          "name": "palm_length_mm",
           "type": "number",
-          "initial": 282,
-          "min": 50,
-          "max": 500,
+          "initial": 91.96,
+          "min": 60,
+          "max": 130,
           "step": 1,
-          "caption": "Residual limb length — elbow crease to wrist attachment (mm)",
-          "group": "Hand & Arm Measurements"
+          "caption": "Exact palm Y length target used only when anisotropic scaling is enabled (mm)",
+          "group": "Scaling"
         },
         {
-          "name": "residual_circumference_proximal_mm",
+          "name": "palm_thickness_mm",
           "type": "number",
-          "initial": 270,
-          "min": 70,
-          "max": 542,
+          "initial": 30.55,
+          "min": 15,
+          "max": 50,
           "step": 1,
-          "caption": "Forearm circumference just below elbow crease (mm)",
-          "group": "Hand & Arm Measurements"
+          "caption": "Exact palm Z thickness target used only when anisotropic scaling is enabled (mm)",
+          "group": "Scaling"
         },
         {
-          "name": "bicep_circumference_mm",
-          "type": "number",
-          "initial": 294,
-          "min": 100,
-          "max": 600,
-          "step": 1,
-          "caption": "Bicep / upper arm circumference (mm)",
-          "group": "Hand & Arm Measurements"
-        },
-        {
-          "name": "padding_thickness_mm",
-          "type": "number",
-          "initial": 2,
-          "min": 0,
-          "max": 10,
-          "step": 0.5,
-          "caption": "Inner padding thickness added to socket bore (mm)",
-          "group": "Comfort & Hardware"
-        },
-        {
-          "name": "pivot_diameter_mm",
-          "type": "number",
-          "initial": 4,
-          "min": 2,
-          "max": 6,
-          "step": 0.5,
-          "caption": "Hinge pin diameter — all joints use the same pin (mm)",
-          "group": "Comfort & Hardware"
-        },
-        {
-          "name": "clearance_mm",
-          "type": "number",
-          "initial": 0.4,
-          "min": 0.1,
-          "max": 1.0,
-          "step": 0.1,
-          "caption": "Print clearance for moving joints (mm)",
-          "group": "Comfort & Hardware"
-        },
-        {
-          "name": "strap_width_mm",
-          "type": "number",
-          "initial": 25,
-          "min": 10,
-          "max": 60,
-          "step": 1,
-          "caption": "Velcro strap width — drives socket slot size (mm)",
-          "group": "Comfort & Hardware"
-        },
-        {
-          "name": "show_assembled",
+          "name": "left_hand",
           "type": "boolean",
           "initial": true,
-          "caption": "Show full assembly with fingers (false = socket + palm only)",
-          "group": "View"
+          "caption": "Generate left-hand geometry; disable to mirror to right hand",
+          "group": "Orientation"
+        }
+      ]
+    },
+    {
+      "id": "phoenix_v3_fingers",
+      "renderBackend": "manifold",
+      "name": "Phoenix Hand v3 Fingers",
+      "description": "Exact legacy Phoenix v3 distal finger set extracted into a standalone OpenSCAD wrapper. Preserves the original native polyhedron geometry and uses uniform hand scaling by default, with optional anisotropic scaling for study and fit experiments.",
+      "file": "active/phoenix_v3/phoenix_v3_fingers.scad",
+      "dependencies": [
+        {
+          "url": "active/phoenix_v3/phoenix_v3_fingers_legacy_geometry.scad",
+          "path": "phoenix_v3_fingers_legacy_geometry.scad"
+        }
+      ],
+      "parameters": [
+        {
+          "name": "hand_length_mm",
+          "type": "number",
+          "initial": 135,
+          "min": 120,
+          "max": 230,
+          "step": 1,
+          "caption": "Global legacy hand scale driver (mm)",
+          "group": "Scaling"
+        },
+        {
+          "name": "use_anisotropic_scaling",
+          "type": "boolean",
+          "initial": false,
+          "caption": "Allow independent X/Y/Z scaling instead of legacy uniform scaling",
+          "group": "Scaling"
+        },
+        {
+          "name": "finger_span_mm",
+          "type": "number",
+          "initial": 78.32,
+          "min": 50,
+          "max": 120,
+          "step": 1,
+          "caption": "Exact fingers X span target used only when anisotropic scaling is enabled (mm)",
+          "group": "Scaling"
+        },
+        {
+          "name": "finger_length_mm",
+          "type": "number",
+          "initial": 43.55,
+          "min": 25,
+          "max": 70,
+          "step": 1,
+          "caption": "Exact fingers Y length target used only when anisotropic scaling is enabled (mm)",
+          "group": "Scaling"
+        },
+        {
+          "name": "finger_thickness_mm",
+          "type": "number",
+          "initial": 15.72,
+          "min": 8,
+          "max": 30,
+          "step": 1,
+          "caption": "Exact fingers Z thickness target used only when anisotropic scaling is enabled (mm)",
+          "group": "Scaling"
+        },
+        {
+          "name": "left_hand",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Generate left-hand geometry; disable to mirror to right hand",
+          "group": "Orientation"
+        }
+      ]
+    },
+    {
+      "id": "phoenix_v3_phalanx_bank",
+      "renderBackend": "manifold",
+      "name": "Phoenix Hand v3 Phalanx Bank",
+      "description": "Exact legacy Phoenix v3 phalanx bank extracted into a standalone OpenSCAD wrapper. Preserves the original native polyhedron geometry and exposes uniform hand scaling by default, with optional anisotropic scaling for study and fit experiments.",
+      "file": "active/phoenix_v3/phoenix_v3_phalanx_bank.scad",
+      "dependencies": [
+        {
+          "url": "active/phoenix_v3/phoenix_v3_phalanx_legacy_geometry.scad",
+          "path": "phoenix_v3_phalanx_legacy_geometry.scad"
+        }
+      ],
+      "parameters": [
+        {
+          "name": "hand_length_mm",
+          "type": "number",
+          "initial": 135,
+          "min": 120,
+          "max": 230,
+          "step": 1,
+          "caption": "Global legacy hand scale driver (mm)",
+          "group": "Scaling"
+        },
+        {
+          "name": "use_anisotropic_scaling",
+          "type": "boolean",
+          "initial": false,
+          "caption": "Allow independent X/Y/Z scaling instead of legacy uniform scaling",
+          "group": "Scaling"
+        },
+        {
+          "name": "palm_breadth_mm",
+          "type": "number",
+          "initial": 80.85,
+          "min": 55,
+          "max": 110,
+          "step": 1,
+          "caption": "Exact-bank X span target used only when anisotropic scaling is enabled (mm)",
+          "group": "Scaling"
+        },
+        {
+          "name": "phalanx_bank_length_mm",
+          "type": "number",
+          "initial": 35.53,
+          "min": 25,
+          "max": 60,
+          "step": 1,
+          "caption": "Exact-bank Y length target used only when anisotropic scaling is enabled (mm)",
+          "group": "Scaling"
+        },
+        {
+          "name": "phalanx_bank_thickness_mm",
+          "type": "number",
+          "initial": 17.19,
+          "min": 10,
+          "max": 30,
+          "step": 1,
+          "caption": "Exact-bank Z thickness target used only when anisotropic scaling is enabled (mm)",
+          "group": "Scaling"
+        },
+        {
+          "name": "left_hand",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Generate left-hand geometry; disable to mirror to right hand",
+          "group": "Orientation"
+        }
+      ]
+    },
+    {
+      "id": "phoenix_v3_pins",
+      "renderBackend": "manifold",
+      "name": "Phoenix Hand v3 Pins",
+      "description": "Exact legacy Phoenix v3 pins extracted into a standalone OpenSCAD wrapper. Preserves the original native polyhedron geometry and uses uniform hand scaling by default, with optional anisotropic scaling for study and fit experiments.",
+      "file": "active/phoenix_v3/phoenix_v3_pins.scad",
+      "dependencies": [
+        {
+          "url": "active/phoenix_v3/phoenix_v3_pins_legacy_geometry.scad",
+          "path": "phoenix_v3_pins_legacy_geometry.scad"
+        }
+      ],
+      "parameters": [
+        {
+          "name": "hand_length_mm",
+          "type": "number",
+          "initial": 135,
+          "min": 120,
+          "max": 230,
+          "step": 1,
+          "caption": "Global legacy hand scale driver (mm)",
+          "group": "Scaling"
+        },
+        {
+          "name": "use_anisotropic_scaling",
+          "type": "boolean",
+          "initial": false,
+          "caption": "Allow independent X/Y/Z scaling instead of legacy uniform scaling",
+          "group": "Scaling"
+        },
+        {
+          "name": "pins_span_mm",
+          "type": "number",
+          "initial": 78.47,
+          "min": 50,
+          "max": 120,
+          "step": 1,
+          "caption": "Exact pins X span target used only when anisotropic scaling is enabled (mm)",
+          "group": "Scaling"
+        },
+        {
+          "name": "pins_length_mm",
+          "type": "number",
+          "initial": 44.25,
+          "min": 25,
+          "max": 70,
+          "step": 1,
+          "caption": "Exact pins Y length target used only when anisotropic scaling is enabled (mm)",
+          "group": "Scaling"
+        },
+        {
+          "name": "pins_thickness_mm",
+          "type": "number",
+          "initial": 4.3,
+          "min": 2,
+          "max": 10,
+          "step": 0.1,
+          "caption": "Exact pins Z thickness target used only when anisotropic scaling is enabled (mm)",
+          "group": "Scaling"
+        }
+      ]
+    },
+    {
+      "id": "phoenix_v3_complete",
+      "renderBackend": "manifold",
+      "name": "Phoenix Hand v3 (Complete)",
+      "description": "Exact legacy Phoenix v3 full-hand assembled preview using extracted native OpenSCAD geometry for the palm, distal fingers, proximal phalanx bank, and pins. All parts render together in the original shared coordinate system with shared hand scaling plus per-part visibility and color controls for interactive editing.",
+      "file": "active/phoenix_v3/phoenix_v3_assembly.scad",
+      "dependencies": [
+        {
+          "url": "active/phoenix_v3/phoenix_v3_palm_legacy_geometry.scad",
+          "path": "phoenix_v3_palm_legacy_geometry.scad"
+        },
+        {
+          "url": "active/phoenix_v3/phoenix_v3_fingers_legacy_geometry.scad",
+          "path": "phoenix_v3_fingers_legacy_geometry.scad"
+        },
+        {
+          "url": "active/phoenix_v3/phoenix_v3_phalanx_legacy_geometry.scad",
+          "path": "phoenix_v3_phalanx_legacy_geometry.scad"
+        },
+        {
+          "url": "active/phoenix_v3/phoenix_v3_pins_legacy_geometry.scad",
+          "path": "phoenix_v3_pins_legacy_geometry.scad"
+        }
+      ],
+      "parameters": [
+        {
+          "name": "hand_length_mm",
+          "type": "number",
+          "initial": 135,
+          "min": 120,
+          "max": 230,
+          "step": 1,
+          "caption": "Global legacy hand scale driver (mm)",
+          "group": "Scaling"
+        },
+        {
+          "name": "left_hand",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Generate left-hand geometry; disable to mirror to right hand",
+          "group": "Orientation"
+        },
+        {
+          "name": "show_palm",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show palm",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_fingers",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show distal finger set",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_phalanx_bank",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show proximal phalanx bank",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_pins",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show pins",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_colors",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Apply preview colors to hand parts",
+          "group": "Colors"
+        },
+        {
+          "name": "color_palm",
+          "type": "string",
+          "initial": "#e5e5ea",
+          "caption": "Palm color",
+          "group": "Colors"
+        },
+        {
+          "name": "color_fingers",
+          "type": "string",
+          "initial": "#dcbba4",
+          "caption": "Distal fingers color",
+          "group": "Colors"
+        },
+        {
+          "name": "color_phalanx_bank",
+          "type": "string",
+          "initial": "#c9dceb",
+          "caption": "Proximal phalanx bank color",
+          "group": "Colors"
+        },
+        {
+          "name": "color_pins",
+          "type": "string",
+          "initial": "#f2b84d",
+          "caption": "Pins color",
+          "group": "Colors"
         }
       ]
     }

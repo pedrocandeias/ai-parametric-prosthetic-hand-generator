@@ -452,19 +452,93 @@
         }
 
         .editor-container {
-            flex: 1;
-            display: none;  /* Hidden as requested */
+            display: none;
+            flex-direction: column;
             border-bottom: 1px solid #ddd;
+            min-height: 220px;
+            max-height: 40%;
+        }
+
+        .editor-container.open {
+            display: flex;
+        }
+
+        .scad-log-container {
+            display: none;
+            flex-direction: column;
+            border-bottom: 1px solid #ddd;
+            min-height: 120px;
+            max-height: 30%;
+        }
+
+        .scad-log-container.open {
+            display: flex;
+        }
+
+        .scad-log-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.3rem 0.75rem;
+            background: #2a1a1a;
+            border-bottom: 1px solid #5a2a2a;
+            font-size: 0.8rem;
+            color: #cc9999;
+            flex-shrink: 0;
+        }
+
+        #scad-log {
+            flex: 1;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            padding: 0.6rem 1rem;
+            margin: 0;
+            border: none;
+            background: #1a1010;
+            color: #e8c8a8;
+            line-height: 1.45;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        #scad-log .log-stderr { color: #ff9966; }
+        #scad-log .log-warning { color: #f0d060; }
+        #scad-log .log-stdout { color: #a8d8a8; }
+        #scad-log .log-empty { color: #888; font-style: italic; }
+
+        .editor-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.3rem 0.75rem;
+            background: #f0f0f0;
+            border-bottom: 1px solid #ddd;
+            font-size: 0.8rem;
+            color: #555;
+            flex-shrink: 0;
+        }
+
+        .editor-label {
+            font-weight: 600;
+            letter-spacing: 0.02em;
         }
 
         #editor {
             flex: 1;
             font-family: 'Courier New', monospace;
-            font-size: 14px;
-            padding: 1rem;
+            font-size: 13px;
+            padding: 0.75rem 1rem;
             border: none;
             resize: none;
-            background: #fafafa;
+            background: #1e1e2e;
+            color: #cdd6f4;
+            line-height: 1.5;
+        }
+
+        #editor:focus {
+            outline: none;
+            box-shadow: inset 0 0 0 2px #4a9eff;
         }
 
         #viewer {
@@ -718,12 +792,25 @@
                     <button class="btn-secondary" id="reset-btn">Reset to Defaults</button>
                     <button class="btn-primary" id="render-btn">Render Preview</button>
                     <button class="btn-success" id="export-btn">Export STL</button>
+                    <button class="btn-secondary" id="edit-code-btn" style="display:none" title="Toggle SCAD code editor (admin only)">Edit Code</button>
+                    <button class="btn-secondary" id="show-log-btn" style="display:none" title="Toggle OpenSCAD render log (admin only)">Show Log</button>
                 </div>
             </div>
 
             <div class="viewer-container">
-                <div class="editor-container">
-                    <textarea id="editor" placeholder="OpenSCAD code will appear here..."></textarea>
+                <div class="editor-container" id="editor-container">
+                    <div class="editor-toolbar">
+                        <span class="editor-label">OpenSCAD Source <span id="editor-modified-badge" style="display:none;color:#e67e22;font-size:0.75rem;margin-left:0.5rem;">● modified</span></span>
+                        <button class="btn-secondary" id="editor-revert-btn" style="padding:0.2rem 0.6rem;font-size:0.8rem;">Revert to Parameters</button>
+                    </div>
+                    <textarea id="editor" placeholder="OpenSCAD code will appear here..." spellcheck="false"></textarea>
+                </div>
+                <div class="scad-log-container" id="scad-log-container">
+                    <div class="scad-log-toolbar">
+                        <span style="font-weight:600;letter-spacing:0.02em;">OpenSCAD Render Log</span>
+                        <button class="btn-secondary" id="scad-log-clear-btn" style="padding:0.2rem 0.6rem;font-size:0.8rem;">Clear</button>
+                    </div>
+                    <pre id="scad-log"><span class="log-empty">No render yet.</span></pre>
                 </div>
                 <model-viewer id="viewer"
                     camera-controls

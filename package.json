@@ -1,6 +1,6 @@
 {
   "name": "ai-parametric-prosthetic-hand-generator",
-  "version": "6.2.0",
+  "version": "7.9.0",
   "description": "AI-powered prosthetic hand customization with Node.js backend",
   "main": "server/index.js",
   "scripts": {
@@ -8,7 +8,9 @@
     "dev": "node --watch server/index.js",
     "stop": "kill $(lsof -ti:${PORT:-3000}) 2>/dev/null && echo 'Server stopped' || echo 'No server running'",
     "restart": "npm run stop; sleep 1; node server/index.js",
-    "create-admin": "node scripts/create-admin.js"
+    "create-admin": "node scripts/create-admin.js",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
@@ -22,5 +24,8 @@
     "morgan": "^1.10.0",
     "uuid": "^9.0.1",
     "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1"
   }
 }

@@ -9,6 +9,7 @@ class ParameterEditor {
         this.dependencyFiles = [];
         this.worker = null;
         this.currentGlbUrl = null;
+        this.codeModified = false;   // true when admin has hand-edited the SCAD textarea
 
         this.init();
     }
@@ -34,15 +35,79 @@ class ParameterEditor {
     onAuthChange() {
         const user = Auth.getUser();
         const configsPanel = document.getElementById('saved-configs-panel');
+        const editCodeBtn = document.getElementById('edit-code-btn');
+        const showLogBtn = document.getElementById('show-log-btn');
+        const isAdmin = user && user.role === 'admin';
         if (user) {
             this.loadConfigList();
-            // Show configs panel if model is loaded
             if (configsPanel && this.currentModel) configsPanel.style.display = 'block';
+            if (editCodeBtn) editCodeBtn.style.display = isAdmin ? 'inline-block' : 'none';
+            if (showLogBtn) showLogBtn.style.display = isAdmin ? 'inline-block' : 'none';
         } else {
             if (configsPanel) configsPanel.style.display = 'none';
             const select = document.getElementById('saved-config-select');
             if (select) select.innerHTML = '<option value="">-- Select saved config --</option>';
+            if (editCodeBtn) editCodeBtn.style.display = 'none';
+            if (showLogBtn) showLogBtn.style.display = 'none';
+            // Close editor and log if open when logged out
+            this.setCodeEditorOpen(false);
+            this.setScadLogOpen(false);
         }
+    }
+
+    setCodeEditorOpen(open) {
+        const container = document.getElementById('editor-container');
+        const btn = document.getElementById('edit-code-btn');
+        if (!container) return;
+        if (open) {
+            container.classList.add('open');
+            if (btn) btn.textContent = 'Hide Code';
+        } else {
+            container.classList.remove('open');
+            if (btn) btn.textContent = 'Edit Code';
+        }
+    }
+
+    toggleCodeEditor() {
+        const container = document.getElementById('editor-container');
+        if (!container) return;
+        this.setCodeEditorOpen(!container.classList.contains('open'));
+    }
+
+    setScadLogOpen(open) {
+        const container = document.getElementById('scad-log-container');
+        const btn = document.getElementById('show-log-btn');
+        if (!container) return;
+        if (open) {
+            container.classList.add('open');
+            if (btn) btn.textContent = 'Hide Log';
+        } else {
+            container.classList.remove('open');
+            if (btn) btn.textContent = 'Show Log';
+        }
+    }
+
+    toggleScadLog() {
+        const container = document.getElementById('scad-log-container');
+        if (!container) return;
+        this.setScadLogOpen(!container.classList.contains('open'));
+    }
+
+    appendScadLog(text, cssClass) {
+        const pre = document.getElementById('scad-log');
+        if (!pre) return;
+        // Clear placeholder on first real entry
+        if (pre.querySelector('.log-empty')) pre.innerHTML = '';
+        const span = document.createElement('span');
+        if (cssClass) span.className = cssClass;
+        span.textContent = text;
+        pre.appendChild(span);
+        pre.scrollTop = pre.scrollHeight;
+    }
+
+    clearScadLog() {
+        const pre = document.getElementById('scad-log');
+        if (pre) pre.innerHTML = '<span class="log-empty">No render yet.</span>';
     }
 
     async loadConfiguration() {
@@ -91,6 +156,31 @@ class ParameterEditor {
         document.getElementById('ai-suggest-btn').addEventListener('click', () => {
             this.getAISuggestions();
         });
+
+        document.getElementById('edit-code-btn').addEventListener('click', () => {
+            this.toggleCodeEditor();
+        });
+
+        document.getElementById('show-log-btn').addEventListener('click', () => {
+            this.toggleScadLog();
+        });
+
+        document.getElementById('scad-log-clear-btn').addEventListener('click', () => {
+            this.clearScadLog();
+        });
+
+        document.getElementById('editor-revert-btn').addEventListener('click', () => {
+            this.revertEditorToParameters();
+        });
+
+        document.getElementById('editor').addEventListener('input', () => {
+            const user = Auth.getUser();
+            if (user && user.role === 'admin') {
+                this.codeModified = true;
+                const badge = document.getElementById('editor-modified-badge');
+                if (badge) badge.style.display = 'inline';
+            }
+        });
     }
 
     async loadModel(modelId) {
@@ -108,6 +198,9 @@ class ParameterEditor {
         this.currentModel = model;
         this.parameters = {};
         this.dependencyFiles = [];
+        this.codeModified = false;
+        const badge = document.getElementById('editor-modified-badge');
+        if (badge) badge.style.display = 'none';
 
         // Initialize parameters with default values
         model.parameters.forEach(param => {
@@ -119,15 +212,23 @@ class ParameterEditor {
             const response = await fetch(`models/${model.file}`);
             this.originalCode = await response.text();
 
-            // Load dependency files (e.g. pipe.scad, STL files for paraglider)
+            // Load dependency files.
+            // Each entry is either a string "rel/path.ext" or an object
+            // { url: "server/path.ext", path: "wasm_flat_name.ext" } — the
+            // object form lets files live in subdirs on the server while the
+            // WASM virtual FS sees them at a flat root path (avoiding the
+            // ErrnoError that occurs when writing to a non-existent subdir).
             const deps = model.dependencies || [];
             this.dependencyFiles = await Promise.all(deps.map(async (dep) => {
-                const r = await fetch(`models/${dep}`);
-                const isBinary = /\.(stl|amf|3mf|off|obj)$/i.test(dep);
-                const content = isBinary
-                    ? new Uint8Array(await r.arrayBuffer())
-                    : await r.text();
-                return { path: `/${dep}`, content };
+                const serverPath = typeof dep === 'string' ? dep : dep.url;
+                const wasmPath  = typeof dep === 'string' ? dep : (dep.path || dep.url);
+                const isBinary = /\.(stl|amf|3mf|off|obj)$/i.test(serverPath);
+                if (isBinary) {
+                    // Pass URL so the worker fetches it directly as ArrayBuffer.
+                    return { path: `/${wasmPath}`, url: `models/${serverPath}` };
+                }
+                const r = await fetch(`models/${serverPath}`);
+                return { path: `/${wasmPath}`, content: await r.text() };
             }));
 
             // Display model info
@@ -228,8 +329,21 @@ class ParameterEditor {
         });
     }
 
+    formatParamName(name) {
+        // "palm_breadth_mm" → "Palm Breadth (in mm)"
+        // "show_palm"       → "Show Palm"
+        // "assembled"       → "Assembled"
+        const hasMm = name.endsWith('_mm');
+        const base = hasMm ? name.slice(0, -3) : name;
+        const words = base.split('_').filter(Boolean)
+            .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+            .join(' ');
+        return hasMm ? `${words} (in mm)` : words;
+    }
+
     generateParameterControl(param) {
         const value = this.parameters[param.name];
+        const label = this.formatParamName(param.name);
 
         let controlHtml = '';
 
@@ -237,7 +351,7 @@ class ParameterEditor {
             controlHtml = `
                 <div class="param-item">
                     <div class="param-label">
-                        <span class="param-name">${param.name}</span>
+                        <span class="param-name">${label}</span>
                         <span class="param-value" id="value-${param.name}">${value}</span>
                     </div>
                     <div class="param-caption">${param.caption}</div>
@@ -252,7 +366,7 @@ class ParameterEditor {
                 controlHtml = `
                     <div class="param-item">
                         <div class="param-label">
-                            <span class="param-name">${param.name}</span>
+                            <span class="param-name">${label}</span>
                             <span class="param-value" id="value-${param.name}">${value}</span>
                         </div>
                         <div class="param-caption">${param.caption}</div>
@@ -273,7 +387,7 @@ class ParameterEditor {
                 controlHtml = `
                     <div class="param-item">
                         <div class="param-label">
-                            <span class="param-name">${param.name}</span>
+                            <span class="param-name">${label}</span>
                             <span class="param-value" id="value-${param.name}">${value}</span>
                         </div>
                         <div class="param-caption">${param.caption}</div>
@@ -285,11 +399,24 @@ class ParameterEditor {
                     </div>
                 `;
             }
+        } else if (param.type === 'enum') {
+            const options = param.options.map(opt =>
+                `<option value="${opt.value}" ${String(value) === String(opt.value) ? 'selected' : ''}>${opt.label}</option>`
+            ).join('');
+            controlHtml = `
+                <div class="param-item">
+                    <div class="param-label">
+                        <span class="param-name">${label}</span>
+                    </div>
+                    <div class="param-caption">${param.caption}</div>
+                    <select id="param-${param.name}" class="param-control">${options}</select>
+                </div>
+            `;
         } else if (param.type === 'string') {
             controlHtml = `
                 <div class="param-item">
                     <div class="param-label">
-                        <span class="param-name">${param.name}</span>
+                        <span class="param-name">${label}</span>
                         <span class="param-value" id="value-${param.name}">${value}</span>
                     </div>
                     <div class="param-caption">${param.caption}</div>
@@ -311,6 +438,13 @@ class ParameterEditor {
             value = input.checked;
         } else if (input.type === 'number' || input.type === 'range') {
             value = parseFloat(input.value);
+        } else if (input.type === 'select-one') {
+            // Enum: coerce string back to the correct JS type
+            const raw = input.value;
+            if (raw === 'true')  value = true;
+            else if (raw === 'false') value = false;
+            else if (!isNaN(raw) && raw !== '') value = parseFloat(raw);
+            else value = raw;
         } else {
             value = input.value;
         }
@@ -335,6 +469,9 @@ class ParameterEditor {
 
     updateEditor() {
         if (!this.currentModel) return;
+
+        // When admin has hand-edited the code, don't overwrite their changes.
+        if (this.codeModified) return;
 
         let code = this.originalCode;
 
@@ -361,6 +498,13 @@ class ParameterEditor {
         }
 
         document.getElementById('editor').value = code;
+    }
+
+    revertEditorToParameters() {
+        this.codeModified = false;
+        const badge = document.getElementById('editor-modified-badge');
+        if (badge) badge.style.display = 'none';
+        this.updateEditor();
     }
 
     resetParameters() {
@@ -409,14 +553,22 @@ class ParameterEditor {
 
             this.worker = new Worker('openscad-worker.js');
 
+            const isAdmin = Auth.getUser()?.role === 'admin';
+            if (isAdmin) this.clearScadLog();
+
             const resultPromise = new Promise((resolve, reject) => {
                 this.worker.onmessage = (e) => {
                     if (e.data.result) {
                         resolve(e.data.result);
                     } else if (e.data.stderr) {
                         console.log('OpenSCAD stderr:', e.data.stderr);
+                        if (isAdmin) {
+                            const cls = /WARNING/i.test(e.data.stderr) ? 'log-warning' : 'log-stderr';
+                            this.appendScadLog(e.data.stderr + '\n', cls);
+                        }
                     } else if (e.data.stdout) {
                         console.log('OpenSCAD stdout:', e.data.stdout);
+                        if (isAdmin) this.appendScadLog(e.data.stdout + '\n', 'log-stdout');
                     }
                 };
 
@@ -429,6 +581,15 @@ class ParameterEditor {
                 }, 120000);
             });
 
+            // Per-model backend override: model config may specify renderBackend
+            // ('manifold' default, '' to omit the flag and let WASM pick, 'cgal' for tolerance)
+            const backendFlag = (this.currentModel && this.currentModel.renderBackend !== undefined)
+                ? this.currentModel.renderBackend
+                : 'manifold';
+            const backendArgs = backendFlag ? ['--backend', backendFlag] : [];
+
+            const useArchiveLibraries = !!(this.currentModel && this.currentModel.mountArchives);
+
             this.worker.postMessage({
                 inputs: [
                     {path: '/input.scad', content: code},
@@ -438,10 +599,10 @@ class ParameterEditor {
                     '/input.scad',
                     '-o', '/output.off',
                     '--export-format', 'off',
-                    '--backend', 'manifold',
+                    ...backendArgs,
                 ],
                 outputPaths: ['/output.off'],
-                mountArchives: false
+                mountArchives: useArchiveLibraries
             });
 
             // Wait for result
@@ -703,15 +864,20 @@ class ParameterEditor {
             });
 
             // Send export request
+            const useArchiveLibraries = !!(this.currentModel && this.currentModel.mountArchives);
+
             worker.postMessage({
-                inputs: [{path: '/input.scad', content: code}],
+                inputs: [
+                    {path: '/input.scad', content: code},
+                    ...(this.dependencyFiles || []),
+                ],
                 args: [
                     '/input.scad',
                     '-o', '/output.stl',
                     '--export-format', 'asciistl'
                 ],
                 outputPaths: ['/output.stl'],
-                mountArchives: false
+                mountArchives: useArchiveLibraries
             });
 
             const result = await resultPromise;

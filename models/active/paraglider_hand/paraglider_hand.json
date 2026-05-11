@@ -1,0 +1,30 @@
+{
+    "fileFormatVersion": "1",
+    "parameterSets": {
+        "New set 1": {
+            "elastic_channel_scale": "0.90000000000000002",
+            "middle_finger_length_mm": "72",
+            "mirrored": "false",
+            "old_style_wrist": "false",
+            "palm_breadth_mm": "83",
+            "palm_length_mm": "95",
+            "palm_thickness_mm": "32",
+            "pin_index": "1",
+            "serial_line1": "paraglider",
+            "serial_line2": "",
+            "serial_line3": "",
+            "show_assembled": "true",
+            "show_channels": "false",
+            "show_finger_phalanx": "true",
+            "show_knuckle_covers": "true",
+            "show_long_finger": "true",
+            "show_palm": "true",
+            "show_palm_mesh": "true",
+            "show_short_finger": "true",
+            "show_thumb": "true",
+            "show_thumb_phalanx": "true",
+            "string_channel_scale": "0.90000000000000002",
+            "thumb_length_mm": "65"
+        }
+    }
+}
