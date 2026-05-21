@@ -4,196 +4,469 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel — Prosthetic Hand Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f5f5f5;
-            color: #2c3e50;
+        :root {
+            --surface: #ffffff;
+            --surface-2: #f3f3f5;
+            --border: rgba(0,0,0,0.08);
+            --border-strong: rgba(0,0,0,0.12);
+            --text-primary: #030213;
+            --text-secondary: #717182;
+            --text-muted: #9b9bab;
+            --accent-subtle: #ececf0;
+            --destructive: #d4183d;
+            --destructive-subtle: rgba(212,24,61,0.06);
+            --success: #15803d;
+            --success-subtle: #dcfce7;
+            --warning: #92400e;
+            --warning-subtle: #fef3c7;
+            --radius-sm: 6px;
+            --radius: 10px;
+            --radius-lg: 12px;
+            --radius-xl: 14px;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+            --shadow: 0 1px 3px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.04);
+            --shadow-lg: 0 4px 6px rgba(0,0,0,0.04), 0 10px 40px rgba(0,0,0,0.08);
+            --font: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
-        header {
-            background: #2c3e50;
-            color: white;
-            padding: 1rem 2rem;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+
+        body {
+            font-family: var(--font);
+            background: #ffffff;
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                radial-gradient(circle, rgba(99,102,241,0.08) 1px, transparent 1px),
+                radial-gradient(circle, rgba(99,102,241,0.05) 1px, transparent 1px);
+            background-size: 100px 100px;
+            background-position: 0 0, 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── App bar ── */
+        .admin-app-bar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+        }
+        .admin-app-bar-inner {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 0 24px;
+            height: 56px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 16px;
         }
-
-        header h1 { font-size: 1.3rem; }
-
-        header nav a {
-            color: rgba(255,255,255,0.8);
-            text-decoration: none;
-            margin-left: 1.5rem;
-            font-size: 0.9rem;
-        }
-        header nav a:hover { color: white; }
-
-        .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
-
-        .tabs {
+        .admin-logo {
             display: flex;
-            border-bottom: 2px solid #ddd;
-            margin-bottom: 1.5rem;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .admin-logo-icon {
+            width: 28px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+        .admin-logo-text {
+            font-size: 0.9375rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f97316 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+        }
+        .admin-bar-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            padding-left: 12px;
+            border-left: 1px solid var(--border-strong);
+        }
+        .admin-bar-nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .admin-bar-nav a {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: var(--radius);
+            font-size: 0.8125rem;
+            font-weight: 500;
+            font-family: var(--font);
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.15s;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-strong);
+            background: var(--surface);
+        }
+        .admin-bar-nav a:hover { color: var(--text-primary); background: var(--accent-subtle); }
+        .admin-bar-nav a.danger { color: var(--destructive); border-color: rgba(212,24,61,0.2); }
+        .admin-bar-nav a.danger:hover { background: var(--destructive-subtle); }
+        .admin-user-menu {
+            position: relative;
+        }
+        .admin-user-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 12px 5px 6px;
+            border-radius: 9999px;
+            border: 1px solid var(--border-strong);
+            background: var(--surface);
+            font-family: var(--font);
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .admin-user-btn:hover { background: var(--accent-subtle); }
+        .admin-user-avatar {
+            width: 26px; height: 26px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            display: flex; align-items: center; justify-content: center;
+            color: white;
+            font-size: 0.6875rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .admin-user-chevron {
+            color: var(--text-muted);
+            transition: transform 0.15s;
+        }
+        .admin-user-menu.open .admin-user-chevron { transform: rotate(180deg); }
+        .admin-user-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            min-width: 180px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+            overflow: hidden;
+            z-index: 200;
+        }
+        .admin-user-menu.open .admin-user-dropdown { display: block; }
+        .admin-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.1s;
+            background: none;
+            border: none;
+            width: 100%;
+            font-family: var(--font);
+        }
+        .admin-dropdown-item:hover { background: var(--accent-subtle); color: var(--text-primary); }
+        .admin-dropdown-item.danger { color: var(--destructive); }
+        .admin-dropdown-item.danger:hover { background: #fff0f3; }
+        .admin-dropdown-divider { height: 1px; background: var(--border); margin: 4px 0; }
+
+        /* ── Container ── */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1140px;
+            margin: 32px auto;
+            padding: 0 24px;
+        }
+
+        /* ── Segmented tabs ── */
+        .tabs {
+            display: inline-flex;
+            gap: 2px;
+            padding: 4px;
+            background: var(--accent-subtle);
+            border-radius: var(--radius-lg);
+            margin-bottom: 24px;
         }
 
         .tab-btn {
-            padding: 0.6rem 1.25rem;
+            padding: 6px 16px;
             border: none;
-            background: none;
+            border-radius: calc(var(--radius-lg) - 2px);
             cursor: pointer;
-            font-size: 0.95rem;
-            color: #666;
-            border-bottom: 3px solid transparent;
-            margin-bottom: -2px;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            font-family: var(--font);
+            color: var(--text-secondary);
+            background: transparent;
+            transition: all 0.15s;
+            white-space: nowrap;
         }
-
+        .tab-btn:hover { color: var(--text-primary); }
         .tab-btn.active {
-            color: #3498db;
-            border-bottom-color: #3498db;
-            font-weight: 600;
+            background: var(--surface);
+            color: var(--text-primary);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
         }
 
         .tab-panel { display: none; }
         .tab-panel.active { display: block; }
 
+        /* ── Cards ── */
         .card {
-            background: white;
-            border-radius: 6px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            background: var(--surface);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
             overflow: hidden;
-            margin-bottom: 1.5rem;
+            margin-bottom: 24px;
         }
 
         .card-header {
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid #ddd;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 12px;
+        }
+        .card-header h2 {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: var(--text-primary);
         }
 
-        .card-header h2 { font-size: 1rem; color: #2c3e50; }
-
+        /* ── Tables ── */
         table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #eee; font-size: 0.9rem; }
-        th { background: #f8f9fa; font-weight: 600; color: #555; }
-        tr:hover td { background: #fafafa; }
+        th, td {
+            padding: 10px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.875rem;
+        }
+        th {
+            background: var(--surface-2);
+            font-weight: 600;
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(0,0,0,0.015); }
 
+        /* ── Badges ── */
         .badge {
             display: inline-block;
-            padding: 0.2rem 0.5rem;
-            border-radius: 12px;
+            padding: 2px 8px;
+            border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 600;
         }
-        .badge-admin { background: #fdecea; color: #c0392b; }
-        .badge-tech  { background: #fef9e7; color: #b7950b; }
-        .badge-user  { background: #eaf4fb; color: #2980b9; }
-        .badge-active   { background: #e9f7ef; color: #1e8449; }
-        .badge-inactive { background: #f0f0f0; color: #888; }
+        .badge-admin { background: rgba(212,24,61,0.08); color: #b91c1c; }
+        .badge-tech  { background: rgba(146,64,14,0.08); color: #92400e; }
+        .badge-user  { background: rgba(29,78,216,0.08); color: #1d4ed8; }
+        .badge-active   { background: rgba(21,128,61,0.08); color: #15803d; }
+        .badge-inactive { background: var(--accent-subtle); color: var(--text-muted); }
 
+        /* ── Buttons ── */
         button {
-            padding: 0.35rem 0.75rem;
-            border: none;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: background 0.15s;
+            font-family: var(--font);
         }
+        .btn-primary {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 7px 14px;
+            background: var(--text-primary); color: #ffffff;
+            border: none; border-radius: var(--radius);
+            font-size: 0.8125rem; font-weight: 500; font-family: var(--font);
+            cursor: pointer; transition: all 0.15s; white-space: nowrap;
+        }
+        .btn-primary:hover { background: #1a1730; }
 
-        .btn-primary   { background: #3498db; color: white; }
-        .btn-primary:hover { background: #2980b9; }
-        .btn-success   { background: #27ae60; color: white; }
-        .btn-success:hover { background: #1e8449; }
-        .btn-warning   { background: #f39c12; color: white; }
-        .btn-warning:hover { background: #d68910; }
-        .btn-danger    { background: #e74c3c; color: white; }
-        .btn-danger:hover { background: #c0392b; }
-        .btn-secondary { background: #95a5a6; color: white; }
-        .btn-secondary:hover { background: #7f8c8d; }
+        .btn-success {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 7px 14px;
+            background: var(--text-primary); color: #ffffff;
+            border: none; border-radius: var(--radius);
+            font-size: 0.8125rem; font-weight: 500; font-family: var(--font);
+            cursor: pointer; transition: all 0.15s; white-space: nowrap;
+        }
+        .btn-success:hover { background: #1a1730; }
 
-        .action-cell { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+        .btn-secondary {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 7px 14px;
+            background: var(--surface); color: var(--text-primary);
+            border: 1px solid var(--border-strong); border-radius: var(--radius);
+            font-size: 0.8125rem; font-weight: 500; font-family: var(--font);
+            cursor: pointer; transition: all 0.15s; white-space: nowrap;
+        }
+        .btn-secondary:hover { background: var(--accent-subtle); }
 
-        /* Inline form */
+        .btn-warning {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 5px 10px;
+            background: var(--warning-subtle); color: var(--warning);
+            border: 1px solid rgba(146,64,14,0.15); border-radius: var(--radius-sm);
+            font-size: 0.75rem; font-weight: 500; font-family: var(--font);
+            cursor: pointer; transition: all 0.15s;
+        }
+        .btn-warning:hover { background: #fde68a; }
+
+        .btn-danger {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 5px 10px;
+            background: var(--destructive-subtle); color: var(--destructive);
+            border: 1px solid rgba(212,24,61,0.15); border-radius: var(--radius-sm);
+            font-size: 0.75rem; font-weight: 500; font-family: var(--font);
+            cursor: pointer; transition: all 0.15s;
+        }
+        .btn-danger:hover { background: rgba(212,24,61,0.12); }
+
+        .action-cell { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+
+        /* ── Inline create-user form ── */
         .inline-form {
             display: none;
-            padding: 1.25rem 1.5rem;
-            border-top: 1px solid #eee;
-            background: #f8f9fa;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface-2);
         }
-        .inline-form.open { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+        .inline-form.open { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .inline-form .full { grid-column: 1 / -1; }
 
         .inline-form label {
             display: block;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 600;
-            color: #555;
-            margin-bottom: 0.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
         }
-
         .inline-form input,
         .inline-form select {
             width: 100%;
-            padding: 0.4rem 0.6rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 0.9rem;
+            padding: 8px 12px;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-family: var(--font);
+            color: var(--text-primary);
+            background: var(--surface);
+            box-shadow: 0 0 0 1px var(--border-strong);
+            transition: box-shadow 0.15s;
         }
-
-        .inline-form .form-actions { display: flex; gap: 0.5rem; }
+        .inline-form input:focus,
+        .inline-form select:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--text-primary);
+        }
+        .inline-form .form-actions { display: flex; gap: 8px; }
 
         .error-msg {
-            color: #e74c3c;
-            font-size: 0.85rem;
-            margin-bottom: 0.5rem;
+            color: var(--destructive);
+            font-size: 0.8125rem;
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            background: var(--destructive-subtle);
+            border-radius: var(--radius-sm);
             display: none;
         }
 
-        /* Assignment section */
-        .assignment-row td { vertical-align: top; }
-
-        .patient-list {
-            list-style: none;
-            margin: 0;
-            padding: 0;
+        /* ── Filter bar ── */
+        .filter-bar {
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            background: var(--surface-2);
         }
+        .filter-bar label {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        .filter-bar input,
+        .filter-bar select {
+            padding: 6px 10px;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 0.8125rem;
+            font-family: var(--font);
+            color: var(--text-primary);
+            background: var(--surface);
+            box-shadow: 0 0 0 1px var(--border-strong);
+        }
+        .filter-bar input:focus,
+        .filter-bar select:focus { outline: none; box-shadow: 0 0 0 2px var(--text-primary); }
 
+        /* ── Assignments ── */
+        .assignment-row td { vertical-align: top; }
+        .patient-list { list-style: none; }
         .patient-list li {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0.3rem 0;
-            border-bottom: 1px solid #eee;
-            font-size: 0.85rem;
+            padding: 5px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.875rem;
         }
-
         .patient-list li:last-child { border-bottom: none; }
 
+        /* ── Toast ── */
         #toast {
             position: fixed;
-            bottom: 1.5rem;
-            right: 1.5rem;
-            padding: 0.75rem 1.25rem;
-            border-radius: 4px;
+            bottom: 24px;
+            right: 24px;
+            padding: 10px 18px;
+            border-radius: var(--radius);
             color: white;
-            font-size: 0.9rem;
+            font-size: 0.875rem;
+            font-family: var(--font);
             z-index: 9999;
             display: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            box-shadow: var(--shadow-lg);
         }
-
-        #toast.success { background: #27ae60; }
-        #toast.error   { background: #e74c3c; }
+        #toast.success { background: #15803d; }
+        #toast.error   { background: var(--destructive); }
 
         #admin-loading {
             text-align: center;
-            padding: 3rem;
-            color: #888;
+            padding: 48px;
+            color: var(--text-muted);
+            font-size: 0.9375rem;
         }
 
         /* ── Anthropometric modal ── */
@@ -201,19 +474,21 @@
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.6);
+            background: rgba(3,2,19,0.5);
             z-index: 5000;
             align-items: flex-start;
             justify-content: center;
-            padding: 2rem 1rem;
+            padding: 32px 16px;
             overflow-y: auto;
+            backdrop-filter: blur(4px);
         }
         .anthro-box {
-            background: white;
-            border-radius: 8px;
+            background: var(--surface);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border);
             width: 860px;
             max-width: 100%;
-            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+            box-shadow: var(--shadow-lg);
             display: flex;
             flex-direction: column;
         }
@@ -221,81 +496,227 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 1.25rem 1.5rem;
-            border-bottom: 1px solid #eee;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
         }
-        .anthro-header h2 { font-size: 1.15rem; color: #2c3e50; }
-        .anthro-close { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: #888; padding: 0 0.25rem; }
-        .anthro-close:hover { color: #333; }
+        .anthro-header h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .anthro-close {
+            background: none; border: none; font-size: 1.25rem; cursor: pointer;
+            color: var(--text-muted); padding: 2px 6px; border-radius: var(--radius-sm);
+            transition: all 0.15s; line-height: 1;
+        }
+        .anthro-close:hover { background: var(--accent-subtle); color: var(--text-primary); }
         .anthro-tabs {
-            display: flex;
-            border-bottom: 2px solid #eee;
-            padding: 0 1.5rem;
+            display: inline-flex;
+            gap: 2px;
+            padding: 4px;
+            background: var(--accent-subtle);
+            border-radius: var(--radius-lg);
+            margin: 12px 20px;
+            align-self: flex-start;
         }
         .anthro-tab-btn {
-            padding: 0.6rem 1.1rem;
+            padding: 5px 14px;
             border: none;
-            background: none;
+            border-radius: calc(var(--radius-lg) - 2px);
             cursor: pointer;
-            font-size: 0.9rem;
-            color: #666;
-            border-bottom: 3px solid transparent;
-            margin-bottom: -2px;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            font-family: var(--font);
+            color: var(--text-secondary);
+            background: transparent;
+            transition: all 0.15s;
         }
-        .anthro-tab-btn.active { color: #3498db; border-bottom-color: #3498db; font-weight: 600; }
-        .anthro-body { padding: 1.25rem 1.5rem; }
+        .anthro-tab-btn:hover { color: var(--text-primary); }
+        .anthro-tab-btn.active {
+            background: var(--surface);
+            color: var(--text-primary);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
+        }
+        .anthro-body { padding: 4px 20px 16px; }
         .anthro-section {
-            border: 1px solid #e8e8e8;
-            border-radius: 6px;
-            margin-bottom: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            margin-bottom: 8px;
             overflow: hidden;
         }
         .anthro-section-head {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.6rem 1rem;
-            background: #f8f9fa;
+            gap: 8px;
+            padding: 8px 14px;
+            background: var(--surface-2);
             font-weight: 600;
-            font-size: 0.88rem;
-            color: #2c3e50;
+            font-size: 0.8125rem;
+            color: var(--text-primary);
         }
         .anthro-section-toggle {
             background: none; border: none; cursor: pointer;
-            font-size: 0.8rem; color: #888; padding: 0; line-height: 1;
+            font-size: 0.75rem; color: var(--text-muted); padding: 0; line-height: 1;
         }
-        .anthro-section-body { padding: 0.75rem 1rem; }
-        .anthro-grid   { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
-        .anthro-grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 0.5rem; }
-        .anthro-field label { display: block; font-size: 0.75rem; font-weight: 600; color: #555; margin-bottom: 0.2rem; }
+        .anthro-section-body { padding: 12px 14px; }
+        .anthro-grid   { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .anthro-grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+        .anthro-field label {
+            display: block; font-size: 0.72rem; font-weight: 600;
+            color: var(--text-secondary); margin-bottom: 3px;
+            text-transform: uppercase; letter-spacing: 0.03em;
+        }
         .anthro-field input, .anthro-field select {
-            width: 100%; padding: 0.35rem 0.5rem;
-            border: 1px solid #ddd; border-radius: 4px; font-size: 0.85rem;
+            width: 100%; padding: 6px 10px;
+            border: none; border-radius: var(--radius-sm);
+            font-size: 0.8125rem; font-family: var(--font); color: var(--text-primary);
+            background: var(--surface-2);
+            box-shadow: 0 0 0 1px var(--border-strong);
+            transition: box-shadow 0.15s;
+        }
+        .anthro-field input:focus, .anthro-field select:focus {
+            outline: none; box-shadow: 0 0 0 2px var(--text-primary);
         }
         .anthro-footer {
-            display: flex; align-items: center; gap: 0.6rem;
-            padding: 1rem 1.5rem; border-top: 1px solid #eee; flex-wrap: wrap;
+            display: flex; align-items: center; gap: 8px;
+            padding: 14px 20px; border-top: 1px solid var(--border); flex-wrap: wrap;
         }
-        .anthro-status { font-size: 0.85rem; color: #666; margin-left: auto; }
-        .anthro-status.success { color: #27ae60; }
-        .anthro-status.error   { color: #e74c3c; }
-        #anthro-results { display: none; padding: 0 1.5rem 1rem; }
-        .anthro-results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        @media (max-width:600px) { .anthro-results-grid { grid-template-columns: 1fr; } }
-        .anthro-result-card { border: 1px solid #e8e8e8; border-radius: 6px; padding: 0.9rem; }
-        .anthro-result-card h4 { font-size: 0.9rem; color: #2c3e50; margin-bottom: 0.6rem; }
-        .anthro-param-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
-        .anthro-param-table th, .anthro-param-table td { text-align: left; padding: 0.25rem 0.4rem; border-bottom: 1px solid #f0f0f0; }
-        .anthro-param-table th { font-weight: 600; color: #555; background: #f8f9fa; }
+        .anthro-status { font-size: 0.8125rem; color: var(--text-muted); margin-left: auto; }
+        .anthro-status.success { color: var(--success); }
+        .anthro-status.error   { color: var(--destructive); }
+        #anthro-results { display: none; padding: 0 20px 16px; }
+        .anthro-results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media (max-width: 600px) { .anthro-results-grid { grid-template-columns: 1fr; } }
+        .anthro-result-card {
+            border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px;
+        }
+        .anthro-result-card h4 {
+            font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 10px;
+        }
+        .anthro-param-table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
+        .anthro-param-table th, .anthro-param-table td {
+            text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--border);
+        }
+        .anthro-param-table th {
+            font-weight: 600; color: var(--text-secondary); background: var(--surface-2);
+            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;
+        }
+
+        /* ── Edit / Reset token modals ── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(3,2,19,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .modal-box {
+            background: var(--surface);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-lg);
+            padding: 24px;
+            width: 420px;
+            max-width: 95vw;
+        }
+        .modal-box h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+        .modal-box label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .modal-box input {
+            width: 100%;
+            padding: 8px 12px;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-family: var(--font);
+            color: var(--text-primary);
+            background: var(--surface-2);
+            box-shadow: 0 0 0 1px var(--border-strong);
+            transition: box-shadow 0.15s;
+            margin-bottom: 2px;
+        }
+        .modal-box input:focus { outline: none; box-shadow: 0 0 0 2px var(--text-primary); }
+        .modal-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+        .token-display {
+            font-family: 'Courier New', monospace;
+            background: var(--surface-2);
+            padding: 12px;
+            border-radius: var(--radius);
+            word-break: break-all;
+            font-size: 0.8125rem;
+            min-height: 2.5rem;
+            margin-bottom: 16px;
+            box-shadow: 0 0 0 1px var(--border-strong);
+        }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Admin Panel</h1>
-        <nav>
-            <a href="index.html">← Back to App</a>
-            <a href="#" id="admin-logout">Log Out</a>
-        </nav>
+    <header class="admin-app-bar">
+        <div class="admin-app-bar-inner">
+            <div style="display:flex;align-items:center;gap:12px">
+                <a href="index.html" class="admin-logo">
+                    <svg class="admin-logo-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs><linearGradient id="alg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#a855f7"/><stop offset="50%" stop-color="#ec4899"/><stop offset="100%" stop-color="#f97316"/></linearGradient></defs>
+                        <path d="M35 65 L35 85 C35 88 37 90 40 90 L60 90 C63 90 65 88 65 85 L65 65 Z" fill="url(#alg)" opacity="0.9"/>
+                        <path d="M30 70 L25 75 C23 77 23 80 25 82 L28 85 C30 87 33 87 35 85 L38 80 Z" fill="url(#alg)"/>
+                        <rect x="38" y="15" width="8" height="52" rx="4" fill="url(#alg)"/>
+                        <rect x="48" y="10" width="8" height="57" rx="4" fill="url(#alg)"/>
+                        <rect x="58" y="15" width="8" height="52" rx="4" fill="url(#alg)"/>
+                        <rect x="68" y="25" width="7" height="42" rx="3.5" fill="url(#alg)"/>
+                        <line x1="40" y1="70" x2="60" y2="70" stroke="white" stroke-width="1.5" opacity="0.6"/>
+                        <line x1="40" y1="75" x2="60" y2="75" stroke="white" stroke-width="1.5" opacity="0.6"/>
+                        <line x1="40" y1="80" x2="60" y2="80" stroke="white" stroke-width="1.5" opacity="0.6"/>
+                        <circle cx="42" cy="45" r="2" fill="white" opacity="0.7"/>
+                        <circle cx="52" cy="40" r="2" fill="white" opacity="0.7"/>
+                        <circle cx="62" cy="45" r="2" fill="white" opacity="0.7"/>
+                        <circle cx="71" cy="50" r="1.5" fill="white" opacity="0.7"/>
+                    </svg>
+                    <span class="admin-logo-text">Hand Fab</span>
+                </a>
+                <span class="admin-bar-title">Admin Panel</span>
+            </div>
+            <nav class="admin-bar-nav">
+                <a href="index.html">← Back to App</a>
+                <div class="admin-user-menu" id="admin-user-menu">
+                    <button class="admin-user-btn" id="admin-user-btn" aria-haspopup="true" aria-expanded="false">
+                        <div class="admin-user-avatar" id="admin-user-avatar">A</div>
+                        <span id="admin-user-greeting">Hello, Admin</span>
+                        <svg class="admin-user-chevron" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <div class="admin-user-dropdown" role="menu">
+                        <a href="index.html" class="admin-dropdown-item">
+                            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                            Back to App
+                        </a>
+                        <div class="admin-dropdown-divider"></div>
+                        <button class="admin-dropdown-item danger" id="admin-logout">
+                            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                            Log Out
+                        </button>
+                    </div>
+                </div>
+            </nav>
+        </div>
     </header>
 
     <div class="container">
@@ -313,7 +734,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h2>Users</h2>
-                        <button class="btn-success" id="create-user-btn">+ Create User</button>
+                        <button class="btn-success" id="create-user-btn"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg> Create User</button>
                     </div>
 
                     <div class="inline-form" id="create-user-form">
@@ -369,28 +790,25 @@
                     <div class="card-header">
                         <h2>Anthropometric Profiles</h2>
                         <div style="display:flex;gap:0.5rem;align-items:center">
-                            <button class="btn-secondary" id="anthro-bulk-import-btn" title="Import population profiles from multi_population_hand.csv">⬆ Import CSV Dataset</button>
-                            <button class="btn-success" id="anthro-new-btn">+ New Profile</button>
+                            <button class="btn-secondary" id="anthro-bulk-import-btn" title="Import population profiles from multi_population_hand.csv"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Import CSV</button>
+                            <button class="btn-success" id="anthro-new-btn"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg> New Profile</button>
                         </div>
                         <input type="file" id="anthro-bulk-file" accept=".csv" style="display:none">
                     </div>
 
                     <!-- Filters -->
-                    <div style="padding:0.75rem 1rem;border-bottom:1px solid #eee;display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap">
-                        <label style="font-size:0.85rem;font-weight:600;color:#555;white-space:nowrap">Filter:</label>
-                        <input type="text" id="anthro-filter-country" placeholder="Country / Region"
-                            style="padding:0.3rem 0.5rem;border:1px solid #ddd;border-radius:4px;font-size:0.85rem;width:160px">
-                        <select id="anthro-filter-gender"
-                            style="padding:0.3rem 0.5rem;border:1px solid #ddd;border-radius:4px;font-size:0.85rem">
+                    <div class="filter-bar">
+                        <label>Filter:</label>
+                        <input type="text" id="anthro-filter-country" placeholder="Country / Region" style="width:160px">
+                        <select id="anthro-filter-gender">
                             <option value="">All genders</option>
                             <option value="female">Female</option>
                             <option value="male">Male</option>
                             <option value="mixed">Mixed</option>
                             <option value="other">Other</option>
                         </select>
-                        <input type="text" id="anthro-filter-age-group" placeholder="Age group"
-                            style="padding:0.3rem 0.5rem;border:1px solid #ddd;border-radius:4px;font-size:0.85rem;width:130px">
-                        <button class="btn-primary" id="anthro-filter-btn" style="padding:0.3rem 0.7rem;font-size:0.85rem">Apply</button>
+                        <input type="text" id="anthro-filter-age-group" placeholder="Age group" style="width:130px">
+                        <button class="btn-primary" id="anthro-filter-btn">Apply</button>
                     </div>
 
                     <table id="anthro-profiles-table">
@@ -726,26 +1144,26 @@
     </div>
 
     <!-- Edit user modal -->
-    <div id="edit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center">
-        <div style="background:white;border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,0.25);padding:1.75rem;width:420px;max-width:95vw">
-            <h2 style="font-size:1.05rem;margin-bottom:1.25rem;color:#2c3e50">Edit User</h2>
-            <div class="error-msg" id="edit-error" style="margin-bottom:0.75rem"></div>
-            <div style="display:grid;gap:0.75rem">
+    <div id="edit-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h2>Edit User</h2>
+            <div class="error-msg" id="edit-error"></div>
+            <div style="display:grid;gap:12px">
                 <input type="hidden" id="edit-user-id">
                 <div>
-                    <label style="display:block;font-size:0.8rem;font-weight:600;color:#555;margin-bottom:0.2rem">Username</label>
-                    <input type="text" id="edit-username" style="width:100%;padding:0.4rem 0.6rem;border:1px solid #ddd;border-radius:4px;font-size:0.9rem">
+                    <label>Username</label>
+                    <input type="text" id="edit-username">
                 </div>
                 <div>
-                    <label style="display:block;font-size:0.8rem;font-weight:600;color:#555;margin-bottom:0.2rem">Email</label>
-                    <input type="email" id="edit-email" style="width:100%;padding:0.4rem 0.6rem;border:1px solid #ddd;border-radius:4px;font-size:0.9rem">
+                    <label>Email</label>
+                    <input type="email" id="edit-email">
                 </div>
                 <div>
-                    <label style="display:block;font-size:0.8rem;font-weight:600;color:#555;margin-bottom:0.2rem">New Password <span style="font-weight:400;color:#999">(leave blank to keep current)</span></label>
-                    <input type="password" id="edit-password" placeholder="min 8 chars" style="width:100%;padding:0.4rem 0.6rem;border:1px solid #ddd;border-radius:4px;font-size:0.9rem">
+                    <label>New Password <span style="font-weight:400;color:var(--text-muted);text-transform:none;letter-spacing:0">(leave blank to keep current)</span></label>
+                    <input type="password" id="edit-password" placeholder="min 8 chars">
                 </div>
             </div>
-            <div style="display:flex;gap:0.5rem;margin-top:1.25rem;justify-content:flex-end">
+            <div class="modal-actions">
                 <button class="btn-secondary" id="edit-cancel-btn">Cancel</button>
                 <button class="btn-primary" id="edit-save-btn">Save Changes</button>
             </div>
@@ -753,13 +1171,13 @@
     </div>
 
     <!-- Reset token modal -->
-    <div id="reset-token-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center">
-        <div style="background:white;border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,0.25);padding:1.75rem;width:420px;max-width:95vw">
-            <h2 style="font-size:1.05rem;margin-bottom:0.5rem;color:#2c3e50">Reset Token Generated</h2>
-            <p style="font-size:0.85rem;color:#666;margin-bottom:1rem">Give this token to the user. It expires in 1 hour and can only be used once.</p>
-            <div class="error-msg" id="reset-token-error" style="margin-bottom:0.75rem;display:none"></div>
-            <div id="reset-token-display" style="font-family:monospace;background:#f4f4f4;padding:0.75rem;border-radius:4px;word-break:break-all;font-size:0.85rem;min-height:2rem;margin-bottom:1rem"></div>
-            <div style="display:flex;gap:0.5rem;justify-content:flex-end">
+    <div id="reset-token-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h2>Reset Token Generated</h2>
+            <p style="font-size:0.8125rem;color:var(--text-secondary);margin-bottom:16px">Give this token to the user. It expires in 1 hour and can only be used once.</p>
+            <div class="error-msg" id="reset-token-error"></div>
+            <div id="reset-token-display" class="token-display"></div>
+            <div class="modal-actions">
                 <button class="btn-secondary" id="copy-reset-token-btn">Copy</button>
                 <button class="btn-primary" id="close-reset-token-btn">Done</button>
             </div>

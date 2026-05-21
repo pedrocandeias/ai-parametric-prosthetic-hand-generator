@@ -23,7 +23,7 @@ const AnthropometricImporter = (() => {
     function openNew() {
         resetModal();
         const modal = document.getElementById('anthro-modal');
-        if (modal) modal.style.display = 'flex';
+        if (modal) modal.classList.add('active');
     }
 
     async function openEdit(id) {
@@ -38,7 +38,7 @@ const AnthropometricImporter = (() => {
 
         setStatus('Loading…', '');
         const modal = document.getElementById('anthro-modal');
-        if (modal) modal.style.display = 'flex';
+        if (modal) modal.classList.add('active');
 
         try {
             const res = await Auth.fetchWithAuth(`/api/anthropometric/${id}`);
@@ -54,7 +54,7 @@ const AnthropometricImporter = (() => {
 
     function close() {
         const modal = document.getElementById('anthro-modal');
-        if (modal) modal.style.display = 'none';
+        if (modal) modal.classList.remove('active');
     }
 
     function resetModal() {

@@ -317,7 +317,14 @@
           "max": 120,
           "step": 1,
           "caption": "Knuckle-to-knuckle palm breadth \u2014 drives XY scale for all hand parts (mm)",
-          "group": "Anthropometric"
+          "group": "Anthropometric",
+          "drives": [
+            {
+              "param": "gauntlet_width_mm",
+              "ratio": 0.7470,
+              "label": "Gauntlet width \u2248 75% of palm breadth"
+            }
+          ]
         },
         {
           "name": "palm_length_mm",
@@ -367,7 +374,9 @@
           "max": 90,
           "step": 1,
           "caption": "Forearm socket width \u2014 approx. wrist circumference \u00f7 \u03c0 + 5 mm clearance (mm)",
-          "group": "Anthropometric"
+          "group": "Anthropometric",
+          "dependsOn": "palm_breadth_mm",
+          "ratio": 0.7470
         },
         {
           "name": "show_palm",
@@ -414,279 +423,10 @@
       ]
     },
     {
-      "id": "phoenix_v3_palm",
-      "renderBackend": "manifold",
-      "name": "Phoenix Hand v3 Palm",
-      "description": "Exact legacy Phoenix v3 palm extracted into a standalone OpenSCAD wrapper. Preserves the original native polyhedron geometry and uses uniform hand scaling by default, with optional anisotropic scaling for study and fit experiments.",
-      "file": "active/phoenix_v3/phoenix_v3_palm.scad",
-      "dependencies": [
-        {
-          "url": "active/phoenix_v3/phoenix_v3_palm_legacy_geometry.scad",
-          "path": "phoenix_v3_palm_legacy_geometry.scad"
-        }
-      ],
-      "parameters": [
-        {
-          "name": "hand_length_mm",
-          "type": "number",
-          "initial": 135,
-          "min": 120,
-          "max": 230,
-          "step": 1,
-          "caption": "Global legacy hand scale driver (mm)",
-          "group": "Scaling"
-        },
-        {
-          "name": "use_anisotropic_scaling",
-          "type": "boolean",
-          "initial": false,
-          "caption": "Allow independent X/Y/Z scaling instead of legacy uniform scaling",
-          "group": "Scaling"
-        },
-        {
-          "name": "palm_breadth_mm",
-          "type": "number",
-          "initial": 82.17,
-          "min": 55,
-          "max": 120,
-          "step": 1,
-          "caption": "Exact palm X span target used only when anisotropic scaling is enabled (mm)",
-          "group": "Scaling"
-        },
-        {
-          "name": "palm_length_mm",
-          "type": "number",
-          "initial": 91.96,
-          "min": 60,
-          "max": 130,
-          "step": 1,
-          "caption": "Exact palm Y length target used only when anisotropic scaling is enabled (mm)",
-          "group": "Scaling"
-        },
-        {
-          "name": "palm_thickness_mm",
-          "type": "number",
-          "initial": 30.55,
-          "min": 15,
-          "max": 50,
-          "step": 1,
-          "caption": "Exact palm Z thickness target used only when anisotropic scaling is enabled (mm)",
-          "group": "Scaling"
-        },
-        {
-          "name": "left_hand",
-          "type": "boolean",
-          "initial": true,
-          "caption": "Generate left-hand geometry; disable to mirror to right hand",
-          "group": "Orientation"
-        }
-      ]
-    },
-    {
-      "id": "phoenix_v3_fingers",
-      "renderBackend": "manifold",
-      "name": "Phoenix Hand v3 Fingers",
-      "description": "Exact legacy Phoenix v3 distal finger set extracted into a standalone OpenSCAD wrapper. Preserves the original native polyhedron geometry and uses uniform hand scaling by default, with optional anisotropic scaling for study and fit experiments.",
-      "file": "active/phoenix_v3/phoenix_v3_fingers.scad",
-      "dependencies": [
-        {
-          "url": "active/phoenix_v3/phoenix_v3_fingers_legacy_geometry.scad",
-          "path": "phoenix_v3_fingers_legacy_geometry.scad"
-        }
-      ],
-      "parameters": [
-        {
-          "name": "hand_length_mm",
-          "type": "number",
-          "initial": 135,
-          "min": 120,
-          "max": 230,
-          "step": 1,
-          "caption": "Global legacy hand scale driver (mm)",
-          "group": "Scaling"
-        },
-        {
-          "name": "use_anisotropic_scaling",
-          "type": "boolean",
-          "initial": false,
-          "caption": "Allow independent X/Y/Z scaling instead of legacy uniform scaling",
-          "group": "Scaling"
-        },
-        {
-          "name": "finger_span_mm",
-          "type": "number",
-          "initial": 78.32,
-          "min": 50,
-          "max": 120,
-          "step": 1,
-          "caption": "Exact fingers X span target used only when anisotropic scaling is enabled (mm)",
-          "group": "Scaling"
-        },
-        {
-          "name": "finger_length_mm",
-          "type": "number",
-          "initial": 43.55,
-          "min": 25,
-          "max": 70,
-          "step": 1,
-          "caption": "Exact fingers Y length target used only when anisotropic scaling is enabled (mm)",
-          "group": "Scaling"
-        },
-        {
-          "name": "finger_thickness_mm",
-          "type": "number",
-          "initial": 15.72,
-          "min": 8,
-          "max": 30,
-          "step": 1,
-          "caption": "Exact fingers Z thickness target used only when anisotropic scaling is enabled (mm)",
-          "group": "Scaling"
-        },
-        {
-          "name": "left_hand",
-          "type": "boolean",
-          "initial": true,
-          "caption": "Generate left-hand geometry; disable to mirror to right hand",
-          "group": "Orientation"
-        }
-      ]
-    },
-    {
-      "id": "phoenix_v3_phalanx_bank",
-      "renderBackend": "manifold",
-      "name": "Phoenix Hand v3 Phalanx Bank",
-      "description": "Exact legacy Phoenix v3 phalanx bank extracted into a standalone OpenSCAD wrapper. Preserves the original native polyhedron geometry and exposes uniform hand scaling by default, with optional anisotropic scaling for study and fit experiments.",
-      "file": "active/phoenix_v3/phoenix_v3_phalanx_bank.scad",
-      "dependencies": [
-        {
-          "url": "active/phoenix_v3/phoenix_v3_phalanx_legacy_geometry.scad",
-          "path": "phoenix_v3_phalanx_legacy_geometry.scad"
-        }
-      ],
-      "parameters": [
-        {
-          "name": "hand_length_mm",
-          "type": "number",
-          "initial": 135,
-          "min": 120,
-          "max": 230,
-          "step": 1,
-          "caption": "Global legacy hand scale driver (mm)",
-          "group": "Scaling"
-        },
-        {
-          "name": "use_anisotropic_scaling",
-          "type": "boolean",
-          "initial": false,
-          "caption": "Allow independent X/Y/Z scaling instead of legacy uniform scaling",
-          "group": "Scaling"
-        },
-        {
-          "name": "palm_breadth_mm",
-          "type": "number",
-          "initial": 80.85,
-          "min": 55,
-          "max": 110,
-          "step": 1,
-          "caption": "Exact-bank X span target used only when anisotropic scaling is enabled (mm)",
-          "group": "Scaling"
-        },
-        {
-          "name": "phalanx_bank_length_mm",
-          "type": "number",
-          "initial": 35.53,
-          "min": 25,
-          "max": 60,
-          "step": 1,
-          "caption": "Exact-bank Y length target used only when anisotropic scaling is enabled (mm)",
-          "group": "Scaling"
-        },
-        {
-          "name": "phalanx_bank_thickness_mm",
-          "type": "number",
-          "initial": 17.19,
-          "min": 10,
-          "max": 30,
-          "step": 1,
-          "caption": "Exact-bank Z thickness target used only when anisotropic scaling is enabled (mm)",
-          "group": "Scaling"
-        },
-        {
-          "name": "left_hand",
-          "type": "boolean",
-          "initial": true,
-          "caption": "Generate left-hand geometry; disable to mirror to right hand",
-          "group": "Orientation"
-        }
-      ]
-    },
-    {
-      "id": "phoenix_v3_pins",
-      "renderBackend": "manifold",
-      "name": "Phoenix Hand v3 Pins",
-      "description": "Exact legacy Phoenix v3 pins extracted into a standalone OpenSCAD wrapper. Preserves the original native polyhedron geometry and uses uniform hand scaling by default, with optional anisotropic scaling for study and fit experiments.",
-      "file": "active/phoenix_v3/phoenix_v3_pins.scad",
-      "dependencies": [
-        {
-          "url": "active/phoenix_v3/phoenix_v3_pins_legacy_geometry.scad",
-          "path": "phoenix_v3_pins_legacy_geometry.scad"
-        }
-      ],
-      "parameters": [
-        {
-          "name": "hand_length_mm",
-          "type": "number",
-          "initial": 135,
-          "min": 120,
-          "max": 230,
-          "step": 1,
-          "caption": "Global legacy hand scale driver (mm)",
-          "group": "Scaling"
-        },
-        {
-          "name": "use_anisotropic_scaling",
-          "type": "boolean",
-          "initial": false,
-          "caption": "Allow independent X/Y/Z scaling instead of legacy uniform scaling",
-          "group": "Scaling"
-        },
-        {
-          "name": "pins_span_mm",
-          "type": "number",
-          "initial": 78.47,
-          "min": 50,
-          "max": 120,
-          "step": 1,
-          "caption": "Exact pins X span target used only when anisotropic scaling is enabled (mm)",
-          "group": "Scaling"
-        },
-        {
-          "name": "pins_length_mm",
-          "type": "number",
-          "initial": 44.25,
-          "min": 25,
-          "max": 70,
-          "step": 1,
-          "caption": "Exact pins Y length target used only when anisotropic scaling is enabled (mm)",
-          "group": "Scaling"
-        },
-        {
-          "name": "pins_thickness_mm",
-          "type": "number",
-          "initial": 4.3,
-          "min": 2,
-          "max": 10,
-          "step": 0.1,
-          "caption": "Exact pins Z thickness target used only when anisotropic scaling is enabled (mm)",
-          "group": "Scaling"
-        }
-      ]
-    },
-    {
       "id": "phoenix_v3_complete",
       "renderBackend": "manifold",
-      "name": "Phoenix Hand v3 (Complete)",
-      "description": "Exact legacy Phoenix v3 full-hand assembled preview using extracted native OpenSCAD geometry for the palm, distal fingers, proximal phalanx bank, and pins. All parts render together in the original shared coordinate system with shared hand scaling plus per-part visibility and color controls for interactive editing.",
+      "name": "Phoenix Hand v3",
+      "description": "Phoenix v3 full-hand assembled preview using extracted native OpenSCAD geometry for the palm, distal fingers, proximal phalanx bank, and pins. All parts render together in the original shared coordinate system with shared hand scaling plus per-part visibility and color controls for interactive editing.",
       "file": "active/phoenix_v3/phoenix_v3_assembly.scad",
       "dependencies": [
         {
@@ -694,16 +434,16 @@
           "path": "phoenix_v3_palm_legacy_geometry.scad"
         },
         {
-          "url": "active/phoenix_v3/phoenix_v3_fingers_legacy_geometry.scad",
-          "path": "phoenix_v3_fingers_legacy_geometry.scad"
-        },
-        {
-          "url": "active/phoenix_v3/phoenix_v3_phalanx_legacy_geometry.scad",
-          "path": "phoenix_v3_phalanx_legacy_geometry.scad"
-        },
-        {
           "url": "active/phoenix_v3/phoenix_v3_pins_legacy_geometry.scad",
           "path": "phoenix_v3_pins_legacy_geometry.scad"
+        },
+        {
+          "url": "active/phoenix_v3/phoenix_v3_fingers_split_geometry.scad",
+          "path": "phoenix_v3_fingers_split_geometry.scad"
+        },
+        {
+          "url": "active/phoenix_v3/phoenix_v3_phalanx_split_geometry.scad",
+          "path": "phoenix_v3_phalanx_split_geometry.scad"
         }
       ],
       "parameters": [
@@ -748,8 +488,8 @@
         {
           "name": "show_pins",
           "type": "boolean",
-          "initial": true,
-          "caption": "Show pins",
+          "initial": false,
+          "caption": "Show loose pins preview",
           "group": "Visibility"
         },
         {

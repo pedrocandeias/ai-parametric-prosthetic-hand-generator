@@ -1,0 +1,3 @@
+phoenix_v3_palm_temp from Phoenix_Thermo_Palm_2
+bbox=x(21.835,104.000) y(-149.000,-57.036) z(-0.103,30.450)
+points=5423 faces=11236

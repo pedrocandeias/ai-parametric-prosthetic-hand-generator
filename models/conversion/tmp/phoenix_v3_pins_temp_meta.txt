@@ -1,0 +1,3 @@
+phoenix_v3_pins_temp from Phoenix_Pins
+bbox=x(-39.234,39.234) y(-22.000,22.125) z(-0.001,4.301)
+points=3497 faces=6942

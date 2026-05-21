@@ -1,0 +1,6 @@
+phoenix_v3_fingers split components from Phoenix_Fingers_Left
+pinky: points=1157 faces=2321 bbox=x(-7.834,3.376) y(-51.964,-8.418) z(0.000,15.721)
+ring: points=1157 faces=2321 bbox=x(7.771,18.981) y(-51.964,-8.418) z(-0.000,15.721)
+middle: points=1175 faces=2358 bbox=x(22.981,34.191) y(-48.464,-8.582) z(0.000,14.817)
+index: points=1171 faces=2350 bbox=x(38.586,49.796) y(-48.464,-8.582) z(-0.000,14.817)
+thumb: points=1249 faces=2522 bbox=x(54.415,70.481) y(-51.964,-8.420) z(0.000,15.442)

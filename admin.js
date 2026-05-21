@@ -557,6 +557,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('admin-loading').style.display = 'none';
     document.getElementById('admin-content').style.display = 'block';
 
+    // Populate greeting + avatar initial
+    if (user) {
+        const name = user.username || 'Admin';
+        const greetEl = document.getElementById('admin-user-greeting');
+        const avatarEl = document.getElementById('admin-user-avatar');
+        if (greetEl) greetEl.textContent = `Hello, ${name}`;
+        if (avatarEl) avatarEl.textContent = name.charAt(0).toUpperCase();
+    }
+
+    // User menu dropdown toggle
+    const menuEl = document.getElementById('admin-user-menu');
+    const menuBtn = document.getElementById('admin-user-btn');
+    if (menuBtn && menuEl) {
+        menuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const open = menuEl.classList.toggle('open');
+            menuBtn.setAttribute('aria-expanded', open);
+        });
+        document.addEventListener('click', () => {
+            menuEl.classList.remove('open');
+            menuBtn.setAttribute('aria-expanded', 'false');
+        });
+    }
+
     setupTabs();
     setupEditModal();
     setupResetTokenModal();

@@ -12,6 +12,148 @@ Entry format follows [Conventional Commits](https://www.conventionalcommits.org/
 
 ---
 
+## v9.0.0 — 2026-05-21
+
+feat: add parametric dependency system — palm_breadth_mm auto-updates gauntlet_width_mm via configurable ratio when auto-link is enabled
+feat: add frontend parameter validation — bounds clamping, anatomical ratio warnings, auto-link toggle per parameter group
+feat: add server-side parameter bounds validation — POST/PATCH /api/configurations returns 400 with details for out-of-range values
+docs: add drives/dependsOn/ratio metadata schema to models-config.json for kinetic_hand_rh60_parametric
+
+## v8.15.0 — 2026-05-20
+
+feat: main site user menu matches admin style — pill shape, gradient avatar initial, "Hello, {username}" greeting, chevron rotates on open
+fix: dropdown items use consistent 0.8125rem sizing and accent-subtle hover; Log Out item styled red; divider before Log Out
+
+## v8.14.0 — 2026-05-20
+
+feat: admin app bar now shows "Hello, {username}" greeting with avatar initial and chevron dropdown
+feat: dropdown contains Back to App and Log Out actions; closes on outside click
+
+## v8.13.0 — 2026-05-20
+
+fix: role card content padding increased to 28px/24px to match Figma
+fix: role card "Open Dashboard" button uses pill border-radius to match Figma screenshot
+
+## v8.12.0 — 2026-05-20
+
+fix: remove legacy hf-footer from customization screen (replaced by 4-col footer elsewhere)
+fix: update _setCustomizationTitle to use breadcrumb format "Customize Your Prosthetic — Type: {name}"
+feat: slider fill gradient now driven by --range-pct CSS variable, initialized on render and updated on input
+
+## v8.11.0 — 2026-05-20
+
+feat: role banner redesigned to match Figma — admin gets 2-column grid (Editor Dashboard green + Admin Dashboard purple), tech gets single green card
+fix: role banner icons updated to Lucide FileEdit (editor) and Settings (admin) matching Figma imports
+fix: role card gradients, border colours, and icon container backgrounds match Figma exactly
+
+---
+
+## v8.10.0 — 2026-05-20
+
+fix: logo gradient corrected to purple-600→pink-600→orange-600 (#a855f7→#ec4899→#f97316) matching Figma HandFabLogo component
+fix: added white joint-indicator circles to hand SVG logos across login, app bar, and admin panel
+fix: removed "Prosthetic Configurator" subtitle from navbar logos — Figma Header shows logo + "Hand Fab" only
+fix: admin panel button text icons replaced with inline SVGs (plus, upload)
+fix: admin.html gains -webkit-font-smoothing: antialiased matching main app
+
+---
+
+## v8.9.0 — 2026-05-20
+
+feat: restyle admin panel to match main app design system — DM Sans font, white background, dot pattern, segmented-control tabs, updated cards/tables/badges/buttons/modals
+
+---
+
+## v8.8.0 — 2026-05-20
+
+fix: login card padding reduced to 24px and max-width set to 28rem (448px) to match Figma
+fix: login logo enlarged to 48px, labels removed from login inputs, placeholders added, button text changed to "Login"
+fix: all footers updated — wrapped in inner container, h4 headings changed to h3, removed "Powered by OpenSCAD" from copyright
+fix: login page footer replaced with full 4-column footer matching selection and profile screens
+
+---
+
+## v8.7.0 — 2026-05-20
+
+fix: body background changed to #ffffff (white) matching Figma — animated dot pattern provides the only color, not a blue gradient
+
+---
+
+## v8.6.0 — 2026-05-20
+
+fix: login inputs now use borderless #f3f3f5 fill matching Figma's shadcn --input-background style
+
+---
+
+## v8.5.0 — 2026-05-20
+
+fix: reorder customization tabs — AI Assistant first, Parameters second, Saved third
+fix: tab shape changed to segmented-control (muted #ececf0 background, white active tab with shadow) matching Figma
+fix: flatten param-item — remove individual gray background/border boxes from parameter items
+fix: model card thumbnails now use neutral gray gradients instead of vivid colored ones
+fix: model card grid uses fixed 4-column layout (2 at ≤900px, 1 at ≤560px) matching Figma grid-cols-4
+fix: --radius-xl reduced to 14px to match Figma's calc(0.625rem + 4px)
+fix: hf-container padding reverted to 24px
+fix: ai-empty-state now visible by default when no model loaded (AI tab is now default active)
+
+---
+
+## v8.4.0 — 2026-05-20
+
+feat: model cards now use aspect-square full-width thumbnail with hover scale (matching Figma)
+feat: section headings changed to larger plain text (no divider line)
+feat: hf-container max-width reduced to 1152px (Figma max-w-6xl), customization to 1280px
+feat: model card button renamed "Start New" with Plus icon in card title
+feat: saved config cards now include "Load Profile" button
+feat: app bar — replaced initials circle with User icon SVG, added circular help button
+feat: user menu now shows "Welcome, {username}" prefix
+feat: selection page heading updated to "Prosthetic Hand Configurator" with larger font (2.25rem)
+
+---
+
+## v8.3.0 — 2026-05-20
+
+feat: align all colors and typography with Figma Make theme — buttons now black (#030213) matching Figma --primary, not blue
+feat: replace all indigo focus rings and borders with neutral dark rings (rgba(3,2,19,0.08))
+feat: update design tokens: --text-primary → #030213, --text-secondary → #717182, --accent-subtle → #ececf0 (neutral gray)
+feat: active tabs now use black-fill white-text pill matching Figma's active tab style
+feat: login inputs and button now h-14 (3.5rem) with text-lg (1.0625rem) matching reference
+feat: login page now has full-page layout with logo header above the card and footer below
+feat: base font-size updated from 15px to 16px matching Figma --font-size
+
+## v8.2.0 — 2026-05-20
+
+feat: implement Hand Fab Figma Make design — transparent login backdrop shows gradient background, updated animated two-dot radial pattern matching reference
+feat: add 4-column footer (Support / Contact / Legal) to selection and profile screens
+feat: restructure profile screen with Profile Information / Security tabs replacing flat card layout
+feat: add role banner on selection screen for admin and tech users with direct Admin Panel / Tech Dashboard link
+
+## v8.1.0 — 2026-05-20
+
+fix: remove redundant "Select Model" card from customization screen — model is already chosen on the selection page
+feat: auto-render 3D preview immediately after a model or saved config is loaded from the selection screen
+feat: display the model's display name in the customization screen header instead of the internal model ID
+
+## v8.0.0 — 2026-05-20
+
+feat: implement full multi-screen page flow matching Hand Fab reference app (login → selection → customization → profile)
+feat: add Selection screen showing available models as cards and saved configurations after login
+feat: add Profile screen with account info display and password change form wired to PATCH /api/users/:id/password
+feat: add sticky frosted-glass app bar (logo + user menu) shared across all authenticated screens
+feat: add screens.js module managing screen transitions, model/config loading, and navigation events
+refactor: move configurator layout into #screen-customization with back-to-selection navigation
+feat: add "Edit Profile" entry to user dropdown menu
+feat: login modal now shows Hand Fab logo and subtitle for visual consistency
+
+## v7.11.0 — 2026-05-20
+
+refactor: replace all inline CSS in index.html with Hand Fab design system theme
+feat: add theme.css using OKLCH-based color palette (primary #030213, semantic destructive, muted, accent tokens) matching Hand Fab configurator aesthetic
+refactor: convert modal and menu visibility from inline style.display to .active CSS class toggles in auth.js and anthropometric.js
+fix: move theme.css to project root so Express static middleware serves it correctly
+refactor: remove inline styles from ai-assistant section; add .ai-provider-group, .ai-description, .btn-block, .empty-state utility classes
+fix: remove flex: 1 / overflow-y from .parameters so sidebar scrolls the full parameter list rather than clipping it
+
 ## v7.10.0 — 2026-05-11
 
 feat: add exact legacy Phoenix Hand v3 component wrappers — extract standalone native OpenSCAD geometry files for palm, distal fingers, proximal phalanx bank, and pins; add active wrappers in `models/active/phoenix_v3/` with shared `hand_length_mm` scaling and optional anisotropic controls

@@ -3,1126 +3,2241 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prosthetic Hand AI Parameter Generator</title>
+    <title>Hand Fab — Prosthetic Configurator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        /* ── Login Modal ── */
-        #login-modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.7);
-            z-index: 9999;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .login-box {
-            background: white;
-            border-radius: 8px;
-            padding: 2rem;
-            width: 360px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-        }
-
-        .login-box h2 {
-            color: #2c3e50;
-            margin-bottom: 1.25rem;
-            font-size: 1.3rem;
-        }
-
-        .login-box .form-group {
-            margin-bottom: 1rem;
-        }
-
-        .login-box label {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 0.25rem;
-        }
-
-        .login-box input {
-            width: 100%;
-            padding: 0.5rem 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 0.95rem;
-        }
-
-        .login-box .btn-submit {
-            width: 100%;
-            padding: 0.65rem;
-            background: #3498db;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 1rem;
-            cursor: pointer;
-            margin-top: 0.5rem;
-        }
-
-        .login-box .btn-submit:hover { background: #2980b9; }
-        .login-box .btn-submit:disabled { opacity: 0.6; cursor: default; }
-
-        .auth-error {
-            display: none;
-            color: #e74c3c;
-            font-size: 0.85rem;
-            margin-bottom: 0.75rem;
-            padding: 0.5rem;
-            background: #fdecea;
-            border-radius: 4px;
-        }
-
-        .auth-links {
-            text-align: center;
-            margin-top: 1rem;
-            font-size: 0.85rem;
-            color: #666;
-        }
-
-        .auth-links a {
-            color: #3498db;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-        /* ── Header user menu ── */
-        header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .header-title { flex: 1; }
-        .header-title p { font-size: 0.9rem; opacity: 0.8; }
-
-        #login-btn {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.4);
-            padding: 0.4rem 1rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-
-        #user-menu {
-            display: none;
-            align-items: center;
-            gap: 0.5rem;
-            position: relative;
-        }
-
-        #user-menu-toggle {
-            background: rgba(255,255,255,0.15);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.3);
-            padding: 0.4rem 0.75rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-
-        #user-menu-dropdown {
-            display: none;
-            position: absolute;
-            top: calc(100% + 4px);
-            right: 0;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            min-width: 160px;
-            z-index: 1000;
-        }
-
-        #user-menu-dropdown a {
-            display: block;
-            padding: 0.6rem 1rem;
-            color: #2c3e50;
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
-
-        #user-menu-dropdown a:hover { background: #f5f5f5; }
-
-        /* ── Saved Configurations panel ── */
-        .saved-configs {
-            padding: 1rem;
-            border-bottom: 1px solid #ddd;
-            background: #f0f7f0;
-        }
-
-        .saved-configs h3 {
-            color: #2c3e50;
-            font-size: 0.95rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .saved-configs select,
-        .saved-configs input[type="text"] {
-            width: 100%;
-            padding: 0.4rem 0.5rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .saved-configs .config-name-row {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .saved-configs .config-name-row input {
-            flex: 1;
-            margin-bottom: 0;
-        }
-
-        .saved-configs .config-buttons {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-        }
-
-        .saved-configs .config-buttons button {
-            flex: 1;
-            padding: 0.4rem;
-            font-size: 0.8rem;
-        }
-
-        .btn-danger {
-            background: #e74c3c;
-            color: white;
-        }
-        .btn-danger:hover { background: #c0392b; }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background: #f5f5f5;
-        }
-
-        header {
-            background: #2c3e50;
-            color: white;
-            padding: 1rem 2rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        header h1 {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .container {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        .sidebar {
-            width: 350px;
-            background: white;
-            border-right: 1px solid #ddd;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-        }
-
-        .model-selector {
-            padding: 1rem;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .model-selector label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: #2c3e50;
-        }
-
-        .model-selector select {
-            width: 100%;
-            padding: 0.5rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-
-        .model-info {
-            padding: 1rem;
-            border-bottom: 1px solid #ddd;
-            background: #f8f9fa;
-        }
-
-        .model-info h3 {
-            color: #2c3e50;
-            margin-bottom: 0.5rem;
-        }
-
-        .model-info p {
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        .ai-assistant {
-            padding: 1rem;
-            border-bottom: 1px solid #ddd;
-            background: #e8f4f8;
-        }
-
-        .parameters {
-            flex: 1;
-            padding: 1rem;
-        }
-
-        .param-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .param-group h3 {
-            color: #2c3e50;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid #3498db;
-            font-size: 1rem;
-        }
-
-        .param-item {
-            margin-bottom: 1.5rem;
-            padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 4px;
-        }
-
-        .param-label {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-        }
-
-        .param-name {
-            font-weight: 600;
-            color: #2c3e50;
-        }
-
-        .param-value {
-            color: #3498db;
-            font-family: monospace;
-            font-size: 0.9rem;
-        }
-
-        .param-caption {
-            color: #666;
-            font-size: 0.85rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .param-control {
-            width: 100%;
-        }
-
-        input[type="range"] {
-            width: 100%;
-            height: 6px;
-            border-radius: 3px;
-            background: #ddd;
-            outline: none;
-            -webkit-appearance: none;
-        }
-
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: #3498db;
-            cursor: pointer;
-        }
-
-        input[type="range"]::-moz-range-thumb {
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: #3498db;
-            cursor: pointer;
-            border: none;
-        }
-
-        input[type="number"] {
-            width: 100%;
-            padding: 0.5rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-
-        input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-
-        .checkbox-container {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: white;
-        }
-
-        .viewer-header {
-            padding: 1rem;
-            background: #ecf0f1;
-            border-bottom: 1px solid #ddd;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .viewer-header h2 {
-            color: #2c3e50;
-            font-size: 1.2rem;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        button {
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .btn-primary {
-            background: #3498db;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #2980b9;
-        }
-
-        .btn-secondary {
-            background: #95a5a6;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #7f8c8d;
-        }
-
-        .btn-success {
-            background: #27ae60;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #229954;
-        }
-
-        .viewer-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .editor-container {
-            display: none;
-            flex-direction: column;
-            border-bottom: 1px solid #ddd;
-            min-height: 220px;
-            max-height: 40%;
-        }
-
-        .editor-container.open {
-            display: flex;
-        }
-
-        .scad-log-container {
-            display: none;
-            flex-direction: column;
-            border-bottom: 1px solid #ddd;
-            min-height: 120px;
-            max-height: 30%;
-        }
-
-        .scad-log-container.open {
-            display: flex;
-        }
-
-        .scad-log-toolbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.3rem 0.75rem;
-            background: #2a1a1a;
-            border-bottom: 1px solid #5a2a2a;
-            font-size: 0.8rem;
-            color: #cc9999;
-            flex-shrink: 0;
-        }
-
-        #scad-log {
-            flex: 1;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            padding: 0.6rem 1rem;
-            margin: 0;
-            border: none;
-            background: #1a1010;
-            color: #e8c8a8;
-            line-height: 1.45;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
-
-        #scad-log .log-stderr { color: #ff9966; }
-        #scad-log .log-warning { color: #f0d060; }
-        #scad-log .log-stdout { color: #a8d8a8; }
-        #scad-log .log-empty { color: #888; font-style: italic; }
-
-        .editor-toolbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.3rem 0.75rem;
-            background: #f0f0f0;
-            border-bottom: 1px solid #ddd;
-            font-size: 0.8rem;
-            color: #555;
-            flex-shrink: 0;
-        }
-
-        .editor-label {
-            font-weight: 600;
-            letter-spacing: 0.02em;
-        }
-
-        #editor {
-            flex: 1;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            padding: 0.75rem 1rem;
-            border: none;
-            resize: none;
-            background: #1e1e2e;
-            color: #cdd6f4;
-            line-height: 1.5;
-        }
-
-        #editor:focus {
-            outline: none;
-            box-shadow: inset 0 0 0 2px #4a9eff;
-        }
-
-        #viewer {
-            flex: 1;
-            border: none;
-            background: #fff;
-            width: 100%;
-            height: 100%;
-        }
-
-        model-viewer {
-            width: 100%;
-            height: 100%;
-            background-color: #f5f5f5;
-        }
-
-        .loading {
-            display: none;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            padding: 2rem;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            z-index: 1000;
-        }
-
-        .loading.active {
-            display: block;
-        }
-
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .status {
-            padding: 0.5rem 1rem;
-            background: #ecf0f1;
-            border-top: 1px solid #ddd;
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        .status.error {
-            background: #e74c3c;
-            color: white;
-        }
-
-        .status.success {
-            background: #27ae60;
-            color: white;
-        }
-
-        /* Fix header layout for original styles */
-        header h1 {
-            font-size: 1.5rem;
-            margin-bottom: 0.25rem;
-        }
-</style>
+
+/* ─────────────────────────────────────────────── */
+/* Design Tokens */
+/* ─────────────────────────────────────────────── */
+:root {
+    /* Background gradient — blue-50 → indigo-100 (matches Figma) */
+    --bg-from: #eff6ff;
+    --bg-to: #e0e7ff;
+    /* Surfaces */
+    --surface: #ffffff;
+    --surface-2: #f3f3f5;
+    /* Borders */
+    --border: rgba(0,0,0,0.08);
+    --border-strong: rgba(0,0,0,0.12);
+    /* Typography — matches Figma's --primary / --muted-foreground */
+    --text-primary: #030213;
+    --text-secondary: #717182;
+    --text-muted: #9b9bab;
+    /* Accent — kept ONLY for decorative use (logo gradient, pattern) */
+    --accent: #6366f1;
+    --accent-hover: #4f46e5;
+    /* Subtle backgrounds use neutral gray matching Figma's --muted */
+    --accent-subtle: #ececf0;
+    --accent-text: #030213;
+    /* Semantic */
+    --destructive: #d4183d;
+    --destructive-subtle: #fff0f3;
+    --success: #22c55e;
+    --success-subtle: #f0fdf4;
+    --warning: #f59e0b;
+    /* Shape — matches Figma: --radius: 0.625rem = 10px, xl = calc(0.625rem + 4px) = 14px */
+    --radius-sm: 6px;
+    --radius: 10px;
+    --radius-lg: 12px;
+    --radius-xl: 14px;
+    /* Elevation */
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow: 0 1px 3px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.04);
+    --shadow-lg: 0 4px 6px rgba(0,0,0,0.04), 0 10px 40px rgba(0,0,0,0.08);
+    /* Fonts */
+    --font: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'DM Mono', 'Courier New', monospace;
+}
+
+/* ─────────────────────────────────────────────── */
+/* Reset */
+/* ─────────────────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+
+body {
+    font-family: var(--font);
+    color: var(--text-primary);
+    background: #ffffff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ─────────────────────────────────────────────── */
+/* Dot Pattern Background */
+/* ─────────────────────────────────────────────── */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-size: 100px 100px;
+    background-position: 0 0, 50px 50px;
+    pointer-events: none;
+    z-index: 0;
+    animation: patternColorShift 15s ease-in-out infinite;
+}
+
+@keyframes patternColorShift {
+    0%   { background-image: radial-gradient(circle at 25px 25px, rgba(168,85,247,0.10) 2%, transparent 0%), radial-gradient(circle at 75px 75px, rgba(236,72,153,0.08) 2%, transparent 0%); }
+    20%  { background-image: radial-gradient(circle at 25px 25px, rgba(59,130,246,0.10) 2%, transparent 0%), radial-gradient(circle at 75px 75px, rgba(14,165,233,0.08) 2%, transparent 0%); }
+    40%  { background-image: radial-gradient(circle at 25px 25px, rgba(34,197,94,0.10) 2%, transparent 0%), radial-gradient(circle at 75px 75px, rgba(16,185,129,0.08) 2%, transparent 0%); }
+    60%  { background-image: radial-gradient(circle at 25px 25px, rgba(251,146,60,0.10) 2%, transparent 0%), radial-gradient(circle at 75px 75px, rgba(249,115,22,0.08) 2%, transparent 0%); }
+    80%  { background-image: radial-gradient(circle at 25px 25px, rgba(239,68,68,0.10) 2%, transparent 0%), radial-gradient(circle at 75px 75px, rgba(220,38,38,0.08) 2%, transparent 0%); }
+    100% { background-image: radial-gradient(circle at 25px 25px, rgba(168,85,247,0.10) 2%, transparent 0%), radial-gradient(circle at 75px 75px, rgba(236,72,153,0.08) 2%, transparent 0%); }
+}
+
+/* ─────────────────────────────────────────────── */
+/* App Shell */
+/* ─────────────────────────────────────────────── */
+#app-shell {
+    display: none;
+    flex-direction: column;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+}
+#app-shell.active { display: flex; }
+
+/* ─────────────────────────────────────────────── */
+/* App Bar (shared header) */
+/* ─────────────────────────────────────────────── */
+.hf-app-bar {
+    flex-shrink: 0;
+    padding: 0 24px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,0.72);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.hf-app-bar-inner {
+    max-width: 1440px;
+    margin: 0 auto;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* ─────────────────────────────────────────────── */
+/* Logo */
+/* ─────────────────────────────────────────────── */
+.hf-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: default;
+    text-decoration: none;
+}
+
+.hf-logo-icon {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+}
+
+.hf-logo-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+}
+
+.hf-logo-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f97316 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-transform: uppercase;
+}
+
+.hf-logo-sub {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    letter-spacing: 0.02em;
+}
+
+/* ─────────────────────────────────────────────── */
+/* User Menu */
+/* ─────────────────────────────────────────────── */
+#user-menu {
+    display: none;
+    align-items: center;
+    position: relative;
+}
+#user-menu.active { display: flex; }
+
+#user-menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 12px 5px 6px;
+    background: var(--surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border-strong);
+    border-radius: 9999px;
+    cursor: pointer;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    font-family: var(--font);
+    transition: all 0.15s;
+}
+#user-menu-toggle:hover { background: var(--accent-subtle); }
+
+.user-avatar {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #a855f7, #ec4899);
+    display: flex; align-items: center; justify-content: center;
+    color: white;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+#user-menu-toggle .chevron {
+    color: var(--text-muted);
+    transition: transform 0.15s;
+}
+#user-menu.open #user-menu-toggle .chevron { transform: rotate(180deg); }
+
+#help-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: transparent;
+    border: 1px solid var(--border-strong);
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.15s;
+}
+#help-btn:hover { background: var(--surface-2); color: var(--text-primary); }
+
+#user-menu-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+    min-width: 180px;
+    z-index: 9000;
+    overflow: hidden;
+}
+#user-menu-dropdown.active { display: block; }
+
+#user-menu-dropdown a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    transition: background 0.1s;
+    cursor: pointer;
+    background: none;
+    border: none;
+    width: 100%;
+    font-family: var(--font);
+}
+#user-menu-dropdown a:hover { background: var(--accent-subtle); color: var(--text-primary); }
+.user-menu-divider { height: 1px; background: var(--border); margin: 4px 0; }
+#logout-btn { color: var(--destructive) !important; }
+#logout-btn:hover { background: #fff0f3 !important; }
+
+.hf-header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#login-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 18px;
+    background: var(--text-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    font-family: var(--font);
+    transition: all 0.15s;
+}
+#login-btn:hover { background: #1e293b; }
+
+/* ─────────────────────────────────────────────── */
+/* App Screens */
+/* ─────────────────────────────────────────────── */
+.app-screen {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+}
+.app-screen.active { display: flex; }
+
+/* ─────────────────────────────────────────────── */
+/* Shared Container */
+/* ─────────────────────────────────────────────── */
+.hf-container {
+    max-width: 1152px;
+    margin: 0 auto;
+    padding: 24px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    flex: 1;
+}
+#screen-customization .hf-container { max-width: 1280px; }
+
+/* ─────────────────────────────────────────────── */
+/* Screen Navigation Bar */
+/* ─────────────────────────────────────────────── */
+.screen-nav {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 4px 0;
+}
+.screen-nav-title { display: flex; flex-direction: column; gap: 2px; }
+.screen-nav-title h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+}
+.screen-nav-title p {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+/* Breadcrumb-style nav for customization screen */
+.screen-nav-breadcrumb {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+}
+
+/* Icon-only viewer toolbar buttons */
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+    flex-shrink: 0;
+}
+.btn-icon:hover { background: var(--accent-subtle); color: var(--text-primary); }
+
+/* ─────────────────────────────────────────────── */
+/* Selection Page */
+/* ─────────────────────────────────────────────── */
+
+.sel-section { display: flex; flex-direction: column; gap: 16px; }
+.sel-section-title {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+}
+.sel-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+@media (max-width: 900px) { .sel-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .sel-grid { grid-template-columns: 1fr; } }
+
+.sel-model-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+.sel-model-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-3px);
+    border-color: rgba(3,2,19,0.2);
+}
+.sel-model-card:focus-visible {
+    outline: 2px solid var(--text-primary);
+    outline-offset: 2px;
+}
+
+.sel-model-thumb {
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #eef2ff 0%, #fdf2f8 100%);
+}
+.sel-model-thumb svg {
+    width: 100%;
+    height: 100%;
+    transition: transform 0.3s ease;
+}
+.sel-model-card:hover .sel-model-thumb svg {
+    transform: scale(1.08);
+}
+
+.sel-model-body {
+    padding: 18px 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.sel-model-body h3 {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+}
+.sel-model-body p {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    flex: 1;
+}
+
+.sel-model-action {
+    padding: 0 20px 18px;
+}
+
+.sel-saved-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+@media (max-width: 560px) { .sel-saved-grid { grid-template-columns: 1fr; } }
+
+.sel-config-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.sel-config-card:hover {
+    box-shadow: var(--shadow);
+    border-color: rgba(3,2,19,0.2);
+    transform: translateY(-1px);
+}
+.sel-config-card:focus-visible {
+    outline: 2px solid var(--text-primary);
+    outline-offset: 2px;
+}
+
+.sel-config-name {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.sel-config-meta {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.sel-badge {
+    padding: 2px 8px;
+    background: var(--accent-subtle);
+    color: var(--text-secondary);
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sel-empty {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    padding: 28px 20px;
+    background: var(--surface);
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-lg);
+    text-align: center;
+}
+.sel-loading {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    padding: 12px 0;
+}
+
+/* ─────────────────────────────────────────────── */
+/* Card Component */
+/* ─────────────────────────────────────────────── */
+.hf-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+.hf-card-head {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.hf-card-head h3 {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+}
+.hf-card-head p {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    margin-top: 1px;
+}
+.hf-card-body { padding: 20px; }
+
+/* ─────────────────────────────────────────────── */
+/* Main Grid Layout (Customization) */
+/* ─────────────────────────────────────────────── */
+.hf-grid {
+    display: grid;
+    grid-template-columns: 2fr 3fr;
+    gap: 20px;
+    flex: 1;
+    min-height: 0;
+}
+
+/* ─────────────────────────────────────────────── */
+/* Left Column */
+/* ─────────────────────────────────────────────── */
+.hf-left {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-height: 0;
+    overflow-y: auto;
+    max-height: calc(100vh - 130px);
+    padding-right: 4px;
+}
+.hf-left::-webkit-scrollbar { width: 4px; }
+.hf-left::-webkit-scrollbar-track { background: transparent; }
+.hf-left::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+
+#model-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    font-size: 0.9375rem;
+    font-family: var(--font);
+    color: var(--text-primary);
+    background: var(--surface);
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+    transition: border-color 0.15s;
+}
+#model-select:focus { outline: none; border-color: var(--text-primary); box-shadow: 0 0 0 3px rgba(3,2,19,0.08); }
+
+/* ─────────────────────────────────────────────── */
+/* Tab System */
+/* ─────────────────────────────────────────────── */
+.hf-config-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.hf-tab-list {
+    display: flex;
+    gap: 2px;
+    padding: 4px;
+    background: var(--accent-subtle);
+    border-radius: var(--radius-lg);
+    margin: 12px 16px;
+}
+.hf-tab-btn {
+    flex: 1;
+    padding: 6px 10px;
+    border: none;
+    border-radius: calc(var(--radius-lg) - 2px);
+    cursor: pointer;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    font-family: var(--font);
+    color: var(--text-secondary);
+    background: transparent;
+    transition: all 0.15s;
+    white-space: nowrap;
+}
+.hf-tab-btn:hover { color: var(--text-primary); }
+.hf-tab-btn.active {
+    background: var(--surface);
+    color: var(--text-primary);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
+}
+
+.hf-tab-pane { display: none; overflow-y: auto; }
+.hf-tab-pane.active { display: block; }
+
+/* ─────────────────────────────────────────────── */
+/* Model Info */
+/* ─────────────────────────────────────────────── */
+#model-info {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+}
+#model-info h4 { font-size: 0.9375rem; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
+#model-info p { font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.6; }
+
+/* ─────────────────────────────────────────────── */
+/* Parameters */
+/* ─────────────────────────────────────────────── */
+#parameters { padding: 16px 20px; }
+.empty-state { color: var(--text-muted); text-align: center; padding: 40px 20px; font-size: 0.875rem; }
+
+.param-group { margin-bottom: 20px; }
+.param-group h3 {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+}
+.param-item {
+    margin-bottom: 16px;
+}
+.param-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.param-name { font-size: 0.875rem; font-weight: 500; color: var(--text-primary); }
+.param-value { font-size: 0.8125rem; color: var(--text-primary); font-family: var(--font-mono); font-weight: 600; }
+.param-caption { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px; line-height: 1.4; }
+.param-control { width: 100%; }
+
+.param-item input[type="number"],
+.param-item input[type="text"],
+.param-item select {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    font-family: var(--font);
+    color: var(--text-primary);
+    background: var(--surface);
+    transition: border-color 0.15s;
+}
+.param-item input:focus, .param-item select:focus {
+    outline: none;
+    border-color: var(--text-primary);
+    box-shadow: 0 0 0 3px rgba(3,2,19,0.08);
+}
+.param-item input[type="range"] {
+    width: 100%;
+    height: 5px;
+    -webkit-appearance: none;
+    appearance: none;
+    border: none;
+    background: linear-gradient(to right, var(--text-primary) var(--range-pct, 50%), #e2e8f0 var(--range-pct, 50%));
+    border-radius: 3px;
+    cursor: pointer;
+    padding: 0;
+}
+.param-item input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+    border: 2px solid var(--text-primary);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+.param-item input[type="range"]::-moz-range-thumb {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+    border: 2px solid var(--text-primary);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+.checkbox-container { display: flex; align-items: center; gap: 8px; }
+.checkbox-container input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--text-primary); cursor: pointer; }
+.checkbox-container label { font-size: 0.875rem; color: var(--text-secondary); cursor: pointer; }
+
+/* ─────────────────────────────────────────────── */
+/* Dependency System */
+/* ─────────────────────────────────────────────── */
+.auto-link-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    user-select: none;
+}
+.auto-link-toggle input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    accent-color: var(--text-primary);
+    cursor: pointer;
+}
+.auto-link-toggle span { font-weight: 500; }
+.param-dep-indicator {
+    display: inline-block;
+    font-size: 0.75em;
+    opacity: 0.6;
+    margin-left: 4px;
+    vertical-align: middle;
+}
+.param-item.auto-updated {
+    background: rgba(99, 179, 237, 0.2);
+    border-radius: var(--radius-sm);
+    padding: 8px;
+    margin-left: -8px;
+    margin-right: -8px;
+    padding-left: 8px;
+    padding-right: 8px;
+    animation: autoUpdateFlash 0.3s ease;
+}
+@keyframes autoUpdateFlash {
+    0% { background: rgba(99, 179, 237, 0.3); }
+    100% { background: transparent; }
+}
+#param-warnings {
+    padding: 0;
+    margin-top: 12px;
+}
+.param-warning {
+    background: rgba(245, 158, 11, 0.1);
+    border-left: 3px solid var(--warning);
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    color: #b45309;
+    font-size: 0.8125rem;
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
+
+/* ─────────────────────────────────────────────── */
+/* Saved Configs Tab */
+/* ─────────────────────────────────────────────── */
+#saved-configs-panel {
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+#saved-configs-panel h3 {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 2px;
+}
+.saved-configs-empty { color: var(--text-muted); font-size: 0.875rem; text-align: center; padding: 32px 16px; }
+.config-field-group { display: flex; flex-direction: column; gap: 8px; }
+
+#saved-config-select, #config-name, #config-notes {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    font-family: var(--font);
+    color: var(--text-primary);
+    background: var(--surface);
+    transition: border-color 0.15s;
+}
+#saved-config-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+}
+#saved-config-select:focus, #config-name:focus, #config-notes:focus {
+    outline: none;
+    border-color: var(--text-primary);
+    box-shadow: 0 0 0 3px rgba(3,2,19,0.08);
+}
+#config-notes::placeholder, #config-name::placeholder { color: var(--text-muted); }
+.config-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+
+/* ─────────────────────────────────────────────── */
+/* AI Assistant Tab */
+/* ─────────────────────────────────────────────── */
+#ai-assistant {
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+#ai-assistant h3 {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+.ai-provider-group { display: flex; flex-direction: column; gap: 6px; }
+.ai-provider-group label { font-size: 0.8125rem; font-weight: 500; color: var(--text-secondary); }
+#ai-provider {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    font-family: var(--font);
+    color: var(--text-primary);
+    background: var(--surface);
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+}
+#ai-provider:focus { outline: none; border-color: var(--text-primary); box-shadow: 0 0 0 3px rgba(3,2,19,0.08); }
+.ai-description { font-size: 0.8125rem; color: var(--text-muted); line-height: 1.5; }
+#anthropometric-input {
+    width: 100%;
+    min-height: 80px;
+    padding: 10px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    font-family: var(--font);
+    color: var(--text-primary);
+    background: var(--surface);
+    resize: vertical;
+    transition: border-color 0.15s;
+    line-height: 1.5;
+}
+#anthropometric-input:focus { outline: none; border-color: var(--text-primary); box-shadow: 0 0 0 3px rgba(3,2,19,0.08); }
+
+/* ─────────────────────────────────────────────── */
+/* Right Column — Viewer */
+/* ─────────────────────────────────────────────── */
+.hf-right { display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+.hf-viewer-card { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.hf-viewer-head {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-shrink: 0;
+}
+.hf-viewer-head-left h3 { font-size: 0.9375rem; font-weight: 600; color: var(--text-primary); }
+.hf-viewer-head-left p { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+.hf-viewer-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.hf-viewer-body { flex: 1; display: flex; flex-direction: column; min-height: 0; position: relative; }
+
+.editor-container { display: none; flex-direction: column; border-bottom: 1px solid var(--border); min-height: 200px; max-height: 35%; }
+.editor-container.open { display: flex; }
+.editor-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    background: #1e293b;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    font-size: 0.75rem;
+    color: #94a3b8;
+    flex-shrink: 0;
+}
+.editor-label { font-weight: 500; letter-spacing: 0.02em; font-family: var(--font-mono); }
+#editor-modified-badge { display: none; color: #fbbf24; font-size: 0.7rem; margin-left: 8px; }
+#editor {
+    flex: 1;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    padding: 12px 16px;
+    border: none;
+    resize: none;
+    background: #0f172a;
+    color: #e2e8f0;
+    line-height: 1.6;
+}
+#editor:focus { outline: none; }
+
+.scad-log-container { display: none; flex-direction: column; border-bottom: 1px solid var(--border); min-height: 100px; max-height: 25%; }
+.scad-log-container.open { display: flex; }
+.scad-log-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    background: #1a0a0a;
+    border-bottom: 1px solid rgba(255,100,100,0.15);
+    font-size: 0.75rem;
+    color: #cc9999;
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+}
+#scad-log {
+    flex: 1;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    padding: 10px 16px;
+    margin: 0;
+    border: none;
+    background: #150808;
+    color: #e8c8a8;
+    line-height: 1.5;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+#scad-log .log-stderr { color: #ff9966; }
+#scad-log .log-warning { color: #f0d060; }
+#scad-log .log-stdout { color: #a8d8a8; }
+#scad-log .log-empty { color: #666; font-style: italic; }
+
+#viewer {
+    flex: 1;
+    border: none;
+    width: 100%;
+    height: 100%;
+    background: var(--surface-2);
+    min-height: 300px;
+}
+model-viewer {
+    width: 100%;
+    height: 100%;
+    background-color: var(--surface-2);
+    --poster-color: transparent;
+}
+
+.hf-status {
+    padding: 10px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    box-shadow: var(--shadow-sm);
+}
+.hf-status.error { background: var(--destructive-subtle); color: var(--destructive); border-color: rgba(239,68,68,0.2); }
+.hf-status.success { background: var(--success-subtle); color: #15803d; border-color: rgba(34,197,94,0.2); }
+
+/* ─────────────────────────────────────────────── */
+/* Buttons */
+/* ─────────────────────────────────────────────── */
+button { font-family: var(--font); cursor: pointer; transition: all 0.15s; border-radius: var(--radius); }
+
+.btn-primary {
+    padding: 8px 16px;
+    background: var(--text-primary);
+    color: white;
+    border: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+.btn-primary:hover { background: #1a1730; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-secondary {
+    padding: 8px 16px;
+    background: var(--surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border-strong);
+    font-size: 0.875rem;
+    font-weight: 500;
+    box-shadow: var(--shadow-sm);
+}
+.btn-secondary:hover { background: var(--surface-2); }
+
+/* btn-accent = primary action (black, not blue) */
+.btn-accent {
+    padding: 8px 16px;
+    background: var(--text-primary);
+    color: white;
+    border: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+.btn-accent:hover { background: #1a1730; }
+
+.btn-success { padding: 8px 16px; background: var(--success); color: white; border: none; font-size: 0.875rem; font-weight: 500; }
+.btn-success:hover { opacity: 0.9; }
+
+.btn-danger { padding: 8px 16px; background: var(--destructive); color: white; border: none; font-size: 0.875rem; font-weight: 500; }
+.btn-danger:hover { opacity: 0.9; }
+
+.btn-block { width: 100%; }
+.btn-sm { padding: 5px 10px; font-size: 0.8125rem; }
+
+/* ─────────────────────────────────────────────── */
+/* Profile Page */
+/* ─────────────────────────────────────────────── */
+#screen-profile .hf-container { max-width: 860px; }
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 16px;
+}
+
+.profile-field-readonly input {
+    background: var(--surface-2);
+    color: var(--text-secondary);
+    cursor: default;
+}
+
+.form-group { margin-bottom: 16px; }
+.form-group label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+/* Login modal inputs are taller (h-14 = 3.5rem) with larger text */
+#login-form .form-group input,
+#register-form .form-group input,
+#reset-form .form-group input,
+#setup-form .form-group input {
+    height: 3.5rem;
+    font-size: 1.0625rem;
+    padding: 0 16px;
+}
+.form-group input {
+    width: 100%;
+    padding: 11px 14px;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 0.9375rem;
+    font-family: var(--font);
+    color: var(--text-primary);
+    background: #f3f3f5;
+    transition: box-shadow 0.15s;
+}
+.form-group input:focus { outline: none; box-shadow: 0 0 0 2px var(--text-primary); }
+.form-group input[readonly] { background: var(--surface-2); color: var(--text-secondary); cursor: default; }
+
+.auth-success {
+    display: none;
+    color: #15803d;
+    font-size: 0.8125rem;
+    margin-bottom: 14px;
+    padding: 10px 14px;
+    background: var(--success-subtle);
+    border: 1px solid rgba(34,197,94,0.2);
+    border-radius: var(--radius);
+}
+.auth-success.active { display: block; }
+
+/* ─────────────────────────────────────────────── */
+/* Login Modal */
+/* ─────────────────────────────────────────────── */
+#login-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: transparent;
+    z-index: 9999;
+    flex-direction: column;
+    align-items: stretch;
+    overflow-y: auto;
+}
+#login-modal.active { display: flex; }
+
+/* Header strip shown above the login card */
+.login-page-header {
+    padding: 20px 24px;
+    flex-shrink: 0;
+}
+.login-page-center {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+}
+
+.login-box {
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    width: 100%;
+    max-width: 28rem;
+    box-shadow: var(--shadow-lg), 0 0 0 1px var(--border);
+    animation: modalIn 0.2s ease;
+}
+
+@keyframes modalIn {
+    from { transform: translateY(8px) scale(0.98); opacity: 0; }
+    to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.login-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+.login-logo-text {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f97316 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-transform: uppercase;
+}
+.login-sub {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.login-box h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 24px;
+    letter-spacing: -0.02em;
+}
+.login-box .reset-hint {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.auth-error {
+    display: none;
+    color: var(--destructive);
+    font-size: 0.8125rem;
+    margin-bottom: 14px;
+    padding: 10px 14px;
+    background: var(--destructive-subtle);
+    border: 1px solid rgba(239,68,68,0.2);
+    border-radius: var(--radius);
+}
+.auth-error.active { display: block; }
+
+.btn-submit {
+    width: 100%;
+    height: 3.5rem;
+    background: var(--text-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 1.0625rem;
+    font-weight: 600;
+    font-family: var(--font);
+    cursor: pointer;
+    margin-top: 8px;
+    transition: all 0.15s;
+    letter-spacing: -0.01em;
+}
+.btn-submit:hover { background: #1a1730; }
+.btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.auth-links {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+}
+.auth-links a {
+    color: var(--accent-text);
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 500;
+}
+.auth-links a:hover { text-decoration: underline; }
+
+/* ─────────────────────────────────────────────── */
+/* Loading Overlay */
+/* ─────────────────────────────────────────────── */
+#loading {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.5);
+    backdrop-filter: blur(2px);
+    z-index: 9998;
+    align-items: center;
+    justify-content: center;
+}
+#loading.active { display: flex; }
+
+.loading-card {
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    padding: 32px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    box-shadow: var(--shadow-lg);
+}
+.spinner {
+    width: 36px; height: 36px;
+    border: 3px solid var(--border-strong);
+    border-top-color: var(--text-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-card p { font-size: 0.875rem; color: var(--text-secondary); font-weight: 500; }
+
+/* ─────────────────────────────────────────────── */
+/* Anthropometric Modal */
+/* ─────────────────────────────────────────────── */
+#anthro-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.6);
+    backdrop-filter: blur(4px);
+    z-index: 9998;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+#anthro-modal.active { display: flex; }
+
+.anthro-box {
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    width: 100%;
+    max-width: 820px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-lg), 0 0 0 1px var(--border);
+    animation: modalIn 0.2s ease;
+}
+.anthro-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.anthro-header h2 { font-size: 1.125rem; font-weight: 600; }
+.anthro-close {
+    background: none; border: none; font-size: 1.5rem; cursor: pointer;
+    color: var(--text-muted); width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: var(--radius-sm); transition: all 0.1s;
+}
+.anthro-close:hover { background: var(--surface-2); color: var(--text-primary); }
+
+.anthro-tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 12px; }
+.anthro-tab-btn {
+    padding: 12px 20px;
+    background: none; border: none; border-bottom: 2px solid transparent;
+    cursor: pointer; font-size: 0.875rem; font-weight: 500; font-family: var(--font);
+    color: var(--text-muted); transition: all 0.15s; margin-bottom: -1px;
+}
+.anthro-tab-btn.active { color: var(--text-primary); border-bottom-color: var(--text-primary); }
+
+.anthro-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
+
+.anthro-section { margin-bottom: 16px; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+.anthro-section-head {
+    padding: 12px 16px; background: var(--surface-2);
+    display: flex; align-items: center; gap: 10px;
+    cursor: pointer; font-weight: 500; font-size: 0.875rem;
+    color: var(--text-primary); user-select: none;
+}
+.anthro-section-toggle { background: none; border: none; cursor: pointer; font-size: 0.75rem; color: var(--text-muted); padding: 0; width: auto; }
+.anthro-section-body { display: none; padding: 16px; }
+.anthro-section-body.open { display: block; }
+
+.anthro-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.anthro-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+
+.anthro-field { display: flex; flex-direction: column; }
+.anthro-field label { font-size: 0.8125rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 5px; }
+.anthro-field input, .anthro-field select, .anthro-field textarea {
+    padding: 8px 12px; border: 1px solid var(--border-strong); border-radius: var(--radius);
+    font-size: 0.875rem; font-family: var(--font); color: var(--text-primary);
+    background: var(--surface); transition: border-color 0.15s;
+}
+.anthro-field input:focus, .anthro-field select:focus, .anthro-field textarea:focus {
+    outline: none; border-color: var(--text-primary); box-shadow: 0 0 0 3px rgba(3,2,19,0.08);
+}
+
+.anthro-footer {
+    padding: 16px 24px; border-top: 1px solid var(--border);
+    display: flex; gap: 10px; justify-content: flex-end;
+    align-items: center; background: var(--surface-2); flex-wrap: wrap;
+}
+.anthro-status { font-size: 0.8125rem; color: var(--text-muted); margin-right: auto; }
+#anthro-results {
+    padding: 12px 16px; border-top: 1px solid var(--border);
+    background: var(--surface-2); font-size: 0.8125rem; color: var(--text-primary);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+.btn-warning { padding: 8px 16px; background: var(--warning); color: white; border: none; border-radius: var(--radius); font-size: 0.875rem; font-weight: 500; font-family: var(--font); cursor: pointer; transition: all 0.15s; }
+.btn-warning:hover:not(:disabled) { opacity: 0.9; }
+.btn-warning:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ─────────────────────────────────────────────── */
+/* Footer */
+/* ─────────────────────────────────────────────── */
+.hf-footer {
+    text-align: center;
+    padding: 16px 0 8px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* ─────────────────────────────────────────────── */
+/* 4-Column Footer */
+/* ─────────────────────────────────────────────── */
+.hf-footer-4col {
+    margin-top: auto;
+    padding: 32px 0 24px;
+    border-top: 1px solid var(--border);
+}
+.hf-footer-4col-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+.hf-footer-4col-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+    margin-bottom: 24px;
+}
+@media (max-width: 700px) { .hf-footer-4col-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 420px) { .hf-footer-4col-grid { grid-template-columns: 1fr; } }
+.hf-footer-4col-grid h3 {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+}
+.hf-footer-4col-grid > div > p {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+.hf-footer-4col-grid ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.hf-footer-4col-grid ul li a {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.15s;
+}
+.hf-footer-4col-grid ul li a:hover { color: var(--text-primary); }
+.hf-footer-copy {
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+/* ─────────────────────────────────────────────── */
+/* Role Banner (Selection page) */
+/* ─────────────────────────────────────────────── */
+.role-banners {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 4px;
+}
+@media (max-width: 640px) { .role-banners { grid-template-columns: 1fr; } }
+
+.role-card {
+    border-radius: var(--radius-xl);
+    border: 1px solid transparent;
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+.role-card.green {
+    background: linear-gradient(to right, #f0fdf4, #ecfdf5);
+    border-color: #bbf7d0;
+}
+.role-card.purple {
+    background: linear-gradient(to right, #faf5ff, #eff6ff);
+    border-color: #e9d5ff;
+}
+.role-card-content {
+    padding: 28px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+.role-card-content .btn-primary {
+    border-radius: 9999px;
+    padding: 8px 20px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.role-card-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.role-card-icon {
+    width: 44px; height: 44px;
+    border-radius: var(--radius-lg);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.role-card-icon.green { background: #dcfce7; color: #16a34a; }
+.role-card-icon.purple { background: #f3e8ff; color: #9333ea; }
+.role-card-title { font-size: 0.9375rem; font-weight: 600; color: var(--text-primary); }
+.role-card-sub { font-size: 0.8125rem; color: var(--text-secondary); margin-top: 2px; }
+
+    </style>
 </head>
 <body>
-    <!-- Login Modal -->
-    <div id="login-modal">
-        <div class="login-box">
-            <!-- Login view -->
-            <div id="login-view-login" class="login-view">
-                <h2>Sign In</h2>
-                <div class="auth-error" id="login-error"></div>
-                <form id="login-form" autocomplete="on">
-                    <div class="form-group">
-                        <label for="login-username">Username or Email</label>
-                        <input type="text" id="login-username" name="login" autocomplete="username" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="login-password">Password</label>
-                        <input type="password" id="login-password" name="password" autocomplete="current-password" required>
-                    </div>
-                    <button type="submit" class="btn-submit">Sign In</button>
-                </form>
-                <div class="auth-links">
-                    Don't have an account? <a id="go-register">Register</a>
-                    &nbsp;&middot;&nbsp; <a id="go-reset">Reset Password</a>
-                </div>
-            </div>
 
-            <!-- Register view -->
-            <div id="login-view-register" class="login-view" style="display:none">
-                <h2>Create Account</h2>
-                <div class="auth-error" id="register-error"></div>
-                <form id="register-form" autocomplete="on">
-                    <div class="form-group">
-                        <label for="register-username">Username</label>
-                        <input type="text" id="register-username" name="username" autocomplete="username" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="register-email">Email</label>
-                        <input type="email" id="register-email" name="email" autocomplete="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="register-password">Password (min 8 chars)</label>
-                        <input type="password" id="register-password" name="password" autocomplete="new-password" required minlength="8">
-                    </div>
-                    <button type="submit" class="btn-submit">Create Account</button>
-                </form>
-                <div class="auth-links">
-                    Already have an account? <a id="go-login">Sign In</a>
-                </div>
-            </div>
-
-            <!-- Password reset view -->
-            <div id="login-view-reset" class="login-view" style="display:none">
-                <h2>Reset Password</h2>
-                <p style="color:#666;font-size:0.85rem;margin-bottom:1rem;">Enter the reset token provided by your administrator and choose a new password.</p>
-                <div class="auth-error" id="reset-error"></div>
-                <form id="reset-form" autocomplete="off">
-                    <div class="form-group">
-                        <label for="reset-token-input">Reset Token</label>
-                        <input type="text" id="reset-token-input" name="token" autocomplete="off" required placeholder="Paste your token here">
-                    </div>
-                    <div class="form-group">
-                        <label for="reset-new-password">New Password (min 8 chars)</label>
-                        <input type="password" id="reset-new-password" name="new_password" autocomplete="new-password" required minlength="8">
-                    </div>
-                    <button type="submit" class="btn-submit">Set New Password</button>
-                </form>
-                <div class="auth-links">
-                    <a id="go-login-from-reset">Back to Sign In</a>
-                </div>
-            </div>
-
-            <!-- First-run setup view -->
-            <div id="login-view-setup" class="login-view" style="display:none">
-                <h2>First-Run Setup</h2>
-                <p style="color:#666;font-size:0.85rem;margin-bottom:1rem;">No users exist yet. Create the administrator account.</p>
-                <div class="auth-error" id="setup-error"></div>
-                <form id="setup-form" autocomplete="on">
-                    <div class="form-group">
-                        <label for="setup-username">Admin Username</label>
-                        <input type="text" id="setup-username" name="username" autocomplete="username" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="setup-email">Admin Email</label>
-                        <input type="email" id="setup-email" name="email" autocomplete="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="setup-password">Password (min 8 chars)</label>
-                        <input type="password" id="setup-password" name="password" autocomplete="new-password" required minlength="8">
-                    </div>
-                    <button type="submit" class="btn-submit">Create Admin Account</button>
-                </form>
-                <div class="auth-links">
-                    <a id="go-login-from-setup">Already have an account?</a>
-                </div>
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- Login Modal (fixed overlay, shown before session restore)   -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="login-modal">
+    <!-- Reference: Header above the login card -->
+    <div class="login-page-header">
+        <div class="hf-logo">
+            <svg class="hf-logo-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs><linearGradient id="llgh" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#a855f7"/><stop offset="50%" stop-color="#ec4899"/><stop offset="100%" stop-color="#f97316"/></linearGradient></defs>
+                <path d="M35 65 L35 85 C35 88 37 90 40 90 L60 90 C63 90 65 88 65 85 L65 65 Z" fill="url(#llgh)" opacity="0.9"/>
+                <path d="M30 70 L25 75 C23 77 23 80 25 82 L28 85 C30 87 33 87 35 85 L38 80 Z" fill="url(#llgh)"/>
+                <rect x="38" y="15" width="8" height="52" rx="4" fill="url(#llgh)"/>
+                <rect x="48" y="10" width="8" height="57" rx="4" fill="url(#llgh)"/>
+                <rect x="58" y="15" width="8" height="52" rx="4" fill="url(#llgh)"/>
+                <rect x="68" y="25" width="7" height="42" rx="3.5" fill="url(#llgh)"/>
+                <line x1="40" y1="70" x2="60" y2="70" stroke="white" stroke-width="1.5" opacity="0.6"/>
+                <line x1="40" y1="75" x2="60" y2="75" stroke="white" stroke-width="1.5" opacity="0.6"/>
+                <line x1="40" y1="80" x2="60" y2="80" stroke="white" stroke-width="1.5" opacity="0.6"/>
+            </svg>
+            <div class="hf-logo-text">
+                <span class="hf-logo-title">Hand Fab</span>
             </div>
         </div>
     </div>
 
-    <header>
-        <div class="header-title">
-            <h1>Prosthetic Hand AI Parameter Generator</h1>
-            <p>AI-powered prosthetic hand customization based on anthropometric data</p>
+    <div class="login-page-center">
+    <div class="login-box">
+
+        <div id="login-view-login" class="login-view">
+            <div class="login-logo">
+                <svg width="48" height="48" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs><linearGradient id="llg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#a855f7"/><stop offset="50%" stop-color="#ec4899"/><stop offset="100%" stop-color="#f97316"/></linearGradient></defs>
+                    <path d="M35 65 L35 85 C35 88 37 90 40 90 L60 90 C63 90 65 88 65 85 L65 65 Z" fill="url(#llg)" opacity="0.9"/>
+                    <path d="M30 70 L25 75 C23 77 23 80 25 82 L28 85 C30 87 33 87 35 85 L38 80 Z" fill="url(#llg)"/>
+                    <rect x="38" y="15" width="8" height="52" rx="4" fill="url(#llg)"/>
+                    <rect x="48" y="10" width="8" height="57" rx="4" fill="url(#llg)"/>
+                    <rect x="58" y="15" width="8" height="52" rx="4" fill="url(#llg)"/>
+                    <rect x="68" y="25" width="7" height="42" rx="3.5" fill="url(#llg)"/>
+                    <line x1="40" y1="70" x2="60" y2="70" stroke="white" stroke-width="1.5" opacity="0.6"/>
+                    <line x1="40" y1="75" x2="60" y2="75" stroke="white" stroke-width="1.5" opacity="0.6"/>
+                    <line x1="40" y1="80" x2="60" y2="80" stroke="white" stroke-width="1.5" opacity="0.6"/>
+                    <circle cx="42" cy="45" r="2" fill="white" opacity="0.7"/>
+                    <circle cx="52" cy="40" r="2" fill="white" opacity="0.7"/>
+                    <circle cx="62" cy="45" r="2" fill="white" opacity="0.7"/>
+                    <circle cx="71" cy="50" r="1.5" fill="white" opacity="0.7"/>
+                </svg>
+                <span class="login-logo-text">Hand Fab</span>
+            </div>
+            <p class="login-sub">Custom Hand Prosthetic Configuration System</p>
+            <div class="auth-error" id="login-error"></div>
+            <form id="login-form" autocomplete="on">
+                <div class="form-group">
+                    <input type="text" id="login-username" name="login" autocomplete="username" placeholder="Username" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="login-password" name="password" autocomplete="current-password" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn-submit">Login</button>
+            </form>
+            <div class="auth-links">
+                Don't have an account? <a id="go-register">Register</a>
+                &nbsp;&middot;&nbsp; <a id="go-reset">Reset Password</a>
+            </div>
         </div>
-        <!-- User menu -->
-        <div id="user-menu">
-            <button id="user-menu-toggle"><span id="user-menu-name"></span> ▼</button>
-            <div id="user-menu-dropdown">
-                <a id="user-menu-admin" href="admin.html" style="display:none">Admin Panel</a>
-                <a id="logout-btn" href="#">Log Out</a>
+
+        <div id="login-view-register" class="login-view" style="display:none">
+            <h2>Create Account</h2>
+            <div class="auth-error" id="register-error"></div>
+            <form id="register-form" autocomplete="on">
+                <div class="form-group">
+                    <label for="register-username">Username</label>
+                    <input type="text" id="register-username" name="username" autocomplete="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" name="email" autocomplete="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Password (min 8 chars)</label>
+                    <input type="password" id="register-password" name="password" autocomplete="new-password" required minlength="8">
+                </div>
+                <button type="submit" class="btn-submit">Create Account</button>
+            </form>
+            <div class="auth-links">
+                Already have an account? <a id="go-login">Sign In</a>
             </div>
         </div>
-        <button id="login-btn">Sign In</button>
-    </header>
 
-    <div class="container">
-        <aside class="sidebar">
-            <div class="model-selector">
-                <label for="model-select">Select Model:</label>
-                <select id="model-select">
-                    <option value="">Loading models...</option>
-                </select>
-            </div>
-
-            <div class="model-info" id="model-info" style="display: none;">
-                <h3 id="model-name"></h3>
-                <p id="model-description"></p>
-            </div>
-
-            <!-- Saved Configurations panel -->
-            <div class="saved-configs" id="saved-configs-panel" style="display:none">
-                <h3>Saved Configurations</h3>
-                <select id="saved-config-select">
-                    <option value="">-- Select saved config --</option>
-                </select>
-                <div class="config-name-row">
-                    <input type="text" id="config-name" placeholder="Config name">
+        <div id="login-view-reset" class="login-view" style="display:none">
+            <h2>Reset Password</h2>
+            <p class="reset-hint">Enter the reset token provided by your administrator and choose a new password.</p>
+            <div class="auth-error" id="reset-error"></div>
+            <form id="reset-form" autocomplete="off">
+                <div class="form-group">
+                    <label for="reset-token-input">Reset Token</label>
+                    <input type="text" id="reset-token-input" name="token" autocomplete="off" required placeholder="Paste your token here">
                 </div>
-                <input type="text" id="config-notes" placeholder="Notes (optional)" style="margin-top:0.5rem">
-                <div class="config-buttons">
-                    <button class="btn-primary" id="config-load-btn">Load</button>
-                    <button class="btn-success" id="config-save-btn">Save</button>
-                    <button class="btn-danger" id="config-delete-btn">Delete</button>
+                <div class="form-group">
+                    <label for="reset-new-password">New Password (min 8 chars)</label>
+                    <input type="password" id="reset-new-password" name="new_password" autocomplete="new-password" required minlength="8">
+                </div>
+                <button type="submit" class="btn-submit">Set New Password</button>
+            </form>
+            <div class="auth-links">
+                <a id="go-login-from-reset">Back to Sign In</a>
+            </div>
+        </div>
+
+        <div id="login-view-setup" class="login-view" style="display:none">
+            <h2>First-Run Setup</h2>
+            <p class="reset-hint">No users exist yet. Create the administrator account.</p>
+            <div class="auth-error" id="setup-error"></div>
+            <form id="setup-form" autocomplete="on">
+                <div class="form-group">
+                    <label for="setup-username">Admin Username</label>
+                    <input type="text" id="setup-username" name="username" autocomplete="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="setup-email">Admin Email</label>
+                    <input type="email" id="setup-email" name="email" autocomplete="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="setup-password">Password (min 8 chars)</label>
+                    <input type="password" id="setup-password" name="password" autocomplete="new-password" required minlength="8">
+                </div>
+                <button type="submit" class="btn-submit">Create Admin Account</button>
+            </form>
+            <div class="auth-links">
+                <a id="go-login-from-setup">Already have an account?</a>
+            </div>
+        </div>
+
+    </div>
+    </div><!-- /login-page-center -->
+
+    <footer class="hf-footer-4col">
+        <div class="hf-footer-4col-inner">
+            <div class="hf-footer-4col-grid">
+                <div>
+                    <h3>Hand Fab</h3>
+                    <p>Custom hand prosthetic configuration system</p>
+                </div>
+                <div>
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Documentation</a></li>
+                        <li><a href="#">Tutorials</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Contact</h3>
+                    <ul>
+                        <li><a href="#">Email Support</a></li>
+                        <li><a href="#">Live Chat</a></li>
+                        <li><a href="#">Schedule Call</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Legal</h3>
+                    <ul>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Accessibility</a></li>
+                    </ul>
                 </div>
             </div>
+            <div class="hf-footer-copy">© 2026 Hand Fab. All rights reserved.</div>
+        </div>
+    </footer>
+</div>
 
-            <div class="ai-assistant" id="ai-assistant" style="display: none;">
-                <h3 style="color: #2c3e50; margin-bottom: 0.5rem;">AI Parameter Assistant</h3>
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- App Shell (visible when authenticated)                       -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="app-shell">
 
-                <div style="margin-bottom: 0.75rem;">
-                    <label style="display: block; margin-bottom: 0.25rem; font-size: 0.85rem; font-weight: 600; color: #2c3e50;">AI Provider:</label>
-                    <select id="ai-provider" style="width: 100%; padding: 0.4rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem;">
-                        <option value="anthropic">Anthropic (Claude)</option>
-                        <option value="openai">OpenAI (GPT-4)</option>
-                    </select>
-                </div>
-
-                <p style="color: #666; font-size: 0.85rem; margin-bottom: 0.5rem;">
-                    Describe the user's anthropometric data (e.g., "woman, 42 years old, 75kg, 172cm height, portugal, arm length 65cm")
-                </p>
-                <textarea id="anthropometric-input"
-                    placeholder="woman, 42 years old, 75kg, 172cm height, portugal, arm length 65cm"
-                    style="width: 100%; min-height: 60px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; resize: vertical; font-family: inherit;"></textarea>
-                <button class="btn-primary" id="ai-suggest-btn" style="width: 100%; margin-top: 0.5rem;">
-                    Get AI Suggestions
+    <!-- ─ Sticky App Bar ─────────────────────────────────────── -->
+    <div class="hf-app-bar">
+        <div class="hf-app-bar-inner">
+            <div class="hf-logo">
+                <svg class="hf-logo-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="hg" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#a855f7"/>
+                            <stop offset="50%" stop-color="#ec4899"/>
+                            <stop offset="100%" stop-color="#f97316"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M35 65 L35 85 C35 88 37 90 40 90 L60 90 C63 90 65 88 65 85 L65 65 Z" fill="url(#hg)" opacity="0.9"/>
+                    <path d="M30 70 L25 75 C23 77 23 80 25 82 L28 85 C30 87 33 87 35 85 L38 80 Z" fill="url(#hg)"/>
+                    <rect x="38" y="15" width="8" height="52" rx="4" fill="url(#hg)"/>
+                    <rect x="48" y="10" width="8" height="57" rx="4" fill="url(#hg)"/>
+                    <rect x="58" y="15" width="8" height="52" rx="4" fill="url(#hg)"/>
+                    <rect x="68" y="25" width="7" height="42" rx="3.5" fill="url(#hg)"/>
+                    <line x1="40" y1="70" x2="60" y2="70" stroke="white" stroke-width="1.5" opacity="0.6"/>
+                    <line x1="40" y1="75" x2="60" y2="75" stroke="white" stroke-width="1.5" opacity="0.6"/>
+                    <line x1="40" y1="80" x2="60" y2="80" stroke="white" stroke-width="1.5" opacity="0.6"/>
+                    <circle cx="42" cy="45" r="2" fill="white" opacity="0.7"/>
+                    <circle cx="52" cy="40" r="2" fill="white" opacity="0.7"/>
+                    <circle cx="62" cy="45" r="2" fill="white" opacity="0.7"/>
+                    <circle cx="71" cy="50" r="1.5" fill="white" opacity="0.7"/>
+                </svg>
+                <div class="hf-logo-text">
+                    <span class="hf-logo-title">Hand Fab</span>
+                    </div>
+            </div>
+            <div class="hf-header-right">
+                <button id="help-btn" title="Help" aria-label="Help">
+                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
                 </button>
-            </div>
-
-            <div class="parameters" id="parameters">
-                <p style="color: #666; text-align: center; padding: 2rem;">
-                    Select a model to edit its parameters
-                </p>
-            </div>
-        </aside>
-
-        <main class="main-content">
-            <div class="viewer-header">
-                <h2>3D Preview</h2>
-                <div class="action-buttons">
-                    <button class="btn-secondary" id="reset-btn">Reset to Defaults</button>
-                    <button class="btn-primary" id="render-btn">Render Preview</button>
-                    <button class="btn-success" id="export-btn">Export STL</button>
-                    <button class="btn-secondary" id="edit-code-btn" style="display:none" title="Toggle SCAD code editor (admin only)">Edit Code</button>
-                    <button class="btn-secondary" id="show-log-btn" style="display:none" title="Toggle OpenSCAD render log (admin only)">Show Log</button>
-                </div>
-            </div>
-
-            <div class="viewer-container">
-                <div class="editor-container" id="editor-container">
-                    <div class="editor-toolbar">
-                        <span class="editor-label">OpenSCAD Source <span id="editor-modified-badge" style="display:none;color:#e67e22;font-size:0.75rem;margin-left:0.5rem;">● modified</span></span>
-                        <button class="btn-secondary" id="editor-revert-btn" style="padding:0.2rem 0.6rem;font-size:0.8rem;">Revert to Parameters</button>
+                <div id="user-menu">
+                    <button id="user-menu-toggle" aria-haspopup="true" aria-expanded="false">
+                        <div class="user-avatar" id="user-avatar-initials">A</div>
+                        <span id="user-menu-name">Hello, User</span>
+                        <svg class="chevron" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <div id="user-menu-dropdown">
+                        <a id="user-menu-profile">
+                            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                            Edit Profile
+                        </a>
+                        <a id="user-menu-admin" href="admin.html" style="display:none">
+                            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                            Admin Panel
+                        </a>
+                        <div class="user-menu-divider"></div>
+                        <a id="logout-btn" href="#">
+                            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                            Log Out
+                        </a>
                     </div>
-                    <textarea id="editor" placeholder="OpenSCAD code will appear here..." spellcheck="false"></textarea>
                 </div>
-                <div class="scad-log-container" id="scad-log-container">
-                    <div class="scad-log-toolbar">
-                        <span style="font-weight:600;letter-spacing:0.02em;">OpenSCAD Render Log</span>
-                        <button class="btn-secondary" id="scad-log-clear-btn" style="padding:0.2rem 0.6rem;font-size:0.8rem;">Clear</button>
-                    </div>
-                    <pre id="scad-log"><span class="log-empty">No render yet.</span></pre>
-                </div>
-                <model-viewer id="viewer"
-                    camera-controls
-                    touch-action="pan-y"
-                    shadow-intensity="1"
-                    alt="3D model preview">
-                </model-viewer>
+                <button id="login-btn" style="display:none">Sign In</button>
             </div>
-
-            <div class="status" id="status">
-                Ready
-            </div>
-        </main>
+        </div>
     </div>
 
-    <div class="loading" id="loading">
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- Screen: Selection                                            -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div id="screen-selection" class="app-screen active">
+        <div class="hf-container">
+
+
+            <div id="selection-role-banner"></div>
+
+            <section class="sel-section">
+                <h2 class="sel-section-title">Available Models</h2>
+                <div id="selection-models-grid" class="sel-grid">
+                    <p class="sel-loading">Loading models…</p>
+                </div>
+            </section>
+
+            <section class="sel-section">
+                <h2 class="sel-section-title">Saved Configurations</h2>
+                <div id="selection-saved-list" class="sel-saved-grid">
+                    <p class="sel-empty">No saved configurations yet. Configure a model to save it here.</p>
+                </div>
+            </section>
+
+            <footer class="hf-footer-4col">
+                <div class="hf-footer-4col-inner">
+                    <div class="hf-footer-4col-grid">
+                        <div>
+                            <h3>Hand Fab</h3>
+                            <p>Custom hand prosthetic configuration system</p>
+                        </div>
+                        <div>
+                            <h3>Support</h3>
+                            <ul>
+                                <li><a href="#">Help Center</a></li>
+                                <li><a href="#">Documentation</a></li>
+                                <li><a href="#">Tutorials</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3>Contact</h3>
+                            <ul>
+                                <li><a href="#">Email Support</a></li>
+                                <li><a href="#">Live Chat</a></li>
+                                <li><a href="#">Schedule Call</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3>Legal</h3>
+                            <ul>
+                                <li><a href="#">Privacy Policy</a></li>
+                                <li><a href="#">Terms of Service</a></li>
+                                <li><a href="#">Accessibility</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="hf-footer-copy">© 2026 Hand Fab. All rights reserved.</div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- Screen: Customization                                        -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div id="screen-customization" class="app-screen">
+        <div class="hf-container">
+
+            <!-- Back nav -->
+            <div class="screen-nav">
+                <button id="btn-back-to-selection" class="btn-secondary btn-sm">
+                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="margin-right:4px"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    Back
+                </button>
+                <span class="screen-nav-breadcrumb" id="customization-title">Customize Your Prosthetic</span>
+            </div>
+
+            <!-- Main Grid -->
+            <div class="hf-grid">
+
+                <!-- ─── LEFT: Parameters Panel ─── -->
+                <div class="hf-left">
+
+                    <!-- Model select (hidden — selection happens on the selection screen) -->
+                    <select id="model-select" style="display:none">
+                        <option value="">Loading models…</option>
+                    </select>
+
+                    <!-- Config Card with Tabs -->
+                    <div class="hf-card hf-config-card">
+                        <div class="hf-tab-list">
+                            <button class="hf-tab-btn active" data-tab="ai">AI Assistant</button>
+                            <button class="hf-tab-btn" data-tab="params">Parameters</button>
+                            <button class="hf-tab-btn" data-tab="saved">Saved</button>
+                        </div>
+
+                        <!-- AI Assistant Tab (first / default) -->
+                        <div class="hf-tab-pane active" id="tab-ai">
+                            <div id="ai-assistant" style="display:none">
+                                <h3>AI Parameter Assistant</h3>
+                                <div class="ai-provider-group">
+                                    <label for="ai-provider">AI Provider</label>
+                                    <select id="ai-provider">
+                                        <option value="anthropic">Anthropic (Claude)</option>
+                                        <option value="openai">OpenAI (GPT-4)</option>
+                                    </select>
+                                </div>
+                                <p class="ai-description">
+                                    Describe the patient's anthropometric data (e.g., "woman, 42 years old, 75 kg, 172 cm, arm length 65 cm")
+                                </p>
+                                <textarea id="anthropometric-input"
+                                    placeholder="woman, 42 years old, 75kg, 172cm height, portugal, arm length 65cm"></textarea>
+                                <button class="btn-primary btn-block" id="ai-suggest-btn">
+                                    Get AI Suggestions
+                                </button>
+                            </div>
+                            <p id="ai-empty-state" class="empty-state">
+                                Select a model first to use the AI assistant.
+                            </p>
+                        </div>
+
+                        <!-- Parameters Tab -->
+                        <div class="hf-tab-pane" id="tab-params">
+                            <div id="model-info" style="display:none">
+                                <h4 id="model-name"></h4>
+                                <p id="model-description"></p>
+                            </div>
+                            <div id="parameters">
+                                <p class="empty-state">Select a model to edit its parameters</p>
+                            </div>
+                        </div>
+
+                        <!-- Saved Configs Tab -->
+                        <div class="hf-tab-pane" id="tab-saved">
+                            <div id="saved-configs-panel" style="display:none">
+                                <h3>Saved Configurations</h3>
+                                <div class="config-field-group">
+                                    <select id="saved-config-select">
+                                        <option value="">— Select saved config —</option>
+                                    </select>
+                                    <input type="text" id="config-name" placeholder="Config name">
+                                    <input type="text" id="config-notes" placeholder="Notes (optional)">
+                                    <div class="config-actions">
+                                        <button class="btn-secondary btn-sm" id="config-load-btn">Load</button>
+                                        <button class="btn-success btn-sm" id="config-save-btn">Save</button>
+                                        <button class="btn-danger btn-sm" id="config-delete-btn">Delete</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="saved-configs-empty-state" class="saved-configs-empty" style="display:none">
+                                Select a model first to manage saved configurations.
+                            </div>
+                        </div>
+                    </div>
+
+                </div><!-- /hf-left -->
+
+                <!-- ─── RIGHT: Viewer Panel ─── -->
+                <div class="hf-right">
+                    <div class="hf-card hf-viewer-card">
+                        <div class="hf-viewer-head">
+                            <div class="hf-viewer-head-left">
+                                <h3>3D Preview</h3>
+                                <p>Interactive model viewer</p>
+                            </div>
+                            <div class="hf-viewer-actions">
+                                <button class="btn-icon" id="reset-btn" title="Reset view">
+                                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/></svg>
+                                </button>
+                                <button class="btn-icon" title="Pan" style="cursor:grab">
+                                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20"/></svg>
+                                </button>
+                                <button class="btn-icon" id="zoom-in-btn" title="Zoom in">
+                                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35M11 8v6M8 11h6"/></svg>
+                                </button>
+                                <button class="btn-icon" id="zoom-out-btn" title="Zoom out">
+                                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35M8 11h6"/></svg>
+                                </button>
+                                <button class="btn-icon" id="fullscreen-btn" title="Fullscreen">
+                                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3M21 8V5a2 2 0 00-2-2h-3M16 21h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+                                </button>
+                                <button class="btn-icon" id="toggle-grid-btn" title="Toggle grid">
+                                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                                </button>
+                                <div style="width:1px;background:var(--border);height:24px;margin:0 2px"></div>
+                                <button class="btn-secondary btn-sm" id="render-btn">Render</button>
+                                <button class="btn-accent btn-sm" id="export-btn">Export STL</button>
+                                <button class="btn-secondary btn-sm" id="edit-code-btn" style="display:none" title="Toggle SCAD editor (admin)">Edit Code</button>
+                                <button class="btn-secondary btn-sm" id="show-log-btn" style="display:none" title="Toggle render log (admin)">Show Log</button>
+                            </div>
+                        </div>
+                        <div class="hf-viewer-body">
+                            <div class="editor-container" id="editor-container">
+                                <div class="editor-toolbar">
+                                    <span class="editor-label">
+                                        OpenSCAD Source
+                                        <span id="editor-modified-badge">● modified</span>
+                                    </span>
+                                    <button class="btn-secondary btn-sm" id="editor-revert-btn">Revert to Parameters</button>
+                                </div>
+                                <textarea id="editor" placeholder="OpenSCAD code will appear here…" spellcheck="false"></textarea>
+                            </div>
+                            <div class="scad-log-container" id="scad-log-container">
+                                <div class="scad-log-toolbar">
+                                    <span>OpenSCAD Render Log</span>
+                                    <button class="btn-secondary btn-sm" id="scad-log-clear-btn">Clear</button>
+                                </div>
+                                <pre id="scad-log"><span class="log-empty">No render yet.</span></pre>
+                            </div>
+                            <model-viewer id="viewer"
+                                camera-controls
+                                touch-action="pan-y"
+                                shadow-intensity="1"
+                                alt="3D model preview">
+                            </model-viewer>
+                        </div>
+                    </div>
+                    <div class="hf-status" id="status">Ready</div>
+                </div><!-- /hf-right -->
+
+            </div><!-- /hf-grid -->
+
+        </div>
+    </div><!-- /screen-customization -->
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- Screen: Profile                                              -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div id="screen-profile" class="app-screen">
+        <div class="hf-container" style="max-width:860px">
+
+            <div class="screen-nav">
+                <button id="btn-back-from-profile" class="btn-secondary btn-sm">
+                    <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="margin-right:4px"><path d="M15 18l-6-6 6-6"/></svg>
+                    Back
+                </button>
+                <div class="screen-nav-title">
+                    <h1>Edit Profile</h1>
+                    <p>Manage your account settings and security</p>
+                </div>
+            </div>
+
+            <!-- Profile + Security Tabs -->
+            <div class="hf-card hf-config-card">
+                <div class="hf-tab-list">
+                    <button class="hf-tab-btn active" data-tab="profile-info">Profile Information</button>
+                    <button class="hf-tab-btn" data-tab="security">Security</button>
+                </div>
+
+                <!-- Profile Information Tab -->
+                <div class="hf-tab-pane active" id="tab-profile-info">
+                    <div class="hf-card-body">
+                        <p style="font-size:0.8125rem;color:var(--text-muted);margin-bottom:20px">Your account details. Contact an administrator to update username or email.</p>
+                        <div class="profile-grid">
+                            <div class="form-group">
+                                <label>Username</label>
+                                <input type="text" id="profile-username" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="text" id="profile-email" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Role</label>
+                                <input type="text" id="profile-role" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Tab -->
+                <div class="hf-tab-pane" id="tab-security">
+                    <div class="hf-card-body">
+                        <div style="margin-bottom:20px">
+                            <h3 style="font-size:0.9375rem;font-weight:600;color:var(--text-primary);margin-bottom:4px">Change Password</h3>
+                            <p style="font-size:0.8125rem;color:var(--text-muted)">Update your password to keep your account secure</p>
+                        </div>
+                        <div id="profile-pw-error" class="auth-error"></div>
+                        <div id="profile-pw-success" class="auth-success"></div>
+                        <div class="profile-grid">
+                            <div class="form-group">
+                                <label>Current Password</label>
+                                <input type="password" id="profile-current-pw" autocomplete="current-password">
+                            </div>
+                            <div class="form-group">
+                                <label>New Password</label>
+                                <input type="password" id="profile-new-pw" autocomplete="new-password">
+                            </div>
+                            <div class="form-group">
+                                <label>Confirm New Password</label>
+                                <input type="password" id="profile-confirm-pw" autocomplete="new-password">
+                            </div>
+                        </div>
+                        <div style="display:flex;justify-content:flex-end;margin-top:4px">
+                            <button id="profile-save-pw-btn" class="btn-primary">Update Password</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="hf-footer-4col">
+                <div class="hf-footer-4col-inner">
+                    <div class="hf-footer-4col-grid">
+                        <div>
+                            <h3>Hand Fab</h3>
+                            <p>Custom hand prosthetic configuration system</p>
+                        </div>
+                        <div>
+                            <h3>Support</h3>
+                            <ul>
+                                <li><a href="#">Help Center</a></li>
+                                <li><a href="#">Documentation</a></li>
+                                <li><a href="#">Tutorials</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3>Contact</h3>
+                            <ul>
+                                <li><a href="#">Email Support</a></li>
+                                <li><a href="#">Live Chat</a></li>
+                                <li><a href="#">Schedule Call</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3>Legal</h3>
+                            <ul>
+                                <li><a href="#">Privacy Policy</a></li>
+                                <li><a href="#">Terms of Service</a></li>
+                                <li><a href="#">Accessibility</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="hf-footer-copy">© 2026 Hand Fab. All rights reserved.</div>
+                </div>
+            </footer>
+
+        </div>
+    </div><!-- /screen-profile -->
+
+</div><!-- /app-shell -->
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- Loading Overlay                                              -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="loading">
+    <div class="loading-card">
         <div class="spinner"></div>
-        <p style="margin-top: 1rem; text-align: center;">Processing...</p>
+        <p>Processing…</p>
     </div>
+</div>
 
-    <div id="anthro-modal" style="display:none">
-        <div class="anthro-box">
-            <div class="anthro-header">
-                <h2>Anthropometric Data Importer</h2>
-                <button class="anthro-close" id="anthro-close-btn" title="Close">&times;</button>
-            </div>
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- Anthropometric Modal                                         -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="anthro-modal">
+    <div class="anthro-box">
+        <div class="anthro-header">
+            <h2 id="anthro-modal-title">Anthropometric Data Importer</h2>
+            <button class="anthro-close" id="anthro-close-btn">&times;</button>
+        </div>
 
-            <div class="anthro-tabs">
-                <button class="anthro-tab-btn active" data-tab="manual">Manual Entry</button>
-                <button class="anthro-tab-btn" data-tab="import">Import File / Paste</button>
-            </div>
+        <div class="anthro-tabs">
+            <button class="anthro-tab-btn active" data-tab="manual">Manual Entry</button>
+            <button class="anthro-tab-btn" data-tab="import">Import File / Paste</button>
+        </div>
 
-            <!-- ── Manual Entry tab ──────────────────────────────────── -->
-            <div class="anthro-tab-panel anthro-body" data-panel="manual">
-
-                <!-- Patient info -->
-                <div class="anthro-section">
-                    <div class="anthro-section-head">
-                        <button class="anthro-section-toggle">▼</button>
-                        Patient Info &amp; Units
-                    </div>
-                    <div class="anthro-section-body anthro-grid">
-                        <div class="anthro-field">
-                            <label>Participant ID (optional)</label>
-                            <input type="text" id="anthro-pid" placeholder="e.g. PT-001">
-                        </div>
-                        <div class="anthro-field">
-                            <label>Measurement Units</label>
-                            <select id="anthro-unit">
-                                <option value="mm">Millimetres (mm)</option>
-                                <option value="cm">Centimetres (cm)</option>
-                                <option value="in">Inches (in)</option>
-                            </select>
-                        </div>
-                        <div class="anthro-field">
-                            <label>Affected Side</label>
-                            <select id="anthro-side">
-                                <option value="left">Left</option>
-                                <option value="right">Right</option>
-                            </select>
-                        </div>
-                        <div class="anthro-field">
-                            <label>Dominant Hand</label>
-                            <select id="anthro-dominant">
-                                <option value="unknown">Unknown</option>
-                                <option value="right">Right</option>
-                                <option value="left">Left</option>
-                            </select>
-                        </div>
-                    </div>
+        <div class="anthro-tab-panel anthro-body" data-panel="manual">
+            <div class="anthro-section">
+                <div class="anthro-section-head">
+                    <button class="anthro-section-toggle">▼</button>
+                    Patient Info &amp; Units
                 </div>
-
-                <!-- Palm & Wrist -->
-                <div class="anthro-section">
-                    <div class="anthro-section-head">
-                        <button class="anthro-section-toggle">▼</button>
-                        Palm &amp; Wrist
-                    </div>
-                    <div class="anthro-section-body anthro-grid">
-                        <div class="anthro-field">
-                            <label>Palm Length (wrist → MCP)</label>
-                            <input type="number" id="anthro-palm-length" placeholder="e.g. 95" step="0.1" min="0">
-                        </div>
-                        <div class="anthro-field">
-                            <label>Palm Width</label>
-                            <input type="number" id="anthro-palm-width" placeholder="e.g. 80" step="0.1" min="0">
-                        </div>
-                        <div class="anthro-field">
-                            <label>Wrist Circumference</label>
-                            <input type="number" id="anthro-wrist-circ" placeholder="e.g. 160" step="0.5" min="0">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Residual Limb -->
-                <div class="anthro-section">
-                    <div class="anthro-section-head">
-                        <button class="anthro-section-toggle">▼</button>
-                        Residual Limb
-                    </div>
-                    <div class="anthro-section-body anthro-grid">
-                        <div class="anthro-field">
-                            <label>Residual Limb Length</label>
-                            <input type="number" id="anthro-stump-length" placeholder="e.g. 120" step="1" min="0">
-                        </div>
-                        <div class="anthro-field">
-                            <label>Residual Limb Circumference (proximal)</label>
-                            <input type="number" id="anthro-stump-circ" placeholder="e.g. 210" step="0.5" min="0">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Index finger -->
-                <div class="anthro-section">
-                    <div class="anthro-section-head">
-                        <button class="anthro-section-toggle">▼</button>
-                        Index Finger — phalanx lengths &amp; circumference
-                    </div>
-                    <div class="anthro-section-body anthro-grid-4">
-                        <div class="anthro-field">
-                            <label>Proximal</label>
-                            <input type="number" id="anthro-idx-prox" placeholder="mm" step="0.1" min="0">
-                        </div>
-                        <div class="anthro-field">
-                            <label>Middle</label>
-                            <input type="number" id="anthro-idx-mid" placeholder="mm" step="0.1" min="0">
-                        </div>
-                        <div class="anthro-field">
-                            <label>Distal</label>
-                            <input type="number" id="anthro-idx-dist" placeholder="mm" step="0.1" min="0">
-                        </div>
-                        <div class="anthro-field">
-                            <label>Circumference</label>
-                            <input type="number" id="anthro-idx-circ" placeholder="mm" step="0.5" min="0">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Middle finger -->
-                <div class="anthro-section">
-                    <div class="anthro-section-head">
-                        <button class="anthro-section-toggle">▼</button>
-                        Middle Finger
-                    </div>
-                    <div class="anthro-section-body anthro-grid-4">
-                        <div class="anthro-field">
-                            <label>Proximal</label>
-                            <input type="number" id="anthro-mid-prox" placeholder="mm" step="0.1" min="0">
-                        </div>
-                        <div class="anthro-field">
-                            <label>Middle</label>
-                            <input type="number" id="anthro-mid-mid" placeholder="mm" step="0.1" min="0">
-                        </div>
-                        <div class="anthro-field">
-                            <label>Distal</label>
-                            <input type="number" id="anthro-mid-dist" placeholder="mm" step="0.1" min="0">
-                        </div>
-                        <div class="anthro-field">
-                            <label>Circumference</label>
-                            <input type="number" id="anthro-mid-circ" placeholder="mm" step="0.5" min="0">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Ring finger -->
-                <div class="anthro-section">
-                    <div class="anthro-section-head">
-                        <button class="anthro-section-toggle">▼</button>
-                        Ring Finger
-                    </div>
-                    <div class="anthro-section-body anthro-grid-4">
-                        <div class="anthro-field">
-                            <label>Proximal</label>
-                            <input type="number" id="anthro-ring-prox" placeholder="mm" step="0.1" min="0">
-                        </div>
-                        <div class="anthro-field">
-                            <label>Middle</label>
-                            <input type="number" id="anthro-ring-mid" placeholder="mm" step="0.1" min="0">
-                        </div>
-                        <div class="anthro-field">
-                            <label>Distal</label>
-                            <input type="number" id="anthro-ring-dist" placeholder="mm" step="0.1" min="0">
-                        </div>
-                        <div class="anthro-field">
-                            <label>Circumference</label>
-                            <input type="number" id="anthro-ring-circ" placeholder="mm" step="0.5" min="0">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Pinky finger -->
-                <div class="anthro-section">
-                    <div class="anthro-section-head">
-                        <button class="anthro-section-toggle">▼</button>
-                        Pinky Finger
-                    </div>
-                    <div class="anthro-section-body anthro-grid-4">
-                        <div class="anthro-field">
-                            <label>Proximal</label>
-                            <input type="number" id="anthro-pinky-prox" placeholder="mm" step="0.1" min="0">
-                        </div>
-                        <div class="anthro-field">
-                            <label>Middle</label>
-                            <input type="number" id="anthro-pinky-mid" placeholder="mm" step="0.1" min="0">
-                        </div>
-                        <div class="anthro-field">
-                            <label>Distal</label>
-                            <input type="number" id="anthro-pinky-dist" placeholder="mm" step="0.1" min="0">
-                        </div>
-                        <div class="anthro-field">
-                            <label>Circumference</label>
-                            <input type="number" id="anthro-pinky-circ" placeholder="mm" step="0.5" min="0">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Constraints -->
-                <div class="anthro-section">
-                    <div class="anthro-section-head">
-                        <button class="anthro-section-toggle">▼</button>
-                        Hardware &amp; Tolerance
-                    </div>
-                    <div class="anthro-section-body anthro-grid">
-                        <div class="anthro-field">
-                            <label>Hardware Standard</label>
-                            <select id="anthro-hardware">
-                                <option value="m3">M3 (standard)</option>
-                                <option value="m2">M2 (small)</option>
-                                <option value="m4">M4 (heavy)</option>
-                            </select>
-                        </div>
-                        <div class="anthro-field">
-                            <label>Tolerance Preference</label>
-                            <select id="anthro-tolerance">
-                                <option value="standard">Standard (0.4 mm)</option>
-                                <option value="snug">Snug (0.2 mm)</option>
-                                <option value="loose">Loose (0.6 mm)</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div><!-- /manual tab -->
-
-            <!-- ── Import tab ─────────────────────────────────────────── -->
-            <div class="anthro-tab-panel anthro-body" data-panel="import" style="display:none">
-                <div class="anthro-grid" style="margin-bottom:0.75rem">
-                    <div class="anthro-field">
-                        <label>Format</label>
-                        <select id="anthro-import-format">
-                            <option value="csv">CSV</option>
-                            <option value="json">JSON (AnthropometricProfile)</option>
-                        </select>
-                    </div>
-                    <div class="anthro-field">
-                        <label>Default Unit (if not in file)</label>
-                        <select id="anthro-import-unit">
-                            <option value="mm">mm</option>
-                            <option value="cm">cm</option>
-                            <option value="in">in</option>
-                        </select>
-                    </div>
+                <div class="anthro-section-body anthro-grid">
                     <div class="anthro-field">
                         <label>Participant ID (optional)</label>
-                        <input type="text" id="anthro-import-pid" placeholder="PT-001">
+                        <input type="text" id="anthro-pid" placeholder="e.g. PT-001">
+                    </div>
+                    <div class="anthro-field">
+                        <label>Measurement Units</label>
+                        <select id="anthro-unit">
+                            <option value="mm">Millimetres (mm)</option>
+                            <option value="cm">Centimetres (cm)</option>
+                            <option value="in">Inches (in)</option>
+                        </select>
                     </div>
                     <div class="anthro-field">
                         <label>Affected Side</label>
-                        <select id="anthro-import-side">
+                        <select id="anthro-side">
                             <option value="left">Left</option>
                             <option value="right">Right</option>
                         </select>
                     </div>
                     <div class="anthro-field">
-                        <label>Hardware</label>
-                        <select id="anthro-import-hw">
-                            <option value="m3">M3</option>
-                            <option value="m2">M2</option>
-                            <option value="m4">M4</option>
-                        </select>
-                    </div>
-                    <div class="anthro-field">
-                        <label>Tolerance</label>
-                        <select id="anthro-import-tol">
-                            <option value="standard">Standard</option>
-                            <option value="snug">Snug</option>
-                            <option value="loose">Loose</option>
+                        <label>Dominant Hand</label>
+                        <select id="anthro-dominant">
+                            <option value="unknown">Unknown</option>
+                            <option value="right">Right</option>
+                            <option value="left">Left</option>
                         </select>
                     </div>
                 </div>
-                <div class="anthro-field">
-                    <label>Paste CSV or JSON data</label>
-                    <textarea id="anthro-import-text"
-                        placeholder="CSV example (Format A):&#10;measurement,value,unit&#10;palm_length,95,mm&#10;palm_width,80,mm&#10;wrist_circumference,160,mm&#10;finger_index_proximal,40,mm&#10;..."
-                        style="width:100%;min-height:180px;padding:0.5rem;border:1px solid #ddd;border-radius:4px;font-size:0.82rem;font-family:monospace;resize:vertical"></textarea>
+            </div>
+
+            <div class="anthro-section">
+                <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button>Palm &amp; Wrist</div>
+                <div class="anthro-section-body anthro-grid">
+                    <div class="anthro-field"><label>Palm Length (wrist → MCP)</label><input type="number" id="anthro-palm-length" placeholder="e.g. 95" step="0.1" min="0"></div>
+                    <div class="anthro-field"><label>Palm Width</label><input type="number" id="anthro-palm-width" placeholder="e.g. 80" step="0.1" min="0"></div>
+                    <div class="anthro-field"><label>Wrist Circumference</label><input type="number" id="anthro-wrist-circ" placeholder="e.g. 160" step="0.5" min="0"></div>
                 </div>
-            </div><!-- /import tab -->
+            </div>
 
-            <!-- ── Results ─────────────────────────────────────────────── -->
-            <div id="anthro-results"></div>
+            <div class="anthro-section">
+                <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button>Residual Limb</div>
+                <div class="anthro-section-body anthro-grid">
+                    <div class="anthro-field"><label>Residual Limb Length</label><input type="number" id="anthro-stump-length" placeholder="e.g. 120" step="1" min="0"></div>
+                    <div class="anthro-field"><label>Circumference (proximal)</label><input type="number" id="anthro-stump-circ" placeholder="e.g. 210" step="0.5" min="0"></div>
+                </div>
+            </div>
 
-            <!-- ── Footer ─────────────────────────────────────────────── -->
-            <div class="anthro-footer">
-                <button class="btn-primary" id="anthro-process-btn">Process</button>
-                <button class="btn-success" id="anthro-save-btn">Process &amp; Save Profile</button>
-                <button class="btn-warning" id="anthro-apply-btn" disabled>Apply to Model</button>
-                <span class="anthro-status" id="anthro-status"></span>
+            <div class="anthro-section">
+                <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button>Index Finger — phalanx lengths &amp; circumference</div>
+                <div class="anthro-section-body anthro-grid-4">
+                    <div class="anthro-field"><label>Proximal</label><input type="number" id="anthro-idx-prox" placeholder="mm" step="0.1" min="0"></div>
+                    <div class="anthro-field"><label>Middle</label><input type="number" id="anthro-idx-mid" placeholder="mm" step="0.1" min="0"></div>
+                    <div class="anthro-field"><label>Distal</label><input type="number" id="anthro-idx-dist" placeholder="mm" step="0.1" min="0"></div>
+                    <div class="anthro-field"><label>Circumference</label><input type="number" id="anthro-idx-circ" placeholder="mm" step="0.5" min="0"></div>
+                </div>
+            </div>
+
+            <div class="anthro-section">
+                <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button>Middle Finger</div>
+                <div class="anthro-section-body anthro-grid-4">
+                    <div class="anthro-field"><label>Proximal</label><input type="number" id="anthro-mid-prox" placeholder="mm" step="0.1" min="0"></div>
+                    <div class="anthro-field"><label>Middle</label><input type="number" id="anthro-mid-mid" placeholder="mm" step="0.1" min="0"></div>
+                    <div class="anthro-field"><label>Distal</label><input type="number" id="anthro-mid-dist" placeholder="mm" step="0.1" min="0"></div>
+                    <div class="anthro-field"><label>Circumference</label><input type="number" id="anthro-mid-circ" placeholder="mm" step="0.5" min="0"></div>
+                </div>
+            </div>
+
+            <div class="anthro-section">
+                <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button>Ring Finger</div>
+                <div class="anthro-section-body anthro-grid-4">
+                    <div class="anthro-field"><label>Proximal</label><input type="number" id="anthro-ring-prox" placeholder="mm" step="0.1" min="0"></div>
+                    <div class="anthro-field"><label>Middle</label><input type="number" id="anthro-ring-mid" placeholder="mm" step="0.1" min="0"></div>
+                    <div class="anthro-field"><label>Distal</label><input type="number" id="anthro-ring-dist" placeholder="mm" step="0.1" min="0"></div>
+                    <div class="anthro-field"><label>Circumference</label><input type="number" id="anthro-ring-circ" placeholder="mm" step="0.5" min="0"></div>
+                </div>
+            </div>
+
+            <div class="anthro-section">
+                <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button>Pinky Finger</div>
+                <div class="anthro-section-body anthro-grid-4">
+                    <div class="anthro-field"><label>Proximal</label><input type="number" id="anthro-pinky-prox" placeholder="mm" step="0.1" min="0"></div>
+                    <div class="anthro-field"><label>Middle</label><input type="number" id="anthro-pinky-mid" placeholder="mm" step="0.1" min="0"></div>
+                    <div class="anthro-field"><label>Distal</label><input type="number" id="anthro-pinky-dist" placeholder="mm" step="0.1" min="0"></div>
+                    <div class="anthro-field"><label>Circumference</label><input type="number" id="anthro-pinky-circ" placeholder="mm" step="0.5" min="0"></div>
+                </div>
+            </div>
+
+            <div class="anthro-section">
+                <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button>Hardware &amp; Tolerance</div>
+                <div class="anthro-section-body anthro-grid">
+                    <div class="anthro-field"><label>Hardware Standard</label>
+                        <select id="anthro-hardware">
+                            <option value="m3">M3 (standard)</option>
+                            <option value="m2">M2 (small)</option>
+                            <option value="m4">M4 (heavy)</option>
+                        </select>
+                    </div>
+                    <div class="anthro-field"><label>Tolerance Preference</label>
+                        <select id="anthro-tolerance">
+                            <option value="standard">Standard (0.4 mm)</option>
+                            <option value="snug">Snug (0.2 mm)</option>
+                            <option value="loose">Loose (0.6 mm)</option>
+                        </select>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <script type="module" src="./model-viewer.min.js"></script>
-    <script src="auth.js"></script>
-    <script src="app.js"></script>
+        <div class="anthro-tab-panel anthro-body" data-panel="import" style="display:none">
+            <div class="anthro-grid" style="margin-bottom:12px">
+                <div class="anthro-field"><label>Format</label><select id="anthro-import-format"><option value="csv">CSV</option><option value="json">JSON (AnthropometricProfile)</option></select></div>
+                <div class="anthro-field"><label>Default Unit</label><select id="anthro-import-unit"><option value="mm">mm</option><option value="cm">cm</option><option value="in">in</option></select></div>
+                <div class="anthro-field"><label>Participant ID</label><input type="text" id="anthro-import-pid" placeholder="PT-001"></div>
+                <div class="anthro-field"><label>Affected Side</label><select id="anthro-import-side"><option value="left">Left</option><option value="right">Right</option></select></div>
+                <div class="anthro-field"><label>Hardware</label><select id="anthro-import-hw"><option value="m3">M3</option><option value="m2">M2</option><option value="m4">M4</option></select></div>
+                <div class="anthro-field"><label>Tolerance</label><select id="anthro-import-tol"><option value="standard">Standard</option><option value="snug">Snug</option><option value="loose">Loose</option></select></div>
+            </div>
+            <div class="anthro-field">
+                <label>Paste CSV or JSON data</label>
+                <textarea id="anthro-import-text"
+                    placeholder="CSV example:&#10;measurement,value,unit&#10;palm_length,95,mm&#10;palm_width,80,mm&#10;..."
+                    style="min-height:180px;resize:vertical"></textarea>
+            </div>
+        </div>
+
+        <div id="anthro-results"></div>
+
+        <div class="anthro-footer">
+            <span class="anthro-status" id="anthro-status"></span>
+            <button class="btn-secondary" id="anthro-process-btn">Process</button>
+            <button class="btn-accent" id="anthro-save-btn">Process &amp; Save Profile</button>
+            <button class="btn-warning" id="anthro-apply-btn" disabled>Apply to Model</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- Tab Switching + Saved-tab empty-state logic                 -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+    // Tab navigation
+    document.querySelectorAll('.hf-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tab = btn.dataset.tab;
+            const card = btn.closest('.hf-config-card');
+            card.querySelectorAll('.hf-tab-btn').forEach(b => b.classList.remove('active'));
+            card.querySelectorAll('.hf-tab-pane').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            card.querySelector('#tab-' + tab).classList.add('active');
+        });
+    });
+
+    // When switching to Saved tab: show panel or empty-state
+    document.querySelector('[data-tab="saved"]')?.addEventListener('click', () => {
+        const panel = document.getElementById('saved-configs-panel');
+        const empty = document.getElementById('saved-configs-empty-state');
+        if (panel && panel.style.display === 'none') {
+            if (empty) empty.style.display = 'block';
+        } else {
+            if (empty) empty.style.display = 'none';
+        }
+    });
+
+    // When switching to AI tab: show panel or empty-state
+    document.querySelector('[data-tab="ai"]')?.addEventListener('click', () => {
+        const panel = document.getElementById('ai-assistant');
+        const empty = document.getElementById('ai-empty-state');
+        if (panel && panel.style.display === 'none') {
+            if (empty) empty.style.display = 'block';
+        } else {
+            if (empty) empty.style.display = 'none';
+        }
+    });
+
+    // Help button tooltip
+    document.getElementById('help-btn')?.addEventListener('click', () => {
+        alert('Hand Fab Prosthetic Configurator\n\nSelect a model to start, or load a saved configuration.\nUse the AI assistant for parameter suggestions.');
+    });
+})();
+</script>
+
+<script type="module" src="./model-viewer.min.js"></script>
+<script src="auth.js"></script>
+<script src="screens.js"></script>
+<script src="app.js"></script>
 </body>
 </html>

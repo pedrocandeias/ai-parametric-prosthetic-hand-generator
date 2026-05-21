@@ -196,13 +196,13 @@ const Auth = (() => {
 function showLoginModal(view = 'login') {
     const modal = document.getElementById('login-modal');
     if (!modal) return;
-    modal.style.display = 'flex';
+    modal.classList.add('active');
     switchLoginView(view);
 }
 
 function hideLoginModal() {
     const modal = document.getElementById('login-modal');
-    if (modal) modal.style.display = 'none';
+    if (modal) modal.classList.remove('active');
 }
 
 function switchLoginView(view) {
@@ -213,13 +213,13 @@ function switchLoginView(view) {
 
 function showAuthError(viewId, msg) {
     const el = document.getElementById(`${viewId}-error`);
-    if (el) { el.textContent = msg; el.style.display = 'block'; }
+    if (el) { el.textContent = msg; el.classList.add('active'); }
 }
 
 function clearAuthErrors() {
     document.querySelectorAll('.auth-error').forEach(el => {
         el.textContent = '';
-        el.style.display = 'none';
+        el.classList.remove('active');
     });
 }
 
@@ -229,15 +229,17 @@ function updateUserMenu(user) {
     if (!menu) return;
 
     if (user) {
-        menu.style.display = 'flex';
+        menu.classList.add('active');
         if (loginBtn) loginBtn.style.display = 'none';
-        const name = document.getElementById('user-menu-name');
-        if (name) name.textContent = user.username;
+        const nameEl = document.getElementById('user-menu-name');
+        if (nameEl) nameEl.textContent = 'Hello, ' + user.username;
+        const avatarEl = document.getElementById('user-avatar-initials');
+        if (avatarEl) avatarEl.textContent = user.username.charAt(0).toUpperCase();
 
         const adminLink = document.getElementById('user-menu-admin');
-        if (adminLink) adminLink.style.display = user.role === 'admin' ? 'block' : 'none';
+        if (adminLink) adminLink.style.display = user.role === 'admin' ? 'flex' : 'none';
     } else {
-        menu.style.display = 'none';
+        menu.classList.remove('active');
         if (loginBtn) loginBtn.style.display = 'inline-block';
     }
 }
@@ -393,17 +395,26 @@ function setupLoginModalEvents() {
     });
 
     // ── Dropdown toggle ──
-    document.getElementById('user-menu-toggle')?.addEventListener('click', () => {
+    document.getElementById('user-menu-toggle')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const menu = document.getElementById('user-menu');
         const dropdown = document.getElementById('user-menu-dropdown');
-        if (dropdown) dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        const toggle = document.getElementById('user-menu-toggle');
+        if (!menu || !dropdown) return;
+        const open = menu.classList.toggle('open');
+        dropdown.classList.toggle('active', open);
+        if (toggle) toggle.setAttribute('aria-expanded', open);
     });
 
     // Close dropdown on outside click
     document.addEventListener('click', (e) => {
         const menu = document.getElementById('user-menu');
         if (menu && !menu.contains(e.target)) {
+            menu.classList.remove('open');
             const dd = document.getElementById('user-menu-dropdown');
-            if (dd) dd.style.display = 'none';
+            if (dd) dd.classList.remove('active');
+            const toggle = document.getElementById('user-menu-toggle');
+            if (toggle) toggle.setAttribute('aria-expanded', 'false');
         }
     });
 }

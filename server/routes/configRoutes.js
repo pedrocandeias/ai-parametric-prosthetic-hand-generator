@@ -9,18 +9,50 @@ const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
+// Load models config from models-config.json
+let modelsConfig = null;
+function getModelsConfig() {
+    if (modelsConfig) return modelsConfig;
+    try {
+        const configPath = path.join(__dirname, '..', '..', 'models', 'models-config.json');
+        modelsConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    } catch {
+        modelsConfig = { models: [] };
+    }
+    return modelsConfig;
+}
+
 // Load valid model IDs from models-config.json
 let validModelIds = null;
 function getValidModelIds() {
     if (validModelIds) return validModelIds;
-    try {
-        const configPath = path.join(__dirname, '..', '..', 'models', 'models-config.json');
-        const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-        validModelIds = new Set(config.models.map(m => m.id));
-    } catch {
-        validModelIds = new Set();
-    }
+    const config = getModelsConfig();
+    validModelIds = new Set(config.models.map(m => m.id));
     return validModelIds;
+}
+
+// Validate parameter values against model config bounds
+function validateParameterValues(modelId, parameters) {
+    const config = getModelsConfig();
+    const model = config.models.find(m => m.id === modelId);
+    if (!model) return [];
+
+    const errors = [];
+    model.parameters.forEach(paramDef => {
+        const val = parameters[paramDef.name];
+        if (val === undefined) return;
+
+        if (paramDef.type === 'number') {
+            if (paramDef.min !== undefined && val < paramDef.min) {
+                errors.push(`${paramDef.name}: value ${val} is below minimum ${paramDef.min}`);
+            }
+            if (paramDef.max !== undefined && val > paramDef.max) {
+                errors.push(`${paramDef.name}: value ${val} exceeds maximum ${paramDef.max}`);
+            }
+        }
+    });
+
+    return errors;
 }
 
 const ConfigSchema = z.object({
@@ -110,6 +142,12 @@ router.post('/', requireAuth, (req, res, next) => {
             return res.status(400).json({ error: `Unknown model_id: ${model_id}` });
         }
 
+        // Validate parameter values
+        const paramErrors = validateParameterValues(model_id, parameters);
+        if (paramErrors.length > 0) {
+            return res.status(400).json({ error: 'Parameter validation failed', details: paramErrors });
+        }
+
         // Non-admins can only save for themselves
         let targetUserId = req.user.sub;
         if (bodyUserId && bodyUserId !== req.user.sub) {
@@ -156,6 +194,15 @@ router.patch('/:id', requireAuth, (req, res, next) => {
         }
 
         const { name, parameters, notes } = result.data;
+
+        // Validate parameter values if updating
+        if (parameters !== undefined) {
+            const paramErrors = validateParameterValues(config.model_id, parameters);
+            if (paramErrors.length > 0) {
+                return res.status(400).json({ error: 'Parameter validation failed', details: paramErrors });
+            }
+        }
+
         const fields = [];
         const vals = [];
 

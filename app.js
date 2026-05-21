@@ -11,6 +11,12 @@ class ParameterEditor {
         this.currentGlbUrl = null;
         this.codeModified = false;   // true when admin has hand-edited the SCAD textarea
 
+        // Dependency system
+        this.autoLink = true;
+        this.dependencyGraph = {};
+        this.dependentParams = new Set();
+        this.validationWarnings = [];
+
         this.init();
     }
 
@@ -207,6 +213,9 @@ class ParameterEditor {
             this.parameters[param.name] = param.initial;
         });
 
+        // Build dependency graph
+        this.buildDependencyGraph(model.parameters);
+
         // Load OpenSCAD file
         try {
             const response = await fetch(`models/${model.file}`);
@@ -263,6 +272,8 @@ class ParameterEditor {
 
         document.getElementById('model-info').style.display = 'none';
         document.getElementById('ai-assistant').style.display = 'none';
+        const aiEmpty = document.getElementById('ai-empty-state');
+        if (aiEmpty) aiEmpty.style.display = 'block';
         document.getElementById('parameters').innerHTML = `
             <p style="color: #666; text-align: center; padding: 2rem;">
                 Select a model to edit its parameters
@@ -280,6 +291,8 @@ class ParameterEditor {
 
         // Show AI assistant and saved configs panel (if authenticated)
         document.getElementById('ai-assistant').style.display = 'block';
+        const aiEmpty = document.getElementById('ai-empty-state');
+        if (aiEmpty) aiEmpty.style.display = 'none';
         const configsPanel = document.getElementById('saved-configs-panel');
         if (configsPanel && typeof Auth !== 'undefined' && Auth.isAuthenticated()) {
             configsPanel.style.display = 'block';
@@ -301,10 +314,22 @@ class ParameterEditor {
         // Generate HTML
         let html = '';
         for (const [groupName, params] of Object.entries(groups)) {
-            html += `
-                <div class="param-group">
-                    <h3>${groupName}</h3>
-            `;
+            html += `<div class="param-group">`;
+
+            // Add auto-link toggle to Anthropometric group
+            if (groupName === 'Anthropometric') {
+                html += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3>${groupName}</h3>
+                        <label class="auto-link-toggle">
+                            <input type="checkbox" id="auto-link" ${this.autoLink ? 'checked' : ''}>
+                            <span>Auto-link</span>
+                        </label>
+                    </div>
+                `;
+            } else {
+                html += `<h3>${groupName}</h3>`;
+            }
 
             params.forEach(param => {
                 html += this.generateParameterControl(param);
@@ -313,9 +338,20 @@ class ParameterEditor {
             html += '</div>';
         }
 
+        // Add warnings area
+        html += '<div id="param-warnings"></div>';
+
         container.innerHTML = html;
 
-        // Add event listeners
+        // Wire auto-link toggle
+        const autoLinkCheckbox = document.getElementById('auto-link');
+        if (autoLinkCheckbox) {
+            autoLinkCheckbox.addEventListener('change', (e) => {
+                this.autoLink = e.target.checked;
+            });
+        }
+
+        // Add event listeners to parameter controls
         parameters.forEach(param => {
             const input = document.getElementById(`param-${param.name}`);
             if (input) {
@@ -327,6 +363,9 @@ class ParameterEditor {
                 });
             }
         });
+
+        // Initial validation display
+        this.validateParameters();
     }
 
     formatParamName(name) {
@@ -344,6 +383,7 @@ class ParameterEditor {
     generateParameterControl(param) {
         const value = this.parameters[param.name];
         const label = this.formatParamName(param.name);
+        const linkIndicator = param.dependsOn ? `<span class="param-dep-indicator" title="Driven by ${this.formatParamName(param.dependsOn)}">⇠</span>` : '';
 
         let controlHtml = '';
 
@@ -351,7 +391,7 @@ class ParameterEditor {
             controlHtml = `
                 <div class="param-item">
                     <div class="param-label">
-                        <span class="param-name">${label}</span>
+                        <span class="param-name">${label}${linkIndicator}</span>
                         <span class="param-value" id="value-${param.name}">${value}</span>
                     </div>
                     <div class="param-caption">${param.caption}</div>
@@ -366,7 +406,7 @@ class ParameterEditor {
                 controlHtml = `
                     <div class="param-item">
                         <div class="param-label">
-                            <span class="param-name">${label}</span>
+                            <span class="param-name">${label}${linkIndicator}</span>
                             <span class="param-value" id="value-${param.name}">${value}</span>
                         </div>
                         <div class="param-caption">${param.caption}</div>
@@ -376,7 +416,8 @@ class ParameterEditor {
                                min="${param.min}"
                                max="${param.max}"
                                step="${param.step || 1}"
-                               value="${value}">
+                               value="${value}"
+                               style="--range-pct: ${((value - param.min) / (param.max - param.min) * 100).toFixed(1)}%">
                         <div style="display: flex; justify-content: space-between; margin-top: 0.25rem; font-size: 0.75rem; color: #999;">
                             <span>${param.min}</span>
                             <span>${param.max}</span>
@@ -387,7 +428,7 @@ class ParameterEditor {
                 controlHtml = `
                     <div class="param-item">
                         <div class="param-label">
-                            <span class="param-name">${label}</span>
+                            <span class="param-name">${label}${linkIndicator}</span>
                             <span class="param-value" id="value-${param.name}">${value}</span>
                         </div>
                         <div class="param-caption">${param.caption}</div>
@@ -406,7 +447,7 @@ class ParameterEditor {
             controlHtml = `
                 <div class="param-item">
                     <div class="param-label">
-                        <span class="param-name">${label}</span>
+                        <span class="param-name">${label}${linkIndicator}</span>
                     </div>
                     <div class="param-caption">${param.caption}</div>
                     <select id="param-${param.name}" class="param-control">${options}</select>
@@ -416,7 +457,7 @@ class ParameterEditor {
             controlHtml = `
                 <div class="param-item">
                     <div class="param-label">
-                        <span class="param-name">${label}</span>
+                        <span class="param-name">${label}${linkIndicator}</span>
                         <span class="param-value" id="value-${param.name}">${value}</span>
                     </div>
                     <div class="param-caption">${param.caption}</div>
@@ -431,6 +472,94 @@ class ParameterEditor {
         return controlHtml;
     }
 
+    buildDependencyGraph(parameters) {
+        this.dependencyGraph = {};
+        this.dependentParams.clear();
+
+        parameters.forEach(param => {
+            if (param.drives && param.drives.length > 0) {
+                this.dependencyGraph[param.name] = param.drives;
+            }
+            if (param.dependsOn) {
+                this.dependentParams.add(param.name);
+            }
+        });
+    }
+
+    setParameterValue(name, value) {
+        this.parameters[name] = value;
+
+        const input = document.getElementById(`param-${name}`);
+        if (input) {
+            if (input.type === 'checkbox') {
+                input.checked = value;
+            } else {
+                input.value = value;
+            }
+
+            if (input.type === 'range') {
+                const pct = ((value - parseFloat(input.min)) / (parseFloat(input.max) - parseFloat(input.min))) * 100;
+                input.style.setProperty('--range-pct', `${pct}%`);
+            }
+        }
+
+        const valueDisplay = document.getElementById(`value-${name}`);
+        if (valueDisplay) {
+            valueDisplay.textContent = value;
+        }
+    }
+
+    validateParameters() {
+        this.validationWarnings = [];
+
+        if (!this.currentModel) return this.validationWarnings;
+
+        this.currentModel.parameters.forEach(param => {
+            const val = this.parameters[param.name];
+
+            // Bounds checking
+            if (param.type === 'number') {
+                if (param.min !== undefined && val < param.min) {
+                    this.validationWarnings.push(`${this.formatParamName(param.name)}: ${val} is below minimum ${param.min}`);
+                }
+                if (param.max !== undefined && val > param.max) {
+                    this.validationWarnings.push(`${this.formatParamName(param.name)}: ${val} exceeds maximum ${param.max}`);
+                }
+            }
+
+            // Ratio checking (advisory only)
+            if (param.dependsOn && param.ratio) {
+                const sourceVal = this.parameters[param.dependsOn];
+                if (sourceVal && typeof sourceVal === 'number') {
+                    const expectedVal = sourceVal * param.ratio;
+                    const deviation = Math.abs(val - expectedVal) / expectedVal;
+                    if (deviation > 0.30) {
+                        const percentOff = Math.round(deviation * 100);
+                        this.validationWarnings.push(`${this.formatParamName(param.name)}: ${percentOff}% off typical ratio to ${this.formatParamName(param.dependsOn)}`);
+                    }
+                }
+            }
+        });
+
+        this.showValidationWarnings();
+        return this.validationWarnings;
+    }
+
+    showValidationWarnings() {
+        const warningsDiv = document.getElementById('param-warnings');
+        if (!warningsDiv) return;
+
+        if (this.validationWarnings.length === 0) {
+            warningsDiv.innerHTML = '';
+            return;
+        }
+
+        let html = this.validationWarnings.map(w =>
+            `<p class="param-warning">⚠️ ${w}</p>`
+        ).join('');
+        warningsDiv.innerHTML = html;
+    }
+
     updateParameter(paramName, input) {
         let value;
 
@@ -439,7 +568,6 @@ class ParameterEditor {
         } else if (input.type === 'number' || input.type === 'range') {
             value = parseFloat(input.value);
         } else if (input.type === 'select-one') {
-            // Enum: coerce string back to the correct JS type
             const raw = input.value;
             if (raw === 'true')  value = true;
             else if (raw === 'false') value = false;
@@ -449,22 +577,46 @@ class ParameterEditor {
             value = input.value;
         }
 
-        this.parameters[paramName] = value;
+        // Find param definition for bounds checking
+        const paramDef = this.currentModel?.parameters.find(p => p.name === paramName);
+        if (paramDef && paramDef.type === 'number') {
+            if (paramDef.min !== undefined) value = Math.max(paramDef.min, value);
+            if (paramDef.max !== undefined) value = Math.min(paramDef.max, value);
+        }
 
-        // Update value display
-        const valueDisplay = document.getElementById(`value-${paramName}`);
-        if (valueDisplay) {
-            valueDisplay.textContent = value;
+        this.setParameterValue(paramName, value);
+
+        // Handle auto-link cascade: update any parameters that depend on this one
+        if (this.autoLink && this.dependencyGraph[paramName]) {
+            this.dependencyGraph[paramName].forEach(dep => {
+                const drivenParamDef = this.currentModel?.parameters.find(p => p.name === dep.param);
+                if (drivenParamDef) {
+                    let newVal = value * dep.ratio;
+                    if (drivenParamDef.min !== undefined) newVal = Math.max(drivenParamDef.min, newVal);
+                    if (drivenParamDef.max !== undefined) newVal = Math.min(drivenParamDef.max, newVal);
+                    this.setParameterValue(dep.param, newVal);
+
+                    // Flash indicator
+                    const control = document.getElementById(`param-${dep.param}`);
+                    if (control) {
+                        control.classList.add('auto-updated');
+                        setTimeout(() => control.classList.remove('auto-updated'), 300);
+                    }
+                }
+            });
         }
 
         // Update editor
         this.updateEditor();
 
+        // Validate and show warnings
+        this.validateParameters();
+
         // Auto-render on parameter change with debouncing
         clearTimeout(this.renderTimeout);
         this.renderTimeout = setTimeout(() => {
             this.renderPreview();
-        }, 1500); // Wait 1.5s after last change before re-rendering
+        }, 1500);
     }
 
     updateEditor() {

@@ -9,6 +9,8 @@ data/
 
 # Node modules
 node_modules/
+Hand Fab prosthetic configurator/
+models/old_models/*
 
 # OS files
 .DS_Store
