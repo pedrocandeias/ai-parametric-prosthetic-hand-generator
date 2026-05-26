@@ -1,0 +1,16 @@
+<svg class="admin-logo-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs><linearGradient id="alg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#a855f7"/><stop offset="50%" stop-color="#ec4899"/><stop offset="100%" stop-color="#f97316"/></linearGradient></defs>
+                        <path d="M35 65 L35 85 C35 88 37 90 40 90 L60 90 C63 90 65 88 65 85 L65 65 Z" fill="url(#alg)" opacity="0.9"/>
+                        <path d="M30 70 L25 75 C23 77 23 80 25 82 L28 85 C30 87 33 87 35 85 L38 80 Z" fill="url(#alg)"/>
+                        <rect x="38" y="15" width="8" height="52" rx="4" fill="url(#alg)"/>
+                        <rect x="48" y="10" width="8" height="57" rx="4" fill="url(#alg)"/>
+                        <rect x="58" y="15" width="8" height="52" rx="4" fill="url(#alg)"/>
+                        <rect x="68" y="25" width="7" height="42" rx="3.5" fill="url(#alg)"/>
+                        <line x1="40" y1="70" x2="60" y2="70" stroke="white" stroke-width="1.5" opacity="0.6"/>
+                        <line x1="40" y1="75" x2="60" y2="75" stroke="white" stroke-width="1.5" opacity="0.6"/>
+                        <line x1="40" y1="80" x2="60" y2="80" stroke="white" stroke-width="1.5" opacity="0.6"/>
+                        <circle cx="42" cy="45" r="2" fill="white" opacity="0.7"/>
+                        <circle cx="52" cy="40" r="2" fill="white" opacity="0.7"/>
+                        <circle cx="62" cy="45" r="2" fill="white" opacity="0.7"/>
+                        <circle cx="71" cy="50" r="1.5" fill="white" opacity="0.7"/>
+                    </svg>

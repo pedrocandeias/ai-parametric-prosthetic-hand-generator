@@ -769,13 +769,10 @@ class ParameterEditor {
             // Check if we have output
             if (result.outputs && result.outputs.length > 0) {
                 const offData = result.outputs[0][1];
-                console.log('Output data type:', typeof offData, 'Length:', offData?.length);
+                console.log('OFF data length:', offData?.length);
 
-                // Convert Uint8Array to text
+                // Parse colored OFF (COFF) and convert to multi-material GLB
                 const offText = new TextDecoder().decode(offData);
-                console.log('OFF file preview:', offText.substring(0, 100));
-
-                // Parse OFF and convert to GLB
                 try {
                     const glbBlob = await this.convertOFFtoGLB(offText);
                     console.log('Created GLB blob, size:', glbBlob.size);
@@ -813,23 +810,222 @@ class ParameterEditor {
         }
     }
 
-    // Parse OFF file and convert to GLB
+    // ── 3MF → GLB pipeline ────────────────────────────────────────────────────
+
+    // Extract 3D/3dmodel.model XML from a 3MF ZIP (Uint8Array).
+    // Handles ZIP64 entries where compSize in the local header is 0xFFFFFFFF
+    // and the real size lives in the ZIP64 extra field (header ID 0x0001).
+    async extract3MFXml(zipBytes) {
+        const view = new DataView(zipBytes.buffer, zipBytes.byteOffset, zipBytes.byteLength);
+        let pos = 0;
+        while (pos <= zipBytes.byteLength - 30) {
+            if (view.getUint32(pos, true) !== 0x04034b50) { pos++; continue; }
+            const compMethod = view.getUint16(pos +  8, true);
+            let   compSize   = view.getUint32(pos + 18, true);
+            const fnameLen   = view.getUint16(pos + 26, true);
+            const extraLen   = view.getUint16(pos + 28, true);
+            const fname = new TextDecoder().decode(zipBytes.subarray(pos + 30, pos + 30 + fnameLen));
+
+            // ZIP64: real sizes are in the extra field when the standard field is 0xFFFFFFFF
+            if (compSize === 0xFFFFFFFF) {
+                const extraStart = pos + 30 + fnameLen;
+                let ep = extraStart;
+                while (ep + 4 <= extraStart + extraLen) {
+                    const hdrId  = view.getUint16(ep, true);
+                    const blkSz  = view.getUint16(ep + 2, true);
+                    if (hdrId === 0x0001 && blkSz >= 16) {
+                        // 8 bytes original size, 8 bytes compressed size
+                        compSize = Number(view.getBigUint64(ep + 12, true));
+                        break;
+                    }
+                    ep += 4 + blkSz;
+                }
+            }
+
+            const dataStart = pos + 30 + fnameLen + extraLen;
+            if (fname === '3D/3dmodel.model') {
+                const compData = zipBytes.subarray(dataStart, dataStart + compSize);
+                if (compMethod === 0) return new TextDecoder().decode(compData);
+                // deflate-raw (method 8)
+                const ds = new DecompressionStream('deflate-raw');
+                const writer = ds.writable.getWriter();
+                writer.write(compData.slice());
+                writer.close();
+                const reader = ds.readable.getReader();
+                const chunks = [];
+                for (;;) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+                    chunks.push(value);
+                }
+                const total = chunks.reduce((s, c) => s + c.length, 0);
+                const out = new Uint8Array(total);
+                let off = 0;
+                for (const c of chunks) { out.set(c, off); off += c.length; }
+                return new TextDecoder().decode(out);
+            }
+            pos = dataStart + (compSize > 0 ? compSize : 1);
+        }
+        throw new Error('3D/3dmodel.model not found in 3MF archive');
+    }
+
+    // Parse 3MF ZIP bytes and return a multi-material GLB Blob
+    async convert3MFtoGLB(zipBytes) {
+        const xml = await this.extract3MFXml(zipBytes);
+        const doc = new DOMParser().parseFromString(xml, 'text/xml');
+
+        // ── Materials ──────────────────────────────────────────────────────────
+        const materials = [];
+        for (const base of doc.getElementsByTagName('base')) {
+            const hex = (base.getAttribute('displaycolor') || '#CCCCCCFF');
+            materials.push({
+                r: parseInt(hex.slice(1, 3), 16) / 255,
+                g: parseInt(hex.slice(3, 5), 16) / 255,
+                b: parseInt(hex.slice(5, 7), 16) / 255,
+                a: hex.length >= 9 ? parseInt(hex.slice(7, 9), 16) / 255 : 1.0,
+            });
+        }
+        if (!materials.length) materials.push({ r: 0.75, g: 0.75, b: 0.75, a: 1.0 });
+
+        // ── Vertices ───────────────────────────────────────────────────────────
+        const vertEls = doc.getElementsByTagName('vertex');
+        const verts = new Float32Array(vertEls.length * 3);
+        let vi = 0;
+        for (const v of vertEls) {
+            verts[vi++] = parseFloat(v.getAttribute('x'));
+            verts[vi++] = parseFloat(v.getAttribute('y'));
+            verts[vi++] = parseFloat(v.getAttribute('z'));
+        }
+
+        // ── Triangles grouped by material index ────────────────────────────────
+        const objEl = doc.getElementsByTagName('object')[0];
+        const defaultMat = parseInt(objEl?.getAttribute('pindex') || '0');
+        const trisByMat = new Map();
+        for (const tri of doc.getElementsByTagName('triangle')) {
+            const mi = tri.hasAttribute('p1') ? parseInt(tri.getAttribute('p1')) : defaultMat;
+            if (!trisByMat.has(mi)) trisByMat.set(mi, []);
+            const g = trisByMat.get(mi);
+            g.push(parseInt(tri.getAttribute('v1')),
+                   parseInt(tri.getAttribute('v2')),
+                   parseInt(tri.getAttribute('v3')));
+        }
+
+        return this.createMultiMaterialGLB(verts, trisByMat, materials);
+    }
+
+    // Build a GLB with one primitive per color group
+    createMultiMaterialGLB(verts, trisByMat, materials) {
+        // ── Vertex bounds ──────────────────────────────────────────────────────
+        let minX = Infinity, minY = Infinity, minZ = Infinity;
+        let maxX = -Infinity, maxY = -Infinity, maxZ = -Infinity;
+        for (let i = 0; i < verts.length; i += 3) {
+            if (verts[i]   < minX) minX = verts[i];   if (verts[i]   > maxX) maxX = verts[i];
+            if (verts[i+1] < minY) minY = verts[i+1]; if (verts[i+1] > maxY) maxY = verts[i+1];
+            if (verts[i+2] < minZ) minZ = verts[i+2]; if (verts[i+2] > maxZ) maxZ = verts[i+2];
+        }
+
+        // ── Pack binary: [vertices] [idx0] [idx1] ... ─────────────────────────
+        const matKeys = [...trisByMat.keys()];
+        const idxArrays = matKeys.map(k => new Uint32Array(trisByMat.get(k)));
+        const idxTotalBytes = idxArrays.reduce((s, a) => s + a.byteLength, 0);
+        const binData = new Uint8Array(verts.byteLength + idxTotalBytes);
+        binData.set(new Uint8Array(verts.buffer, verts.byteOffset, verts.byteLength), 0);
+        const idxOffsets = [];
+        let bOff = verts.byteLength;
+        for (const arr of idxArrays) {
+            idxOffsets.push(bOff);
+            binData.set(new Uint8Array(arr.buffer), bOff);
+            bOff += arr.byteLength;
+        }
+
+        // ── glTF JSON ──────────────────────────────────────────────────────────
+        const bufferViews = [
+            { buffer: 0, byteOffset: 0, byteLength: verts.byteLength, target: 34962 },
+            ...idxArrays.map((arr, i) => ({
+                buffer: 0, byteOffset: idxOffsets[i], byteLength: arr.byteLength, target: 34963
+            }))
+        ];
+        const accessors = [
+            {
+                bufferView: 0, byteOffset: 0, componentType: 5126,
+                count: verts.length / 3, type: 'VEC3',
+                max: [maxX, maxY, maxZ], min: [minX, minY, minZ]
+            },
+            ...idxArrays.map((arr, i) => ({
+                bufferView: i + 1, byteOffset: 0, componentType: 5125,
+                count: arr.length, type: 'SCALAR'
+            }))
+        ];
+        const gltfMaterials = matKeys.map(mi => {
+            const m = materials[mi] || { r: 0.75, g: 0.75, b: 0.75, a: 1.0 };
+            return {
+                pbrMetallicRoughness: {
+                    baseColorFactor: [m.r, m.g, m.b, m.a],
+                    metallicFactor: 0.0,
+                    roughnessFactor: 0.75
+                },
+                doubleSided: true,
+                alphaMode: m.a < 1.0 ? 'BLEND' : 'OPAQUE'
+            };
+        });
+        const primitives = matKeys.map((_, i) => ({
+            attributes: { POSITION: 0 }, indices: i + 1, material: i
+        }));
+
+        const scene = {
+            asset: { version: '2.0', generator: 'Prosthetic Hand AI' },
+            scene: 0,
+            scenes: [{ nodes: [0] }],
+            nodes: [{ mesh: 0 }],
+            meshes: [{ primitives }],
+            materials: gltfMaterials,
+            buffers: [{ byteLength: binData.byteLength }],
+            bufferViews,
+            accessors
+        };
+
+        // ── Pack GLB ───────────────────────────────────────────────────────────
+        const jsonBuf = new TextEncoder().encode(JSON.stringify(scene));
+        const jsonPad = (4 - (jsonBuf.length % 4)) % 4;
+        const binPad  = (4 - (binData.length  % 4)) % 4;
+        const totalLen = 12 + 8 + jsonBuf.length + jsonPad + 8 + binData.length + binPad;
+
+        const glb = new ArrayBuffer(totalLen);
+        const dv = new DataView(glb);
+        let p = 0;
+        dv.setUint32(p, 0x46546C67, true); p += 4;   // 'glTF'
+        dv.setUint32(p, 2, true); p += 4;
+        dv.setUint32(p, totalLen, true); p += 4;
+        // JSON chunk
+        dv.setUint32(p, jsonBuf.length + jsonPad, true); p += 4;
+        dv.setUint32(p, 0x4E4F534A, true); p += 4;   // 'JSON'
+        new Uint8Array(glb, p).set(jsonBuf); p += jsonBuf.length;
+        new Uint8Array(glb, p).fill(0x20, 0, jsonPad); p += jsonPad;
+        // BIN chunk
+        dv.setUint32(p, binData.length + binPad, true); p += 4;
+        dv.setUint32(p, 0x004E4942, true); p += 4;   // 'BIN\0'
+        new Uint8Array(glb, p).set(binData); p += binData.length;
+        new Uint8Array(glb, p).fill(0, 0, binPad);
+
+        return new Blob([glb], { type: 'model/gltf-binary' });
+    }
+
+    // Parse OFF/COFF and convert to a (possibly multi-material) GLB.
+    // When OpenSCAD exports colored geometry it appends per-face RGB integers
+    // after the vertex indices: "3 v1 v2 v3 R G B" (values 0–255).
     async convertOFFtoGLB(offText) {
-        // Parse OFF format
         const lines = offText.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
 
         let currentLine = 0;
         let counts;
 
-        // Handle OFF header
-        if (lines[0].match(/^OFF(\s|$)/)) {
-            counts = lines[0].substring(3).trim();
+        // Handle OFF / COFF header
+        if (lines[0].match(/^C?OFF(\s|$)/)) {
+            counts = lines[0].replace(/^C?OFF\s*/, '').trim();
             currentLine = 1;
-        } else if (lines[0] === 'OFF') {
-            counts = lines[1];
-            currentLine = 2;
-        } else {
-            throw new Error('Invalid OFF file: missing OFF header');
+        }
+        if (!counts) {
+            counts = lines[currentLine++];
         }
 
         const [numVertices, numFaces] = counts.split(/\s+/).map(Number);
@@ -843,26 +1039,43 @@ class ParameterEditor {
         }
         currentLine += numVertices;
 
-        // Parse faces and triangulate
-        const indices = [];
+        // Parse faces — COFF appends R G B (0–255) or R G B A after vertex indices
+        const trisByColor = new Map();  // "R,G,B,A" → [v0,v1,v2, ...]
         for (let i = 0; i < numFaces; i++) {
             const parts = lines[currentLine + i].split(/\s+/).map(Number);
-            const n = parts[0]; // number of vertices in this face
+            const n = parts[0];
             const faceVerts = parts.slice(1, n + 1);
 
-            // Triangulate polygon (simple fan triangulation)
+            // Color key from trailing RGBA integers (0–255); default to grey
+            let colorKey = 'default';
+            if (parts.length > n + 1) {
+                const r = parts[n + 1], g = parts[n + 2], b = parts[n + 3];
+                const a = parts.length > n + 4 ? parts[n + 4] : 255;
+                colorKey = `${r},${g},${b},${a}`;
+            }
+            if (!trisByColor.has(colorKey)) trisByColor.set(colorKey, []);
+            const bucket = trisByColor.get(colorKey);
             for (let j = 1; j < faceVerts.length - 1; j++) {
-                indices.push(faceVerts[0], faceVerts[j], faceVerts[j + 1]);
+                bucket.push(faceVerts[0], faceVerts[j], faceVerts[j + 1]);
             }
         }
 
-        console.log(`Converted to ${vertices.length / 3} vertices and ${indices.length / 3} triangles`);
+        console.log(`COFF color groups: ${trisByColor.size}, vertices: ${vertices.length / 3}`);
 
-        // Create a simple GLB file
-        return this.createSimpleGLB(new Float32Array(vertices), new Uint32Array(indices));
+        // Build materials from color keys
+        const matKeys = [...trisByColor.keys()];
+        const materials = matKeys.map(k => {
+            if (k === 'default') return { r: 0.75, g: 0.75, b: 0.75, a: 1.0 };
+            const [r, g, b, a] = k.split(',').map(Number);
+            return { r: r/255, g: g/255, b: b/255, a: a/255 };
+        });
+        const indexMap = new Map(matKeys.map((k, i) => [k, i]));
+        const trisByMatIdx = new Map(matKeys.map((k, i) => [i, trisByColor.get(k)]));
+
+        return this.createMultiMaterialGLB(new Float32Array(vertices), trisByMatIdx, materials);
     }
 
-    // Create a minimal GLB binary file
+    // Create a minimal single-material GLB (legacy path, unused by preview)
     createSimpleGLB(vertices, indices) {
         // GLB structure: Header + JSON chunk + Binary chunk
 

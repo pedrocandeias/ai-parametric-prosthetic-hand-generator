@@ -81,6 +81,14 @@ const Screens = (() => {
                 grid.innerHTML = '<p class="sel-empty">No models available.</p>';
                 return;
             }
+            // Keep parameterEditor's config in sync so model lookups never
+            // diverge from what the selection grid shows (avoids stale-cache mismatch).
+            const pe = window.parameterEditor;
+            if (pe) {
+                pe.config = data;
+                pe.populateModelSelector();
+            }
+
             grid.innerHTML = models.map((m, i) => {
                 const stops = [
                     ['#94a3b8','#cbd5e1','#e2e8f0'],
@@ -106,15 +114,15 @@ const Screens = (() => {
                                     <stop offset="100%" stop-color="${stops[2]}"/>
                                 </linearGradient>
                             </defs>
-                            <path d="M75 130 L75 168 C75 173 78 176 83 176 L117 176 C122 176 125 173 125 168 L125 130 Z" fill="url(#${gid})" opacity="0.9"/>
+                            <path d="M75 130 L75 168 C75 173 78 176 83 176 L138 176 C143 176 146 173 146 168 L146 130 Z" fill="url(#${gid})" opacity="0.9"/>
                             <path d="M65 138 L54 149 C50 153 50 159 54 163 L59 168 C63 172 69 172 73 168 L80 158 Z" fill="url(#${gid})"/>
                             <rect x="78" y="36" width="16" height="98" rx="8" fill="url(#${gid})"/>
                             <rect x="96" y="26" width="16" height="108" rx="8" fill="url(#${gid})"/>
                             <rect x="114" y="36" width="16" height="98" rx="8" fill="url(#${gid})"/>
                             <rect x="132" y="56" width="14" height="78" rx="7" fill="url(#${gid})"/>
-                            <line x1="82" y1="140" x2="118" y2="140" stroke="white" stroke-width="2.5" opacity="0.5"/>
-                            <line x1="82" y1="152" x2="118" y2="152" stroke="white" stroke-width="2.5" opacity="0.5"/>
-                            <line x1="82" y1="164" x2="118" y2="164" stroke="white" stroke-width="2.5" opacity="0.5"/>
+                            <line x1="82" y1="140" x2="139" y2="140" stroke="white" stroke-width="2.5" opacity="0.5"/>
+                            <line x1="82" y1="152" x2="139" y2="152" stroke="white" stroke-width="2.5" opacity="0.5"/>
+                            <line x1="82" y1="164" x2="139" y2="164" stroke="white" stroke-width="2.5" opacity="0.5"/>
                         </svg>
                     </div>
                     <div class="sel-model-body">

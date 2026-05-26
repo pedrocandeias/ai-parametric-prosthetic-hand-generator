@@ -12,6 +12,22 @@ Entry format follows [Conventional Commits](https://www.conventionalcommits.org/
 
 ---
 
+## v9.2.0 — 2026-05-25
+
+fix: replace fingerpad_solid custom approximation with direct fingertip_pad() invocation — pad preview now shows the exact silicone piece geometry (the positive of the cavity) rather than an independent slab intersection
+fix: remove alpha from pad color() call — pads were semi-transparent at 0.85; now fully opaque so they're clearly visible in the 3D preview
+fix: change show_thermoform default to false — the holey thermoform mesh was overlaid on the palm by default, making the whole hand appear see-through; users can enable it when needed
+
+## v9.1.0 — 2026-05-25
+
+feat: add Flexy Beast parametric prosthetic hand model (adapted from daprice/Flexy-Beast, CC BY-SA 4.0) — self-contained SCAD, no STL imports, all geometry driven by canonical anthropometric parameters
+feat: add show_pads / pad_color parameters to Flexy Beast — renders installed silicone grip pads as colored solids in the preview cavity
+fix: switch preview render pipeline from OFF to 3MF — OFF discards color(); 3MF preserves per-triangle material index; multi-material GLB now built from 3MF basematerials, restoring color display for all models
+fix: sync parameterEditor.config from screens.js after loadModels() to prevent stale-cache mismatch where selection grid showed a new model but pe.loadModel() couldn't find it
+docs: add docs/flexy_beast.md integration notes
+
+---
+
 ## v9.0.0 — 2026-05-21
 
 feat: add parametric dependency system — palm_breadth_mm auto-updates gauntlet_width_mm via configurable ratio when auto-link is enabled

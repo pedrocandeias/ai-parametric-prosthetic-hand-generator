@@ -528,6 +528,135 @@
           "group": "Colors"
         }
       ]
+    },
+    {
+      "id": "flexy_beast",
+      "renderBackend": "manifold",
+      "name": "Flexy Beast",
+      "description": "Wrist-powered prosthetic hand adapted from the Flexy Beast by daprice — a mashup of the Parametric Cyborg Beast (MakerBlock) and the Flexy Hand (Steve Wood / Gyrobot). Flexible joints replace Chicago screws and elastics for a lighter, cheaper, easier-to-assemble design. Scale is derived from the Cyborg Beast sizing guide: xScaleFactor = (palm_breadth_mm + 5) / 55. All finger lengths are driven anthropometrically; per-finger proportions are inferred from the individual length inputs relative to the middle finger.",
+      "file": "active/flexy_beast/flexy_beast.scad",
+      "dependencies": [],
+      "parameters": [
+        {
+          "name": "palm_breadth_mm",
+          "type": "number",
+          "initial": 83,
+          "min": 55,
+          "max": 110,
+          "step": 1,
+          "caption": "Knuckle-to-knuckle metacarpal breadth — drives uniform palm and hand scale via Cyborg Beast formula: scale = (breadth + 5) / 55 (mm)",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "middle_finger_length_mm",
+          "type": "number",
+          "initial": 72,
+          "min": 40,
+          "max": 120,
+          "step": 1,
+          "caption": "Middle finger MCP crease to tip — drives global finger length multiplier; reference reach at scale = REF_FINGER × xScaleFactor = 37 × ((palm_breadth + 5) / 55) mm (mm)",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "index_finger_length_mm",
+          "type": "number",
+          "initial": 68,
+          "min": 40,
+          "max": 120,
+          "step": 1,
+          "caption": "Index finger MCP crease to tip — sets index finger proportion relative to middle finger (mm)",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "ring_finger_length_mm",
+          "type": "number",
+          "initial": 68,
+          "min": 40,
+          "max": 120,
+          "step": 1,
+          "caption": "Ring finger MCP crease to tip — sets ring finger proportion relative to middle finger (mm)",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "pinky_finger_length_mm",
+          "type": "number",
+          "initial": 55,
+          "min": 30,
+          "max": 100,
+          "step": 1,
+          "caption": "Pinky finger MCP crease to tip — sets pinky proportion relative to middle finger (mm)",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "thumb_length_mm",
+          "type": "number",
+          "initial": 65,
+          "min": 35,
+          "max": 100,
+          "step": 1,
+          "caption": "Thumb MCP crease to tip — sets thumb proportion relative to middle finger (mm)",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "mirrored",
+          "type": "enum",
+          "initial": false,
+          "options": [
+            { "label": "Left hand",  "value": false },
+            { "label": "Right hand", "value": true  }
+          ],
+          "caption": "Which hand to generate — Right hand mirrors the geometry along X",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "joint_dia",
+          "type": "number",
+          "initial": 7,
+          "min": 4,
+          "max": 10,
+          "step": 0.5,
+          "caption": "Flexy joint hole diameter — reduce to 5 mm for small children's hands (mm)",
+          "group": "Hardware"
+        },
+        {
+          "name": "joint_thick",
+          "type": "number",
+          "initial": 4,
+          "min": 1,
+          "max": 6,
+          "step": 0.5,
+          "caption": "Flexy joint slot thickness — reduce to 2 mm for small children's hands (mm)",
+          "group": "Hardware"
+        },
+        {
+          "name": "finger_pads",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Hollow fingertips for casting or inserting silicone grip pads",
+          "group": "Options"
+        },
+        {
+          "name": "show_pads",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show installed silicone grip pads in the preview (requires finger_pads enabled)",
+          "group": "Options"
+        },
+        {
+          "name": "pad_color",
+          "type": "string",
+          "initial": "#e8c8a0",
+          "caption": "Silicone grip pad preview color",
+          "group": "Options"
+        },
+        {
+          "name": "show_thermoform",
+          "type": "boolean",
+          "initial": false,
+          "caption": "Show thermoformable mesh on palm interior (print in PLA, heat-form to patient)",
+          "group": "Options"
+        }
+      ]
     }
   ]
 }

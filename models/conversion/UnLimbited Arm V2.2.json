@@ -1,0 +1,14 @@
+{
+    "fileFormatVersion": "1",
+    "parameterSets": {
+        "New set 1": {
+            "BicepCircum": "220",
+            "CenterSlots": "0",
+            "ForearmLen": "200",
+            "HandLen": "150",
+            "LeftRight": "0",
+            "PinHoleDia": "3",
+            "part": "5"
+        }
+    }
+}
