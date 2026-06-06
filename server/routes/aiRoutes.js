@@ -42,7 +42,12 @@ router.post('/suggest', requireAuth, aiLimiter, async (req, res, next) => {
 
         res.json({ text });
     } catch (err) {
-        // Pass AI provider errors with their original status code (e.g. 503 if not configured)
+        // Never forward 401/403 from AI providers to the client — those status codes
+        // mean "user session expired" to fetchWithAuth, causing an unintended logout.
+        // Map upstream auth errors to 502 Bad Gateway instead.
+        if (err.status === 401 || err.status === 403) {
+            err.status = 502;
+        }
         next(err);
     }
 });

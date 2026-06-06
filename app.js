@@ -1204,74 +1204,233 @@ class ParameterEditor {
         return data;
     }
 
-    async exportSTL() {
+    // Entry point for the Export STL button. Models that declare printable `parts`
+    // open a selection modal; others export the whole model as a single file.
+    exportSTL() {
         if (!this.currentModel) {
             this.updateStatus('No model selected', 'error');
             return;
         }
+        if (Array.isArray(this.currentModel.parts) && this.currentModel.parts.length) {
+            this.openExportModal();
+        } else {
+            this.runExport([{ id: 'combined', name: 'Whole model', combined: true }]);
+        }
+    }
 
-        const code = document.getElementById('editor').value;
+    openExportModal() {
+        const modal = document.getElementById('export-modal');
+        const list = document.getElementById('export-items');
+        const status = document.getElementById('export-status');
+        if (!modal || !list) {
+            this.runExport([{ id: 'combined', name: 'Whole model', combined: true }]);
+            return;
+        }
+        status.textContent = '';
+
+        // A "combined" option plus one row per declared printable part.
+        const items = [
+            { id: 'combined', name: 'Whole model (single file)', combined: true },
+            ...this.currentModel.parts.map(p => ({ id: p.id, name: p.name })),
+        ];
+        list.innerHTML = items.map(it => `
+            <label class="export-row">
+                <input type="checkbox" class="export-item" value="${it.id}" ${it.combined ? '' : 'checked'}>
+                ${it.name}
+            </label>`).join('');
+
+        const checkboxes = () => Array.from(list.querySelectorAll('.export-item'));
+        const selectAll = document.getElementById('export-select-all');
+        selectAll.checked = checkboxes().every(c => c.checked);
+        selectAll.onchange = () => checkboxes().forEach(c => { c.checked = selectAll.checked; });
+        list.onchange = () => { selectAll.checked = checkboxes().every(c => c.checked); };
+
+        const close = () => this.closeExportModal();
+        document.getElementById('export-close-btn').onclick = close;
+        document.getElementById('export-cancel-btn').onclick = close;
+        modal.onclick = (e) => { if (e.target === modal) close(); };
+
+        document.getElementById('export-confirm-btn').onclick = () => {
+            const selected = checkboxes().filter(c => c.checked).map(c => c.value);
+            if (!selected.length) { status.textContent = 'Select at least one item.'; return; }
+            const selections = selected.map(id => id === 'combined'
+                ? { id: 'combined', name: 'Whole model', combined: true }
+                : this.currentModel.parts.find(p => p.id === id));
+            this.closeExportModal();
+            this.runExport(selections);
+        };
+
+        modal.classList.add('active');
+    }
+
+    closeExportModal() {
+        const modal = document.getElementById('export-modal');
+        if (modal) modal.classList.remove('active');
+    }
+
+    // Render and download one STL per selection. A single selection downloads
+    // directly; multiple selections are bundled into a ZIP.
+    async runExport(selections) {
+        if (!this.currentModel) return;
+        const baseCode = document.getElementById('editor').value;
         this.showLoading(true);
-        this.updateStatus('Exporting STL...', '');
 
         try {
-            // Create worker for STL export
-            const worker = new Worker('openscad-worker.js');
-
-            const resultPromise = new Promise((resolve, reject) => {
-                worker.onmessage = (e) => {
-                    if (e.data.result) {
-                        resolve(e.data.result);
-                    }
-                };
-                worker.onerror = reject;
-                setTimeout(() => reject(new Error('Export timeout')), 60000);
-            });
-
-            // Send export request
-            const useArchiveLibraries = !!(this.currentModel && this.currentModel.mountArchives);
-
-            worker.postMessage({
-                inputs: [
-                    {path: '/input.scad', content: code},
-                    ...(this.dependencyFiles || []),
-                ],
-                args: [
-                    '/input.scad',
-                    '-o', '/output.stl',
-                    '--export-format', 'asciistl'
-                ],
-                outputPaths: ['/output.stl'],
-                mountArchives: useArchiveLibraries
-            });
-
-            const result = await resultPromise;
-            worker.terminate();
-
-            if (result.outputs && result.outputs.length > 0) {
-                const stlData = result.outputs[0][1];
-                const stlText = atob(stlData);
-                const blob = new Blob([stlText], { type: 'model/stl' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `${this.currentModel.id}_${Date.now()}.stl`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-
-                this.updateStatus('STL exported successfully', 'success');
-            } else {
-                this.updateStatus('STL export failed', 'error');
+            const files = [];
+            for (let i = 0; i < selections.length; i++) {
+                const sel = selections[i];
+                this.updateStatus(`Exporting ${sel.name}… (${i + 1}/${selections.length})`, '');
+                const code = sel.combined ? baseCode : this._buildPartCode(baseCode, sel);
+                const data = await this._renderStlFromCode(code);
+                files.push({ name: `${this.currentModel.id}_${sel.id}.stl`, data });
             }
 
+            if (files.length === 1) {
+                this._downloadBlob(new Blob([files[0].data], { type: 'model/stl' }), files[0].name);
+            } else {
+                const zip = this._zipStore(files);
+                this._downloadBlob(new Blob([zip], { type: 'application/zip' }),
+                    `${this.currentModel.id}_parts_${Date.now()}.zip`);
+            }
+            this.updateStatus(`Exported ${files.length} STL file${files.length > 1 ? 's' : ''}`, 'success');
         } catch (error) {
             this.updateStatus('Export error: ' + error.message, 'error');
             console.error('Export error:', error);
         } finally {
             this.showLoading(false);
         }
+    }
+
+    // Append overrides that isolate a single part: enable this part's toggles and
+    // disable every other part's toggles. OpenSCAD honours the last assignment.
+    _buildPartCode(baseCode, part) {
+        const allToggles = new Set();
+        for (const p of this.currentModel.parts) (p.toggles || []).forEach(t => allToggles.add(t));
+        const on = new Set(part.toggles || []);
+        const lines = Array.from(allToggles).map(t => `${t} = ${on.has(t) ? 'true' : 'false'};`);
+        return `${baseCode}\n\n// -- per-part export override (${part.id}) --\n${lines.join('\n')}\n`;
+    }
+
+    // Render SCAD source to a binary-STL Uint8Array via a one-shot worker.
+    _renderStlFromCode(code) {
+        return new Promise((resolve, reject) => {
+            const worker = new Worker('openscad-worker.js');
+            const timeout = setTimeout(() => { worker.terminate(); reject(new Error('Export timeout')); }, 120000);
+
+            const backendFlag = (this.currentModel && this.currentModel.renderBackend !== undefined)
+                ? this.currentModel.renderBackend : 'manifold';
+            const backendArgs = backendFlag ? ['--backend', backendFlag] : [];
+            const useArchiveLibraries = !!(this.currentModel && this.currentModel.mountArchives);
+
+            worker.onmessage = (e) => {
+                if (!e.data.result) return;
+                clearTimeout(timeout);
+                const result = e.data.result;
+                worker.terminate();
+                if (result.outputs && result.outputs.length > 0) {
+                    resolve(result.outputs[0][1]); // Uint8Array, NOT base64
+                } else {
+                    const errMsg = result.error || (result.mergedOutputs || [])
+                        .filter(m => m.stderr || m.error).map(m => m.stderr || m.error).join(' ')
+                        || 'No output generated';
+                    reject(new Error(String(errMsg).substring(0, 160)));
+                }
+            };
+            worker.onerror = (err) => { clearTimeout(timeout); worker.terminate(); reject(err); };
+
+            worker.postMessage({
+                inputs: [{ path: '/input.scad', content: code }, ...(this.dependencyFiles || [])],
+                args: ['/input.scad', '-o', '/output.stl', '--export-format', 'binstl', ...backendArgs],
+                outputPaths: ['/output.stl'],
+                mountArchives: useArchiveLibraries,
+            });
+        });
+    }
+
+    _downloadBlob(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // Minimal store-only (uncompressed) ZIP writer — bundles STLs without a
+    // third-party dependency.
+    _zipStore(files) {
+        const enc = new TextEncoder();
+        const chunks = [];
+        const central = [];
+        let offset = 0;
+
+        const u16 = (v) => new Uint8Array([v & 0xff, (v >> 8) & 0xff]);
+        const u32 = (v) => new Uint8Array([v & 0xff, (v >> 8) & 0xff, (v >> 16) & 0xff, (v >>> 24) & 0xff]);
+        const push = (arr) => { chunks.push(arr); offset += arr.length; };
+
+        for (const f of files) {
+            const nameBytes = enc.encode(f.name);
+            const data = f.data;
+            const crc = this._crc32(data);
+            const localOffset = offset;
+
+            // Local file header
+            push(u32(0x04034b50));
+            push(u16(20)); push(u16(0)); push(u16(0));        // version, flags, method (store)
+            push(u16(0)); push(u16(0));                       // mod time, date
+            push(u32(crc)); push(u32(data.length)); push(u32(data.length));
+            push(u16(nameBytes.length)); push(u16(0));        // name len, extra len
+            push(nameBytes);
+            push(data);
+
+            // Central directory record (written after all files)
+            const c = [];
+            const cp = (a) => c.push(a);
+            cp(u32(0x02014b50));
+            cp(u16(20)); cp(u16(20)); cp(u16(0)); cp(u16(0)); // ver made, ver needed, flags, method
+            cp(u16(0)); cp(u16(0));                           // time, date
+            cp(u32(crc)); cp(u32(data.length)); cp(u32(data.length));
+            cp(u16(nameBytes.length)); cp(u16(0)); cp(u16(0)); // name, extra, comment len
+            cp(u16(0)); cp(u16(0)); cp(u32(0));               // disk#, int attrs, ext attrs
+            cp(u32(localOffset));
+            cp(nameBytes);
+            central.push(c);
+        }
+
+        const cdStart = offset;
+        for (const c of central) for (const a of c) push(a);
+        const cdSize = offset - cdStart;
+
+        // End of central directory
+        push(u32(0x06054b50));
+        push(u16(0)); push(u16(0));
+        push(u16(files.length)); push(u16(files.length));
+        push(u32(cdSize)); push(u32(cdStart));
+        push(u16(0));
+
+        const total = chunks.reduce((n, a) => n + a.length, 0);
+        const out = new Uint8Array(total);
+        let pos = 0;
+        for (const a of chunks) { out.set(a, pos); pos += a.length; }
+        return out;
+    }
+
+    _crc32(buf) {
+        let table = this._crcTable;
+        if (!table) {
+            table = new Uint32Array(256);
+            for (let n = 0; n < 256; n++) {
+                let c = n;
+                for (let k = 0; k < 8; k++) c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+                table[n] = c >>> 0;
+            }
+            this._crcTable = table;
+        }
+        let crc = 0xffffffff;
+        for (let i = 0; i < buf.length; i++) crc = (crc >>> 8) ^ table[(crc ^ buf[i]) & 0xff];
+        return (crc ^ 0xffffffff) >>> 0;
     }
 
     showLoading(show) {
@@ -1326,32 +1485,29 @@ class ParameterEditor {
         this.updateStatus('Getting AI suggestions...', '');
 
         try {
-            const promptText = `Based on the following anthropometric data for a prosthetic finger/hand:
+            const promptText = `You are sizing a 3D-printed parametric prosthetic hand model ("${this.currentModel.name}") for a patient.
 
+Patient anthropometric data:
 ${anthropometricInput}
 
-Please analyze this information and suggest appropriate values for the following parameters for a 3D-printed prosthetic finger (Fingerator model):
-
-Current parameters:
+These are the model's adjustable parameters. Each has a name, a caption describing what it controls, an allowed range (min/max where applicable), and the current value:
 ${JSON.stringify(this.currentModel.parameters.map(p => ({
     name: p.name,
     caption: p.caption,
+    type: p.type,
     min: p.min,
     max: p.max,
     current: this.parameters[p.name]
 })), null, 2)}
 
-Provide your response as a JSON object with parameter names as keys and suggested values. Consider:
-- global_scale: Scale factor based on height, weight, and arm length (typical range 1.0-2.0, where 1.25 is average adult)
-- For women, typically use slightly lower scale values (1.0-1.3)
-- For men, typically use higher scale values (1.3-1.8)
-- Adjust based on arm length if provided
-- nominal_clearance: Clearance for fit (0.1-3mm, typically 0.4-0.6mm for good fit)
-- print_long_fingers, print_short_fingers, print_finger_phalanx, print_thumb, print_thumb_phalanx: which parts to print
-- bearing_pocket_diameter: bearing size if needed (0, 5, 7, 9, 11, 13, or 15mm)
-- pin_index: pin style (0=Chicago screws, 1=1/16" pins with bearing, 2=headless, 3=folding)
+Guidance:
+- Anthropometric parameters are anatomical measurements in millimetres. Use the patient's data to set them directly. Canonical fields (when present): palm_breadth_mm (knuckle-to-knuckle, ~70-100mm adult), palm_length_mm (wrist to MCP, ~90-120mm), palm_thickness_mm (~22-38mm), index/middle/ring/pinky_finger_length_mm (MCP crease to tip), thumb_length_mm, gauntlet_width_mm (≈ wrist circumference / π + ~5mm clearance).
+- If the data is qualitative (e.g. "woman, 172cm, slim build"), estimate plausible adult measurements from population norms; women typically run smaller than men.
+- Keep proportions realistic relative to each other (e.g. middle finger longest, pinky shortest).
+- Only suggest values for parameters listed above, by their exact name, and stay within each parameter's min/max.
+- Leave hardware/visibility/color parameters at their current values unless the patient data clearly implies a change.
 
-Return ONLY a valid JSON object, no other text.`;
+Respond with ONLY a valid JSON object mapping parameter names to suggested values. No prose, no markdown.`;
 
             const res = await Auth.fetchWithAuth('/api/ai/suggest', {
                 method: 'POST',

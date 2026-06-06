@@ -5,9 +5,8 @@
 ### 1. Upload
 
 ```bash
-rsync -avz --progress \
-    --exclude='.git' --exclude='node_modules' --exclude='data' --exclude='.env' \
-    ./ user@your-server.com:/opt/prosthetic-hand/
+# Stages the source tree (minus secrets, data/, node_modules) and rsyncs it up.
+./deploy.sh deploy user@your-server.com:/opt/prosthetic-hand --delete
 ```
 
 ### 2. Install + configure
@@ -15,7 +14,7 @@ rsync -avz --progress \
 ```bash
 ssh user@your-server.com
 cd /opt/prosthetic-hand
-npm install --omit=dev
+npm ci --omit=dev
 cp .env.example .env && chmod 600 .env
 nano .env   # set JWT_SECRET and API keys
 ```
@@ -79,12 +78,10 @@ curl -o /dev/null -w "%{http_code}\n" https://your-domain.com/config.json
 
 ```bash
 # Upload new code
-rsync -avz --progress \
-    --exclude='.git' --exclude='node_modules' --exclude='data' --exclude='.env' \
-    ./ user@your-server.com:/opt/prosthetic-hand/
+./deploy.sh deploy user@your-server.com:/opt/prosthetic-hand --delete --yes
 
 # On server — zero-downtime reload
-ssh user@your-server.com "cd /opt/prosthetic-hand && npm install --omit=dev && pm2 reload prosthetic-hand"
+ssh user@your-server.com "cd /opt/prosthetic-hand && npm ci --omit=dev && pm2 reload prosthetic-hand"
 ```
 
 ---
@@ -102,7 +99,7 @@ ssh user@your-server.com "cd /opt/prosthetic-hand && npm install --omit=dev && p
 ├── openscad-worker.js
 ├── models/
 │   ├── models-config.json
-│   └── fingerator.scad
+│   └── active/         ← flexy_beast/, paraglider_hand/
 ├── server/
 ├── scripts/
 ├── data/           ← SQLite DB lives here (auto-created)

@@ -1,6 +1,6 @@
 {
   "name": "ai-parametric-prosthetic-hand-generator",
-  "version": "9.2.0",
+  "version": "10.9.0",
   "description": "AI-powered prosthetic hand customization with Node.js backend",
   "main": "server/index.js",
   "scripts": {

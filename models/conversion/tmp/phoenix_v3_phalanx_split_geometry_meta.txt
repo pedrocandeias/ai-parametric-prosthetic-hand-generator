@@ -1,6 +1,0 @@
-phoenix_v3_phalanx split components from Phoenix_Phalanx_Left
-pinky: points=586 faces=1180 bbox=x(-8.441,4.002) y(15.531,51.036) z(0.000,16.156)
-ring: points=586 faces=1180 bbox=x(7.780,20.223) y(15.531,51.036) z(0.000,16.156)
-middle: points=586 faces=1180 bbox=x(24.002,36.445) y(15.531,51.036) z(0.000,16.156)
-index: points=586 faces=1180 bbox=x(40.223,52.666) y(15.531,51.036) z(0.000,16.156)
-thumb: points=608 faces=1224 bbox=x(56.166,72.405) y(15.536,51.056) z(0.000,17.187)

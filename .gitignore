@@ -26,3 +26,7 @@ Thumbs.db
 # Logs
 *.log
 npm-debug.log*
+
+# Deployment staging output (produced by ./deploy.sh collect)
+deploy/
+deploy.tar.gz

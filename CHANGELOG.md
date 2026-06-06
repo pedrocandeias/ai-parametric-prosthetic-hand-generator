@@ -12,6 +12,60 @@ Entry format follows [Conventional Commits](https://www.conventionalcommits.org/
 
 ---
 
+## v10.9.0 — 2026-06-06
+
+docs: add a Deployment section to `README.md` covering `deploy.sh collect`/`deploy`, and note that Flexy Beast fingers export as separate base/tip pieces; update `DEPLOY-QUICKSTART.md` and `DEPLOYMENT.md` to use `./deploy.sh` + `npm ci` instead of the hand-written rsync/`npm install` flow, and fix the stale `fingerator.scad` reference in the server file-tree
+
+## v10.8.0 — 2026-06-06
+
+chore: rework `deploy.sh` into `collect`/`deploy` modes — `./deploy.sh collect [--tar]` stages every server-bound file into `./deploy/` (optionally tars it) without touching the network; `./deploy.sh deploy <user@host:/path> [--delete] [--yes]` collects then rsyncs to the remote. Replaces the deprecated `config.json` gate with the `.env` model and hardens the exclude list so secrets (`.env`), the dev SQLite DB (`data/`), `node_modules`, tests, and local tooling are never shipped; adds a post-stage safety check that aborts if a secret or the DB slips through, and Node-appropriate remote next-steps (`npm ci`, create-admin, `npm start`)
+chore: gitignore `deploy/` and `deploy.tar.gz` (deploy staging output)
+
+## v10.7.0 — 2026-06-06
+
+feat: split each Flexy Beast finger into separately exportable base and tip pieces for 3D printing — `flexy_beast.scad` gains per-segment visibility toggles (`show_<finger>_base`/`show_<finger>_tip` for index/middle/ring/pinky/thumb), and `fingerlayout()` / the thumb assembly honour them. Previously each finger exported as one fused STL (base + curved tip); now the printable parts list in `models-config.json` offers a base and a tip per finger so each can be oriented for printing
+
+## v10.6.0 — 2026-06-05
+
+feat: per-part STL export with a selection modal — clicking Export STL on a model that declares printable `parts` now opens a modal to choose the whole model and/or individual parts (with select-all); one selection downloads a single STL, multiple selections download a ZIP. Includes a dependency-free store-only ZIP writer (CRC32 + central directory)
+feat: add per-part visibility toggles (`show_palm`/`show_index`/`show_middle`/`show_ring`/`show_pinky`/`show_thumb`) to `flexy_beast.scad`, exposed as Visibility parameters, plus a `parts` map in `models-config.json` so the six components can be isolated and exported separately
+refactor: split `exportSTL()` into reusable `runExport()` / `_renderStlFromCode()` / `_buildPartCode()` helpers (the per-part override appends toggle assignments; OpenSCAD honours the last assignment)
+
+## v10.5.0 — 2026-06-05
+
+fix: STL export was completely broken — `exportSTL()` (1) omitted the `--backend manifold` flag that every active model requires, so OpenSCAD produced no output, and (2) ran `atob()` on the worker's output, which is a binary `Uint8Array` (not base64), corrupting/throwing on the rare success. Export now passes the model's `renderBackend` (matching the preview pipeline), wraps the `Uint8Array` directly into the Blob, emits compact `binstl`, and surfaces the real OpenSCAD error on failure instead of a generic message. Verified end-to-end (Playwright): parameter changes flow into a valid 14,440-triangle binary STL download
+
+## v10.4.0 — 2026-06-05
+
+docs: rewrite `docs/ai_anthropometric_validation.md` as a structured academic validation study — abstract, motivation, system architecture, methodology (validation criteria + non-determinism), two experiments with refreshed run data, discussion, limitations/threats to validity, future work, reproducibility, and appendices (prompt template, canonical ranges)
+
+## v10.3.0 — 2026-06-05
+
+docs: extend `docs/ai_anthropometric_validation.md` with an input-spectrum + contralateral/handedness test — direct intact-hand measurements (used verbatim), partial+demographics, and demographics-only, all unilateral amputations; documents that the AI sets `mirrored` to the amputated side correctly but that the mirror rule is currently inferred rather than instructed
+
+## v10.2.0 — 2026-06-05
+
+docs: add `docs/ai_anthropometric_validation.md` — records a representative validation run of the AI sizing flow for Flexy Beast (5 UI-style indirect-proxy profiles), with the prompt template, proposed-value tables, validation checks, and a note that the AI is non-deterministic
+
+## v10.1.0 — 2026-06-05
+
+fix: AI suggestion prompt was hardcoded for the removed "Fingerator" model — it framed the request around nonexistent parameters (`global_scale`, `nominal_clearance`, `print_long_fingers`, `bearing_pocket_diameter`), so suggestions were silently dropped by the `hasOwnProperty` guard in `applySuggestions`; prompt is now model-agnostic, names the current model, and steers the AI toward the canonical anthropometric fields within each parameter's min/max
+chore: update Anthropic model from `claude-3-5-sonnet-20241022` to `claude-sonnet-4-6` in `aiService.js`
+
+## v10.0.0 — 2026-06-05
+
+chore: trim the model registry to two active models — Paraglider Hand and Flexy Beast (Flexy Beast is the only fully self-contained parametric model; Paraglider's palm imports a mesh base)
+refactor: remove the Kinetic Hand RH60 (parametric) and Phoenix Hand v3 models — SCAD/STL sources and `models-config.json` entries deleted
+chore: remove the STL→OpenSCAD reconstruction/conversion toolchain — `tools/` toolkit, `scripts/convert_kinetic_hand.py`, `SKILL.md`, `SPEC.md`, `plan.md`, and the `models/conversion/` upstream sources; this project no longer performs mesh conversion
+chore: remove obsolete root debug scripts `test-dependency.js` and `check-ui.js` (exercised the removed kinetic model's auto-link cascade)
+docs: rewrite README Available Models, Project Structure, and Credits to reflect the two-model layout; drop the reconstruction docs (`docs/kinetic_hand_rh60_conversion.md`, `docs/parametric_reconstruction_thesis.md`)
+
+## v9.3.0 — 2026-05-26
+
+fix: AI provider 401/403 errors no longer forwarded as HTTP 401 to client — previously an invalid/unconfigured API key caused fetchWithAuth to treat the response as a user session expiry, logging the user out and redirecting to model selection; now remapped to 502
+fix: error handler now surfaces messages for explicitly-classified errors (status set on the error object) — previously all 5xx errors returned the opaque "Internal server error" string, hiding useful messages like "ANTHROPIC_API_KEY not configured"
+fix: extend palm SVG in model card logo to cover the full hand width (right edge x=125 → x=146) so the gauntlet reaches the pinky finger
+
 ## v9.2.0 — 2026-05-25
 
 fix: replace fingerpad_solid custom approximation with direct fingertip_pad() invocation — pad preview now shows the exact silicone piece geometry (the positive of the cavity) rather than an independent slab intersection

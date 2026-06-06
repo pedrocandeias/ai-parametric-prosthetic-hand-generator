@@ -25,20 +25,23 @@ npm install -g pm2
 ## 1. Upload the Application
 
 ```bash
-# From your local machine — sync everything except secrets and generated files
-rsync -avz --progress \
-    --exclude='.git' \
-    --exclude='node_modules' \
-    --exclude='data' \
-    --exclude='.env' \
-    ./ user@your-server.com:/opt/prosthetic-hand/
+# From your local machine — stage the deployable tree and rsync it up.
+# deploy.sh excludes secrets (.env), the dev DB (data/), node_modules, .git,
+# tests and local tooling, and aborts if a secret would be shipped.
+./deploy.sh deploy user@your-server.com:/opt/prosthetic-hand --delete
+```
+
+To inspect the package before sending it anywhere, stage it locally first:
+
+```bash
+./deploy.sh collect --tar     # → ./deploy/ and ./deploy.tar.gz
 ```
 
 Then on the server:
 
 ```bash
 cd /opt/prosthetic-hand
-npm install --omit=dev
+npm ci --omit=dev
 ```
 
 ---
@@ -230,16 +233,11 @@ chmod +x /etc/cron.daily/prosthetic-hand-backup
 
 ```bash
 # On local machine
-rsync -avz --progress \
-    --exclude='.git' \
-    --exclude='node_modules' \
-    --exclude='data' \
-    --exclude='.env' \
-    ./ user@your-server.com:/opt/prosthetic-hand/
+./deploy.sh deploy user@your-server.com:/opt/prosthetic-hand --delete --yes
 
 # On server
 cd /opt/prosthetic-hand
-npm install --omit=dev
+npm ci --omit=dev
 pm2 reload prosthetic-hand   # zero-downtime reload
 # OR
 sudo systemctl restart prosthetic-hand

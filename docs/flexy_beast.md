@@ -12,7 +12,7 @@ Its key contribution over the Cyborg Beast is replacing Chicago screws and elast
 
 ### Source files
 
-The upstream repository (`models/conversion/Flexy-Beast-master/`) has the following structure:
+The upstream [Flexy Beast repository](https://www.thingiverse.com/thing:380665) (by daprice) has the following structure:
 
 ```
 src/

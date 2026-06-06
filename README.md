@@ -14,11 +14,10 @@ Built on [OpenSCAD](https://openscad.org/) and the [OpenSCAD Playground](https:/
 - **Saved configurations** — named parameter sets stored per patient; load across sessions
 - **Multi-user RBAC** — Admin / Tech / User roles; techs manage assigned patients
 - **Secure API proxy** — AI keys live server-side only
-- **STL export** — download print-ready files directly from the browser
+- **STL export** — download print-ready files directly from the browser; models with defined parts offer a selection modal to export the whole model or individual parts (multiple parts download as a ZIP). On the Flexy Beast, each finger splits into a separate **base** and **tip** piece so every printable component can be exported and oriented on its own
 - **Admin SCAD code editor** — admins can hand-edit OpenSCAD source and render immediately
 - **Anthropometric profile library** — import population-level hand measurement datasets; geometry parameters are auto-derived and mapped to model inputs
 - **Bulk CSV import** — load the bundled `data/multi_population_hand.csv` (96 population groups) in one click
-- **STL-to-OpenSCAD reconstruction toolkit** — automated pipeline to convert STL/STEP exports into self-contained parametric SCAD files (see `tools/`)
 
 ---
 
@@ -26,11 +25,8 @@ Built on [OpenSCAD](https://openscad.org/) and the [OpenSCAD Playground](https:/
 
 | Model | ID | Parameters | Notes |
 |---|---|---|---|
-| **e-NABLE Phoenix Hand v3** | `phoenix_hand_v3` | Scale factor, hardware dims, part visibility | OpenSCAD surrogate for the Phoenix Hand |
-| **Kinetic Hand RH60** | `kinetic_hand_rh60` | `palm_breadth_mm`, `middle_finger_length_mm`, `gauntlet_width_mm` | STL-wrapper; parts imported from STEP exports |
-| **Kinetic Hand RH60 (Parametric)** | `kinetic_hand_rh60_parametric` | All 6 anthropometric params + visibility | Fully parametric via polyhedron() reconstruction; no external STL imports |
-| **RBE580 Cable-Driven Hand** | `rbe580_hand` | `palm_width`, `middle_length`, `thumb_length`, assembled view, part visibility | WPI RBE580 design; single-motor cable-driven |
-| **Passive Cosmetic Hand** | `passive_hand` | Palm dims, socket dims, handedness | Hollow socket; wrist pylon connector |
+| **Flexy Beast** | `flexy_beast` | All anthropometric params + flexy-joint hardware + grip pads | Fully parametric, self-contained — no external STL imports |
+| **Paraglider Hand (Flexible Flyer)** | `paraglider_hand` | All anthropometric params + pivot hardware + channel routing | Parametric fingers; palm imports a repaired Phoenix v2 mesh as its base body |
 
 ---
 
@@ -88,6 +84,43 @@ node scripts/create-admin.js admin admin@example.com MyPassword123
 
 ---
 
+## Deployment
+
+The app is a single Node.js process that serves both the REST API and the static
+frontend, so deploying means shipping the source tree (minus secrets, the dev
+database, and `node_modules`) and running `npm ci` + `npm start` on the server.
+
+`deploy.sh` automates this in two modes:
+
+```bash
+# Stage every server-bound file into ./deploy/ (nothing leaves the machine).
+# Add --tar to also produce deploy.tar.gz.
+./deploy.sh collect --tar
+
+# Stage, then rsync the package to a remote host.
+# Add --delete to mirror (remove stale remote files); --yes to skip the prompt.
+./deploy.sh deploy user@your-server.com:/opt/prosthetic-hand --delete
+```
+
+The collected package **excludes** secrets (`.env`), the dev SQLite DB (`data/`),
+`node_modules`, `.git`, tests, and local tooling — a post-stage safety check
+aborts if any of those slip through. `.env.example` *is* included as a template.
+
+On the server, after the files land:
+
+```bash
+cd /opt/prosthetic-hand
+cp .env.example .env        # then edit: JWT_SECRET + API keys
+npm ci --omit=dev           # compiles native modules (better-sqlite3, bcrypt) for this host
+node scripts/create-admin.js admin admin@example.com 'StrongPassword!'   # first run only
+npm start                   # or run under pm2 / systemd
+```
+
+See [DEPLOY-QUICKSTART.md](DEPLOY-QUICKSTART.md) for a pm2 + Nginx walkthrough and
+[DEPLOYMENT.md](DEPLOYMENT.md) for the full production guide (systemd, TLS, backups).
+
+---
+
 ## Project Structure
 
 ```
@@ -101,37 +134,13 @@ node scripts/create-admin.js admin admin@example.com MyPassword123
 │
 ├── models/
 │   ├── models-config.json                  Model registry + parameter specs
-│   ├── e-NABLE Phoenix Hand v3.scad        Phoenix Hand surrogate
-│   ├── kinetic_hand_rh60.scad              Kinetic Hand — STL wrapper
-│   ├── kinetic_hand_rh60_parametric.scad   Kinetic Hand — full parametric reconstruction
-│   ├── kinetic_hand_finger_middle.scad     Middle finger unit (polyhedron)
-│   ├── kinetic_hand_thumb.scad             Thumb unit (polyhedron)
-│   ├── kinetic_hand_palm.scad              Palm body (polyhedron)
-│   ├── kinetic_hand_gauntlet.scad          Gauntlet + cover (polyhedron)
-│   ├── kinetic_hand_wrist.scad             Wrist hinges (polyhedron)
-│   ├── rbe580_hand.scad                    RBE580 cable-driven hand
-│   ├── passive_hand.scad                   Passive cosmetic hand
-│   └── kinetic_hand/                       Source STL files for Kinetic Hand
-│
-├── tools/                          STL analysis and reconstruction toolkit
-│   ├── reconstruct.py              Automated STL → parametric SCAD pipeline
-│   ├── stl_info.py                 Phase 1: mesh triage
-│   ├── stl_zlevel.py               Phase 2: Z-level structure analysis
-│   ├── stl_cross_section.py        Phase 3–4: cross-section slicer
-│   ├── stl_normals.py              Phase 4: face normal grouping
-│   ├── compare_stl.py              Phase 7: Hausdorff distance comparison
-│   ├── hausdorff_from_scad.py      Phase 7: SCAD polyhedron validation
-│   ├── validate_polyhedron_scad.py Phase 5: polyhedron data verification
-│   ├── gen_middle_finger_scad.py   Generator — middle finger
-│   ├── gen_thumb_scad.py           Generator — thumb
-│   ├── gen_palm_scad.py            Generator — palm
-│   ├── gen_gauntlet_scad.py        Generator — gauntlet
-│   ├── gen_wrist_scad.py           Generator — wrist hinges
-│   └── README.md                   Tool usage reference
+│   └── active/
+│       ├── flexy_beast/                     Flexy Beast — self-contained parametric SCAD
+│       └── paraglider_hand/                 Paraglider Hand — parametric SCAD + palm mesh base
 │
 ├── docs/
-│   ├── kinetic_hand_rh60_conversion.md     STL-wrapper approach and limitations
-│   └── parametric_reconstruction_thesis.md Methodology write-up (master thesis)
+│   ├── flexy_beast.md              Flexy Beast model notes
+│   └── paraglider.md              Paraglider Hand model notes
 │
 ├── data/
 │   ├── app.db                      SQLite DB (gitignored)
@@ -148,9 +157,6 @@ node scripts/create-admin.js admin admin@example.com MyPassword123
 ├── scripts/
 │   └── create-admin.js         CLI admin creation
 │
-├── SPEC.md                     STL-to-OpenSCAD reconstruction specification
-├── SKILL.md                    Reconstruction methodology (8-phase process)
-├── plan.md                     Reconstruction progress checklist
 ├── CLAUDE.md                   Developer guide for Claude Code
 ├── CHANGELOG.md                Version history
 ├── .env.example                Environment template
@@ -242,44 +248,6 @@ The `url` is relative to `models/` on the server; `path` is where the file lands
 
 ---
 
-## STL to OpenSCAD Reconstruction
-
-The `tools/` directory contains a full pipeline for converting STL/STEP exports into self-contained parametric OpenSCAD files. See `SKILL.md` for the methodology and `SPEC.md` for the project specification.
-
-**Quick start:**
-
-```bash
-# Install Python dependencies
-pip3 install numpy trimesh scipy shapely networkx rtree numpy-stl
-
-# Triage a part before committing to reconstruction
-python3 tools/reconstruct.py models/kinetic_hand/finger_4.stl --triage-only
-
-# Reconstruct a single part (auto-selects polyhedron vs CSG, auto-validates)
-python3 tools/reconstruct.py models/kinetic_hand/finger_4.stl \
-    --module proximal_phalanx \
-    --param middle_finger_length_mm=72 palm_breadth_mm=83 \
-    --output models/finger_proximal.scad
-
-# Reconstruct multiple parts with an assembly module
-python3 tools/reconstruct.py \
-    models/kinetic_hand/finger_4.stl \
-    models/kinetic_hand/finger_5.stl \
-    --modules proximal_phalanx distal_phalanx \
-    --assembly middle_finger \
-    --param middle_finger_length_mm=72 palm_breadth_mm=83 \
-    --output models/middle_finger.scad
-
-# Validate an existing SCAD against its source STL
-python3 tools/reconstruct.py models/kinetic_hand/finger_4.stl \
-    --validate models/kinetic_hand_finger_middle.scad \
-    --module proximal_phalanx
-```
-
-The tool automatically selects between `polyhedron()` encoding (for organic/filleted CAD geometry — oblique-face ratio ≥ 0.40) and a CSG skeleton with TODO markers (for simple prismatic parts). All Kinetic Hand RH60 parts were encoded as `polyhedron()`, achieving 0.000001 mm Hausdorff distance against the source STLs.
-
----
-
 ## API Overview
 
 | Endpoint | Description |
@@ -350,6 +318,5 @@ console.log('done');
 
 - [OpenSCAD Playground](https://github.com/openscad/openscad-playground) — WASM rendering runtime
 - [OpenSCAD](https://openscad.org/) — parametric 3D modelling language
-- [Kinetic Hand RH60](https://kinetic.com) — SolidWorks assembly converted to parametric SCAD
-- [e-NABLE Phoenix Hand v3](https://enablingthefuture.org) — open-source prosthetic hand design
-- [RBE580 Prosthetic Hand](https://github.com/jeffmiscione/RBE580-Project) — WPI RBE580 Fall 2016 (CC BY)
+- [Flexy Beast](https://www.thingiverse.com/thing:380665) by daprice — a mashup of the Parametric Cyborg Beast and the Flexy Hand
+- [e-NABLE](https://enablingthefuture.org) — open-source prosthetic hand designs (Phoenix / Unlimbited lineage behind the Paraglider Hand)

@@ -1252,6 +1252,55 @@ button { font-family: var(--font); cursor: pointer; transition: all 0.15s; borde
 }
 #anthro-modal.active { display: flex; }
 
+/* STL export selection modal */
+#export-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.6);
+    backdrop-filter: blur(4px);
+    z-index: 9998;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+#export-modal.active { display: flex; }
+.export-box {
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    width: 100%;
+    max-width: 480px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-lg), 0 0 0 1px var(--border);
+    animation: modalIn 0.2s ease;
+}
+.export-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.export-header h2 { font-size: 1.125rem; font-weight: 600; }
+.export-close {
+    background: none; border: none; font-size: 1.5rem; cursor: pointer;
+    color: var(--text-muted); width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: var(--radius-sm); transition: all 0.1s;
+}
+.export-close:hover { background: var(--surface-2); color: var(--text-primary); }
+.export-body { padding: 16px 24px; overflow-y: auto; }
+.export-hint { font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 14px; }
+.export-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 10px; border-radius: var(--radius-sm);
+    cursor: pointer; font-size: 0.9rem; user-select: none;
+}
+.export-row:hover { background: var(--surface-2); }
+.export-row input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+.export-row-all { border-bottom: 1px solid var(--border); margin-bottom: 6px; border-radius: 0; }
+.export-footer {
+    padding: 16px 24px; border-top: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px; justify-content: flex-end;
+}
+.export-status { margin-right: auto; font-size: 0.8125rem; color: var(--text-secondary); }
+
 .anthro-box {
     background: var(--surface);
     border-radius: var(--radius-xl);
@@ -2185,6 +2234,31 @@ button { font-family: var(--font); cursor: pointer; transition: all 0.15s; borde
             <button class="btn-secondary" id="anthro-process-btn">Process</button>
             <button class="btn-accent" id="anthro-save-btn">Process &amp; Save Profile</button>
             <button class="btn-warning" id="anthro-apply-btn" disabled>Apply to Model</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STL Export selection modal                                  -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="export-modal">
+    <div class="export-box">
+        <div class="export-header">
+            <h2>Export STL</h2>
+            <button class="export-close" id="export-close-btn" aria-label="Close">&times;</button>
+        </div>
+        <div class="export-body">
+            <p class="export-hint">Choose what to export. Each selection is generated with your current settings. Selecting more than one file downloads them together as a ZIP.</p>
+            <label class="export-row export-row-all">
+                <input type="checkbox" id="export-select-all" checked>
+                <strong>Select all</strong>
+            </label>
+            <div id="export-items"></div>
+        </div>
+        <div class="export-footer">
+            <span id="export-status" class="export-status"></span>
+            <button class="btn-secondary" id="export-cancel-btn">Cancel</button>
+            <button class="btn-accent" id="export-confirm-btn">Export</button>
         </div>
     </div>
 </div>

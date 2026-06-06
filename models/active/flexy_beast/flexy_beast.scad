@@ -57,6 +57,45 @@ show_thermoform = false;
 // Mirror geometry for right hand (default produces left hand)
 mirrored = false;
 
+/* [Visibility] */
+
+// Show palm body (per-part STL export)
+show_palm = true;
+// Show index finger
+show_index = true;
+// Show middle finger
+show_middle = true;
+// Show ring finger
+show_ring = true;
+// Show pinky finger
+show_pinky = true;
+// Show thumb
+show_thumb = true;
+
+// Each finger prints as two separate pieces: a base (proximal segment that
+// pins to the palm) and a curved tip (distal segment with the fingertip pad).
+// These toggles isolate a single piece for per-part STL export.
+// Show index finger base
+show_index_base = true;
+// Show index fingertip
+show_index_tip = true;
+// Show middle finger base
+show_middle_base = true;
+// Show middle fingertip
+show_middle_tip = true;
+// Show ring finger base
+show_ring_base = true;
+// Show ring fingertip
+show_ring_tip = true;
+// Show pinky finger base
+show_pinky_base = true;
+// Show pinky fingertip
+show_pinky_tip = true;
+// Show thumb base
+show_thumb_base = true;
+// Show thumb tip
+show_thumb_tip = true;
+
 // ── Derived configuration ─────────────────────────────────────────────────────
 
 // Cyborg Beast sizing guide: (knuckle_width + 5) / 55
@@ -97,26 +136,30 @@ mirror([mirrored ? 1 : 0, 0, 0])
 // ── Assembly ──────────────────────────────────────────────────────────────────
 
 module handlayout(sp = 14) {
-    cyborgbeastpalm();
+    if (show_palm) cyborgbeastpalm();
     translate([20.5*xScaleFactor, 33*yScaleFactor, 7*zScaleFactor])
         rotate([0, 180, 0]) {
-        translate([0*xScaleFactor,    7.5*yScaleFactor, 0]) fingerlayout(indexProp  * fingerLength);
-        translate([sp*xScaleFactor,   7.5*yScaleFactor, 0]) fingerlayout(middleProp * fingerLength);
-        translate([sp*2*xScaleFactor, 7.5*yScaleFactor, 0]) fingerlayout(ringProp   * fingerLength);
-        translate([sp*3*xScaleFactor, 7.5*yScaleFactor, 0]) fingerlayout(pinkyProp  * fingerLength);
+        if (show_index)  translate([0*xScaleFactor,    7.5*yScaleFactor, 0]) fingerlayout(indexProp  * fingerLength, base = show_index_base,  tip = show_index_tip);
+        if (show_middle) translate([sp*xScaleFactor,   7.5*yScaleFactor, 0]) fingerlayout(middleProp * fingerLength, base = show_middle_base, tip = show_middle_tip);
+        if (show_ring)   translate([sp*2*xScaleFactor, 7.5*yScaleFactor, 0]) fingerlayout(ringProp   * fingerLength, base = show_ring_base,   tip = show_ring_tip);
+        if (show_pinky)  translate([sp*3*xScaleFactor, 7.5*yScaleFactor, 0]) fingerlayout(pinkyProp  * fingerLength, base = show_pinky_base,  tip = show_pinky_tip);
     }
+    if (show_thumb)
     translate([36*xScaleFactor, -15.5*yScaleFactor, 0.5*zScaleFactor])
         rotate([50, -20, 90]) {
-        thumbmid();
-        translate([0, -22*yScaleFactor, 0*zScaleFactor]) rotate([0, 0, -90]) thumbtip();
+        if (show_thumb_base) thumbmid();
+        if (show_thumb_tip) translate([0, -22*yScaleFactor, 0*zScaleFactor]) rotate([0, 0, -90]) thumbtip();
     }
 }
 
-// lengthMult: positional arg — fixes the original Flexy Beast parameter-name mismatch
-module fingerlayout(lengthMult = 1) {
+// lengthMult: positional arg — fixes the original Flexy Beast parameter-name mismatch.
+// base/tip select which of the finger's two printable pieces to emit.
+module fingerlayout(lengthMult = 1, base = true, tip = true) {
+    if (tip)
     rotate([180, -10, 90])
         translate([15*lengthMult, -8, -10])
             fingertip_curved_solid(length = 17*lengthMult, pad = finger_pads);
+    if (base)
     rotate([180, -5, 90])
         translate([-20, -8, -12])
             fingerbase(length = 20*lengthMult);
