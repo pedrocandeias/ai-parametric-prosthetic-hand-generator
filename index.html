@@ -1844,6 +1844,19 @@ button { font-family: var(--font); cursor: pointer; transition: all 0.15s; borde
                                 <button class="btn-primary btn-block" id="ai-suggest-btn">
                                     Get AI Suggestions
                                 </button>
+
+                                <div id="baseline-group" class="ai-provider-group" style="margin-top:16px">
+                                    <label for="baseline-select">Population baseline (optional)</label>
+                                    <select id="baseline-select">
+                                        <option value="">— No population dataset imported —</option>
+                                    </select>
+                                    <p class="ai-description" style="margin:4px 0 0">
+                                        Seed the sliders from an imported population group, then fine-tune.
+                                    </p>
+                                    <button class="btn-secondary btn-block" id="baseline-apply-btn" style="margin-top:8px" disabled>
+                                        Apply baseline to model
+                                    </button>
+                                </div>
                             </div>
                             <p id="ai-empty-state" class="empty-state">
                                 Select a model first to use the AI assistant.

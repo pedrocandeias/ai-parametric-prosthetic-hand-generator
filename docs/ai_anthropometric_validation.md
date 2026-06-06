@@ -46,7 +46,10 @@ hand side).
 free-text description
    → frontend prompt construction (app.js · getAISuggestions)
        · injects the live Flexy Beast parameter schema (name, caption, type, min/max, current)
+       · also sends patient_text + model_id for server-side grounding
    → POST /api/ai/suggest    (server/routes/aiRoutes.js, JWT-authenticated, rate-limited)
+       · dataset grounding (§2.4): findBestProfileMatch → buildGroundingBlock
+         appends the closest population group's measured means to the prompt
    → aiService.callAnthropic (claude-sonnet-4-6)
    → JSON object { param: value, ... }
    → applySuggestions()      (drops unknown keys; updates only valid params)
@@ -70,6 +73,33 @@ The parameter names are deliberately aligned with the platform's anthropometric 
 pipeline (see `CLAUDE.md`), so AI output, CSV-imported population profiles, and manual entry
 all share one measurement vocabulary. The adult reference ranges used as plausibility bounds
 are reproduced in Appendix B.
+
+### 2.4 Dataset grounding (as of v11.0.0)
+
+Originally the LLM estimated qualitative cases from its **own** training-derived population
+norms; the platform's imported population datasets (Appendix C) were a passive reference
+library that did not enter the prompt. Suggestions are now optionally **grounded** on that
+dataset:
+
+1. The frontend sends `patient_text` and `model_id` alongside the prompt.
+2. `server/services/profileMapping.js · findBestProfileMatch` scores every stored population
+   profile against the free text by **gender**, **country**, and **age group**, and selects the
+   best match (above a minimum score; otherwise none).
+3. `mapProfileToModelParameters` projects that profile's `measurements` onto the live model's
+   parameters — clamped to each parameter's bounds — and `buildGroundingBlock` appends the
+   measured means to the prompt as an explicit anchor (see Appendix A).
+4. The prompt instructs that **supplied patient measurements take precedence** over these
+   population means, so grounding biases the *priors*, not the user's data.
+
+Grounding is best-effort and backward compatible: if no profile matches (or the dataset is
+empty) the request proceeds ungrounded, and the response reports `grounded: true|false`. The
+same `profileMapping` module powers the configurator's "Population baseline" picker, so the
+seed-from-dataset path and the AI-grounding path share one translation.
+
+This shifts the relevant validation question for qualitative inputs: where §4 measured the
+model's *unaided* priors, grounded runs additionally test whether the system **anchors on the
+matched group** without overriding stated measurements. The §3.3 invariants (schema, ordering,
+range, scaling) still apply unchanged.
 
 ---
 
@@ -272,6 +302,10 @@ only its names.
 6. **Model/version coupling.** Findings are specific to `claude-sonnet-4-6`; behaviour
    (especially the emergent inferences) may differ on other models or future versions and
    should be re-validated on change.
+7. **Experiments predate dataset grounding.** The §4–§5 runs (2026-06-05) measured the model's
+   *unaided* priors; server-side grounding (§2.4) shipped afterwards (v11.0.0, 2026-06-06) and
+   is now default-on. The reported numbers therefore characterise ungrounded behaviour; grounded
+   behaviour has not yet been re-measured under this protocol.
 
 ---
 
@@ -285,6 +319,11 @@ only its names.
   rather than silently dropping unknown keys.
 - **Ground-truth benchmarking** against measured-hand datasets to quantify estimation error, not
   just plausibility.
+- **Grounded re-validation:** re-run §4–§5 with dataset grounding (§2.4) enabled and compare
+  against the ungrounded baseline — does anchoring on the matched population group reduce
+  run-to-run variance (§4.4) and tighten qualitative-input estimates without overriding supplied
+  measurements? Also validate the `findBestProfileMatch` heuristic itself (does it pick the
+  right group for ambiguous or unmatched descriptions?).
 - **Permanent regression set:** retain the demographics-only profiles as a standing test, since
   that path serves the lowest-knowledge user.
 
@@ -299,6 +338,12 @@ parses the returned JSON, and applies the §3.3 criteria. Because sampling is st
 the numbers to differ between runs while the invariant checks continue to pass. When issuing many
 requests in quick succession, insert a short delay (or retry with backoff) to avoid transient
 provider errors.
+
+**Grounding control.** To reproduce the *ungrounded* §4–§5 numbers, omit `patient_text`/`model_id`
+from the request body (or run against a database with no imported profiles) so no grounding block
+is appended; the response field `grounded` confirms which path executed. To exercise grounded
+behaviour, send both fields exactly as the live frontend does and import a population dataset
+(Appendix C) first.
 
 ---
 
@@ -332,6 +377,28 @@ Guidance:
 Respond with ONLY a valid JSON object mapping parameter names to suggested values.
 ```
 
+When dataset grounding (§2.4) finds a matching population group, the server appends the
+following block to the prompt above before calling the provider:
+
+```
+Reference population data — the closest matching group in our anthropometric
+dataset is "<group_name>", n=<sample_size> (dataset completeness: <uncertainty>).
+Its measured mean values are:
+  palm_breadth_mm: 79.3 mm
+  middle_finger_length_mm: 78.6 mm
+  index_finger_length_mm: 71.3 mm
+  ring_finger_length_mm: 74 mm
+  pinky_finger_length_mm: 60.4 mm
+  thumb_length_mm: 64.8 mm
+Anchor your estimate on these measured means, adjusting for the patient's specific
+description (build, height, stated measurements). Supplied patient measurements always
+take precedence over these population means.
+```
+
+The values above are the real means for the *ANSUR I Female 50th Percentile* group as returned
+by `GET /api/anthropometric/1/model-parameters?model_id=flexy_beast` — i.e. the identical
+projection the configurator's "Population baseline" picker applies.
+
 ## Appendix B — Canonical adult anthropometric ranges
 
 Source: `CLAUDE.md` (Anthropometric Parameter Alignment). Used as plausibility bounds in §3.3.4.
@@ -344,3 +411,66 @@ Source: `CLAUDE.md` (Anthropometric Parameter Alignment). Used as plausibility b
 | `ring_finger_length_mm` | Ring MCP crease to tip | 55–110 mm |
 | `pinky_finger_length_mm` | Pinky MCP crease to tip | 40–85 mm |
 | `thumb_length_mm` | Thumb MCP crease to tip | 45–80 mm |
+
+## Appendix C — Population dataset bulk import
+
+§2.3 notes that AI output, manual entry, and **CSV-imported population profiles** share one
+measurement vocabulary. This appendix documents how that population library is built from the
+bundled research dataset, since the import path is easy to misread.
+
+### C.1 What the dataset is
+
+`data/multi_population_hand.csv` is a **research-literature dataset**, not a list of individual
+patients. Each row is a single published measurement (e.g. *"Finger length (right hand) -
+Thumb"*) for one population, tagged with its source study, page/citation, country, sex, age
+group, sample size, and a `stat_type` (`mean`, `std_dev`, `min`, `max`, or a percentile). One
+population therefore spans many rows — one per measurement × statistic.
+
+### C.2 How "Import CSV Dataset" works
+
+The control is a **local file picker**, not a server fetch. The admin-panel button
+(`admin.js`) triggers a hidden `<input type="file">`; the browser reads the chosen file's text
+client-side (`file.text()`) and POSTs it as `csv_text` to
+`POST /api/anthropometric/import-csv-bulk` (`server/routes/anthropometricRoutes.js`). The
+server never loads the path over HTTP — the `data/...` reference in the docs is just where the
+file sits on the operator's disk. (Consequently the `/data/* → 404` static block is irrelevant
+to import; it only guards URL requests.)
+
+Server-side processing:
+
+1. **Parse** the CSV, re-joining rows split across newlines inside quoted citation fields
+   (balanced-quote check).
+2. **Filter** to usable rows: keep only `stat_type === 'mean'`, only measurements present in
+   `MEASUREMENT_MAP`, and only positive numeric `value_mm`. Std-dev / min / max / percentile
+   *value* rows are discarded.
+3. **Group** rows by the composite key `population | country | sex | age_group | percentile`.
+   All the per-digit and palm means for one population collapse into a **single profile**;
+   first mean wins per field.
+4. **Derive & insert** — for each group the `anthropometricImporter` derives the geometry
+   parameters (`palm_breadth_mm`, finger lengths, …) and an AI-context blob, and one row is
+   inserted into `anthropometric_profiles`.
+
+The response is `{ created, skipped, total_groups }`, surfaced in the UI as a toast.
+
+### C.3 Idempotency
+
+Each group is given a deterministic `group_name`
+(e.g. `Young adults (age 18-30) female (Turkey) — 50th`). Before insert:
+
+```js
+const existing = db.prepare(
+  'SELECT id FROM anthropometric_profiles WHERE group_name = ?'
+).get(group_name);
+if (existing) { skipped++; continue; }
+```
+
+So re-running the import is safe: the second run reports `created: 0, skipped: N` with no
+duplicates. **Caveat:** the dedupe key is `group_name`, which omits `data_source` — two
+different studies producing the same population/sex/country/percentile label would collide, and
+the first import wins rather than the two being merged.
+
+### C.4 Note on availability
+
+`data/` is gitignored, so `data/multi_population_hand.csv` is **not tracked in the repository**
+and is excluded by `deploy.sh`. It must be supplied to the operator's machine out-of-band
+before the import step in the README/QUICK-START guides can be followed.

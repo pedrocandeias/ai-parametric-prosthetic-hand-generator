@@ -17,7 +17,7 @@ Built on [OpenSCAD](https://openscad.org/) and the [OpenSCAD Playground](https:/
 - **STL export** — download print-ready files directly from the browser; models with defined parts offer a selection modal to export the whole model or individual parts (multiple parts download as a ZIP). On the Flexy Beast, each finger splits into a separate **base** and **tip** piece so every printable component can be exported and oriented on its own
 - **Admin SCAD code editor** — admins can hand-edit OpenSCAD source and render immediately
 - **Anthropometric profile library** — import population-level hand measurement datasets; geometry parameters are auto-derived and mapped to model inputs
-- **Bulk CSV import** — load the bundled `data/multi_population_hand.csv` (96 population groups) in one click
+- **Bulk CSV import** — load a population hand-measurement dataset (e.g. the `multi_population_hand.csv` research dataset, ~96 groups) through your browser's file picker in one click. The import reads the file locally and uploads its contents; re-running is safe (duplicate groups are skipped)
 
 ---
 
@@ -142,9 +142,9 @@ See [DEPLOY-QUICKSTART.md](DEPLOY-QUICKSTART.md) for a pm2 + Nginx walkthrough a
 │   ├── flexy_beast.md              Flexy Beast model notes
 │   └── paraglider.md              Paraglider Hand model notes
 │
-├── data/
-│   ├── app.db                      SQLite DB (gitignored)
-│   └── multi_population_hand.csv   Population hand measurements (96 groups)
+├── data/                          (gitignored — created/supplied locally, not in the repo)
+│   ├── app.db                      SQLite DB (auto-created on first run)
+│   └── multi_population_hand.csv   Population hand measurements (~96 groups; supply separately)
 │
 ├── server/
 │   ├── index.js                Express server entry point
@@ -192,10 +192,22 @@ These names must match exactly in `.scad` files and `models-config.json` so pati
 
 ### Importing the population dataset
 
+The dataset CSV is **not bundled in the repo** (`data/` is gitignored). Obtain
+`multi_population_hand.csv` separately and place it anywhere on your machine first.
+
 1. Log in as admin → open **Admin Panel**
 2. Go to **Anthropometric Profiles** tab
-3. Click **⬆ Import CSV Dataset** and select `data/multi_population_hand.csv`
-4. A confirmation shows how many profiles were created (re-importing is safe — duplicates are skipped)
+3. Click **⬆ Import CSV Dataset** — your browser opens a file picker. Browse to wherever you
+   saved `multi_population_hand.csv` (in this project it lives at `data/`) and choose it. The
+   file is read locally in the browser and its contents are uploaded; the app does not fetch it
+   by path.
+4. A confirmation shows how many profiles were created (re-importing is safe — duplicate groups
+   are skipped)
+
+> The CSV must conform to the bulk-import schema (columns `measurement_name`, `population`,
+> `country`, `sex`, `age_group`, `stat_type`, `value_mm`, …); only `mean` rows are imported.
+> See [docs/ai_anthropometric_validation.md](docs/ai_anthropometric_validation.md) Appendix C
+> for the full pipeline.
 
 ---
 

@@ -163,6 +163,15 @@ class ParameterEditor {
             this.getAISuggestions();
         });
 
+        const baselineSelect = document.getElementById('baseline-select');
+        const baselineApply = document.getElementById('baseline-apply-btn');
+        if (baselineSelect && baselineApply) {
+            baselineSelect.addEventListener('change', () => {
+                baselineApply.disabled = !baselineSelect.value;
+            });
+            baselineApply.addEventListener('click', () => this.applyPopulationBaseline());
+        }
+
         document.getElementById('edit-code-btn').addEventListener('click', () => {
             this.toggleCodeEditor();
         });
@@ -297,6 +306,7 @@ class ParameterEditor {
         if (configsPanel && typeof Auth !== 'undefined' && Auth.isAuthenticated()) {
             configsPanel.style.display = 'block';
         }
+        this.loadPopulationBaselines();
     }
 
     generateParameterControls(parameters) {
@@ -1511,7 +1521,13 @@ Respond with ONLY a valid JSON object mapping parameter names to suggested value
 
             const res = await Auth.fetchWithAuth('/api/ai/suggest', {
                 method: 'POST',
-                body: JSON.stringify({ provider: apiProvider, prompt: promptText }),
+                body: JSON.stringify({
+                    provider: apiProvider,
+                    prompt: promptText,
+                    // Let the server anchor on the closest population profile.
+                    patient_text: anthropometricInput,
+                    model_id: this.currentModel.id,
+                }),
             });
 
             const data = await res.json();
@@ -1719,24 +1735,63 @@ Respond with ONLY a valid JSON object mapping parameter names to suggested value
         this.renderPreview();
     }
 
-    applyGeometryParameters(geomParams) {
-        if (!this.currentModel || !geomParams) return;
+    // ── Population baselines ──────────────────────────────────────────────
+    // Seed the model from an imported population profile. The server maps the
+    // profile's anatomical measurements onto this model's parameters (clamped
+    // to each parameter's bounds); we just apply and render.
 
-        const mapping = {
-            global_scale: 'global_scale',
-            clearance_mm: 'nominal_clearance',
-        };
+    async loadPopulationBaselines() {
+        const select = document.getElementById('baseline-select');
+        const applyBtn = document.getElementById('baseline-apply-btn');
+        if (!select) return;
+        if (!Auth.isAuthenticated()) return;
 
-        const resolved = {};
-        for (const [src, dst] of Object.entries(mapping)) {
-            if (geomParams[src] !== undefined) resolved[dst] = geomParams[src];
+        try {
+            const res = await Auth.fetchWithAuth('/api/anthropometric/options');
+            if (!res.ok) return;
+            const profiles = await res.json();
+
+            select.innerHTML = profiles.length
+                ? '<option value="">— Select a population group —</option>'
+                : '<option value="">— No population dataset imported —</option>';
+
+            for (const p of profiles) {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                const n = p.sample_size ? ` · n=${p.sample_size}` : '';
+                opt.textContent = `${p.group_name}${n}`;
+                select.appendChild(opt);
+            }
+            if (applyBtn) applyBtn.disabled = !select.value;
+        } catch {
+            /* baseline picker is optional — ignore load failures */
         }
-        for (const [key, val] of Object.entries(geomParams)) {
-            if (this.parameters.hasOwnProperty(key)) resolved[key] = val;
-        }
+    }
 
-        this.applySuggestions(resolved);
-        this.updateStatus('Anthropometric parameters applied', 'success');
+    async applyPopulationBaseline() {
+        const select = document.getElementById('baseline-select');
+        if (!select || !select.value || !this.currentModel) return;
+
+        this.updateStatus('Loading population baseline...', '');
+        try {
+            const res = await Auth.fetchWithAuth(
+                `/api/anthropometric/${encodeURIComponent(select.value)}/model-parameters` +
+                `?model_id=${encodeURIComponent(this.currentModel.id)}`,
+            );
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Failed to load baseline');
+
+            this.applySuggestions(data.parameters);
+
+            const parts = [`Applied ${data.applied.length} parameter(s) from "${data.group_name}"`];
+            if (data.clamped && data.clamped.length) {
+                parts.push(`${data.clamped.length} clamped to range`);
+            }
+            if (data.uncertainty) parts.push(`dataset completeness: ${data.uncertainty}`);
+            this.updateStatus(parts.join(' · '), 'success');
+        } catch (error) {
+            this.updateStatus('Baseline error: ' + error.message, 'error');
+        }
     }
 }
 

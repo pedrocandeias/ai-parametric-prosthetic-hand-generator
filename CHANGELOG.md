@@ -10,6 +10,23 @@ Version format: `MAJOR.MINOR.PATCH`
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
+## v11.0.0 — 2026-06-06
+
+feat: imported anthropometric datasets now drive the design flow. New `server/services/profileMapping.js` maps a profile's `measurements` (palm.width_mm, digits.*.total_length_mm) onto canonical model parameters, clamped to each parameter's bounds
+feat: configurator gains a "Population baseline" picker (AI Assistant panel) — seed the flexy_beast sliders from any imported population group in one click, then fine-tune
+feat: AI suggestions are now grounded — `/api/ai/suggest` accepts optional `patient_text`/`model_id`, finds the closest population group (by gender/country/age), and anchors the prompt on its measured means
+feat: add `GET /api/anthropometric/options` and `GET /api/anthropometric/:id/model-parameters?model_id=` (requireAuth; population reference data, no PII)
+fix: replace the dead `applyGeometryParameters` bridge in app.js, which targeted Kwawu/cyborgbeast parameter names that never matched flexy_beast
+docs: update ai_anthropometric_validation.md for grounding — new §2.4 (Dataset grounding), grounding block in Appendix A, limitation #7 (experiments predate grounding), grounded re-validation in Future Work, and a grounding-control note in Reproducibility
+
+## v10.12.0 — 2026-06-06
+
+docs: clarify README population-dataset import — it is a local browser file picker (not a server-path fetch) and the CSV is gitignored/supplied separately, not bundled
+
+## v10.11.0 — 2026-06-06
+
+docs: add Appendix C to ai_anthropometric_validation.md documenting the population dataset bulk-import pipeline (local file picker, mean-row filtering, group_name idempotency, gitignored-dataset caveat)
+
 ---
 
 ## v10.10.0 — 2026-06-06

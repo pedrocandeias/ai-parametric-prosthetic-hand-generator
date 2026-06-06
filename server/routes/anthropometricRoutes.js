@@ -1,15 +1,34 @@
 'use strict';
 
 const express = require('express');
+const path = require('path');
+const fs = require('fs');
 const { z } = require('zod');
 const db = require('../db');
 const { requireAuth, requireRole } = require('../middleware/auth');
 const importer = require('../services/anthropometricImporter');
+const { mapProfileToModelParameters } = require('../services/profileMapping');
 
 const router = express.Router();
 
-// All endpoints are admin-only
+// Write/CRUD endpoints are admin-only. The two read endpoints below
+// (/options, /:id/model-parameters) use requireAuth only: they expose
+// population-level reference data (no patient PII), which any authenticated
+// clinician needs in the configurator to seed a design.
 const adminOnly = [requireAuth, requireRole('admin')];
+
+// Lazily load models-config.json for parameter bounds (clamping).
+let _modelsConfig = null;
+function getModelsConfig() {
+    if (_modelsConfig) return _modelsConfig;
+    try {
+        const p = path.join(__dirname, '..', '..', 'models', 'models-config.json');
+        _modelsConfig = JSON.parse(fs.readFileSync(p, 'utf8'));
+    } catch {
+        _modelsConfig = { models: [] };
+    }
+    return _modelsConfig;
+}
 
 // ── Validation ────────────────────────────────────────────────────────────────
 
@@ -127,6 +146,58 @@ router.get('/', adminOnly, (req, res) => {
     `).all(...params);
 
     res.json(profiles);
+});
+
+// ── GET /api/anthropometric/options  (lightweight list for pickers) ───────────
+// Authenticated (any role): population reference data, no patient PII.
+router.get('/options', requireAuth, (req, res) => {
+    const profiles = db.prepare(`
+        SELECT id, group_name, country, gender, age_group, percentile, sample_size,
+               json_extract(ai_context, '$.uncertainty') AS uncertainty
+        FROM anthropometric_profiles
+        ORDER BY group_name ASC
+    `).all();
+    res.json(profiles);
+});
+
+// ── GET /api/anthropometric/:id/model-parameters?model_id=  ───────────────────
+// Maps a profile's measurements onto a model's parameters (clamped to bounds).
+router.get('/:id/model-parameters', requireAuth, (req, res) => {
+    const modelId = String(req.query.model_id || '');
+    if (!modelId) return res.status(400).json({ error: 'model_id query parameter is required' });
+
+    const modelDef = getModelsConfig().models.find(m => m.id === modelId);
+    if (!modelDef) return res.status(404).json({ error: `Unknown model_id: ${modelId}` });
+
+    const row = db.prepare('SELECT profile, ai_context, group_name FROM anthropometric_profiles WHERE id = ?')
+        .get(parseInt(req.params.id, 10));
+    if (!row) return res.status(404).json({ error: 'Profile not found' });
+
+    let profile, aiContext;
+    try {
+        profile = JSON.parse(row.profile);
+        aiContext = JSON.parse(row.ai_context);
+    } catch {
+        return res.status(500).json({ error: 'Stored profile is corrupt' });
+    }
+
+    const mapped = mapProfileToModelParameters(profile, modelDef);
+    if (mapped.applied.length === 0) {
+        return res.status(422).json({
+            error: `Profile has no measurements that map to model "${modelId}"`,
+            skipped: mapped.skipped,
+        });
+    }
+
+    res.json({
+        model_id:    modelId,
+        group_name:  row.group_name,
+        parameters:  mapped.parameters,
+        applied:     mapped.applied,
+        skipped:     mapped.skipped,
+        clamped:     mapped.clamped,
+        uncertainty: aiContext?.uncertainty || null,
+    });
 });
 
 // ── GET /api/anthropometric/:id  (full profile) ───────────────────────────────
