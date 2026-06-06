@@ -26,8 +26,8 @@
 │                   │  /api/users  │  ┌──────────────────────────┐ │
 │  Blocked paths:   │  /api/confs  │  │  Auth Middleware         │ │
 │  /.env → 404      │  /api/ai     │  │  requireAuth()           │ │
-│  /config.json→404 └──────┬───────┘  │  requireRole('admin')    │ │
-│  /data/* → 404           │          └──────────────────────────┘ │
+│  /config.json→404 │  /api/anthro │  │  requireRole('admin')    │ │
+│  /data/* → 404    └──────┬───────┘  └──────────────────────────┘ │
 └──────────────────────────┼──────────────────────────────────────┘
                            │
           ┌────────────────┼────────────────┐
@@ -97,10 +97,12 @@ Tech assignments are managed via `/api/users/:techId/patients` (admin only).
 ## Database Schema
 
 ```sql
-users               -- id, username, email, password_hash, role, is_active
-tech_assignments    -- tech_id → user_id (many-to-many)
-configurations      -- user_id, model_id, name, parameters (JSON), notes
-refresh_tokens      -- user_id, token_hash (SHA-256), expires_at, revoked
+users                    -- id, username, email, password_hash, role, is_active
+tech_assignments         -- tech_id → user_id (many-to-many)
+configurations           -- user_id, model_id, name, parameters (JSON), notes
+refresh_tokens           -- user_id, token_hash (SHA-256), expires_at, revoked
+anthropometric_profiles  -- population/patient hand measurements + derived geometry
+password_reset_tokens    -- one-time reset tokens (hashed), expiry, used flag
 ```
 
 Cascade deletes: removing a user removes their configs, assignments, and refresh tokens.
@@ -168,6 +170,16 @@ Rendering runs entirely in a `Web Worker` (`openscad-worker.js`). No server roun
 |--------|------|------|-------------|
 | POST | `/suggest` | Bearer | Proxy to Anthropic or OpenAI, rate-limited |
 
+### Anthropometric  `/api/anthropometric/`
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/` | admin | List anthropometric profiles |
+| POST | `/` | admin | Create profile from manual / CSV / JSON input |
+| POST | `/import-csv-bulk` | admin | Bulk-import a population CSV (duplicates skipped) |
+| GET | `/:id` | admin | Fetch profile with derived geometry parameters |
+| PUT | `/:id` | admin | Update profile |
+| DELETE | `/:id` | admin | Delete profile |
+
 ## Security Controls
 
 | Control | Detail |
@@ -179,7 +191,7 @@ Rendering runs entirely in a `Web Worker` (`openscad-worker.js`). No server roun
 | HTTP security headers | `helmet` with restrictive CSP |
 | Rate limiting | `express-rate-limit` per route (see CLAUDE.md) |
 | Input validation | `zod` on all request bodies |
-| Sensitive file blocking | `.env` and `config.json` return 404 unconditionally |
+| Sensitive file blocking | `.env`, `config.json`, and `/data/*` return 404 unconditionally |
 | AI key exposure | Keys only in `process.env`, never sent to client |
 | Soft deletes | Users are deactivated (`is_active=0`), not hard-deleted |
 
@@ -201,17 +213,11 @@ Rendering runs entirely in a `Web Worker` (`openscad-worker.js`). No server roun
 ├── favicon.ico
 │
 ├── models/
-│   ├── models-config.json      Model definitions & parameters
-│   ├── cyborgbeast07l.scad     Cyborg Beast — full hand assembly
-│   ├── cyborgpalm001.scad      Cyborg Beast — palm component
-│   ├── cyborgfingermid002.scad Cyborg Beast — finger mid segment
-│   ├── cyborgfingertip002.scad Cyborg Beast — fingertip
-│   ├── paraglider_palm_left.scad  Paraglider/Phoenix Reborn palm
-│   ├── pipe.scad               Swept-pipe utility (paraglider dep)
-│   ├── fingerator.scad         Fingerator prosthetic finger
-│   ├── gripper_box_pieces.scad Gripper box components
-│   ├── gear.scad               Parametric involute gear
-│   └── box.scad                Parametric box
+│   ├── models-config.json          Model registry & parameter specs
+│   └── active/
+│       ├── flexy_beast/            Flexy Beast — self-contained parametric SCAD
+│       │                           (fingers split into base + tip print pieces)
+│       └── paraglider_hand/        Paraglider Hand — parametric SCAD + palm mesh base
 │
 ├── server/
 │   ├── index.js            Express entry point
@@ -225,13 +231,17 @@ Rendering runs entirely in a `Web Worker` (`openscad-worker.js`). No server roun
 │   │   ├── authRoutes.js
 │   │   ├── userRoutes.js
 │   │   ├── configRoutes.js
-│   │   └── aiRoutes.js
+│   │   ├── aiRoutes.js
+│   │   └── anthropometricRoutes.js
 │   └── services/
-│       ├── authService.js  bcrypt, JWT, refresh tokens
-│       └── aiService.js    Anthropic/OpenAI HTTPS proxy
+│       ├── authService.js          bcrypt, JWT, refresh tokens
+│       ├── aiService.js            Anthropic/OpenAI HTTPS proxy
+│       └── anthropometricImporter.js  CSV/JSON profile import + geometry derivation
 │
 ├── scripts/
 │   └── create-admin.js     CLI admin creation fallback
+│
+├── deploy.sh               Collect / deploy helper (see DEPLOYMENT.md)
 │
 ├── data/                   SQLite database (gitignored)
 │   └── app.db

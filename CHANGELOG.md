@@ -12,6 +12,10 @@ Entry format follows [Conventional Commits](https://www.conventionalcommits.org/
 
 ---
 
+## v10.10.0 — 2026-06-06
+
+docs: refresh `ARCHITECTURE.md`, `OVERVIEW.md`, and `QUICK-START.md` to match the current codebase — replace the removed Fingerator/Cyborg/old `.scad` references with the `models/active/{flexy_beast,paraglider_hand}` layout, document the `/api/anthropometric` route, the `anthropometricImporter` service, and the `anthropometric_profiles`/`password_reset_tokens` tables, add `/data/*` to the blocked-paths/security notes, note `deploy.sh`, and update the Quick Start walkthrough + UI sketch to the Flexy Beast (incl. per-finger base/tip export)
+
 ## v10.9.0 — 2026-06-06
 
 docs: add a Deployment section to `README.md` covering `deploy.sh collect`/`deploy`, and note that Flexy Beast fingers export as separate base/tip pieces; update `DEPLOY-QUICKSTART.md` and `DEPLOYMENT.md` to use `./deploy.sh` + `npm ci` instead of the hand-written rsync/`npm install` flow, and fix the stale `fingerator.scad` reference in the server file-tree

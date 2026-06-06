@@ -64,14 +64,14 @@ node scripts/create-admin.js admin admin@example.com MyPassword123
 ## Step 4 — Use the App
 
 1. Log in with the admin account
-2. Select **Fingerator - Prosthetic Finger** from the model dropdown
-3. Adjust parameter sliders — the 3D preview re-renders automatically
+2. Select **Flexy Beast** from the model dropdown
+3. Adjust parameter sliders (palm breadth, finger lengths, joint hardware) — the 3D preview re-renders automatically
 4. To get AI parameter suggestions:
    - Select AI provider (Claude or GPT-4)
    - Type anthropometric data, e.g.: `woman, 42 years old, 75kg, 172cm height, arm length 65cm`
    - Click **Get AI Suggestions**
 5. Give the config a name and click **Save** to store it
-6. Click **Export STL** to download the model for printing
+6. Click **Export STL** to download the model for printing — choose the whole hand or individual print pieces (each finger exports as a separate **base** and **tip**; multiple pieces come back as a ZIP)
 
 ---
 
@@ -95,10 +95,10 @@ Techs can then log in and see the saved configurations of their assigned patient
 └─────────────────────────────────────────────────────────────────────┘
 ┌─────────────────────┬───────────────────────────────────────────────┐
 │ Select Model:       │  3D Preview                                    │
-│ [Fingerator ▼]      │              [Reset] [Render] [Export STL]     │
+│ [Flexy Beast ▼]     │              [Reset] [Render] [Export STL]     │
 ├─────────────────────┤                                                │
-│ Fingerator -        ├────────────────────────────────────────────────│
-│ Prosthetic Finger   │                                                │
+│ Flexy Beast         ├────────────────────────────────────────────────│
+│ Prosthetic Hand     │                                                │
 ├─────────────────────┤                                                │
 │ Saved Configs       │         (interactive 3D model)                 │
 │ [Select config ▼]   │                                                │
@@ -112,13 +112,13 @@ Techs can then log in and see the saved configurations of their assigned patient
 │ [patient data...]   │                                                │
 │ [Get AI Suggestions]│                                                │
 ├─────────────────────┤                                                │
-│ === Scale ===       │                                                │
-│ global_scale: 1.25  │                                                │
+│ === Anthropometric =│                                                │
+│ palm_breadth_mm: 83 │                                                │
 │ [━━━━━●━━━━━━━━]    │                                                │
-│                     │                                                │
-│ === Items to Print  │                                                │
-│ [✓] long fingers    │                                                │
-│ [ ] short fingers   │                                                │
+│ middle_finger…: 72  │                                                │
+│ === Visibility ===  │                                                │
+│ [✓] show index tip  │                                                │
+│ [✓] show index base │                                                │
 └─────────────────────┴────────────────────────────────────────────────│
 │ Ready                                                                │
 └──────────────────────────────────────────────────────────────────────┘

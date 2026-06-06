@@ -9,7 +9,7 @@ A web application for clinicians and prosthetists to:
 3. Preview the 3D model in real-time (rendered in-browser via OpenSCAD WebAssembly)
 4. Get AI-suggested parameter values from a patient's anthropometric data
 5. Save named configurations per patient and load them later
-6. Export customised models as STL files ready for 3D printing
+6. Export customised models as STL files ready for 3D printing — whole model or individual print pieces (on the Flexy Beast, each finger as a separate base and tip)
 
 Multi-user support with three roles: **Admin**, **Tech** (prosthetist), and **User** (patient). Techs can see and edit configurations for their assigned patients.
 
@@ -29,7 +29,7 @@ Multi-user support with three roles: **Admin**, **Tech** (prosthetist), and **Us
 │  Node.js / Express  (server/index.js)             │
 │                                                   │
 │  /api/setup  /api/auth  /api/users                │
-│  /api/configurations  /api/ai                     │
+│  /api/configurations  /api/ai  /api/anthropometric│
 │                                                   │
 │  Helmet · Rate limits · Cookie parser             │
 └──────────┬──────────────────┬────────────────────┘
@@ -76,7 +76,9 @@ Multi-user support with three roles: **Admin**, **Tech** (prosthetist), and **Us
 | `server/routes/userRoutes.js` | User CRUD + tech-patient assignments |
 | `server/routes/configRoutes.js` | Saved configuration CRUD with ownership enforcement |
 | `server/routes/aiRoutes.js` | Authenticated proxy to Anthropic/OpenAI |
+| `server/routes/anthropometricRoutes.js` | Anthropometric profile CRUD + CSV/JSON import (admin) |
 | `server/services/aiService.js` | Server-side HTTPS calls to AI providers |
+| `server/services/anthropometricImporter.js` | Parses measurement datasets, derives geometry parameters |
 
 ### Data
 
@@ -86,6 +88,8 @@ Multi-user support with three roles: **Admin**, **Tech** (prosthetist), and **Us
 | `tech_assignments` | Many-to-many tech ↔ patient relationships |
 | `configurations` | Named saved parameter sets (JSON blob per row) |
 | `refresh_tokens` | Hashed refresh tokens with expiry and revocation |
+| `anthropometric_profiles` | Population/patient hand measurements + derived geometry |
+| `password_reset_tokens` | One-time, hashed password-reset tokens with expiry |
 
 ---
 
