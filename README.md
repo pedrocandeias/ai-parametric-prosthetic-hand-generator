@@ -33,7 +33,8 @@ Built on [OpenSCAD](https://openscad.org/) and the [OpenSCAD Playground](https:/
 |---|---|---|---|
 | **Flexy Beast** | `flexy_beast` | All anthropometric params + flexy-joint hardware + grip pads + forearm gauntlet | Fully parametric, self-contained — no external STL imports |
 | **UnLimbited Phoenix Hand V1.0** | `unlimbed_phoenix_hand` | Uniform print scale derived from `palm_breadth_mm` (Team UnLimbited HandPerc); per-part selector | STL-derived meshes; 8 printable pieces (palm, fingers, phalanx, pins, tension box/pins, gauntlet, jig) |
-| **Paraglider Hand (Flexible Flyer)** | `paraglider_hand` | All anthropometric params + pivot hardware + channel routing | Parametric fingers; palm imports a repaired Phoenix v2 mesh as its base body *(returning soon)* |
+| **Paraglider Hand (Flexible Flyer)** | `paraglider_hand` | All anthropometric params + per-finger scaling + assembled/print-layout views + `show_*` part toggles | Parametric fingers; palm imports a repaired Phoenix v2 mesh as its base body |
+| **Paraglider variants & accessories** | `paraglider_palm_v3`, `paraglider_palm_reborn_tensor`, `paraglider_palm_v3_tensor`, `paraglider_tensioner_box`, `paraglider_thermo_gauntlet`, `paraglider_unlimbited_arm` | Palm variants (Phoenix Reborn / UnLimbited v3, integrated-tensioner), tensioner box, thermoform gauntlet, elbow-powered arm | Marcus Mendenhall's Paraglider remix family; uniform print scale from canonical `palm_breadth_mm` (the arm keeps native `HandLen` mm) |
 
 ---
 
@@ -148,11 +149,11 @@ including the **cPanel/Passenger** path (Option C), systemd, TLS, and backups.
 │
 ├── models/
 │   ├── models-config.json                  Model registry + parameter specs (with _pt translations)
-│   ├── active/
-│   │   ├── flexy_beast/                     Flexy Beast — self-contained parametric SCAD
-│   │   └── unlimbed_phoenix_hand/           UnLimbited Phoenix Hand — STL-derived, per-part export
-│   └── inactive/
-│       └── paraglider_hand/                 Paraglider Hand — parametric SCAD + palm mesh base (returning soon)
+│   └── active/
+│       ├── flexy_beast/                     Flexy Beast — self-contained parametric SCAD
+│       ├── unlimbed_phoenix_hand/           UnLimbited Phoenix Hand — STL-derived, per-part export
+│       ├── paraglider_hand/                 Paraglider Hand — parametric SCAD + palm mesh base
+│       └── paraglider/                      Paraglider variants & accessories (palms, tensioner, gauntlet, arm)
 │
 ├── docs/                           Model notes + anthropometric validation
 │

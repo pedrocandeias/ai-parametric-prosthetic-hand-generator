@@ -25,18 +25,18 @@ The design's primary contribution over its predecessors is the use of **commerci
 
 ## 2. Source File Patches
 
-The upstream source files contain two OpenSCAD syntax constructs that the WebAssembly build of OpenSCAD cannot parse:
+> **Update (2026-06-15):** the vendored OpenSCAD WASM build has since been upgraded to **2025.03.25**, which fully supports the `each` keyword (added upstream in 2019.05). The `each`→`concat()` rewrites described in §2.1 are therefore **no longer required** — they are retained in the unified `paraglider_hand` copy because they are harmless and already tested, but the variant palms and accessories added later (§12) ship with the **raw upstream `each` usage** and parse correctly. The double-comma fix in §2.2 *is* still required (it is a genuine syntax error rejected by current OpenSCAD).
 
-### 2.1 The `each` keyword in list constructors
+### 2.1 The `each` keyword in list constructors (historical)
 
-OpenSCAD 2019.05 introduced the `each` keyword for splatting a list into a parent list comprehension:
+When this model was first integrated, the WASM build of OpenSCAD predated reliable `each` support. OpenSCAD 2019.05 introduced the `each` keyword for splatting a list into a parent list comprehension:
 
 ```openscad
-// upstream — fails in WASM build
+// upstream
 shape = [[-1.5,-1],[1.5,-1], each 1.5*[for(th=[0:30:179]) [cos(th), sin(th)]]]*shapescale;
 ```
 
-When the WASM parser encounters `each` in this position, the entire file fails to load — no modules are defined, and `scaled_palm()` becomes undefined. The fix replaces `each` with `concat()`:
+On that older build the file failed to load — no modules were defined, and `scaled_palm()` became undefined. The original fix replaced `each` with `concat()` (kept in the unified copy):
 
 ```openscad
 // patched
@@ -78,9 +78,9 @@ models/active/paraglider_hand/fingerator.scad
 models/active/paraglider_hand/pipe.scad
 ```
 
-`pipe.scad` also uses `each` extensively inside its channel-routing modules, but those modules are never invoked (the `do_channels()` override bypasses them), so its parse failure is benign. A verbatim copy is kept alongside for desktop OpenSCAD compatibility. `fingerator.scad` requires no patches — it contains no `each` usage.
+`pipe.scad` uses `each` inside its channel-routing modules; on the current 2025.03.25 WASM build this parses fine, and in any case those modules are bypassed by the `do_channels()` override by default. `fingerator.scad` requires no patches.
 
-A symlink `models/active/paraglider_hand/palm_left_v2_nobox.stl` → `../../flexible_flyer-master/files/palm_left_v2_nobox.stl` allows desktop OpenSCAD to find the STL in the same directory.
+The palm base mesh now lives as a **real file** at `models/active/paraglider_hand/palm_left_v2_nobox.stl` (a copy of the repaired Phoenix v2 mesh). The earlier integration used a symlink into a `flexible_flyer-master/` working copy; when that directory was removed the symlink dangled and the `import()` silently produced empty geometry. The model file set is now self-contained.
 
 ---
 
@@ -337,4 +337,22 @@ Mirror the palm in the slicer for the right-hand version, or set `mirrored = tru
 - **Design**: Marcus Mendenhall, 2020, Germantown MD, USA — [GitHub repository](https://github.com/mendenmh/flexible_flyer)
 - **Licence**: CC BY-SA 4.0
 - **Based on**: Phoenix v2 (Thingiverse 1453190), Unlimbited Phoenix v3 (Thingiverse 1674320), Phoenix Reborn (Thingiverse 2217431)
-- **Platform integration**: AI Parametric Prosthetic Hand Generator, v7.7.0, 2026-05-09
+- **Platform integration**: AI Parametric Prosthetic Hand Generator, v7.7.0, 2026-05-09; re-activated and expanded to the full family in v14.10.0, 2026-06-15
+
+---
+
+## 12. The full Paraglider family (v14.10.0)
+
+The unified `paraglider_hand` model above (palm + fingers, full anthropometric alignment) is the primary entry. The remaining Paraglider source files were also integrated as their own dropdown entries so the complete printable system is available. These variant/accessory files live under `models/active/paraglider/` and are **raw upstream copies** (no `each` rewrite needed on the 2025.03.25 WASM build), with only two changes: the double-comma syntax fix (§2.2) on the palm files, and `palm_v3.3mf` converted to `palm_v3.stl` for WASM import safety.
+
+| Model id | Source file | Dependencies | Sizing |
+|---|---|---|---|
+| `paraglider_hand` | `paraglider_hand/paraglider_hand.scad` | `pipe.scad`, `fingerator.scad`, `paraglider_palm_left.scad`, `palm_left_v2_nobox.stl` | 5 active anthropometric + per-finger lengths |
+| `paraglider_palm_v3` | `paraglider/paraglider_palm_unlimbited_v3.scad` | `pipe.scad`, `palm_v3.stl` | `palm_breadth_mm` → scale (REF 82.8) |
+| `paraglider_palm_reborn_tensor` | `paraglider/paraglider_palm_left_tensor.scad` | `segmented_pipe_tensor.scad`, `palm_left_v2_nobox.stl` | `palm_breadth_mm` → scale (REF 80.6) |
+| `paraglider_palm_v3_tensor` | `paraglider/paraglider_palm_unlimbited_v3_tensor.scad` | `segmented_pipe_tensor.scad`, `palm_v3.stl` | `palm_breadth_mm` → scale (REF 82.8) |
+| `paraglider_tensioner_box` | `paraglider/gripper_box_pieces.scad` | — | `palm_breadth_mm` → scale (REF 80.6) |
+| `paraglider_thermo_gauntlet` | `paraglider/thermo_gauntlet.scad` | `gripper_box_pieces.scad` | `palm_breadth_mm` → scale (REF 80.6) |
+| `paraglider_unlimbited_arm` | `paraglider/UnLimbited_Arm_paraglider_v2.1.scad` | — | native `HandLen` (mm), elbow-powered |
+
+The variant palms and accessories expose an anthropometric `palm_breadth_mm` (anchored to each part's measured 1.0× palm width) plus a raw `scale_override`, following the same "derive scale, allow manual override" pattern used by the Phoenix model. Print every part of a matching set at the **same** `palm_breadth_mm`. The standalone Reborn palm and fingerator are not separate entries — they are covered by the unified `paraglider_hand` via its part toggles and assembled/print-layout views.

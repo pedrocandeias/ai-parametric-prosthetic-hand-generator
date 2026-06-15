@@ -10,6 +10,13 @@ Version format: `MAJOR.MINOR.PATCH`
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
+## v14.10.0 — 2026-06-15
+
+feat: integrate the Paraglider (Flexible Flyer) prosthetic family by Marcus Mendenhall (parametric Phoenix v2 / UnLimbited v3 / Phoenix Reborn remix using commercial metal-pin joints). Adds 7 models: `paraglider_hand` (the unified palm+fingers hand — re-activated from inactive/, its missing `palm_left_v2_nobox.stl` supplied, wired into models-config.json with the canonical anthropometric params, per-finger scaling, assembled/print-layout views and `show_*` part toggles), plus `paraglider_palm_v3`, two integrated-tensioner palm variants (Reborn + Unlimbited v3), `paraglider_tensioner_box`, `paraglider_thermo_gauntlet`, and the elbow-powered `paraglider_unlimbited_arm`. Variant palms/accessories live under `models/active/paraglider/` and derive a uniform print scale from a canonical `palm_breadth_mm` (REF anchored to each palm's 1.0× width) with a `scale_override`; the arm keeps its native `HandLen` (mm). New `Engraving` parameter group (EN/PT). All 7 verified rendering under the manifold backend via the app's parameter-injection + dependency-mount pipeline.
+fix: source patch — removed an upstream double-comma `[[..],,[..]]` array-literal syntax error (rejected by current OpenSCAD) from the four Paraglider palm files; converted the v3 palm mesh from `.3mf` to `.stl` for WASM import safety.
+docs: rewrote docs/paraglider.md to reflect activation + the variant/accessory entries, and corrected the stale claim that the WASM build cannot parse the `each` keyword (the vendored build is OpenSCAD 2025.03.25, which supports it).
+chore: removed the redundant `models/inactive/paraglider_hand/` copy now that the model is active.
+
 ## v14.9.0 — 2026-06-15
 
 feat: complete the European-Portuguese (pt-PT) translation pass. The admin panel's toast/confirmation messages now go through `t()` with `admin.t*` keys, and the entire anthropometric profile modal (section headings, field labels, hint spans, select options, placeholders, and action buttons — 65 `anth.*` keys) is translated via `data-i18n`/`data-i18n-html`/`data-i18n-placeholder` and switches live with the language selector

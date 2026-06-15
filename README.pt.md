@@ -33,7 +33,8 @@ Construído sobre o [OpenSCAD](https://openscad.org/) e o ambiente de execução
 |---|---|---|---|
 | **Flexy Beast** | `flexy_beast` | Todos os parâmetros antropométricos + ferragens das articulações flexíveis + almofadas de preensão + manga do antebraço | Totalmente paramétrico e autossuficiente — sem importações externas de STL |
 | **UnLimbited Phoenix Hand V1.0** | `unlimbed_phoenix_hand` | Escala de impressão uniforme derivada de `palm_breadth_mm` (HandPerc da Team UnLimbited); seletor por peça | Malhas derivadas de STL; 8 peças imprimíveis (palma, dedos, falange, pinos, caixa/pinos de tensão, manga, gabarito) |
-| **Paraglider Hand (Flexible Flyer)** | `paraglider_hand` | Todos os parâmetros antropométricos + ferragens de pivô + encaminhamento de canais | Dedos paramétricos; a palma importa uma malha Phoenix v2 reparada como corpo base *(regressa em breve)* |
+| **Paraglider Hand (Flexible Flyer)** | `paraglider_hand` | Todos os parâmetros antropométricos + escala por dedo + vistas montada/disposição de impressão + alternadores de peça `show_*` | Dedos paramétricos; a palma importa uma malha Phoenix v2 reparada como corpo base |
+| **Variantes e acessórios Paraglider** | `paraglider_palm_v3`, `paraglider_palm_reborn_tensor`, `paraglider_palm_v3_tensor`, `paraglider_tensioner_box`, `paraglider_thermo_gauntlet`, `paraglider_unlimbited_arm` | Variantes de palma (Phoenix Reborn / UnLimbited v3, com tensor integrado), caixa de tensão, manga termoformável, braço acionado pelo cotovelo | Família remix Paraglider de Marcus Mendenhall; escala de impressão uniforme a partir do `palm_breadth_mm` canónico (o braço mantém o `HandLen` nativo em mm) |
 
 ---
 
@@ -151,11 +152,11 @@ systemd, TLS e cópias de segurança.
 │
 ├── models/
 │   ├── models-config.json                  Registo de modelos + especificações de parâmetros (com traduções _pt)
-│   ├── active/
-│   │   ├── flexy_beast/                     Flexy Beast — SCAD paramétrico autossuficiente
-│   │   └── unlimbed_phoenix_hand/           UnLimbited Phoenix Hand — derivado de STL, exportação por peça
-│   └── inactive/
-│       └── paraglider_hand/                 Paraglider Hand — SCAD paramétrico + malha base da palma (regressa em breve)
+│   └── active/
+│       ├── flexy_beast/                     Flexy Beast — SCAD paramétrico autossuficiente
+│       ├── unlimbed_phoenix_hand/           UnLimbited Phoenix Hand — derivado de STL, exportação por peça
+│       ├── paraglider_hand/                 Paraglider Hand — SCAD paramétrico + malha base da palma
+│       └── paraglider/                      Variantes e acessórios Paraglider (palmas, tensor, manga, braço)
 │
 ├── docs/                           Notas dos modelos + validação antropométrica
 │

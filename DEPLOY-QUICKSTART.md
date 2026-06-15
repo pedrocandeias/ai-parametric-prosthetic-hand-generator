@@ -106,7 +106,7 @@ ssh user@your-server.com "cd /opt/prosthetic-hand && npm ci --omit=dev && pm2 re
 ├── openscad-worker.js
 ├── models/
 │   ├── models-config.json
-│   └── active/         ← flexy_beast/, unlimbed_phoenix_hand/  (paraglider_hand under inactive/)
+│   └── active/         ← flexy_beast/, unlimbed_phoenix_hand/, paraglider_hand/, paraglider/ (variants + accessories)
 ├── server/
 ├── scripts/
 ├── data/           ← SQLite DB lives here (auto-created)
