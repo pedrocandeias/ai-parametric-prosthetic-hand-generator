@@ -10,6 +10,10 @@ Version format: `MAJOR.MINOR.PATCH`
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
+## v14.6.0 — 2026-06-15
+
+docs: bring README.md up to date — add the UnLimbited Phoenix Hand model (Paraglider kept, marked returning), bump the Node requirement to ≥22 (node:sqlite, no native compile), add the multilingual (EN/PT) and editable footer/content-pages (CMS) features, refresh the deployment notes (cPanel/Passenger, bcrypt prebuilt) and project structure (i18n/footer/markdown/page.html, content route, seed-content.js, models active/inactive), and document the `/api/content/*` endpoints
+
 ## v14.5.0 — 2026-06-15
 
 docs: add the live deployment URL (handfab.pedrocandeias.net) to the top of README.md

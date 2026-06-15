@@ -20,6 +20,8 @@ Built on [OpenSCAD](https://openscad.org/) and the [OpenSCAD Playground](https:/
 - **Admin SCAD code editor** — admins can hand-edit OpenSCAD source and render immediately
 - **Anthropometric profile library** — import population-level hand measurement datasets; geometry parameters are auto-derived and mapped to model inputs
 - **Bulk CSV import** — load a population hand-measurement dataset (e.g. the `multi_population_hand.csv` research dataset, ~96 groups) through your browser's file picker in one click. The import reads the file locally and uploads its contents; re-running is safe (duplicate groups are skipped)
+- **Multilingual (EN/PT)** — a language switcher translates the whole interface (app, configurator, admin panel) and the model/parameter text; the active language is detected from the browser and remembered. Adding a language is a single dictionary file
+- **Editable footer & content pages (CMS)** — admins manage the footer and create Markdown pages (Privacy, Terms, Help, …) from the Admin Panel; pages render at clean `/pages/<slug>` URLs, and each page can be translated into a linked per-language version
 
 ---
 
@@ -27,14 +29,15 @@ Built on [OpenSCAD](https://openscad.org/) and the [OpenSCAD Playground](https:/
 
 | Model | ID | Parameters | Notes |
 |---|---|---|---|
-| **Flexy Beast** | `flexy_beast` | All anthropometric params + flexy-joint hardware + grip pads | Fully parametric, self-contained — no external STL imports |
-| **Paraglider Hand (Flexible Flyer)** | `paraglider_hand` | All anthropometric params + pivot hardware + channel routing | Parametric fingers; palm imports a repaired Phoenix v2 mesh as its base body |
+| **Flexy Beast** | `flexy_beast` | All anthropometric params + flexy-joint hardware + grip pads + forearm gauntlet | Fully parametric, self-contained — no external STL imports |
+| **UnLimbited Phoenix Hand V1.0** | `unlimbed_phoenix_hand` | Uniform print scale derived from `palm_breadth_mm` (Team UnLimbited HandPerc); per-part selector | STL-derived meshes; 8 printable pieces (palm, fingers, phalanx, pins, tension box/pins, gauntlet, jig) |
+| **Paraglider Hand (Flexible Flyer)** | `paraglider_hand` | All anthropometric params + pivot hardware + channel routing | Parametric fingers; palm imports a repaired Phoenix v2 mesh as its base body *(returning soon)* |
 
 ---
 
 ## Requirements
 
-- Node.js 18+
+- **Node.js ≥ 22** — the database uses Node's built-in `node:sqlite`, so no native module needs compiling
 - An Anthropic or OpenAI API key (for AI suggestions; the app works without one but the suggestion button is disabled)
 
 ---
@@ -113,13 +116,16 @@ On the server, after the files land:
 ```bash
 cd /opt/prosthetic-hand
 cp .env.example .env        # then edit: JWT_SECRET + API keys
-npm ci --omit=dev           # compiles native modules (better-sqlite3, bcrypt) for this host
+npm ci --omit=dev           # bcrypt is a prebuilt N-API binary; SQLite is built into Node — nothing to compile
 node scripts/create-admin.js admin admin@example.com 'StrongPassword!'   # first run only
-npm start                   # or run under pm2 / systemd
+npm start                   # or run under pm2 / systemd / Passenger
 ```
 
-See [DEPLOY-QUICKSTART.md](DEPLOY-QUICKSTART.md) for a pm2 + Nginx walkthrough and
-[DEPLOYMENT.md](DEPLOYMENT.md) for the full production guide (systemd, TLS, backups).
+The live site runs on **cPanel + Phusion Passenger** (Node 24). `deploy.sh` has a
+configurable default target plus `--port`, `--dry-run`, and a pre-deploy remote
+backup. See [DEPLOY-QUICKSTART.md](DEPLOY-QUICKSTART.md) for a pm2 + Nginx
+walkthrough and [DEPLOYMENT.md](DEPLOYMENT.md) for the full production guide,
+including the **cPanel/Passenger** path (Option C), systemd, TLS, and backups.
 
 ---
 
@@ -130,19 +136,23 @@ See [DEPLOY-QUICKSTART.md](DEPLOY-QUICKSTART.md) for a pm2 + Nginx walkthrough a
 ├── index.html                  Main UI
 ├── auth.js                     Frontend auth (token in memory, refresh cookie)
 ├── app.js                      ParameterEditor — rendering, UI, save/load
-├── admin.html / admin.js       Admin panel
+├── admin.html / admin.js       Admin panel (users, anthropometric, footer & pages)
 ├── anthropometric.js           Anthropometric importer modal (admin)
 ├── openscad-worker.js          WASM rendering worker
+├── page.html                   Public Markdown content-page viewer (/pages/<slug>)
+├── i18n.js / translations.js   Lightweight i18n core + EN/PT dictionaries
+├── footer.js                   Renders the editable footer from the API
+├── markdown.js                 Tiny safe Markdown → HTML renderer
 │
 ├── models/
-│   ├── models-config.json                  Model registry + parameter specs
-│   └── active/
-│       ├── flexy_beast/                     Flexy Beast — self-contained parametric SCAD
-│       └── paraglider_hand/                 Paraglider Hand — parametric SCAD + palm mesh base
+│   ├── models-config.json                  Model registry + parameter specs (with _pt translations)
+│   ├── active/
+│   │   ├── flexy_beast/                     Flexy Beast — self-contained parametric SCAD
+│   │   └── unlimbed_phoenix_hand/           UnLimbited Phoenix Hand — STL-derived, per-part export
+│   └── inactive/
+│       └── paraglider_hand/                 Paraglider Hand — parametric SCAD + palm mesh base (returning soon)
 │
-├── docs/
-│   ├── flexy_beast.md              Flexy Beast model notes
-│   └── paraglider.md              Paraglider Hand model notes
+├── docs/                           Model notes + anthropometric validation
 │
 ├── data/                          (gitignored — created/supplied locally, not in the repo)
 │   ├── app.db                      SQLite DB (auto-created on first run)
@@ -150,14 +160,15 @@ See [DEPLOY-QUICKSTART.md](DEPLOY-QUICKSTART.md) for a pm2 + Nginx walkthrough a
 │
 ├── server/
 │   ├── index.js                Express server entry point
-│   ├── db.js                   SQLite connection (auto-migrates)
+│   ├── db.js                   node:sqlite connection (auto-migrates)
 │   ├── schema.sql              DB schema
 │   ├── middleware/             auth.js, errorHandler.js
-│   ├── routes/                 setup, auth, users, configs, ai, anthropometric
+│   ├── routes/                 setup, auth, users, configs, ai, anthropometric, content
 │   └── services/              authService.js, aiService.js, anthropometricImporter.js
 │
 ├── scripts/
-│   └── create-admin.js         CLI admin creation
+│   ├── create-admin.js         CLI admin creation
+│   └── seed-content.js         Seed/refresh the footer + content pages
 │
 ├── CLAUDE.md                   Developer guide for Claude Code
 ├── CHANGELOG.md                Version history
@@ -285,6 +296,10 @@ The `url` is relative to `models/` on the server; `path` is where the file lands
 | `GET /api/anthropometric/:id` | Fetch profile with derived geometry params |
 | `PUT /api/anthropometric/:id` | Update profile |
 | `DELETE /api/anthropometric/:id` | Delete profile |
+| `GET /api/content/footer` · `PUT` | Read footer config (public) / save (admin) |
+| `GET /api/content/pages/:slug?lang=` | Public content page, language-aware |
+| `POST/PUT/DELETE /api/content/pages` | Manage content pages (admin) |
+| `POST /api/content/pages/:id/translate` | Create a linked translation of a page (admin) |
 
 **Rate limits:** login 5/15 min · register 3/hr · AI suggestions 10/min · all others 500/15 min
 
@@ -333,4 +348,5 @@ console.log('done');
 - [OpenSCAD Playground](https://github.com/openscad/openscad-playground) — WASM rendering runtime
 - [OpenSCAD](https://openscad.org/) — parametric 3D modelling language
 - [Flexy Beast](https://www.thingiverse.com/thing:380665) by daprice — a mashup of the Parametric Cyborg Beast and the Flexy Hand
+- [Team UnLimbited](https://www.thingiverse.com/thing:1672381) — UnLimbited Arm / Phoenix Hand designs
 - [e-NABLE](https://enablingthefuture.org) — open-source prosthetic hand designs (Phoenix / Unlimbited lineage behind the Paraglider Hand)
