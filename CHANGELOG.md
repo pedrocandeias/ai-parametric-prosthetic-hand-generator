@@ -10,6 +10,11 @@ Version format: `MAJOR.MINOR.PATCH`
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
+## v14.9.0 — 2026-06-15
+
+feat: complete the European-Portuguese (pt-PT) translation pass. The admin panel's toast/confirmation messages now go through `t()` with `admin.t*` keys, and the entire anthropometric profile modal (section headings, field labels, hint spans, select options, placeholders, and action buttons — 65 `anth.*` keys) is translated via `data-i18n`/`data-i18n-html`/`data-i18n-placeholder` and switches live with the language selector
+docs: add `README.pt.md` — full European-Portuguese README, cross-linked with the English README via a language switcher line
+
 ## v14.8.0 — 2026-06-15
 
 feat: European-Portuguese (pt-PT) content. The six footer pages (Help Center, Documentation, Tutorials, Privacy Policy, Terms of Service, Accessibility) now have linked PT translations created via the CMS (`scripts/seed-content.js`), so PT visitors read them in Portuguese. All 37 Flexy Beast parameter ⓘ help tooltips gained `help_pt` translations in `models-config.json`

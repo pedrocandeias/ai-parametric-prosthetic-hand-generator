@@ -827,10 +827,10 @@
                         <input type="text" id="anthro-filter-country" placeholder="Country / Region" style="width:160px">
                         <select id="anthro-filter-gender">
                             <option value="">All genders</option>
-                            <option value="female">Female</option>
-                            <option value="male">Male</option>
-                            <option value="mixed">Mixed</option>
-                            <option value="other">Other</option>
+                            <option value="female" data-i18n="anth.optFemale">Female</option>
+                            <option value="male" data-i18n="anth.optMale">Male</option>
+                            <option value="mixed" data-i18n="anth.optMixed">Mixed</option>
+                            <option value="other" data-i18n="anth.optOther">Other</option>
                         </select>
                         <input type="text" id="anthro-filter-age-group" placeholder="Age group" style="width:130px">
                         <button class="btn-primary" id="anthro-filter-btn">Apply</button>
@@ -951,13 +951,13 @@
     <div id="anthro-modal">
         <div class="anthro-box">
             <div class="anthro-header">
-                <h2 id="anthro-modal-title">New Anthropometric Profile</h2>
-                <button class="anthro-close" id="anthro-close-btn" title="Close">&times;</button>
+                <h2 id="anthro-modal-title" data-i18n="anth.titleNew">New Anthropometric Profile</h2>
+                <button class="anthro-close" id="anthro-close-btn" title="Close" data-i18n-title="anth.close">&times;</button>
             </div>
 
             <div class="anthro-tabs">
-                <button class="anthro-tab-btn active" data-tab="manual">Manual Entry</button>
-                <button class="anthro-tab-btn" data-tab="import">Import / Paste</button>
+                <button class="anthro-tab-btn active" data-tab="manual" data-i18n="anth.tabManual">Manual Entry</button>
+                <button class="anthro-tab-btn" data-tab="import" data-i18n="anth.tabImport">Import / Paste</button>
             </div>
 
             <!-- Manual tab -->
@@ -965,84 +965,84 @@
                 <div class="anthro-section">
                     <div class="anthro-section-head">
                         <button class="anthro-section-toggle">▼</button>
-                        Group / Dataset Identity
+                        <span data-i18n="anth.secIdentity">Group / Dataset Identity</span>
                     </div>
                     <div class="anthro-section-body">
                         <div class="anthro-grid" style="margin-bottom:0.5rem">
                             <div class="anthro-field" style="grid-column:1/-1">
-                                <label>Group Name <span style="color:#e74c3c">*</span></label>
-                                <input type="text" id="anthro-group-name" placeholder="e.g. Northern European Adult Female — 50th percentile">
+                                <label data-i18n-html="anth.groupName">Group Name <span style="color:#e74c3c">*</span></label>
+                                <input type="text" id="anthro-group-name" placeholder="e.g. Northern European Adult Female — 50th percentile" data-i18n-placeholder="anth.groupNamePh">
                             </div>
                         </div>
                         <div class="anthro-grid">
                             <div class="anthro-field">
-                                <label>Country / Region</label>
-                                <input type="text" id="anthro-country" placeholder="e.g. Norway, Scandinavia, Global">
+                                <label data-i18n="anth.country">Country / Region</label>
+                                <input type="text" id="anthro-country" placeholder="e.g. Norway, Scandinavia, Global" data-i18n-placeholder="anth.countryPh">
                             </div>
                             <div class="anthro-field">
-                                <label>Gender</label>
+                                <label data-i18n="anth.gender">Gender</label>
                                 <select id="anthro-gender">
-                                    <option value="">— unspecified —</option>
-                                    <option value="female">Female</option>
-                                    <option value="male">Male</option>
-                                    <option value="mixed">Mixed</option>
-                                    <option value="other">Other</option>
+                                    <option value="" data-i18n="anth.optUnspecified">— unspecified —</option>
+                                    <option value="female" data-i18n="anth.optFemale">Female</option>
+                                    <option value="male" data-i18n="anth.optMale">Male</option>
+                                    <option value="mixed" data-i18n="anth.optMixed">Mixed</option>
+                                    <option value="other" data-i18n="anth.optOther">Other</option>
                                 </select>
                             </div>
                             <div class="anthro-field">
-                                <label>Age Group</label>
-                                <input type="text" id="anthro-age-group" placeholder="e.g. adult, child, 8–12 years">
+                                <label data-i18n="anth.ageGroup">Age Group</label>
+                                <input type="text" id="anthro-age-group" placeholder="e.g. adult, child, 8–12 years" data-i18n-placeholder="anth.ageGroupPh">
                             </div>
                             <div class="anthro-field">
-                                <label>Percentile</label>
-                                <input type="text" id="anthro-percentile" placeholder="e.g. 5th, 50th, 95th">
+                                <label data-i18n="anth.percentile">Percentile</label>
+                                <input type="text" id="anthro-percentile" placeholder="e.g. 5th, 50th, 95th" data-i18n-placeholder="anth.percentilePh">
                             </div>
                             <div class="anthro-field">
-                                <label>Sample Size (n)</label>
-                                <input type="number" id="anthro-sample-size" placeholder="e.g. 250" min="1" step="1">
+                                <label data-i18n="anth.sampleSize">Sample Size (n)</label>
+                                <input type="number" id="anthro-sample-size" placeholder="e.g. 250" data-i18n-placeholder="anth.sampleSizePh" min="1" step="1">
                             </div>
                             <div class="anthro-field">
-                                <label>Data Source / Citation</label>
-                                <input type="text" id="anthro-data-source" placeholder="e.g. ISO 15535:2012, ANSUR II">
+                                <label data-i18n="anth.dataSource">Data Source / Citation</label>
+                                <input type="text" id="anthro-data-source" placeholder="e.g. ISO 15535:2012, ANSUR II" data-i18n-placeholder="anth.dataSourcePh">
                             </div>
                             <div class="anthro-field">
-                                <label>Measurement Units</label>
+                                <label data-i18n="anth.units">Measurement Units</label>
                                 <select id="anthro-unit">
-                                    <option value="mm">Millimetres (mm)</option>
-                                    <option value="cm">Centimetres (cm)</option>
-                                    <option value="in">Inches (in)</option>
+                                    <option value="mm" data-i18n="anth.unitMm">Millimetres (mm)</option>
+                                    <option value="cm" data-i18n="anth.unitCm">Centimetres (cm)</option>
+                                    <option value="in" data-i18n="anth.unitIn">Inches (in)</option>
                                 </select>
                             </div>
                             <div class="anthro-field" style="grid-column:1/-1">
-                                <label>Notes</label>
-                                <input type="text" id="anthro-notes" placeholder="Optional notes about this dataset">
+                                <label data-i18n="anth.notes">Notes</label>
+                                <input type="text" id="anthro-notes" placeholder="Optional notes about this dataset" data-i18n-placeholder="anth.notesPh">
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="anthro-section">
-                    <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> Hand Measurements</div>
+                    <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> <span data-i18n="anth.secHand">Hand Measurements</span></div>
                     <div class="anthro-section-body">
                         <div class="anthro-grid">
                             <div class="anthro-field">
-                                <label>Palm Length <span style="font-weight:400;color:#999">(wrist → MCP)</span></label>
+                                <label data-i18n-html="anth.palmLength">Palm Length <span style="font-weight:400;color:#999">(wrist → MCP)</span></label>
                                 <input type="number" id="anthro-palm-length" placeholder="e.g. 95" step="0.1" min="0">
                             </div>
                             <div class="anthro-field">
-                                <label>Palm Breadth <span style="font-weight:400;color:#999">(knuckle width)</span></label>
+                                <label data-i18n-html="anth.palmBreadth">Palm Breadth <span style="font-weight:400;color:#999">(knuckle width)</span></label>
                                 <input type="number" id="anthro-palm-width" placeholder="e.g. 80" step="0.1" min="0">
                             </div>
                             <div class="anthro-field">
-                                <label>Palm Thickness <span style="font-weight:400;color:#999">(dorsal → volar)</span></label>
+                                <label data-i18n-html="anth.palmThickness">Palm Thickness <span style="font-weight:400;color:#999">(dorsal → volar)</span></label>
                                 <input type="number" id="anthro-palm-thickness" placeholder="e.g. 24" step="0.1" min="0">
                             </div>
                             <div class="anthro-field">
-                                <label>Average Finger Width <span style="font-weight:400;color:#999">(at base)</span></label>
+                                <label data-i18n-html="anth.avgFingerWidth">Average Finger Width <span style="font-weight:400;color:#999">(at base)</span></label>
                                 <input type="number" id="anthro-avg-finger-width" placeholder="e.g. 17" step="0.1" min="0">
                             </div>
                             <div class="anthro-field">
-                                <label>Wrist Circumference</label>
+                                <label data-i18n="anth.wristCirc">Wrist Circumference</label>
                                 <input type="number" id="anthro-wrist-circ" placeholder="e.g. 160" step="0.5" min="0">
                             </div>
                         </div>
@@ -1050,29 +1050,29 @@
                 </div>
 
                 <div class="anthro-section">
-                    <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> Residual Limb</div>
+                    <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> <span data-i18n="anth.secResidual">Residual Limb</span></div>
                     <div class="anthro-section-body anthro-grid">
                         <div class="anthro-field">
-                            <label>Length</label>
+                            <label data-i18n="anth.length">Length</label>
                             <input type="number" id="anthro-stump-length" placeholder="e.g. 120" step="1" min="0">
                         </div>
                         <div class="anthro-field">
-                            <label>Circumference — Proximal</label>
+                            <label data-i18n="anth.circProximal">Circumference — Proximal</label>
                             <input type="number" id="anthro-stump-circ-prox" placeholder="e.g. 210" step="0.5" min="0">
                         </div>
                         <div class="anthro-field">
-                            <label>Circumference — Distal</label>
+                            <label data-i18n="anth.circDistal">Circumference — Distal</label>
                             <input type="number" id="anthro-stump-circ-dist" placeholder="e.g. 175" step="0.5" min="0">
                         </div>
                     </div>
                 </div>
 
                 <div class="anthro-section">
-                    <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> Thumb</div>
+                    <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> <span data-i18n="anth.secThumb">Thumb</span></div>
                     <div class="anthro-section-body">
                         <div class="anthro-grid">
                             <div class="anthro-field">
-                                <label>Total Length</label>
+                                <label data-i18n="anth.totalLength">Total Length</label>
                                 <input type="number" id="anthro-thumb-total" placeholder="e.g. 58" step="0.1" min="0">
                             </div>
                         </div>
@@ -1080,91 +1080,91 @@
                 </div>
 
                 <div class="anthro-section">
-                    <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> Index Finger</div>
+                    <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> <span data-i18n="anth.secIndex">Index Finger</span></div>
                     <div class="anthro-section-body">
                         <div class="anthro-grid" style="margin-bottom:0.5rem">
                             <div class="anthro-field">
-                                <label>Total Length <span style="font-weight:400;color:#6cb6e8">primary</span></label>
+                                <label data-i18n-html="anth.totalLengthPrimary">Total Length <span style="font-weight:400;color:#6cb6e8">primary</span></label>
                                 <input type="number" id="anthro-idx-total" placeholder="e.g. 68" step="0.1" min="0">
                             </div>
                         </div>
-                        <p style="font-size:0.74rem;color:#aaa;margin:0 0 0.4rem">Segment detail — optional, auto-derived if only total is provided</p>
+                        <p style="font-size:0.74rem;color:#aaa;margin:0 0 0.4rem" data-i18n="anth.segmentNote">Segment detail — optional, auto-derived if only total is provided</p>
                         <div class="anthro-grid-4">
-                            <div class="anthro-field"><label>Proximal</label><input type="number" id="anthro-idx-prox" placeholder="mm" step="0.1" min="0"></div>
-                            <div class="anthro-field"><label>Middle</label><input type="number" id="anthro-idx-mid" placeholder="mm" step="0.1" min="0"></div>
-                            <div class="anthro-field"><label>Distal</label><input type="number" id="anthro-idx-dist" placeholder="mm" step="0.1" min="0"></div>
-                            <div class="anthro-field"><label>Circumference</label><input type="number" id="anthro-idx-circ" placeholder="mm" step="0.5" min="0"></div>
+                            <div class="anthro-field"><label data-i18n="anth.segProximal">Proximal</label><input type="number" id="anthro-idx-prox" placeholder="mm" step="0.1" min="0"></div>
+                            <div class="anthro-field"><label data-i18n="anth.segMiddle">Middle</label><input type="number" id="anthro-idx-mid" placeholder="mm" step="0.1" min="0"></div>
+                            <div class="anthro-field"><label data-i18n="anth.segDistal">Distal</label><input type="number" id="anthro-idx-dist" placeholder="mm" step="0.1" min="0"></div>
+                            <div class="anthro-field"><label data-i18n="anth.segCirc">Circumference</label><input type="number" id="anthro-idx-circ" placeholder="mm" step="0.5" min="0"></div>
                         </div>
                     </div>
                 </div>
 
                 <div class="anthro-section">
-                    <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> Middle Finger</div>
+                    <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> <span data-i18n="anth.secMiddle">Middle Finger</span></div>
                     <div class="anthro-section-body">
                         <div class="anthro-grid" style="margin-bottom:0.5rem">
                             <div class="anthro-field">
-                                <label>Total Length <span style="font-weight:400;color:#6cb6e8">primary</span></label>
+                                <label data-i18n-html="anth.totalLengthPrimary">Total Length <span style="font-weight:400;color:#6cb6e8">primary</span></label>
                                 <input type="number" id="anthro-mid-total" placeholder="e.g. 73" step="0.1" min="0">
                             </div>
                         </div>
-                        <p style="font-size:0.74rem;color:#aaa;margin:0 0 0.4rem">Segment detail — optional, auto-derived if only total is provided</p>
+                        <p style="font-size:0.74rem;color:#aaa;margin:0 0 0.4rem" data-i18n="anth.segmentNote">Segment detail — optional, auto-derived if only total is provided</p>
                         <div class="anthro-grid-4">
-                            <div class="anthro-field"><label>Proximal</label><input type="number" id="anthro-mid-prox" placeholder="mm" step="0.1" min="0"></div>
-                            <div class="anthro-field"><label>Middle</label><input type="number" id="anthro-mid-mid" placeholder="mm" step="0.1" min="0"></div>
-                            <div class="anthro-field"><label>Distal</label><input type="number" id="anthro-mid-dist" placeholder="mm" step="0.1" min="0"></div>
-                            <div class="anthro-field"><label>Circumference</label><input type="number" id="anthro-mid-circ" placeholder="mm" step="0.5" min="0"></div>
+                            <div class="anthro-field"><label data-i18n="anth.segProximal">Proximal</label><input type="number" id="anthro-mid-prox" placeholder="mm" step="0.1" min="0"></div>
+                            <div class="anthro-field"><label data-i18n="anth.segMiddle">Middle</label><input type="number" id="anthro-mid-mid" placeholder="mm" step="0.1" min="0"></div>
+                            <div class="anthro-field"><label data-i18n="anth.segDistal">Distal</label><input type="number" id="anthro-mid-dist" placeholder="mm" step="0.1" min="0"></div>
+                            <div class="anthro-field"><label data-i18n="anth.segCirc">Circumference</label><input type="number" id="anthro-mid-circ" placeholder="mm" step="0.5" min="0"></div>
                         </div>
                     </div>
                 </div>
 
                 <div class="anthro-section">
-                    <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> Ring Finger</div>
+                    <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> <span data-i18n="anth.secRing">Ring Finger</span></div>
                     <div class="anthro-section-body">
                         <div class="anthro-grid" style="margin-bottom:0.5rem">
                             <div class="anthro-field">
-                                <label>Total Length <span style="font-weight:400;color:#6cb6e8">primary</span></label>
+                                <label data-i18n-html="anth.totalLengthPrimary">Total Length <span style="font-weight:400;color:#6cb6e8">primary</span></label>
                                 <input type="number" id="anthro-ring-total" placeholder="e.g. 68" step="0.1" min="0">
                             </div>
                         </div>
-                        <p style="font-size:0.74rem;color:#aaa;margin:0 0 0.4rem">Segment detail — optional, auto-derived if only total is provided</p>
+                        <p style="font-size:0.74rem;color:#aaa;margin:0 0 0.4rem" data-i18n="anth.segmentNote">Segment detail — optional, auto-derived if only total is provided</p>
                         <div class="anthro-grid-4">
-                            <div class="anthro-field"><label>Proximal</label><input type="number" id="anthro-ring-prox" placeholder="mm" step="0.1" min="0"></div>
-                            <div class="anthro-field"><label>Middle</label><input type="number" id="anthro-ring-mid" placeholder="mm" step="0.1" min="0"></div>
-                            <div class="anthro-field"><label>Distal</label><input type="number" id="anthro-ring-dist" placeholder="mm" step="0.1" min="0"></div>
-                            <div class="anthro-field"><label>Circumference</label><input type="number" id="anthro-ring-circ" placeholder="mm" step="0.5" min="0"></div>
+                            <div class="anthro-field"><label data-i18n="anth.segProximal">Proximal</label><input type="number" id="anthro-ring-prox" placeholder="mm" step="0.1" min="0"></div>
+                            <div class="anthro-field"><label data-i18n="anth.segMiddle">Middle</label><input type="number" id="anthro-ring-mid" placeholder="mm" step="0.1" min="0"></div>
+                            <div class="anthro-field"><label data-i18n="anth.segDistal">Distal</label><input type="number" id="anthro-ring-dist" placeholder="mm" step="0.1" min="0"></div>
+                            <div class="anthro-field"><label data-i18n="anth.segCirc">Circumference</label><input type="number" id="anthro-ring-circ" placeholder="mm" step="0.5" min="0"></div>
                         </div>
                     </div>
                 </div>
 
                 <div class="anthro-section">
-                    <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> Little Finger (Pinky)</div>
+                    <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> <span data-i18n="anth.secPinky">Little Finger (Pinky)</span></div>
                     <div class="anthro-section-body">
                         <div class="anthro-grid" style="margin-bottom:0.5rem">
                             <div class="anthro-field">
-                                <label>Total Length <span style="font-weight:400;color:#6cb6e8">primary</span></label>
+                                <label data-i18n-html="anth.totalLengthPrimary">Total Length <span style="font-weight:400;color:#6cb6e8">primary</span></label>
                                 <input type="number" id="anthro-pinky-total" placeholder="e.g. 55" step="0.1" min="0">
                             </div>
                         </div>
-                        <p style="font-size:0.74rem;color:#aaa;margin:0 0 0.4rem">Segment detail — optional, auto-derived if only total is provided</p>
+                        <p style="font-size:0.74rem;color:#aaa;margin:0 0 0.4rem" data-i18n="anth.segmentNote">Segment detail — optional, auto-derived if only total is provided</p>
                         <div class="anthro-grid-4">
-                            <div class="anthro-field"><label>Proximal</label><input type="number" id="anthro-pinky-prox" placeholder="mm" step="0.1" min="0"></div>
-                            <div class="anthro-field"><label>Middle</label><input type="number" id="anthro-pinky-mid" placeholder="mm" step="0.1" min="0"></div>
-                            <div class="anthro-field"><label>Distal</label><input type="number" id="anthro-pinky-dist" placeholder="mm" step="0.1" min="0"></div>
-                            <div class="anthro-field"><label>Circumference</label><input type="number" id="anthro-pinky-circ" placeholder="mm" step="0.5" min="0"></div>
+                            <div class="anthro-field"><label data-i18n="anth.segProximal">Proximal</label><input type="number" id="anthro-pinky-prox" placeholder="mm" step="0.1" min="0"></div>
+                            <div class="anthro-field"><label data-i18n="anth.segMiddle">Middle</label><input type="number" id="anthro-pinky-mid" placeholder="mm" step="0.1" min="0"></div>
+                            <div class="anthro-field"><label data-i18n="anth.segDistal">Distal</label><input type="number" id="anthro-pinky-dist" placeholder="mm" step="0.1" min="0"></div>
+                            <div class="anthro-field"><label data-i18n="anth.segCirc">Circumference</label><input type="number" id="anthro-pinky-circ" placeholder="mm" step="0.5" min="0"></div>
                         </div>
                     </div>
                 </div>
 
                 <div class="anthro-section">
-                    <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> Hardware &amp; Tolerance</div>
+                    <div class="anthro-section-head"><button class="anthro-section-toggle">▼</button> <span data-i18n="anth.secHardware">Hardware &amp; Tolerance</span></div>
                     <div class="anthro-section-body anthro-grid">
                         <div class="anthro-field">
-                            <label>Hardware Standard</label>
-                            <select id="anthro-hardware"><option value="m3">M3 (standard)</option><option value="m2">M2 (small)</option><option value="m4">M4 (heavy)</option></select>
+                            <label data-i18n="anth.hardwareStd">Hardware Standard</label>
+                            <select id="anthro-hardware"><option value="m3" data-i18n="anth.hwM3">M3 (standard)</option><option value="m2" data-i18n="anth.hwM2">M2 (small)</option><option value="m4" data-i18n="anth.hwM4">M4 (heavy)</option></select>
                         </div>
                         <div class="anthro-field">
-                            <label>Tolerance Preference</label>
-                            <select id="anthro-tolerance"><option value="standard">Standard (0.4 mm)</option><option value="snug">Snug (0.2 mm)</option><option value="loose">Loose (0.6 mm)</option></select>
+                            <label data-i18n="anth.tolPref">Tolerance Preference</label>
+                            <select id="anthro-tolerance"><option value="standard" data-i18n="anth.tolStd">Standard (0.4 mm)</option><option value="snug" data-i18n="anth.tolSnug">Snug (0.2 mm)</option><option value="loose" data-i18n="anth.tolLoose">Loose (0.6 mm)</option></select>
                         </div>
                     </div>
                 </div>
@@ -1174,54 +1174,54 @@
             <div class="anthro-tab-panel anthro-body" data-panel="import" style="display:none">
                 <div class="anthro-grid" style="margin-bottom:0.75rem">
                     <div class="anthro-field" style="grid-column:1/-1">
-                        <label>Group Name <span style="color:#e74c3c">*</span></label>
+                        <label data-i18n-html="anth.groupName">Group Name <span style="color:#e74c3c">*</span></label>
                         <input type="text" id="anthro-import-group-name" placeholder="e.g. Norwegian Children 8–12 years — 50th percentile">
                     </div>
                     <div class="anthro-field">
-                        <label>Country / Region</label>
+                        <label data-i18n="anth.country">Country / Region</label>
                         <input type="text" id="anthro-import-country" placeholder="e.g. Norway">
                     </div>
                     <div class="anthro-field">
-                        <label>Gender</label>
+                        <label data-i18n="anth.gender">Gender</label>
                         <select id="anthro-import-gender">
-                            <option value="">— unspecified —</option>
-                            <option value="female">Female</option>
-                            <option value="male">Male</option>
-                            <option value="mixed">Mixed</option>
-                            <option value="other">Other</option>
+                            <option value="" data-i18n="anth.optUnspecified">— unspecified —</option>
+                            <option value="female" data-i18n="anth.optFemale">Female</option>
+                            <option value="male" data-i18n="anth.optMale">Male</option>
+                            <option value="mixed" data-i18n="anth.optMixed">Mixed</option>
+                            <option value="other" data-i18n="anth.optOther">Other</option>
                         </select>
                     </div>
                     <div class="anthro-field">
-                        <label>Age Group</label>
+                        <label data-i18n="anth.ageGroup">Age Group</label>
                         <input type="text" id="anthro-import-age-group" placeholder="e.g. child, adult">
                     </div>
                     <div class="anthro-field">
-                        <label>Percentile</label>
+                        <label data-i18n="anth.percentile">Percentile</label>
                         <input type="text" id="anthro-import-percentile" placeholder="e.g. 50th">
                     </div>
                     <div class="anthro-field">
-                        <label>Data Source</label>
+                        <label data-i18n="anth.dataSourceShort">Data Source</label>
                         <input type="text" id="anthro-import-data-source" placeholder="e.g. ISO 15535:2012">
                     </div>
                     <div class="anthro-field">
-                        <label>Format</label>
+                        <label data-i18n="anth.format">Format</label>
                         <select id="anthro-import-format"><option value="csv">CSV</option><option value="json">JSON</option></select>
                     </div>
                     <div class="anthro-field">
-                        <label>Default Unit</label>
+                        <label data-i18n="anth.defaultUnit">Default Unit</label>
                         <select id="anthro-import-unit"><option value="mm">mm</option><option value="cm">cm</option><option value="in">in</option></select>
                     </div>
                     <div class="anthro-field">
-                        <label>Hardware</label>
+                        <label data-i18n="anth.hardware">Hardware</label>
                         <select id="anthro-import-hw"><option value="m3">M3</option><option value="m2">M2</option><option value="m4">M4</option></select>
                     </div>
                     <div class="anthro-field">
-                        <label>Tolerance</label>
+                        <label data-i18n="anth.tolerance">Tolerance</label>
                         <select id="anthro-import-tol"><option value="standard">Standard</option><option value="snug">Snug</option><option value="loose">Loose</option></select>
                     </div>
                 </div>
                 <div class="anthro-field">
-                    <label>Paste CSV or JSON data</label>
+                    <label data-i18n="anth.pasteData">Paste CSV or JSON data</label>
                     <textarea id="anthro-import-text"
                         placeholder="CSV (Format A):&#10;measurement,value,unit&#10;palm_length,95,mm&#10;palm_width,80,mm&#10;wrist_circumference,160,mm&#10;finger_index_proximal,40,mm&#10;..."
                         style="width:100%;min-height:180px;padding:0.5rem;border:1px solid #ddd;border-radius:4px;font-size:0.82rem;font-family:monospace;resize:vertical"></textarea>
@@ -1231,8 +1231,8 @@
             <div id="anthro-results"></div>
 
             <div class="anthro-footer">
-                <button class="btn-primary" id="anthro-process-btn">Preview</button>
-                <button class="btn-success" id="anthro-save-btn">Save Profile</button>
+                <button class="btn-primary" id="anthro-process-btn" data-i18n="anth.preview">Preview</button>
+                <button class="btn-success" id="anthro-save-btn" data-i18n="anth.saveProfile">Save Profile</button>
                 <span class="anthro-status" id="anthro-status"></span>
             </div>
         </div>

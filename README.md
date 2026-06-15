@@ -1,5 +1,7 @@
 # AI Parametric Prosthetic Hand Generator
 
+**🌐 Languages: English · [Português](README.pt.md)**
+
 **🔗 Live: [handfab.pedrocandeias.net](https://handfab.pedrocandeias.net)**
 
 AI-powered parametric prosthetic hand customisation platform. Clinicians enter a patient's anthropometric measurements; an AI model (Claude or GPT-4) suggests optimal design parameters; the result renders in-browser via WebAssembly and exports as STL for 3D printing.

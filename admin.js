@@ -121,7 +121,7 @@ function setupResetTokenModal() {
     });
     document.getElementById('copy-reset-token-btn')?.addEventListener('click', () => {
         const text = document.getElementById('reset-token-display').textContent;
-        if (text) navigator.clipboard.writeText(text).then(() => toast('Token copied'));
+        if (text) navigator.clipboard.writeText(text).then(() => toast(t('admin.tTokenCopied')));
     });
     document.getElementById('reset-token-modal')?.addEventListener('click', (e) => {
         if (e.target === e.currentTarget) {
@@ -206,24 +206,24 @@ async function loadPatients(techId) {
 async function addPatient(techId) {
     const select = document.getElementById(`add-patient-select-${techId}`);
     const userId = Number(select?.value);
-    if (!userId) { toast('Select a user to assign', 'error'); return; }
+    if (!userId) { toast(t('admin.tSelectAssign'), 'error'); return; }
 
     const res = await Auth.fetchWithAuth(`/api/users/${techId}/patients`, {
         method: 'POST',
         body: JSON.stringify({ user_id: userId }),
     });
     const data = await res.json();
-    if (!res.ok) { toast(data.error || 'Failed', 'error'); return; }
-    toast('Patient assigned');
+    if (!res.ok) { toast(data.error || t('admin.tFailed'), 'error'); return; }
+    toast(t('admin.tPatientAssigned'));
     loadPatients(techId);
 }
 
 async function removePatient(techId, userId) {
-    if (!confirm('Remove this patient assignment?')) return;
+    if (!confirm(t('admin.tConfirmRemovePatient'))) return;
     const res = await Auth.fetchWithAuth(`/api/users/${techId}/patients/${userId}`, { method: 'DELETE' });
     const data = await res.json();
-    if (!res.ok) { toast(data.error || 'Failed', 'error'); return; }
-    toast('Assignment removed');
+    if (!res.ok) { toast(data.error || t('admin.tFailed'), 'error'); return; }
+    toast(t('admin.tAssignmentRemoved'));
     loadPatients(techId);
 }
 
@@ -232,29 +232,29 @@ async function removePatient(techId, userId) {
 async function changeRole(userId, currentRole) {
     const roles = ['user', 'tech', 'admin'];
     const next = roles[(roles.indexOf(currentRole) + 1) % roles.length];
-    if (!confirm(`Change role to "${next}"?`)) return;
+    if (!confirm(t('admin.tConfirmRole', { role: next }))) return;
 
     const res = await Auth.fetchWithAuth(`/api/users/${userId}`, {
         method: 'PATCH',
         body: JSON.stringify({ role: next }),
     });
     const data = await res.json();
-    if (!res.ok) { toast(data.error || 'Failed', 'error'); return; }
-    toast(`Role updated to ${next}`);
+    if (!res.ok) { toast(data.error || t('admin.tFailed'), 'error'); return; }
+    toast(t('admin.tRoleUpdated', { role: next }));
     loadUsers();
 }
 
 async function setActive(userId, active) {
     const action = active ? 'activate' : 'suspend';
-    if (!confirm(`${action.charAt(0).toUpperCase() + action.slice(1)} this user?`)) return;
+    if (!confirm(t(active ? 'admin.tConfirmActivate' : 'admin.tConfirmSuspend'))) return;
 
     const res = await Auth.fetchWithAuth(`/api/users/${userId}`, {
         method: 'PATCH',
         body: JSON.stringify({ is_active: active }),
     });
     const data = await res.json();
-    if (!res.ok) { toast(data.error || 'Failed', 'error'); return; }
-    toast(`User ${action}d`);
+    if (!res.ok) { toast(data.error || t('admin.tFailed'), 'error'); return; }
+    toast(t(active ? 'admin.tUserActivated' : 'admin.tUserSuspended'));
     loadUsers();
 }
 
@@ -325,7 +325,7 @@ async function saveEditUser() {
         }
 
         closeEditModal();
-        toast('User updated');
+        toast(t('admin.tUserUpdated'));
         loadUsers();
     } finally {
         saveBtn.disabled = false;
@@ -379,7 +379,7 @@ function setupCreateUserForm() {
             document.getElementById('new-username').value = '';
             document.getElementById('new-email').value = '';
             document.getElementById('new-password').value = '';
-            toast(`User ${username} created`);
+            toast(t('admin.tUserCreated', { name: username }));
             loadUsers();
         } finally {
             saveBtn.disabled = false;
@@ -398,7 +398,7 @@ async function loadAnthroProfiles() {
         const profiles = await AnthropometricImporter.loadProfiles({ country, gender, age_group });
         renderAnthroProfiles(profiles);
     } catch (err) {
-        toast('Failed to load profiles: ' + err.message, 'error');
+        toast(t('admin.tLoadProfilesFail', { msg: err.message }), 'error');
     }
 }
 
@@ -446,10 +446,10 @@ function renderAnthroProfiles(profiles) {
 
     tbody.querySelectorAll('.btn-anthro-delete').forEach(btn => {
         btn.addEventListener('click', async () => {
-            if (!confirm('Delete this anthropometric profile?')) return;
+            if (!confirm(t('admin.tConfirmDeleteProfile'))) return;
             try {
                 await AnthropometricImporter.deleteProfile(Number(btn.dataset.id));
-                toast('Profile deleted');
+                toast(t('admin.tProfileDeleted'));
                 loadAnthroProfiles();
             } catch (err) {
                 toast(err.message, 'error');
@@ -492,10 +492,10 @@ function setupAnthroTab() {
                 });
                 const json = await res.json();
                 if (!res.ok) throw new Error(json.error || 'Import failed');
-                toast(`Imported ${json.created} profile(s) — ${json.skipped} skipped (already exist)`);
+                toast(t('admin.tImported', { created: json.created, skipped: json.skipped }));
                 loadAnthroProfiles();
             } catch (err) {
-                toast('Import error: ' + err.message, 'error');
+                toast(t('admin.tImportError', { msg: err.message }), 'error');
             } finally {
                 btn.textContent = orig;
                 btn.disabled = false;
@@ -551,7 +551,7 @@ async function loadFooter() {
         }));
         renderFooterColumns();
     } catch {
-        toast('Failed to load footer', 'error');
+        toast(t('admin.tFooterLoadFail'), 'error');
     }
 }
 
@@ -613,7 +613,7 @@ async function saveFooter() {
         });
         const data = await res.json();
         if (!res.ok) { errEl.textContent = data.error || 'Failed to save footer'; return; }
-        toast('Footer saved');
+        toast(t('admin.tFooterSaved'));
     } catch {
         errEl.textContent = 'Network error';
     }
@@ -678,11 +678,11 @@ async function translatePage(id, lang) {
             method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ language: lang }),
         });
         const data = await res.json();
-        if (!res.ok) { toast(data.error || 'Failed to create translation', 'error'); return; }
+        if (!res.ok) { toast(data.error || t('admin.tFailed'), 'error'); return; }
         toast(t('admin.translateCreated'));
         await loadPages();
         openPageForm(data);   // open the new translation for editing
-    } catch { toast('Network error', 'error'); }
+    } catch { toast(t('admin.tNetworkError'), 'error'); }
 }
 
 function openPageForm(page) {
@@ -725,7 +725,7 @@ async function savePage() {
         });
         const data = await res.json();
         if (!res.ok) { errEl.textContent = data.error || 'Failed to save page'; return; }
-        toast(id ? 'Page updated' : 'Page created');
+        toast(id ? t('admin.tPageUpdated') : t('admin.tPageCreated'));
         closePageForm();
         loadPages();
     } catch {
@@ -734,14 +734,14 @@ async function savePage() {
 }
 
 async function deletePage(id, page) {
-    if (!confirm(`Delete page "${page ? page.title : id}"? This cannot be undone.`)) return;
+    if (!confirm(t('admin.tConfirmDeletePage', { title: page ? page.title : id }))) return;
     try {
         const res = await Auth.fetchWithAuth(`/api/content/pages/${id}`, { method: 'DELETE' });
-        if (!res.ok) { const d = await res.json().catch(() => ({})); toast(d.error || 'Failed to delete', 'error'); return; }
-        toast('Page deleted');
+        if (!res.ok) { const d = await res.json().catch(() => ({})); toast(d.error || t('admin.tFailed'), 'error'); return; }
+        toast(t('admin.tPageDeleted'));
         loadPages();
     } catch {
-        toast('Network error', 'error');
+        toast(t('admin.tNetworkError'), 'error');
     }
 }
 
