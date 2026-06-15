@@ -16,6 +16,8 @@
           "max": 110,
           "step": 1,
           "caption": "Knuckle-to-knuckle metacarpal breadth — drives uniform palm and hand scale via Cyborg Beast formula: scale = (breadth + 5) / 55 (mm)",
+          "label_pt": "Largura da Palma (em mm)",
+          "caption_pt": "Largura metacarpal entre nós dos dedos — define a escala uniforme da palma e da mão pela fórmula Cyborg Beast: escala = (largura + 5) / 55 (mm)",
           "help": "Objective: anchor the overall size of the whole hand to the patient's anatomy — measure straight across the back of the hand, index knuckle to pinky knuckle, with the fingers held together. Outcome: every part (palm, all fingers, thumb and the flexible joints) scales uniformly by (breadth + 5) / 55, so a larger value yields a proportionally bigger, stronger hand and a smaller value suits a child. This is the single most important fit dimension — set it first, then fine-tune the rest.",
           "group": "Anthropometric"
         },
@@ -27,6 +29,8 @@
           "max": 120,
           "step": 1,
           "caption": "Middle finger MCP crease to tip — drives global finger length multiplier; reference reach at scale = REF_FINGER × xScaleFactor = 37 × ((palm_breadth + 5) / 55) mm (mm)",
+          "label_pt": "Comprimento do Dedo Médio (em mm)",
+          "caption_pt": "Dobra MCP à ponta do dedo médio — define o multiplicador global de comprimento dos dedos; alcance de referência à escala = REF_FINGER × xScaleFactor = 37 × ((palm_breadth + 5) / 55) mm (mm)",
           "help": "Objective: set how far the fingers reach, using the longest finger (the middle) as the master length — measure from the middle-finger knuckle crease to the fingertip. Outcome: this drives the global finger-length multiplier (reference reach ≈ 37 mm × the palm-size scale), so increasing it lengthens every finger for a longer grasp, while decreasing it shortens reach for a more compact, faster-closing hand.",
           "group": "Anthropometric"
         },
@@ -38,6 +42,8 @@
           "max": 120,
           "step": 1,
           "caption": "Index finger MCP crease to tip — sets index finger proportion relative to middle finger (mm)",
+          "label_pt": "Comprimento do Dedo Indicador (em mm)",
+          "caption_pt": "Dobra MCP à ponta do indicador — define a proporção do indicador em relação ao dedo médio (mm)",
           "help": "Objective: tune the index finger's length relative to the middle finger so the hand matches the patient's own finger proportions. Outcome: a value close to the middle-finger length makes the index reach almost as far; a smaller value steps it back. This shapes the grip and decides which fingers contact an object first.",
           "group": "Anthropometric"
         },
@@ -49,6 +55,8 @@
           "max": 120,
           "step": 1,
           "caption": "Ring finger MCP crease to tip — sets ring finger proportion relative to middle finger (mm)",
+          "label_pt": "Comprimento do Dedo Anelar (em mm)",
+          "caption_pt": "Dobra MCP à ponta do anelar — define a proporção do anelar em relação ao dedo médio (mm)",
           "help": "Objective: tune the ring finger's length relative to the middle finger to match the patient's natural proportions. Outcome: raising it lengthens the ring finger toward the middle finger's reach; lowering it draws it back. Affects how evenly the fingers wrap around an object.",
           "group": "Anthropometric"
         },
@@ -60,6 +68,8 @@
           "max": 100,
           "step": 1,
           "caption": "Pinky finger MCP crease to tip — sets pinky proportion relative to middle finger (mm)",
+          "label_pt": "Comprimento do Dedo Mindinho (em mm)",
+          "caption_pt": "Dobra MCP à ponta do mindinho — define a proporção do mindinho em relação ao dedo médio (mm)",
           "help": "Objective: set the pinky's length relative to the middle finger; the pinky is normally the shortest digit. Outcome: a larger value extends the little finger for a fuller wrap on large objects, a smaller value keeps it clear for finer grips. Keep it proportionate to avoid an unnatural-looking hand.",
           "group": "Anthropometric"
         },
@@ -71,6 +81,8 @@
           "max": 100,
           "step": 1,
           "caption": "Thumb MCP crease to tip — sets thumb proportion relative to middle finger (mm)",
+          "label_pt": "Comprimento do Polegar (em mm)",
+          "caption_pt": "Dobra MCP à ponta do polegar — define a proporção do polegar em relação ao dedo médio (mm)",
           "help": "Objective: set the thumb's length relative to the middle finger, which controls where the thumb meets the fingers as the hand closes (opposition). Outcome: a longer thumb closes further across the palm for pinch-style grips, while a shorter thumb opens the span. Good opposition is essential to a usable grasp, so adjust this alongside the finger lengths.",
           "group": "Anthropometric"
         },
@@ -89,6 +101,8 @@
             }
           ],
           "caption": "Which hand to generate — Right hand mirrors the geometry along X",
+          "label_pt": "Espelhado",
+          "caption_pt": "Que mão gerar — a mão direita espelha a geometria ao longo de X",
           "help": "Objective: choose whether to build a left or a right hand. Outcome: selecting 'Right hand' mirrors the entire model across the X axis. Match this to the patient's affected side — printing the wrong hand produces a part that simply will not fit.",
           "group": "Anthropometric"
         },
@@ -100,6 +114,8 @@
           "max": 10,
           "step": 0.5,
           "caption": "Flexy joint hole diameter — reduce to 5 mm for small children's hands (mm)",
+          "label_pt": "Diâmetro da Junta",
+          "caption_pt": "Diâmetro do furo da junta flexível — reduza para 5 mm em mãos de crianças pequenas (mm)",
           "help": "Objective: diameter of the holes that form the flexible printed finger joints (this design uses printed flexures instead of pins and elastics). Outcome: larger holes make the joints bend more easily but weaker; smaller holes stiffen them. The default 7 mm suits adult-sized prints — reduce toward 5 mm for small children's hands where the geometry is finer.",
           "group": "Hardware"
         },
@@ -111,6 +127,8 @@
           "max": 6,
           "step": 0.5,
           "caption": "Flexy joint slot thickness — reduce to 2 mm for small children's hands (mm)",
+          "label_pt": "Espessura da Junta",
+          "caption_pt": "Espessura da ranhura da junta flexível — reduza para 2 mm em mãos de crianças pequenas (mm)",
           "help": "Objective: thickness of the thin flexing web at each printed joint — the living hinge that lets a finger bend. Outcome: thinner webs flex more freely and need less cable force to close but wear out sooner; thicker webs are more durable but stiffer. Default 4 mm balances flex and longevity for adults; drop toward 2 mm for children's hands.",
           "group": "Hardware"
         },
@@ -119,6 +137,8 @@
           "type": "boolean",
           "initial": true,
           "caption": "Hollow fingertips for casting or inserting silicone grip pads",
+          "label_pt": "Almofadas dos Dedos",
+          "caption_pt": "Pontas dos dedos ocas para moldar ou inserir almofadas de aderência em silicone",
           "help": "Objective: hollow out the fingertips so you can cast or insert soft silicone grip pads. Outcome: when on, the tips are left open/recessed ready to receive pads, greatly improving grip friction and comfort; when off, the fingertips print solid. Turn it on if you plan to add silicone, off for a one-piece rigid print.",
           "group": "Options"
         },
@@ -127,6 +147,8 @@
           "type": "boolean",
           "initial": true,
           "caption": "Show installed silicone grip pads in the preview (requires finger_pads enabled)",
+          "label_pt": "Mostrar Almofadas",
+          "caption_pt": "Mostrar as almofadas de silicone instaladas na pré-visualização (requer \"Almofadas dos Dedos\" ativado)",
           "help": "Objective: preview-only toggle that draws the silicone grip pads in the 3D view. Outcome: lets you check where the pads sit and how they look — it does not change the exported parts. Requires 'Finger pads' to be enabled, since without the hollowed tips there is nowhere for the pads to seat.",
           "group": "Options"
         },
@@ -135,6 +157,8 @@
           "type": "string",
           "initial": "#e8c8a0",
           "caption": "Silicone grip pad preview color",
+          "label_pt": "Cor das Almofadas",
+          "caption_pt": "Cor de pré-visualização das almofadas de silicone",
           "help": "Objective: pick the colour used to draw the grip pads in the preview (CSS name or hex). Outcome: purely cosmetic — it helps you tell the pads apart from the finger body on screen and has no effect on the printed STL.",
           "group": "Options"
         },
@@ -143,6 +167,8 @@
           "type": "boolean",
           "initial": true,
           "caption": "Show thermoformable mesh on palm interior (print in PLA, heat-form to patient)",
+          "label_pt": "Mostrar Termoformável",
+          "caption_pt": "Mostrar a malha termoformável no interior da palma (imprimir em PLA, moldar a quente ao paciente)",
           "help": "Objective: add a thin thermoformable mesh across the inside of the palm. Outcome: print this mesh in PLA, then gently heat it and press it onto the patient's residual limb for a custom-moulded, comfortable interface. Enable when you want a heat-formed liner; leave it off for a standard rigid palm.",
           "group": "Options"
         },
@@ -151,6 +177,8 @@
           "type": "boolean",
           "initial": true,
           "caption": "Show the forearm gauntlet — a separate printed cuff that pins to the wrist hinge",
+          "label_pt": "Mostrar Braçadeira",
+          "caption_pt": "Mostrar a braçadeira do antebraço — uma manga impressa separada que se fixa à dobradiça do pulso",
           "help": "Objective: include the wrist-powered forearm gauntlet (tensioner cuff) in the layout. Outcome: when on, the cuff is positioned at the wrist and its straps line up with the palm's wrist hinge pin so it prints as a separate part that pins on; when off, only the hand is produced. Turn it on to build the complete wrist-driven device, off to print or reprint just the hand.",
           "group": "Gauntlet"
         },
@@ -162,6 +190,8 @@
           "max": 90,
           "step": 1,
           "caption": "Forearm socket width — derive as wrist_circumference_mm / PI + ~6 mm clearance (mm)",
+          "label_pt": "Largura da Braçadeira (em mm)",
+          "caption_pt": "Largura do encaixe do antebraço — calcular como wrist_circumference_mm / PI + ~6 mm de folga (mm)",
           "help": "Objective: fit the cuff to the patient's forearm. Outcome: there is no direct CSV import for this; measure the wrist circumference, divide by Pi and add about 6 mm of clearance, then set the result here — larger values widen the oval tunnel cross-section, smaller values tighten it. This is independent of the hand's knuckle breadth so the cuff and hand can be sized separately.",
           "group": "Gauntlet"
         },
@@ -173,6 +203,8 @@
           "max": 150,
           "step": 1,
           "caption": "Gauntlet length along the forearm (mm)",
+          "label_pt": "Comprimento da Braçadeira (em mm)",
+          "caption_pt": "Comprimento da braçadeira ao longo do antebraço (mm)",
           "help": "Objective: set how far the cuff extends up the forearm. Outcome: longer values give more surface area and leverage for the wrist-drive tensioner but need more clearance below the elbow; shorter values are lighter and suit smaller arms. Measure the usable forearm length from the wrist crease toward the elbow and choose a value that stops short of the elbow bend.",
           "group": "Gauntlet"
         },
@@ -184,6 +216,8 @@
           "max": 5,
           "step": 0.5,
           "caption": "Cuff wall thickness (mm)",
+          "label_pt": "Espessura da Parede (em mm)",
+          "caption_pt": "Espessura da parede da manga (mm)",
           "help": "Objective: balance strength against weight and comfort for the cuff shell. Outcome: thicker walls (4–5 mm) are stiffer and more durable, thinner walls (2–2.5 mm) are lighter and more flexible for thermoforming to the limb. The printed thickness is held constant regardless of the width scaling.",
           "group": "Gauntlet"
         },
@@ -195,6 +229,8 @@
           "max": 25,
           "step": 1,
           "caption": "Slide the gauntlet along the forearm axis to fine-tune the wrist-pin fit (mm)",
+          "label_pt": "Ajuste de Posição (em mm)",
+          "caption_pt": "Deslizar a braçadeira ao longo do eixo do antebraço para afinar o encaixe do pino do pulso (mm)",
           "help": "Objective: nudge the cuff toward or away from the hand so the strap-tip pivot holes sit exactly on the palm's wrist hinge pin. Outcome: positive values move the cuff away from the hand (down the forearm), negative values bring it closer; use it to close any gap at the wrist joint after setting width and length. Leave at 0 for the nominal fit.",
           "group": "Gauntlet"
         },
@@ -206,6 +242,8 @@
           "max": 8,
           "step": 0.5,
           "caption": "Wrist hinge pin diameter — defaults to the finger joint pin size (mm)",
+          "label_pt": "Diâmetro do Pino do Pulso (em mm)",
+          "caption_pt": "Diâmetro do pino da dobradiça do pulso — predefinido para o tamanho do pino das juntas dos dedos (mm)",
           "help": "Objective: size the wrist pivot pin. Outcome: larger pins are stronger but eat into the wrist fins; smaller pins are weaker but leave more material. The default matches the finger joint pin so you can reuse the same hardware. The palm fin holes are sized to this value (press-fit) and the strap holes add clearance so they swing freely.",
           "group": "Wrist Hinge"
         },
@@ -217,6 +255,8 @@
           "max": 0.8,
           "step": 0.05,
           "caption": "Clearance around the pin so the gauntlet straps rotate freely (mm)",
+          "label_pt": "Folga do Pino (em mm)",
+          "caption_pt": "Folga à volta do pino para que as tiras da braçadeira rodem livremente (mm)",
           "help": "Objective: tune how loosely the gauntlet swings on the pin. Outcome: more clearance (0.5–0.8 mm) gives a freer, looser pivot that prints reliably; less (0.1–0.25 mm) is tighter with less play but may bind depending on printer tolerances. Increase it if the joint is stiff after printing, decrease it if the cuff wobbles.",
           "group": "Wrist Hinge"
         },
@@ -228,6 +268,8 @@
           "max": 8,
           "step": 0.5,
           "caption": "Nudge the strap-tip splay so the flaps sit just inside the palm wrist fins (mm)",
+          "label_pt": "Ajuste de Abertura da Tira (em mm)",
+          "caption_pt": "Ajustar a abertura das pontas das tiras para que as abas fiquem mesmo dentro das aletas do pulso da palma (mm)",
           "help": "Objective: fine-tune where the gauntlet strap flaps land relative to the palm wrist fins. The flaps are auto-splayed to sit just inside the fins for a snug pivot; this nudges that target. Outcome: positive values widen the flaps outward (toward/into the fins), negative values pull them inward. Use it to remove side play or to clear the fins if they rub. Leave at 0 for the computed fit.",
           "group": "Wrist Hinge"
         },
@@ -236,6 +278,8 @@
           "type": "boolean",
           "initial": true,
           "caption": "Show palm body",
+          "label_pt": "Mostrar Palma",
+          "caption_pt": "Mostrar o corpo da palma",
           "help": "Objective: include or hide the palm body — the central structure the fingers, thumb and gauntlet attach to. Outcome: turn it off to isolate and export just the fingers, or to declutter the preview. Keep it on for a complete, assemblable hand.",
           "group": "Visibility"
         },
@@ -244,6 +288,8 @@
           "type": "boolean",
           "initial": true,
           "caption": "Show index finger",
+          "label_pt": "Mostrar Indicador",
+          "caption_pt": "Mostrar o dedo indicador",
           "help": "Objective: include or hide the entire index finger (both its base and tip segments) in the model and the export. Outcome: switch off to omit the digit — handy for exporting one finger at a time, reprinting a single damaged finger, or simplifying the preview. Turning this off overrides the matching base/tip toggles below.",
           "group": "Visibility"
         },
@@ -252,6 +298,8 @@
           "type": "boolean",
           "initial": true,
           "caption": "Show middle finger",
+          "label_pt": "Mostrar Médio",
+          "caption_pt": "Mostrar o dedo médio",
           "help": "Objective: include or hide the entire middle finger (both its base and tip segments) in the model and the export. Outcome: switch off to omit the digit — handy for exporting one finger at a time, reprinting a single damaged finger, or simplifying the preview. Turning this off overrides the matching base/tip toggles below.",
           "group": "Visibility"
         },
@@ -260,6 +308,8 @@
           "type": "boolean",
           "initial": true,
           "caption": "Show ring finger",
+          "label_pt": "Mostrar Anelar",
+          "caption_pt": "Mostrar o dedo anelar",
           "help": "Objective: include or hide the entire ring finger (both its base and tip segments) in the model and the export. Outcome: switch off to omit the digit — handy for exporting one finger at a time, reprinting a single damaged finger, or simplifying the preview. Turning this off overrides the matching base/tip toggles below.",
           "group": "Visibility"
         },
@@ -268,6 +318,8 @@
           "type": "boolean",
           "initial": true,
           "caption": "Show pinky finger",
+          "label_pt": "Mostrar Mindinho",
+          "caption_pt": "Mostrar o dedo mindinho",
           "help": "Objective: include or hide the entire pinky finger (both its base and tip segments) in the model and the export. Outcome: switch off to omit the digit — handy for exporting one finger at a time, reprinting a single damaged finger, or simplifying the preview. Turning this off overrides the matching base/tip toggles below.",
           "group": "Visibility"
         },
@@ -276,6 +328,8 @@
           "type": "boolean",
           "initial": true,
           "caption": "Show thumb",
+          "label_pt": "Mostrar Polegar",
+          "caption_pt": "Mostrar o polegar",
           "help": "Objective: include or hide the entire thumb (both its base and tip segments) in the model and the export. Outcome: switch off to omit the digit — handy for exporting one finger at a time, reprinting a single damaged finger, or simplifying the preview. Turning this off overrides the matching base/tip toggles below.",
           "group": "Visibility"
         },
@@ -284,6 +338,8 @@
           "type": "boolean",
           "initial": true,
           "caption": "Show index finger base (proximal segment) — print separately from the tip",
+          "label_pt": "Mostrar Base do Indicador",
+          "caption_pt": "Mostrar a base do indicador (segmento proximal) — imprimir separadamente da ponta",
           "help": "Objective: show the proximal (base) segment of the index finger, which prints as its own piece. Outcome: enable to lay this part out for printing or to reprint just the base after wear or breakage; disable to leave it out. Each finger is split into a base and a tip so the flexible printed joint between them can be printed flat and then assembled.",
           "group": "Visibility"
         },
@@ -292,6 +348,8 @@
           "type": "boolean",
           "initial": true,
           "caption": "Show index fingertip (distal segment) — print separately from the base",
+          "label_pt": "Mostrar Ponta do Indicador",
+          "caption_pt": "Mostrar a ponta do indicador (segmento distal) — imprimir separadamente da base",
           "help": "Objective: show the distal (tip) segment of the index finger, printed separately from the base. Outcome: enable to include the fingertip in the print layout or to reprint only the tip; disable to omit it. Pair it with the base toggle to output or replace the whole finger.",
           "group": "Visibility"
         },
@@ -300,6 +358,8 @@
           "type": "boolean",
           "initial": true,
           "caption": "Show middle finger base (proximal segment) — print separately from the tip",
+          "label_pt": "Mostrar Base do Médio",
+          "caption_pt": "Mostrar a base do dedo médio (segmento proximal) — imprimir separadamente da ponta",
           "help": "Objective: show the proximal (base) segment of the middle finger, which prints as its own piece. Outcome: enable to lay this part out for printing or to reprint just the base after wear or breakage; disable to leave it out. Each finger is split into a base and a tip so the flexible printed joint between them can be printed flat and then assembled.",
           "group": "Visibility"
         },
@@ -308,6 +368,8 @@
           "type": "boolean",
           "initial": true,
           "caption": "Show middle fingertip (distal segment) — print separately from the base",
+          "label_pt": "Mostrar Ponta do Médio",
+          "caption_pt": "Mostrar a ponta do dedo médio (segmento distal) — imprimir separadamente da base",
           "help": "Objective: show the distal (tip) segment of the middle finger, printed separately from the base. Outcome: enable to include the fingertip in the print layout or to reprint only the tip; disable to omit it. Pair it with the base toggle to output or replace the whole finger.",
           "group": "Visibility"
         },
@@ -316,6 +378,8 @@
           "type": "boolean",
           "initial": true,
           "caption": "Show ring finger base (proximal segment) — print separately from the tip",
+          "label_pt": "Mostrar Base do Anelar",
+          "caption_pt": "Mostrar a base do anelar (segmento proximal) — imprimir separadamente da ponta",
           "help": "Objective: show the proximal (base) segment of the ring finger, which prints as its own piece. Outcome: enable to lay this part out for printing or to reprint just the base after wear or breakage; disable to leave it out. Each finger is split into a base and a tip so the flexible printed joint between them can be printed flat and then assembled.",
           "group": "Visibility"
         },
@@ -324,6 +388,8 @@
           "type": "boolean",
           "initial": true,
           "caption": "Show ring fingertip (distal segment) — print separately from the base",
+          "label_pt": "Mostrar Ponta do Anelar",
+          "caption_pt": "Mostrar a ponta do anelar (segmento distal) — imprimir separadamente da base",
           "help": "Objective: show the distal (tip) segment of the ring finger, printed separately from the base. Outcome: enable to include the fingertip in the print layout or to reprint only the tip; disable to omit it. Pair it with the base toggle to output or replace the whole finger.",
           "group": "Visibility"
         },
@@ -332,6 +398,8 @@
           "type": "boolean",
           "initial": true,
           "caption": "Show pinky finger base (proximal segment) — print separately from the tip",
+          "label_pt": "Mostrar Base do Mindinho",
+          "caption_pt": "Mostrar a base do mindinho (segmento proximal) — imprimir separadamente da ponta",
           "help": "Objective: show the proximal (base) segment of the pinky finger, which prints as its own piece. Outcome: enable to lay this part out for printing or to reprint just the base after wear or breakage; disable to leave it out. Each finger is split into a base and a tip so the flexible printed joint between them can be printed flat and then assembled.",
           "group": "Visibility"
         },
@@ -340,6 +408,8 @@
           "type": "boolean",
           "initial": true,
           "caption": "Show pinky fingertip (distal segment) — print separately from the base",
+          "label_pt": "Mostrar Ponta do Mindinho",
+          "caption_pt": "Mostrar a ponta do mindinho (segmento distal) — imprimir separadamente da base",
           "help": "Objective: show the distal (tip) segment of the pinky finger, printed separately from the base. Outcome: enable to include the fingertip in the print layout or to reprint only the tip; disable to omit it. Pair it with the base toggle to output or replace the whole finger.",
           "group": "Visibility"
         },
@@ -348,6 +418,8 @@
           "type": "boolean",
           "initial": true,
           "caption": "Show thumb base (proximal segment) — print separately from the tip",
+          "label_pt": "Mostrar Base do Polegar",
+          "caption_pt": "Mostrar a base do polegar (segmento proximal) — imprimir separadamente da ponta",
           "help": "Objective: show the proximal (base) segment of the thumb, which prints as its own piece. Outcome: enable to lay this part out for printing or to reprint just the base after wear or breakage; disable to leave it out. Each finger is split into a base and a tip so the flexible printed joint between them can be printed flat and then assembled.",
           "group": "Visibility"
         },
@@ -356,6 +428,8 @@
           "type": "boolean",
           "initial": true,
           "caption": "Show thumb tip (distal segment) — print separately from the base",
+          "label_pt": "Mostrar Ponta do Polegar",
+          "caption_pt": "Mostrar a ponta do polegar (segmento distal) — imprimir separadamente da base",
           "help": "Objective: show the distal (tip) segment of the thumb, printed separately from the base. Outcome: enable to include the fingertip in the print layout or to reprint only the tip; disable to omit it. Pair it with the base toggle to output or replace the whole finger.",
           "group": "Visibility"
         }
@@ -448,7 +522,111 @@
             "show_thumb_tip"
           ]
         }
-      ]
+      ],
+      "name_pt": "Flexy Beast",
+      "description_pt": "Mão protésica acionada pelo pulso, adaptada da Flexy Beast de daprice — uma combinação da Parametric Cyborg Beast (MakerBlock) e da Flexy Hand (Steve Wood / Gyrobot). Juntas flexíveis substituem os parafusos Chicago e os elásticos, para um design mais leve, mais barato e mais fácil de montar. A escala deriva do guia de tamanhos da Cyborg Beast: xScaleFactor = (palm_breadth_mm + 5) / 55. Todos os comprimentos dos dedos são definidos antropometricamente; as proporções de cada dedo são inferidas dos comprimentos individuais em relação ao dedo médio."
+    },
+    {
+      "id": "unlimbed_phoenix_hand",
+      "renderBackend": "manifold",
+      "name": "UnLimbited Phoenix Hand",
+      "description": "Team UnLimbited Phoenix Hand V1.0 by Stephen Robert Davies & Drew Murray (original Phoenix Hand by Jason Bryant). A wrist-powered prosthetic hand with a thermoformable palm and a reverse-dovetail tensioner gauntlet. The design is distributed as fixed printable meshes, so fit is controlled by a single uniform print scale. Here that scale is derived anthropometrically from knuckle-to-knuckle palm breadth — the unscaled mesh spans REF_PALM_BREADTH = 82 mm at 100% — and is clamped to the model's printable 100–160% range. Choose one part at a time to preview or export. Licensed CC BY-NC-SA 4.0 — teamunlimbited.org.",
+      "file": "active/unlimbed_phoenix_hand/UnLimbitedPhoenix.scad",
+      "dependencies": [],
+      "parameters": [
+        {
+          "name": "palm_breadth_mm",
+          "type": "number",
+          "initial": 82,
+          "min": 82,
+          "max": 131,
+          "step": 1,
+          "caption": "Knuckle-to-knuckle metacarpal breadth — drives the uniform print scale: HandPerc = palm_breadth_mm / 82 × 100, clamped to 100–160% (mm)",
+          "label_pt": "Largura da Palma (em mm)",
+          "caption_pt": "Largura metacarpal entre nós dos dedos — define a escala de impressão uniforme: HandPerc = palm_breadth_mm / 82 × 100, limitada a 100–160% (mm)",
+          "help": "Objective: size the whole Phoenix hand to the patient by measuring straight across the back of the hand, index knuckle to pinky knuckle, with the fingers held together. Outcome: the entire mesh scales uniformly so a larger value yields a proportionally bigger hand. Note: the Phoenix mesh cannot print smaller than its 100% size (about an 82 mm palm breadth), so values below 82 mm have no further effect — for very small hands choose a smaller model such as the Flexy Beast.",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "HandPerc_override",
+          "type": "number",
+          "initial": 0,
+          "min": 0,
+          "max": 160,
+          "step": 1,
+          "caption": "Manual print-scale override (%) — 0 derives the scale from palm breadth; 100–160 sets it directly",
+          "label_pt": "Sobreposição de Escala (%)",
+          "caption_pt": "Sobreposição manual da escala de impressão (%) — 0 deriva a escala da largura da palma; 100–160 define-a diretamente",
+          "help": "Objective: bypass the anthropometric sizing when you want direct control of the print scale. Outcome: leave it at 0 to let palm breadth drive the size automatically; enter a value between 100 and 160 to scale the mesh by exactly that percentage instead. Use this to match a known print scale or to fine-tune fit after a test print.",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "LeftRight",
+          "type": "enum",
+          "initial": "Left",
+          "options": [
+            {
+              "label": "Left hand",
+              "value": "Left"
+            },
+            {
+              "label": "Right hand",
+              "value": "Right"
+            }
+          ],
+          "caption": "Which hand to generate — Right hand mirrors the geometry along X",
+          "label_pt": "Mão Esquerda/Direita",
+          "caption_pt": "Que mão gerar — a mão direita espelha a geometria ao longo de X",
+          "help": "Objective: choose whether to build a left or a right hand. Outcome: selecting 'Right hand' mirrors the entire model across the X axis. Match this to the patient's affected side — printing the wrong hand produces a part that simply will not fit.",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "part",
+          "type": "enum",
+          "initial": "Palm",
+          "options": [
+            {
+              "label": "Palm (thermoform)",
+              "value": "Palm"
+            },
+            {
+              "label": "Fingers",
+              "value": "Fingers"
+            },
+            {
+              "label": "Phalanx",
+              "value": "Phalanx"
+            },
+            {
+              "label": "Pins",
+              "value": "Pins"
+            },
+            {
+              "label": "Tension Box",
+              "value": "Box"
+            },
+            {
+              "label": "Tension Pins",
+              "value": "TPins"
+            },
+            {
+              "label": "Gauntlet",
+              "value": "Gauntlet"
+            },
+            {
+              "label": "Assembly Jig",
+              "value": "Jig"
+            }
+          ],
+          "caption": "Which printable part to preview and export — the Phoenix is printed one part at a time",
+          "label_pt": "Peça",
+          "caption_pt": "Que peça imprimível pré-visualizar e exportar — a Phoenix é impressa uma peça de cada vez",
+          "help": "Objective: select a single printable piece of the Phoenix hand to view and export, since this design ships as separate fixed meshes rather than one combined model. Outcome: the preview and STL export show only the chosen part — print each part in turn (palm, fingers, phalanx, pins, tension box and pins, gauntlet) and use the jig to help align the parts during assembly.",
+          "group": "Visibility"
+        }
+      ],
+      "name_pt": "Mão Phoenix UnLimbited",
+      "description_pt": "Team UnLimbited Phoenix Hand V1.0 por Stephen Robert Davies e Drew Murray (Phoenix Hand original por Jason Bryant). Mão protésica acionada pelo pulso, com palma termoformável e braçadeira tensora com encaixe de cauda de andorinha invertida. O design é distribuído como malhas imprimíveis fixas, pelo que o ajuste é controlado por uma única escala de impressão uniforme. Aqui essa escala deriva antropometricamente da largura metacarpal entre nós dos dedos — a malha sem escala mede REF_PALM_BREADTH = 82 mm a 100% — e é limitada ao intervalo imprimível de 100–160% do modelo. Escolha uma peça de cada vez para pré-visualizar ou exportar. Licenciado CC BY-NC-SA 4.0 — teamunlimbited.org."
     }
   ]
 }

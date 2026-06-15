@@ -44,4 +44,19 @@ if (oldAnthro?.sql?.includes('user_id')) {
 const schema = fs.readFileSync(SCHEMA_PATH, 'utf8');
 db.exec(schema);
 
+// Migration: add multilingual columns to `pages` on existing DBs (CREATE IF NOT
+// EXISTS above does not alter an existing table). Each translation of a page
+// shares a translation_group; a page's language defaults to English.
+const pagesSql = (db.prepare(
+    `SELECT sql FROM sqlite_master WHERE type='table' AND name='pages'`
+).get() || {}).sql || '';
+if (pagesSql && !/\blanguage\b/i.test(pagesSql)) {
+    db.exec(`ALTER TABLE pages ADD COLUMN language TEXT NOT NULL DEFAULT 'en'`);
+}
+if (pagesSql && !/translation_group/i.test(pagesSql)) {
+    db.exec(`ALTER TABLE pages ADD COLUMN translation_group TEXT`);
+}
+// Backfill: every existing/un-grouped page is its own translation group (by slug).
+db.exec(`UPDATE pages SET translation_group = slug WHERE translation_group IS NULL OR translation_group = ''`);
+
 module.exports = db;

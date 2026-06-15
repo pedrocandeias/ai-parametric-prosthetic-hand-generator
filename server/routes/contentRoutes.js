@@ -77,37 +77,50 @@ router.put('/footer', requireAuth, requireRole('admin'), (req, res, next) => {
 
 const slugSchema = z.string().trim().toLowerCase().min(1).max(80)
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must be lowercase letters, numbers and hyphens');
+const langSchema = z.string().trim().toLowerCase().regex(/^[a-z]{2}$/, 'Language must be a 2-letter code');
 const pageCreateSchema = z.object({
     slug: slugSchema,
     title: z.string().trim().min(1).max(160),
     body: z.string().max(50000).default(''),
     is_published: z.boolean().default(true),
+    language: langSchema.default('en'),
+    translation_group: z.string().trim().max(120).optional(),
 });
 const pageUpdateSchema = z.object({
     slug: slugSchema.optional(),
     title: z.string().trim().min(1).max(160).optional(),
     body: z.string().max(50000).optional(),
     is_published: z.boolean().optional(),
+    language: langSchema.optional(),
 });
 
-// GET /api/content/pages — admin: list all pages (incl. unpublished, with body)
+// GET /api/content/pages — admin: list all pages (incl. unpublished). Ordered so
+// translations of the same page sit together.
 router.get('/pages', requireAuth, requireRole('admin'), (req, res, next) => {
     try {
         const rows = db.prepare(
-            `SELECT id, slug, title, body, is_published, created_at, updated_at FROM pages ORDER BY title COLLATE NOCASE`
+            `SELECT id, slug, title, body, is_published, language, translation_group, created_at, updated_at
+             FROM pages ORDER BY translation_group COLLATE NOCASE, language`
         ).all();
         res.json(rows.map(r => ({ ...r, is_published: !!r.is_published })));
     } catch (err) { next(err); }
 });
 
-// GET /api/content/pages/:slug — public: a single published page (for the viewer)
+// GET /api/content/pages/:slug?lang=xx — public: a published page; if a translation
+// in the requested language exists in the same group, return that instead.
 router.get('/pages/:slug', (req, res, next) => {
     try {
-        const row = db.prepare(
-            `SELECT slug, title, body, is_published, updated_at FROM pages WHERE slug = ? COLLATE NOCASE`
-        ).get(req.params.slug);
-        if (!row || !row.is_published) return res.status(404).json({ error: 'Page not found' });
-        res.json({ slug: row.slug, title: row.title, body: row.body, updated_at: row.updated_at });
+        const base = db.prepare(`SELECT * FROM pages WHERE slug = ? COLLATE NOCASE`).get(req.params.slug);
+        if (!base || !base.is_published) return res.status(404).json({ error: 'Page not found' });
+        let row = base;
+        const lang = String(req.query.lang || '').toLowerCase();
+        if (/^[a-z]{2}$/.test(lang) && lang !== base.language && base.translation_group) {
+            const alt = db.prepare(
+                `SELECT * FROM pages WHERE translation_group = ? AND language = ? AND is_published = 1`
+            ).get(base.translation_group, lang);
+            if (alt) row = alt;
+        }
+        res.json({ slug: row.slug, title: row.title, body: row.body, language: row.language, updated_at: row.updated_at });
     } catch (err) { next(err); }
 });
 
@@ -116,13 +129,37 @@ router.post('/pages', requireAuth, requireRole('admin'), (req, res, next) => {
     try {
         const result = pageCreateSchema.safeParse(req.body);
         if (!result.success) return res.status(400).json({ error: result.error.errors[0].message });
-        const { slug, title, body, is_published } = result.data;
+        const { slug, title, body, is_published, language } = result.data;
+        const group = result.data.translation_group || slug;
         const exists = db.prepare(`SELECT 1 FROM pages WHERE slug = ? COLLATE NOCASE`).get(slug);
         if (exists) return res.status(409).json({ error: 'A page with that slug already exists' });
         const info = db.prepare(
-            `INSERT INTO pages (slug, title, body, is_published) VALUES (?, ?, ?, ?)`
-        ).run(slug, title, body, is_published ? 1 : 0);
-        res.status(201).json({ id: info.lastInsertRowid, slug, title, body, is_published });
+            `INSERT INTO pages (slug, title, body, is_published, language, translation_group) VALUES (?, ?, ?, ?, ?, ?)`
+        ).run(slug, title, body, is_published ? 1 : 0, language, group);
+        res.status(201).json({ id: info.lastInsertRowid, slug, title, body, is_published, language, translation_group: group });
+    } catch (err) { next(err); }
+});
+
+// POST /api/content/pages/:id/translate — admin: create a linked translation,
+// pre-filled from the source page, in the requested language.
+router.post('/pages/:id/translate', requireAuth, requireRole('admin'), (req, res, next) => {
+    try {
+        const src = db.prepare(`SELECT * FROM pages WHERE id = ?`).get(Number(req.params.id));
+        if (!src) return res.status(404).json({ error: 'Page not found' });
+        const lr = langSchema.safeParse((req.body || {}).language);
+        if (!lr.success) return res.status(400).json({ error: 'A valid 2-letter target language is required' });
+        const language = lr.data;
+        const group = src.translation_group || src.slug;
+        const existing = db.prepare(`SELECT id, slug FROM pages WHERE translation_group = ? AND language = ?`).get(group, language);
+        if (existing) return res.status(409).json({ error: `A ${language} translation already exists`, id: existing.id, slug: existing.slug });
+        let newSlug = `${src.slug}-${language}`;
+        let n = 2;
+        while (db.prepare(`SELECT 1 FROM pages WHERE slug = ? COLLATE NOCASE`).get(newSlug)) newSlug = `${src.slug}-${language}-${n++}`;
+        if (!src.translation_group) db.prepare(`UPDATE pages SET translation_group = ? WHERE id = ?`).run(group, src.id);
+        const info = db.prepare(
+            `INSERT INTO pages (slug, title, body, is_published, language, translation_group) VALUES (?, ?, ?, ?, ?, ?)`
+        ).run(newSlug, src.title, src.body, src.is_published, language, group);
+        res.status(201).json({ id: info.lastInsertRowid, slug: newSlug, title: src.title, body: src.body, is_published: !!src.is_published, language, translation_group: group });
     } catch (err) { next(err); }
 });
 
@@ -145,11 +182,12 @@ router.put('/pages/:id', requireAuth, requireRole('admin'), (req, res, next) => 
         if (data.title !== undefined)        { fields.push('title = ?');        values.push(data.title); }
         if (data.body !== undefined)         { fields.push('body = ?');         values.push(data.body); }
         if (data.is_published !== undefined) { fields.push('is_published = ?'); values.push(data.is_published ? 1 : 0); }
+        if (data.language !== undefined)     { fields.push('language = ?');     values.push(data.language); }
         if (!fields.length) return res.status(400).json({ error: 'No fields to update' });
         fields.push(`updated_at = datetime('now')`);
         db.prepare(`UPDATE pages SET ${fields.join(', ')} WHERE id = ?`).run(...values, id);
         const updated = db.prepare(
-            `SELECT id, slug, title, body, is_published, created_at, updated_at FROM pages WHERE id = ?`
+            `SELECT id, slug, title, body, is_published, language, translation_group, created_at, updated_at FROM pages WHERE id = ?`
         ).get(id);
         res.json({ ...updated, is_published: !!updated.is_published });
     } catch (err) { next(err); }

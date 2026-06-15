@@ -40,6 +40,10 @@ class ParameterEditor {
         window.addEventListener('i18n:change', () => {
             if (this.currentModel && this.currentModel.parameters) {
                 this.generateParameterControls(this.currentModel.parameters);
+                const nameEl = document.getElementById('model-name');
+                const descEl = document.getElementById('model-description');
+                if (nameEl) nameEl.textContent = this.locField(this.currentModel, 'name');
+                if (descEl) descEl.textContent = this.locField(this.currentModel, 'description');
             }
         });
 
@@ -304,8 +308,8 @@ class ParameterEditor {
 
     displayModelInfo(model) {
         const infoDiv = document.getElementById('model-info');
-        document.getElementById('model-name').textContent = model.name;
-        document.getElementById('model-description').textContent = model.description;
+        document.getElementById('model-name').textContent = this.locField(model, 'name');
+        document.getElementById('model-description').textContent = this.locField(model, 'description');
         infoDiv.style.display = 'block';
 
         // Show AI assistant and saved configs panel (if authenticated)
@@ -340,7 +344,7 @@ class ParameterEditor {
             if (groupName === 'Anthropometric') {
                 html += `
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <h3>${groupName}</h3>
+                        <h3>${this.tGroup(groupName)}</h3>
                         <label class="auto-link-toggle">
                             <input type="checkbox" id="auto-link" ${this.autoLink ? 'checked' : ''}>
                             <span>Auto-link</span>
@@ -348,7 +352,7 @@ class ParameterEditor {
                     </div>
                 `;
             } else {
-                html += `<h3>${groupName}</h3>`;
+                html += `<h3>${this.tGroup(groupName)}</h3>`;
             }
 
             params.forEach(param => {
@@ -448,6 +452,24 @@ class ParameterEditor {
             .replace(/>/g, '&gt;');
     }
 
+    // Return obj[base + '_<lang>'] when the active language has a translation,
+    // otherwise the English base field. Used for model/param text in models-config.json.
+    locField(obj, base) {
+        const lang = (window.I18n && I18n.getLang && I18n.getLang()) || 'en';
+        if (lang && lang !== 'en') {
+            const v = obj[base + '_' + lang];
+            if (v != null && v !== '') return v;
+        }
+        return obj[base];
+    }
+
+    // Translate a parameter group heading via translations.js, falling back to the raw name.
+    tGroup(g) {
+        const key = 'cfg.group.' + g;
+        const v = (window.t ? t(key) : g);
+        return v === key ? g : v;
+    }
+
     formatParamName(name) {
         // "palm_breadth_mm" → "Palm Breadth (in mm)"
         // "show_palm"       → "Show Palm"
@@ -462,9 +484,10 @@ class ParameterEditor {
 
     generateParameterControl(param) {
         const value = this.parameters[param.name];
-        const label = this.formatParamName(param.name);
+        const label = this.locField(param, 'label') || this.formatParamName(param.name);
+        const caption = this.locField(param, 'caption');
         const linkIndicator = param.dependsOn ? `<span class="param-dep-indicator" title="Driven by ${this.formatParamName(param.dependsOn)}">⇠</span>` : '';
-        const helpText = param.help || param.caption;
+        const helpText = this.locField(param, 'help') || caption;
         const helpIcon = helpText
             ? `<span class="param-help" tabindex="0" role="button" aria-label="${this.escapeAttr(helpText)}" data-help="${this.escapeAttr(helpText)}">ⓘ</span>`
             : '';
@@ -478,7 +501,7 @@ class ParameterEditor {
                         <span class="param-name">${label}${linkIndicator}${helpIcon}</span>
                         <span class="param-value" id="value-${param.name}">${value}</span>
                     </div>
-                    <div class="param-caption">${param.caption}</div>
+                    <div class="param-caption">${caption}</div>
                     <div class="checkbox-container">
                         <input type="checkbox" id="param-${param.name}" ${value ? 'checked' : ''}>
                         <label for="param-${param.name}">${t('cfg.enable')}</label>
@@ -493,7 +516,7 @@ class ParameterEditor {
                             <span class="param-name">${label}${linkIndicator}${helpIcon}</span>
                             <span class="param-value" id="value-${param.name}">${value}</span>
                         </div>
-                        <div class="param-caption">${param.caption}</div>
+                        <div class="param-caption">${caption}</div>
                         <input type="range"
                                id="param-${param.name}"
                                class="param-control"
@@ -515,7 +538,7 @@ class ParameterEditor {
                             <span class="param-name">${label}${linkIndicator}${helpIcon}</span>
                             <span class="param-value" id="value-${param.name}">${value}</span>
                         </div>
-                        <div class="param-caption">${param.caption}</div>
+                        <div class="param-caption">${caption}</div>
                         <input type="number"
                                id="param-${param.name}"
                                class="param-control"
@@ -533,7 +556,7 @@ class ParameterEditor {
                     <div class="param-label">
                         <span class="param-name">${label}${linkIndicator}${helpIcon}</span>
                     </div>
-                    <div class="param-caption">${param.caption}</div>
+                    <div class="param-caption">${caption}</div>
                     <select id="param-${param.name}" class="param-control">${options}</select>
                 </div>
             `;
@@ -544,7 +567,7 @@ class ParameterEditor {
                         <span class="param-name">${label}${linkIndicator}${helpIcon}</span>
                         <span class="param-value" id="value-${param.name}">${value}</span>
                     </div>
-                    <div class="param-caption">${param.caption}</div>
+                    <div class="param-caption">${caption}</div>
                     <input type="text"
                            id="param-${param.name}"
                            class="param-control"
@@ -723,7 +746,9 @@ class ParameterEditor {
             );
 
             if (code.match(pattern)) {
-                const scadValue = (param.type === 'string') ? `"${paramValue}"` : paramValue;
+                const needsQuotes = param.type === 'string' ||
+                    (param.type === 'enum' && typeof paramValue === 'string');
+                const scadValue = needsQuotes ? `"${paramValue}"` : paramValue;
                 code = code.replace(pattern, `$1${scadValue};`);
             }
         });

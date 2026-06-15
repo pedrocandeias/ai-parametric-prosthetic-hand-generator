@@ -10,6 +10,19 @@ Version format: `MAJOR.MINOR.PATCH`
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
+## v14.4.0 — 2026-06-15
+
+feat: multilingual content pages (CMS). Each language is its own linked page record — the `pages` table gains `language` + `translation_group` columns (auto-migrated on startup; existing pages become their own en group). New `POST /api/content/pages/:id/translate` clones a page into a chosen language, pre-filled from the source, that the admin then edits. The public viewer (`/pages/<slug>?lang=xx`) resolves to the visitor's-language translation within the group, falling back to the original. `page.html` gains a language switcher and re-fetches on change; the admin Pages tab shows a Lang column, per-row "+ LANG" Translate buttons, and a language field on the page form
+
+## v14.3.0 — 2026-06-15
+
+feat: integrate the Team UnLimbited Phoenix Hand V1.0 as a second prosthetic model (`unlimbed_phoenix_hand`). The Phoenix ships as fixed STL-derived meshes, so it exposes a uniform print scale rather than per-finger parameters. To keep it in the anthropometric pipeline, the .scad now derives `HandPerc` from a canonical `palm_breadth_mm` input (REF_PALM_BREADTH = 82 mm at 100%, clamped 100–160%), with an optional `HandPerc_override` for direct scale control. A `part` enum selects which of the 8 printable pieces (Palm, Fingers, Phalanx, Pins, Tension Box, Tension Pins, Gauntlet, Jig) to preview/export. Full EN/PT labels, captions and help text; manifold-backend render verified for all parts.
+fix: app.js now quotes string-valued `enum` parameters when injecting them into SCAD source (previously only `string`-type params were quoted), so string enums like the Phoenix `part`/`LeftRight` selectors emit valid OpenSCAD (e.g. `part = "Palm";`).
+
+## v14.2.0 — 2026-06-15
+
+feat: translate the configurator's model + parameter text (EN/PT). models-config.json gains per-language fields (`name_pt`, `description_pt`, and per-parameter `label_pt`/`caption_pt`); app.js reads the active-language field via a `locField()` helper and translates group headings through translations.js. Covers the Flexy Beast model name/description, all 37 parameter labels and captions, and the 6 group headings. The detailed ⓘ help-tooltip paragraphs (`help`) still fall back to English — `help_pt` is supported and can be filled in incrementally
+
 ## v14.1.0 — 2026-06-15
 
 feat: extend translations (EN/PT) to the admin panel — app bar, tabs, Users tab (form, table, role/status badges, action buttons), Tech Assignments, and the Footer & Pages editor, plus a switcher in the admin bar and live re-render on language change. ~80 admin keys added. Not yet translated: transient toast messages and the detailed anthropometric measurement form labels (English fallback)

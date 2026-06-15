@@ -625,35 +625,64 @@ function slugify(s) {
 
 let _pagesById = {};
 
+const SUPPORTED_LANGS = ['en', 'pt'];
+
 async function loadPages() {
     const tbody = document.getElementById('pages-tbody');
     try {
         const res = await Auth.fetchWithAuth('/api/content/pages');
         const pages = await res.json();
-        if (!res.ok) { tbody.innerHTML = `<tr><td colspan="5">Failed to load pages</td></tr>`; return; }
+        if (!res.ok) { tbody.innerHTML = `<tr><td colspan="6">Failed to load pages</td></tr>`; return; }
         _pagesById = {};
         pages.forEach(p => { _pagesById[p.id] = p; });
-        if (!pages.length) { tbody.innerHTML = `<tr><td colspan="5" style="color:#999">${t('admin.noPages')}</td></tr>`; return; }
-        tbody.innerHTML = pages.map(p => `
+        if (!pages.length) { tbody.innerHTML = `<tr><td colspan="6" style="color:#999">${t('admin.noPages')}</td></tr>`; return; }
+        // languages already present per translation group → offer "+ LANG" for the rest
+        const groupLangs = {};
+        pages.forEach(p => { const g = p.translation_group || p.slug; (groupLangs[g] = groupLangs[g] || new Set()).add(p.language || 'en'); });
+        tbody.innerHTML = pages.map(p => {
+            const g = p.translation_group || p.slug;
+            const missing = SUPPORTED_LANGS.filter(l => !groupLangs[g].has(l));
+            const translateBtns = missing.map(l =>
+                `<button class="btn-secondary btn-sm page-translate" data-lang="${l}" type="button">+ ${l.toUpperCase()}</button>`).join('');
+            return `
             <tr data-id="${p.id}">
                 <td>${escHtml(p.title)}</td>
+                <td><span style="font-weight:600;font-size:0.75rem;color:var(--text-secondary)">${escHtml((p.language || 'en').toUpperCase())}</span></td>
                 <td><a href="/pages/${encodeURIComponent(p.slug)}" target="_blank" rel="noopener">/pages/${escHtml(p.slug)}</a></td>
                 <td><span class="page-status-pill ${p.is_published ? 'published' : 'draft'}">${p.is_published ? t('admin.statusPublished') : t('admin.pillDraft')}</span></td>
                 <td>${fmtDate(p.updated_at)}</td>
                 <td>
                     <button class="btn-secondary btn-sm page-edit" type="button">${t('admin.edit')}</button>
+                    ${translateBtns}
                     <button class="btn-danger btn-sm page-delete" type="button">${t('admin.delete')}</button>
                 </td>
-            </tr>
-        `).join('');
+            </tr>`;
+        }).join('');
         tbody.querySelectorAll('.page-edit').forEach(b => b.addEventListener('click', e => openPageForm(_pagesById[e.target.closest('tr').dataset.id])));
+        tbody.querySelectorAll('.page-translate').forEach(b => b.addEventListener('click', e => {
+            const tr = e.target.closest('tr');
+            translatePage(Number(tr.dataset.id), e.target.dataset.lang);
+        }));
         tbody.querySelectorAll('.page-delete').forEach(b => b.addEventListener('click', e => {
             const id = Number(e.target.closest('tr').dataset.id);
             deletePage(id, _pagesById[id]);
         }));
     } catch {
-        tbody.innerHTML = `<tr><td colspan="5">Failed to load pages</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6">Failed to load pages</td></tr>`;
     }
+}
+
+async function translatePage(id, lang) {
+    try {
+        const res = await Auth.fetchWithAuth(`/api/content/pages/${id}/translate`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ language: lang }),
+        });
+        const data = await res.json();
+        if (!res.ok) { toast(data.error || 'Failed to create translation', 'error'); return; }
+        toast(t('admin.translateCreated'));
+        await loadPages();
+        openPageForm(data);   // open the new translation for editing
+    } catch { toast('Network error', 'error'); }
 }
 
 function openPageForm(page) {
@@ -665,6 +694,7 @@ function openPageForm(page) {
     slugEl.dataset.touched = page ? '1' : '';
     document.getElementById('page-body').value = page ? page.body : '';
     document.getElementById('page-published').value = page && !page.is_published ? '0' : '1';
+    document.getElementById('page-language').value = (page && page.language) ? page.language : 'en';
     const openLink = document.getElementById('page-open-link');
     if (page) { openLink.style.display = ''; openLink.href = '/pages/' + encodeURIComponent(page.slug); }
     else { openLink.style.display = 'none'; }
@@ -683,6 +713,7 @@ async function savePage() {
         slug: document.getElementById('page-slug').value.trim(),
         body: document.getElementById('page-body').value,
         is_published: document.getElementById('page-published').value === '1',
+        language: document.getElementById('page-language').value,
     };
     const errEl = document.getElementById('page-error');
     errEl.textContent = '';

@@ -79,13 +79,15 @@ CREATE TABLE IF NOT EXISTS site_settings (
 
 -- Admin-authored content pages (Markdown), linked from the footer
 CREATE TABLE IF NOT EXISTS pages (
-    id           INTEGER PRIMARY KEY AUTOINCREMENT,
-    slug         TEXT    NOT NULL UNIQUE COLLATE NOCASE,
-    title        TEXT    NOT NULL,
-    body         TEXT    NOT NULL DEFAULT '',   -- Markdown source
-    is_published INTEGER NOT NULL DEFAULT 1,
-    created_at   TEXT    NOT NULL DEFAULT (datetime('now')),
-    updated_at   TEXT    NOT NULL DEFAULT (datetime('now'))
+    id                INTEGER PRIMARY KEY AUTOINCREMENT,
+    slug              TEXT    NOT NULL UNIQUE COLLATE NOCASE,
+    title             TEXT    NOT NULL,
+    body              TEXT    NOT NULL DEFAULT '',   -- Markdown source
+    is_published      INTEGER NOT NULL DEFAULT 1,
+    language          TEXT    NOT NULL DEFAULT 'en', -- ISO code: 'en', 'pt', …
+    translation_group TEXT,                          -- links translations of one page
+    created_at        TEXT    NOT NULL DEFAULT (datetime('now')),
+    updated_at        TEXT    NOT NULL DEFAULT (datetime('now'))
 );
 
 CREATE INDEX IF NOT EXISTS idx_configurations_user ON configurations(user_id);

@@ -17,7 +17,9 @@
         body { margin: 0; font-family: var(--font); color: var(--text-primary); background: var(--surface); display: flex; flex-direction: column; min-height: 100vh; }
 
         .page-bar { border-bottom: 1px solid var(--border); }
-        .page-bar-inner { max-width: 860px; margin: 0 auto; padding: 16px 24px; display: flex; align-items: center; gap: 12px; }
+        .page-bar-inner { max-width: 860px; margin: 0 auto; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .lang-switcher { appearance: none; -webkit-appearance: none; border: 1px solid var(--border); background: var(--surface); color: var(--text-secondary); font-family: var(--font); font-size: 0.8125rem; font-weight: 600; padding: 6px 10px; border-radius: var(--radius-sm); cursor: pointer; }
+        .lang-switcher:hover { color: var(--text-primary); }
         .page-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
         .page-logo-icon { width: 32px; height: 32px; }
         .page-logo-text { font-size: 1.125rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
@@ -71,6 +73,10 @@
                 </svg>
                 <span class="page-logo-text">Hand Fab</span>
             </a>
+            <select class="lang-switcher" data-i18n-aria-label="lang.label" aria-label="Language">
+                <option value="en">EN</option>
+                <option value="pt">PT</option>
+            </select>
         </div>
     </div>
 
@@ -82,30 +88,40 @@
 
     <footer class="hf-footer-4col" data-footer></footer>
 
+    <script src="/translations.js"></script>
+    <script src="/i18n.js"></script>
     <script src="/markdown.js"></script>
     <script src="/footer.js"></script>
     <script>
-        (async function () {
-            const slug = decodeURIComponent(location.pathname.replace(/^\/pages\//, '').replace(/\/$/, ''));
+        const SLUG = decodeURIComponent(location.pathname.replace(/^\/pages\//, '').replace(/\/$/, ''));
+        function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+        async function loadPage() {
             const el = document.getElementById('page-content');
-            if (!slug) { el.innerHTML = '<p class="page-error">No page specified.</p>'; return; }
+            if (!SLUG) { el.innerHTML = `<p class="page-error">${t('page.noPage')}</p>`; return; }
+            const lang = (window.I18n && I18n.getLang()) || 'en';
             try {
-                const res = await fetch('/api/content/pages/' + encodeURIComponent(slug));
+                const res = await fetch('/api/content/pages/' + encodeURIComponent(SLUG) + '?lang=' + encodeURIComponent(lang));
                 if (!res.ok) {
-                    el.innerHTML = '<p class="page-error">This page doesn’t exist. <a href="/">Go home</a></p>';
-                    document.title = 'Not found — Hand Fab';
+                    el.innerHTML = `<p class="page-error">${t('page.notFound')} <a href="/">${t('page.goHome')}</a></p>`;
+                    document.title = 'Hand Fab';
                     return;
                 }
                 const page = await res.json();
                 document.title = page.title + ' — Hand Fab';
                 const when = page.updated_at ? new Date(page.updated_at + 'Z').toLocaleDateString() : '';
-                el.innerHTML = `<h1>${page.title.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}</h1>`
+                el.innerHTML = `<h1>${esc(page.title)}</h1>`
                     + window.renderMarkdown(page.body)
-                    + (when ? `<p class="page-meta">Last updated ${when}</p>` : '');
+                    + (when ? `<p class="page-meta">${t('page.updated', { date: when })}</p>` : '');
             } catch {
-                el.innerHTML = '<p class="page-error">Failed to load this page.</p>';
+                el.innerHTML = `<p class="page-error">${t('page.failed')}</p>`;
             }
-        })();
+        }
+
+        if (document.readyState !== 'loading') loadPage();
+        else document.addEventListener('DOMContentLoaded', loadPage);
+        // Re-fetch the page (and footer re-renders itself) when the language changes.
+        window.addEventListener('i18n:change', loadPage);
     </script>
 </body>
 </html>

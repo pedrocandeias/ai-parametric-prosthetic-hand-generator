@@ -10,6 +10,11 @@ window.TRANSLATIONS = {
         'menu.signOut': 'Log Out',
         'menu.greeting': 'Hello, {name}',
         'lang.label': 'Language',
+        'page.notFound': "This page doesn’t exist.",
+        'page.goHome': 'Go home',
+        'page.failed': 'Failed to load this page.',
+        'page.noPage': 'No page specified.',
+        'page.updated': 'Last updated {date}',
 
         // Login / register / reset / setup
         'login.tabLogin': 'Login',
@@ -89,6 +94,14 @@ window.TRANSLATIONS = {
         'cfg.revert': 'Revert to Parameters',
         'cfg.clear': 'Clear',
         'cfg.ready': 'Ready',
+        // Parameter group headings (models-config.json group names)
+        'cfg.group.Anthropometric': 'Anthropometric',
+        'cfg.group.Hardware': 'Hardware',
+        'cfg.group.Options': 'Options',
+        'cfg.group.Gauntlet': 'Gauntlet',
+        'cfg.group.Wrist Hinge': 'Wrist Hinge',
+        'cfg.group.Visibility': 'Visibility',
+        'cfg.group.Colors': 'Colors',
 
         // Profile
         'profile.edit': 'Edit Profile',
@@ -179,6 +192,9 @@ window.TRANSLATIONS = {
         'admin.colSlug': 'Slug',
         'admin.colUpdated': 'Updated',
         'admin.colTitle': 'Title',
+        'admin.colLang': 'Lang',
+        'admin.language': 'Language',
+        'admin.translateCreated': 'Translation created — edit it now',
         'admin.delete': 'Delete',
         'admin.noPages': 'No pages yet. Create one to link from the footer.',
         'admin.confirmDeletePage': 'Delete page "{title}"? This cannot be undone.',
@@ -210,6 +226,11 @@ window.TRANSLATIONS = {
         'menu.signOut': 'Terminar Sessão',
         'menu.greeting': 'Olá, {name}',
         'lang.label': 'Idioma',
+        'page.notFound': 'Esta página não existe.',
+        'page.goHome': 'Ir para o início',
+        'page.failed': 'Falha ao carregar esta página.',
+        'page.noPage': 'Nenhuma página especificada.',
+        'page.updated': 'Última atualização {date}',
 
         // Login / register / reset / setup
         'login.tabLogin': 'Entrar',
@@ -289,6 +310,14 @@ window.TRANSLATIONS = {
         'cfg.revert': 'Reverter para Parâmetros',
         'cfg.clear': 'Limpar',
         'cfg.ready': 'Pronto',
+        // Parameter group headings
+        'cfg.group.Anthropometric': 'Antropométrico',
+        'cfg.group.Hardware': 'Ferragens',
+        'cfg.group.Options': 'Opções',
+        'cfg.group.Gauntlet': 'Braçadeira',
+        'cfg.group.Wrist Hinge': 'Dobradiça do Pulso',
+        'cfg.group.Visibility': 'Visibilidade',
+        'cfg.group.Colors': 'Cores',
 
         // Profile
         'profile.edit': 'Editar Perfil',
@@ -379,6 +408,9 @@ window.TRANSLATIONS = {
         'admin.colSlug': 'Slug',
         'admin.colUpdated': 'Atualizada',
         'admin.colTitle': 'Título',
+        'admin.colLang': 'Idioma',
+        'admin.language': 'Idioma',
+        'admin.translateCreated': 'Tradução criada — edite-a agora',
         'admin.delete': 'Eliminar',
         'admin.noPages': 'Ainda não há páginas. Crie uma para ligar a partir do rodapé.',
         'admin.confirmDeletePage': 'Eliminar a página "{title}"? Esta ação não pode ser anulada.',
