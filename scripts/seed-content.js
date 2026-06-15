@@ -223,12 +223,202 @@ We will do our best to respond and to provide the information or function you ne
   },
 ];
 
+// European-Portuguese (pt-PT) translations, keyed by the English slug. Each becomes
+// a linked page (slug + '-pt', language 'pt', same translation_group as the English one).
+const pagesPt = {
+  'help-center': {
+    title: 'Centro de Ajuda',
+    body: `Bem-vindo ao Hand Fab. Esta página leva-o do início de sessão até uma mão protésica pronta a imprimir em poucos passos.
+
+## Começar
+
+1. **Inicie sessão** com a conta que o seu administrador criou para si.
+2. No painel, escolha um modelo (atualmente a **Flexy Beast**, uma mão acionada pelo pulso) e selecione **Começar Novo**.
+3. No configurador, abra o separador **Parâmetros** e defina as medidas antropométricas (largura da palma, comprimentos dos dedos, comprimento do polegar). Passe o rato sobre o ícone **ⓘ** junto a cada campo para saber o que faz.
+4. Use a **Pré-visualização 3D** para verificar a forma e depois **Renderizar** para uma vista mais detalhada.
+5. Quando estiver satisfeito, escolha **Exportar STL** para transferir as peças imprimíveis.
+
+## Não sabe as medidas?
+
+Abra o separador **Assistente IA** e descreva a pessoa (por exemplo: "mulher, 42 anos, 172 cm, comprimento da mão cerca de 18 cm"). O Claude sugere um conjunto inicial de dimensões que pode depois afinar. Também pode preencher valores a partir de uma **base populacional** importada.
+
+## Guardar o seu trabalho
+
+Use o separador **Guardadas** para armazenar uma configuração com um nome e notas, e recarregá-la mais tarde.
+
+## Continua com dúvidas?
+
+- Leia a [Documentação](/pages/documentation) para uma referência completa.
+- Siga um [Tutorial](/pages/tutorials) do início ao fim.
+- Envie-nos um email para **${EMAIL}** ou abra uma issue no [GitHub](${GH}).`,
+  },
+  'documentation': {
+    title: 'Documentação',
+    body: `O Hand Fab é uma ferramenta de design paramétrico para mãos protésicas imprimíveis em 3D. Executa o motor de geometria OpenSCAD diretamente no seu navegador (via WebAssembly), pelo que os modelos são gerados e exportados na sua própria máquina.
+
+## Modelos
+
+O modelo ativo é a **Flexy Beast** — uma mão acionada pelo pulso, adaptada de designs open-source (uma combinação da Parametric Cyborg Beast e da Flexy Hand). Juntas flexíveis impressas substituem parafusos e elásticos, para uma montagem mais leve e fácil.
+
+## Parâmetros
+
+Todo o dimensionamento é **antropométrico** — definido por medidas reais da mão em milímetros:
+
+- **Largura da palma** — largura entre nós dos dedos; define a escala global da mão.
+- **Comprimentos dos dedos** — indicador, médio, anelar e mindinho, medidos da dobra MCP à ponta.
+- **Comprimento do polegar** — controla a oposição do polegar.
+- **Ferragens / juntas** — diâmetro do furo e espessura da ranhura das juntas flexíveis.
+- **Braçadeira** — punho de antebraço opcional que se fixa ao pulso.
+
+Cada parâmetro tem uma dica **ⓘ** que explica o seu objetivo e o efeito de o alterar.
+
+## Assistente IA e bases populacionais
+
+Descreva uma pessoa em linguagem natural e o assistente de IA propõe um conjunto inicial de dimensões. Os **conjuntos de dados populacionais** importados permitem preencher os controlos a partir de um grupo demográfico e depois ajustar. As sugestões da IA são um ponto de partida — reveja-as sempre.
+
+## Exportar e imprimir
+
+**Exportar STL** produz as peças imprimíveis (palma, dedos divididos em base/ponta, polegar e braçadeira opcional). Imprima em PLA ou PETG; as juntas flexíveis foram concebidas para imprimir planas e montar depois.
+
+## Código-fonte e licenciamento
+
+O Hand Fab é open source. O código, as fontes dos modelos e os designs em que se baseia estão disponíveis no [GitHub](${GH}). Os designs de mão subjacentes têm as suas próprias licenças open-source — consulte o repositório.`,
+  },
+  'tutorials': {
+    title: 'Tutoriais',
+    body: `Guias passo a passo para tarefas comuns.
+
+## A sua primeira mão em 10 minutos
+
+1. Inicie sessão e selecione **Flexy Beast → Começar Novo**.
+2. Abra **Parâmetros** e defina a **Largura da palma** com a largura entre nós dos dedos medida no utilizador.
+3. Defina cada **comprimento de dedo** e o **comprimento do polegar**.
+4. Observe a **Pré-visualização 3D** a atualizar e depois prima **Renderizar**.
+5. Prima **Exportar STL** e guarde os ficheiros.
+6. Faça o slicing e imprima (ver abaixo).
+
+## Medir uma mão
+
+- **Largura da palma:** meça em linha reta nas costas da mão, do nó do indicador ao nó do mindinho, com os dedos juntos.
+- **Comprimento do dedo:** da dobra do nó (MCP) à ponta do dedo, com o dedo esticado.
+- **Comprimento do polegar:** da dobra da base do polegar até à ponta.
+
+Registe tudo em **milímetros**. Na dúvida, meça duas vezes.
+
+## Usar o assistente de IA
+
+Se só souber dados aproximados, abra o **Assistente IA**, descreva a pessoa e prima **Obter Sugestões da IA**. Aplique o resultado e depois ajuste cada controlo. Trate a sugestão como ponto de partida, não como ajuste final.
+
+## Impressão e montagem
+
+- Material: **PLA** ou **PETG**.
+- Imprima os dedos e a palma planos; as juntas de dobradiça viva flexionam depois da impressão.
+- Opcionalmente, imprima a **braçadeira** e fixe-a ao pulso com o pino impresso.
+- Teste a amplitude de movimento antes do tensionamento final.
+
+## Ir mais longe
+
+O design completo é open source — faça fork, estude a geometria ou contribua no [GitHub](${GH}).`,
+  },
+  'privacy-policy': {
+    title: 'Política de Privacidade',
+    body: `O Hand Fab é uma ferramenta gratuita e **open-source** para conceber mãos protésicas imprimíveis em 3D ([código-fonte no GitHub](${GH})). Esta página descreve, em termos simples, como a instância alojada trata os dados. É oferecida abertamente e usa-a ao seu próprio critério e responsabilidade.
+
+## O que recolhemos
+
+- **Conta:** o seu nome de utilizador e email. As palavras-passe são guardadas apenas como um **hash bcrypt** com sal — nunca em texto simples.
+- **Os seus designs:** os parâmetros do modelo e as notas que escolher guardar.
+- **Medidas que introduz:** valores antropométricos e qualquer descrição em texto livre que escreva para o dimensionamento. Mantenha-se nas medidas — não introduza nomes nem dados identificativos de pacientes.
+- **Registos técnicos básicos:** por exemplo, endereço IP e datas/horas, guardados brevemente por segurança e fiabilidade.
+
+## Sugestões de IA
+
+Se usar o assistente de IA, o texto que escrever é enviado ao fornecedor de IA (**Anthropic**) para gerar sugestões de dimensionamento. Não inclua informação identificativa nesse texto.
+
+## Como são usados
+
+Apenas para gerir a sua conta, guardar os seus designs, fornecer sugestões, manter o serviço seguro e responder a pedidos de apoio. **Não** vendemos os seus dados nem os usamos para publicidade.
+
+## Segurança e honestidade
+
+As palavras-passe são protegidas por hash, o acesso é baseado em funções e o tráfego usa HTTPS. Dito isto, este é um pequeno projeto open-source fornecido **tal como está**, sem garantias — use-o por sua conta e risco e não guarde nada que não possa perder.
+
+## Remover os seus dados
+
+Quer apagar a sua conta ou dados? Envie um email para **${EMAIL}** e removemo-los.
+
+## Auto-alojamento
+
+Como o Hand Fab é open source, qualquer pessoa pode executar a sua própria cópia. Se usar uma instância alojada por outra pessoa, é esse operador — e não nós — que controla os dados nela.
+
+## Contacto
+
+Dúvidas? **${EMAIL}**, ou abra uma issue no [GitHub](${GH}).`,
+  },
+  'terms-of-service': {
+    title: 'Termos de Serviço',
+    body: `O Hand Fab é um projeto gratuito e **open-source** ([código-fonte no GitHub](${GH})), partilhado na esperança de ser útil. Leia isto antes de depender dele.
+
+## Use por sua conta e risco
+
+O Hand Fab é fornecido **"tal como está", sem qualquer garantia** — expressa ou implícita — e **sem garantia de adequação a qualquer finalidade**. Usa-o, e tudo o que fizer com ele, **inteiramente por sua conta e responsabilidade**. Na máxima medida permitida por lei, os autores e contribuidores não assumem **qualquer responsabilidade** por perdas, lesões ou danos decorrentes da sua utilização.
+
+## Não é um dispositivo médico
+
+> O Hand Fab é uma **ferramenta de design e prototipagem — não é um dispositivo médico nem aconselhamento clínico**. O seu resultado são apenas ficheiros de design, não aprovados nem certificados por qualquer entidade reguladora. Quem imprimir, ajustar ou usar um dispositivo baseado nestes ficheiros, fá-lo por sua conta e risco e deve tê-lo avaliado por um protésico ou clínico qualificado. É o único responsável pela segurança e adequação de tudo o que produzir.
+
+## Open source e licenciamento
+
+O software e os designs de mão em que se baseia são open source sob as respetivas licenças — ver [GitHub](${GH}). É livre de o usar, estudar, modificar e auto-alojar nos termos dessas licenças. Os designs que criar a partir das suas próprias medidas são seus.
+
+## As suas responsabilidades
+
+Use o Hand Fab de forma lícita, não tente comprometer nem abusar do serviço e mantenha as credenciais da sua conta seguras. É responsável pela atividade na sua conta.
+
+## Disponibilidade e alterações
+
+Este é um projeto comunitário/de lazer. Pode mudar, falhar ou ficar indisponível a qualquer momento, sem garantia de disponibilidade. Estes termos podem ser atualizados; o uso continuado significa que aceita a versão atual.
+
+## Contacto
+
+**${EMAIL}**, ou abra uma issue no [GitHub](${GH}).`,
+  },
+  'accessibility': {
+    title: 'Acessibilidade',
+    body: `Queremos que o Hand Fab seja utilizável pelo maior número possível de pessoas, incluindo quem usa tecnologias de apoio.
+
+## O nosso compromisso
+
+Procuramos seguir as **Diretrizes de Acessibilidade para Conteúdo Web (WCAG) 2.1, Nível AA** como norma-alvo, e tratamos a acessibilidade como um esforço contínuo e não como uma tarefa pontual.
+
+## O que fazemos
+
+- Os controlos interativos são acessíveis e operáveis por **teclado**.
+- Os botões e ícones têm **etiquetas de texto / etiquetas ARIA** para leitores de ecrã.
+- Procuramos tamanhos de texto legíveis e contraste de cor suficiente.
+- Os campos de parâmetros incluem texto de ajuda descritivo.
+
+## Limitações conhecidas
+
+- A **pré-visualização 3D interativa** é, por natureza, visual e não é totalmente descritível para leitores de ecrã. Os parâmetros numéricos permanecem totalmente acessíveis, e os ficheiros exportados não dependem da pré-visualização.
+- Algumas áreas avançadas ainda estão a ser melhoradas.
+
+## Comentários
+
+Se encontrar uma barreira de acessibilidade, diga-nos — o seu feedback molda diretamente as nossas correções. Envie um email para **${EMAIL}** com a página, o que estava a tentar fazer e a tecnologia de apoio que utiliza. Também pode abrir uma issue no [GitHub](${GH}).
+
+Faremos o nosso melhor para responder e fornecer a informação ou função de que precisa de forma acessível.`,
+  },
+};
+
 const db = new DatabaseSync(DB_PATH);
 const up = db.prepare(
-  `INSERT INTO pages (slug, title, body, is_published) VALUES (?, ?, ?, 1)
-   ON CONFLICT(slug) DO UPDATE SET title = excluded.title, body = excluded.body, is_published = 1, updated_at = datetime('now')`
+  `INSERT INTO pages (slug, title, body, is_published, language, translation_group) VALUES (?, ?, ?, 1, ?, ?)
+   ON CONFLICT(slug) DO UPDATE SET title = excluded.title, body = excluded.body, is_published = 1,
+       language = excluded.language, translation_group = excluded.translation_group, updated_at = datetime('now')`
 );
-for (const p of pages) up.run(p.slug, p.title, p.body);
+for (const p of pages) up.run(p.slug, p.title, p.body, 'en', p.slug);
+for (const [enSlug, pt] of Object.entries(pagesPt)) up.run(enSlug + '-pt', pt.title, pt.body, 'pt', enSlug);
 
 db.prepare(
   `INSERT INTO site_settings (key, value, updated_at) VALUES ('footer', ?, datetime('now'))

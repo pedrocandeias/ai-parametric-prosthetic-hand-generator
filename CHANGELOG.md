@@ -10,6 +10,10 @@ Version format: `MAJOR.MINOR.PATCH`
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
+## v14.8.0 — 2026-06-15
+
+feat: European-Portuguese (pt-PT) content. The six footer pages (Help Center, Documentation, Tutorials, Privacy Policy, Terms of Service, Accessibility) now have linked PT translations created via the CMS (`scripts/seed-content.js`), so PT visitors read them in Portuguese. All 37 Flexy Beast parameter ⓘ help tooltips gained `help_pt` translations in `models-config.json`
+
 ## v14.7.0 — 2026-06-15
 
 docs: accuracy pass on the remaining docs — bump the Node requirement to ≥22 across DEPLOYMENT.md, DEPLOY-QUICKSTART.md, QUICK-START.md and OVERVIEW.md; replace `better-sqlite3` references with `node:sqlite` (DEPLOYMENT.md note, OVERVIEW.md stack table, TROUBLESHOOTING.md); flag the live cPanel/Passenger path in DEPLOY-QUICKSTART; correct the native-module guidance (bcrypt prebuilt, SQLite built into Node) and the model list (Phoenix added, Paraglider under inactive/)
