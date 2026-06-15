@@ -1,3 +1,4 @@
+// ===== namespaced bundle: paraglider/gripper_box_pieces.scad (prefix BOX_) =====
 // parts for flexible-flyer parametric variant of Phoenix Reborn
 
 // this should match the scale of the hand and gauntlet
@@ -5,26 +6,26 @@
 // Knuckle-to-knuckle metacarpal palm breadth (mm). Drives global_scale; the unscaled
 // Paraglider hand spans REF_PALM_BREADTH mm at scale 1.0. Use the same value across the
 // matching palm, fingers, tensioner box and gauntlet for a fitting set.
-palm_breadth_mm = 100; // [81:165]
+// [dispatcher-driven] palm_breadth_mm
 // Manual scale-factor override (x). 0 = derive automatically from palm_breadth_mm.
-scale_override = 0; // [0:0.01:2.0]
+BOX_scale_override = 0; // [0:0.01:2.0]
 // Palm breadth (mm) of the unscaled (scale 1.0) Paraglider hand.
-REF_PALM_BREADTH = 80.6;
+BOX_REF_PALM_BREADTH = 80.6;
 // derived hand scale, clamped to the printable 1.0-2.0x range
-global_scale = scale_override > 0 ? scale_override : max(1.0, min(2.0, palm_breadth_mm / REF_PALM_BREADTH));
+BOX_global_scale = BOX_scale_override > 0 ? BOX_scale_override : max(1.0, min(2.0, palm_breadth_mm / BOX_REF_PALM_BREADTH));
 
 // this sets how much clearance is on the dovetail.  It shouldn't depend on the scale
-slide_clearance=0.2; // [0:0.01:0.5]
+BOX_slide_clearance=0.2; // [0:0.01:0.5]
 
 // The (approximately) root diameter of the screw thread for a nice fit
-screw_thread_dia=2.8; // seems to work for m3
-screw_clearance_dia=screw_thread_dia+0.5;
+BOX_screw_thread_dia=2.8; // seems to work for m3
+BOX_screw_clearance_dia=BOX_screw_thread_dia+0.5;
 // diameter of screw head
-screw_head_dia=5.5; // m3 screw
+BOX_screw_head_dia=5.5; // m3 screw
 // distance between edge of screw heads and slider rail
-screw_head_clearance=1.0; // minimum distance of screw heads above slider rail
+BOX_screw_head_clearance=1.0; // minimum distance of screw heads above slider rail
 
-module slide(grow) {
+module BOX_slide(grow) {
     // make a scalable slide profile, inset by the specified amount for clearance
     union() {
         hull() {
@@ -35,12 +36,12 @@ module slide(grow) {
     }
 }
 
-module box() {
-    cl=slide_clearance/global_scale;
+module BOX_box() {
+    cl=BOX_slide_clearance/BOX_global_scale;
     difference() {
         linear_extrude(height=28) union() {
           square([30,8], center=true);
-          slide(grow=-cl);
+          BOX_slide(grow=-cl);
         };
         whip_box_x=11.2+cl;
         whip_box_y=5;
@@ -61,11 +62,11 @@ module box() {
         
         
         for(dx=[[11.5,0,0],[-4.6,4.2,0],[1,4.2,0]]) translate(dx)
-            cylinder(d=screw_clearance_dia/global_scale+.25, h=40, $fn=20, center=true); 
+            cylinder(d=BOX_screw_clearance_dia/BOX_global_scale+.25, h=40, $fn=20, center=true); 
     }
 }
 
-module thumb_tensioner() {
+module BOX_thumb_tensioner() {
     // translate([-15.0,69.8,-25.5]) import("thumb_v2_tensioner_pin.stl", convexity=10);
     translate([0,0,2.4]) difference() {
         rotate([-90,0,0]) intersection() {
@@ -74,7 +75,7 @@ module thumb_tensioner() {
         }
         translate([0,-3,0])
             rotate([90,0,0]) 
-                cylinder(d=screw_thread_dia/global_scale, h=15, center=true, $fn=20);
+                cylinder(d=BOX_screw_thread_dia/BOX_global_scale, h=15, center=true, $fn=20);
         // translate([0,8,0]) cylinder(d=2, h=15, center=true, $fn=20);
         translate([0,10.3,0]) scale([1,1.2,1])
             rotate([0,90,0]) rotate_extrude(angle=180, convexity=10, $fn=50) 
@@ -83,12 +84,12 @@ module thumb_tensioner() {
             
 }
 
-module pivot() {
+module BOX_pivot() {
     translate([0,0,3.5/2]) {
         difference() {
             translate([0,0,0]) cube([11,20,3.5], center=true);
             for(dx=[-2.8,2.8]) translate([dx,0,0]) rotate([90,0,0]) 
-                cylinder(d=screw_thread_dia/global_scale, h=50, center=true, $fn=20);
+                cylinder(d=BOX_screw_thread_dia/BOX_global_scale, h=50, center=true, $fn=20);
         }
         translate([-1.1,3,1.74]) difference() {
             cylinder(d=6.5, h=5, $fn=20);
@@ -97,9 +98,9 @@ module pivot() {
     }
 }
 
-module whipple_tree() {
+module BOX_whipple_tree() {
     // %import("whippletree_JD3.stl", convexity=10); 
-    thickness=5.4-slide_clearance/global_scale;
+    thickness=5.4-BOX_slide_clearance/BOX_global_scale;
     ht=thickness/2;
     difference() {
         linear_extrude(height=thickness) difference() {
@@ -120,10 +121,13 @@ module whipple_tree() {
     }
 }
 
-scale(global_scale) translate([-5,-15,0]) rotate(0) pivot();
+module BOX_main() {
 
-scale(global_scale) translate([5,-15,0]) rotate(0) thumb_tensioner();
+scale(BOX_global_scale) translate([-5,-15,0]) rotate(0) BOX_pivot();
 
-scale(global_scale) box();
+scale(BOX_global_scale) translate([5,-15,0]) rotate(0) BOX_thumb_tensioner();
 
-translate([0,15*global_scale,0]) rotate(180) scale(global_scale) whipple_tree();
+scale(BOX_global_scale) BOX_box();
+
+translate([0,15*BOX_global_scale,0]) rotate(180) scale(BOX_global_scale) BOX_whipple_tree();
+}

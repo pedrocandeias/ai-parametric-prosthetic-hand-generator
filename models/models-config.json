@@ -669,7 +669,7 @@
       "id": "paraglider_hand",
       "renderBackend": "manifold",
       "name": "Paraglider · Hand",
-      "description": "Complete wrist-powered Paraglider hand — palm plus all five fingers in one model, sized from canonical anthropometric measurements with independent per-finger scaling. Toggle parts for printing, switch between assembled and flat-layout views, and enable channel routing for a print-ready export. Paraglider (Flexible Flyer) hand by Marcus Mendenhall — a parametric remix of the Phoenix v2, UnLimbited Phoenix v3 and Phoenix Reborn that uses commercial metal pins, screws or nails as finger pivots (with optional Delrin/PTFE bearings) so joints stay smooth and a standard hardware kit fits any size. Reborn Hand by enablesierraleone, CC BY 3.0.",
+      "description": "Complete Paraglider (Flexible Flyer) prosthetic system in one model. The Hand component builds the palm (Phoenix Reborn or Unlimbited v3 style) plus all five fingers, sized from canonical anthropometric measurements with independent per-finger scaling and printable part toggles. The Component selector also renders the wrist-drive Tensioner Box and Thermo Gauntlet, and the separate elbow-powered UnLimbited Arm. By Marcus Mendenhall, parametric remix of Phoenix v2 / Unlimbited v3 / Phoenix Reborn using commercial metal-pin joints. Reborn Hand by enablesierraleone, CC BY 3.0.",
       "file": "active/paraglider_hand/paraglider_hand.scad",
       "dependencies": [
         {
@@ -687,9 +687,77 @@
         {
           "url": "active/paraglider_hand/palm_left_v2_nobox.stl",
           "path": "palm_left_v2_nobox.stl"
+        },
+        {
+          "url": "active/paraglider_hand/pg_v3palm.scad",
+          "path": "pg_v3palm.scad"
+        },
+        {
+          "url": "active/paraglider_hand/pg_box.scad",
+          "path": "pg_box.scad"
+        },
+        {
+          "url": "active/paraglider_hand/pg_gauntlet.scad",
+          "path": "pg_gauntlet.scad"
+        },
+        {
+          "url": "active/paraglider_hand/pg_arm.scad",
+          "path": "pg_arm.scad"
+        },
+        {
+          "url": "active/paraglider_hand/palm_v3.stl",
+          "path": "palm_v3.stl"
         }
       ],
       "parameters": [
+        {
+          "name": "component",
+          "type": "enum",
+          "initial": "Hand",
+          "options": [
+            {
+              "label": "Hand",
+              "value": "Hand"
+            },
+            {
+              "label": "Tensioner Box",
+              "value": "Box"
+            },
+            {
+              "label": "Thermo Gauntlet",
+              "value": "Gauntlet"
+            },
+            {
+              "label": "UnLimbited Arm",
+              "value": "Arm"
+            }
+          ],
+          "caption": "Which piece of the Paraglider system to render and export",
+          "label_pt": "Componente",
+          "caption_pt": "Que peça do sistema Paraglider renderizar e exportar",
+          "help": "Objective: pick which part of the Paraglider system you are working on. Outcome: 'Hand' builds the palm + fingers; 'Tensioner Box' and 'Thermo Gauntlet' are the wrist-drive accessories; 'UnLimbited Arm' is the separate elbow-powered arm. The relevant parameter groups below apply to the selected component.",
+          "group": "Component"
+        },
+        {
+          "name": "palm_style",
+          "type": "enum",
+          "initial": "Reborn",
+          "options": [
+            {
+              "label": "Phoenix Reborn",
+              "value": "Reborn"
+            },
+            {
+              "label": "Unlimbited v3",
+              "value": "UnlimbitedV3"
+            }
+          ],
+          "caption": "Palm style for the Hand component — Reborn (v2-derived) or Unlimbited v3 (higher-res mesh)",
+          "label_pt": "Estilo da Palma",
+          "caption_pt": "Estilo da palma para o componente Mão — Reborn (derivada da v2) ou Unlimbited v3 (malha de maior resolução)",
+          "help": "Objective: choose the palm design when building the Hand. Outcome: 'Phoenix Reborn' uses the repaired v2 mesh; 'Unlimbited v3' uses the higher-resolution Unlimbited mesh. The fingers are shared; both scale from the same anthropometric inputs.",
+          "group": "Component"
+        },
         {
           "name": "palm_breadth_mm",
           "type": "number",
@@ -1050,6 +1118,151 @@
           "label_pt": "Cor dos Pinos",
           "caption_pt": "Cor de pré-visualização dos pinos",
           "group": "Colors"
+        },
+        {
+          "name": "GAU_bearing_only",
+          "type": "boolean",
+          "initial": false,
+          "caption": "Gauntlet: print only the wrist bearing tab (a thermoforming jig for the bearing plastic)",
+          "label_pt": "Apenas Chumaceira",
+          "caption_pt": "Braçadeira: imprimir apenas a aba da chumaceira do pulso (gabarito para termoformar o plástico)",
+          "help": "Objective (Gauntlet component): isolate the small wrist-bearing tab used as a forming jig for the 0.5 mm Igus bearing plastic. Outcome: on prints only that tab; off prints the whole gauntlet.",
+          "group": "Gauntlet"
+        },
+        {
+          "name": "GAU_slide_only",
+          "type": "boolean",
+          "initial": false,
+          "caption": "Gauntlet: print only the dovetail track (to test the tensioner-box fit)",
+          "label_pt": "Apenas Trilho",
+          "caption_pt": "Braçadeira: imprimir apenas o trilho de cauda de andorinha (para testar o ajuste da caixa tensora)",
+          "help": "Objective (Gauntlet component): isolate the dovetail track for a quick fit test against the tensioner box. Outcome: on prints just the track; off prints the whole gauntlet.",
+          "group": "Gauntlet"
+        },
+        {
+          "name": "ARM_part",
+          "type": "enum",
+          "initial": "Cuff",
+          "options": [
+            {
+              "label": "Cuff",
+              "value": "Cuff"
+            },
+            {
+              "label": "Forearm",
+              "value": "Forearm"
+            },
+            {
+              "label": "Palm",
+              "value": "Palm"
+            },
+            {
+              "label": "Fingers",
+              "value": "Fingers"
+            },
+            {
+              "label": "Phalanx",
+              "value": "Phalanx"
+            },
+            {
+              "label": "Pins",
+              "value": "Pins"
+            },
+            {
+              "label": "Assembly Jig",
+              "value": "Jig"
+            }
+          ],
+          "caption": "Arm: which printable piece of the elbow-powered arm to render",
+          "label_pt": "Peça do Braço",
+          "caption_pt": "Braço: que peça imprimível do braço acionado pelo cotovelo renderizar",
+          "help": "Objective (Arm component): select one printable piece of the UnLimbited elbow-powered arm. Outcome: print each in turn (cuff, forearm, palm, fingers, phalanx, pins) and use the jig to align parts during assembly.",
+          "group": "Arm"
+        },
+        {
+          "name": "ARM_LeftRight",
+          "type": "enum",
+          "initial": "Left",
+          "options": [
+            {
+              "label": "Left arm",
+              "value": "Left"
+            },
+            {
+              "label": "Right arm",
+              "value": "Right"
+            }
+          ],
+          "caption": "Arm: which side to generate (Right mirrors along X)",
+          "label_pt": "Lado do Braço",
+          "caption_pt": "Braço: que lado gerar (Direita espelha ao longo de X)",
+          "help": "Objective (Arm component): choose a left or right arm. Outcome: 'Right' mirrors the model across X. Match the patient's affected side.",
+          "group": "Arm"
+        },
+        {
+          "name": "ARM_HandLen",
+          "type": "number",
+          "initial": 135,
+          "min": 135,
+          "max": 230,
+          "step": 1,
+          "caption": "Arm: total hand length, wrist crease to fingertip — sets wrist width and overall arm scale (mm)",
+          "label_pt": "Comprimento da Mão do Braço (em mm)",
+          "caption_pt": "Braço: comprimento total da mão, da dobra do pulso à ponta do dedo — define a largura do pulso e a escala geral (mm)",
+          "help": "Objective (Arm component): size the elbow-powered hand by measuring wrist crease to fingertip. Outcome: drives wrist width, joint sizes and overall scale; needs at least 135 mm for the forearm wrist joint to fit.",
+          "group": "Arm"
+        },
+        {
+          "name": "ARM_ForearmLen",
+          "type": "number",
+          "initial": 140,
+          "min": 120,
+          "max": 315,
+          "step": 1,
+          "caption": "Arm: forearm length from wrist to elbow (mm)",
+          "label_pt": "Comprimento do Antebraço (em mm)",
+          "caption_pt": "Braço: comprimento do antebraço, do pulso ao cotovelo (mm)",
+          "help": "Objective (Arm component): fit the forearm section to the residual limb. Outcome: longer gives more leverage, shorter suits smaller arms.",
+          "group": "Arm"
+        },
+        {
+          "name": "ARM_BicepCircum",
+          "type": "number",
+          "initial": 160,
+          "min": 110,
+          "max": 350,
+          "step": 1,
+          "caption": "Arm: bicep circumference for sizing the upper-arm cuff (mm)",
+          "label_pt": "Circunferência do Bíceps (em mm)",
+          "caption_pt": "Braço: circunferência do bíceps para dimensionar a braçadeira do braço (mm)",
+          "help": "Objective (Arm component): fit the cuff around the upper arm. Outcome: measure around the bicep so the cuff wraps correctly.",
+          "group": "Arm"
+        },
+        {
+          "name": "ARM_CuffLength",
+          "type": "number",
+          "initial": 65,
+          "min": 65,
+          "max": 90,
+          "step": 1,
+          "caption": "Arm: length of the upper-arm cuff (mm)",
+          "label_pt": "Comprimento da Braçadeira (em mm)",
+          "caption_pt": "Braço: comprimento da braçadeira do braço (mm)",
+          "help": "Objective (Arm component): set how far the cuff extends along the upper arm. Outcome: longer gives more support and leverage; shorter is lighter.",
+          "group": "Arm"
+        },
+        {
+          "name": "ARM_PinHoleDia",
+          "type": "number",
+          "initial": 3,
+          "min": 3,
+          "max": 6,
+          "step": 1,
+          "caption": "Arm: joint pin / screw hole diameter for the arm hinges (mm)",
+          "label_pt": "Diâmetro do Pino do Braço (em mm)",
+          "caption_pt": "Braço: diâmetro do furo do pino / parafuso das dobradiças do braço (mm)",
+          "help": "Objective (Arm component): size the elbow and wrist hinge holes. Outcome: 3 mm screws by default; the team advises Chicago/binding screws (glued) for the elbow as the original cuff pins can work loose.",
+          "group": "Arm"
         }
       ],
       "parts": [
@@ -1111,993 +1324,7 @@
         }
       ],
       "name_pt": "Paraglider · Mão",
-      "description_pt": "Mão Paraglider completa acionada pelo pulso — palma e os cinco dedos num só modelo, dimensionada a partir de medições antropométricas canónicas com escala independente por dedo. Alterne peças para impressão, mude entre vistas montada e plana, e ative o encaminhamento de canais para uma exportação pronta a imprimir. Mão Paraglider (Flexible Flyer) de Marcus Mendenhall — um remix paramétrico das Phoenix v2, UnLimbited Phoenix v3 e Phoenix Reborn que usa pinos, parafusos ou pregos metálicos comerciais como pivôs dos dedos (com chumaceiras opcionais de Delrin/PTFE), para juntas suaves e um kit de ferragens padrão que serve em qualquer tamanho. Reborn Hand por enablesierraleone, CC BY 3.0."
-    },
-    {
-      "id": "paraglider_palm_v3",
-      "renderBackend": "manifold",
-      "name": "Paraglider · Palm (Unlimbited v3)",
-      "description": "UnLimbited Phoenix v3-style palm with a higher-resolution fused mesh. Part of the Paraglider (Flexible Flyer) family by Marcus Mendenhall — a parametric adaptation of the Phoenix Reborn / UnLimbited Phoenix v3 hands that lets the palm and fingers scale while the metal-pin joints stay a constant size, so a standard hardware kit fits any hand size. Print the matching parts at the same palm breadth. Reborn Hand by enablesierraleone, CC BY 3.0.",
-      "file": "active/paraglider/paraglider_palm_unlimbited_v3.scad",
-      "dependencies": [
-        {
-          "url": "active/paraglider/pipe.scad",
-          "path": "pipe.scad"
-        },
-        {
-          "url": "active/paraglider/palm_v3.stl",
-          "path": "palm_v3.stl"
-        }
-      ],
-      "parameters": [
-        {
-          "name": "palm_breadth_mm",
-          "type": "number",
-          "initial": 100,
-          "min": 83,
-          "max": 165,
-          "step": 1,
-          "caption": "Knuckle-to-knuckle metacarpal breadth — drives the uniform hand scale: scale = palm_breadth_mm / 82.8, clamped 1.0–2.0x (mm)",
-          "label_pt": "Largura da Palma (em mm)",
-          "caption_pt": "Largura metacarpal entre nós dos dedos — define a escala uniforme da mão: escala = palm_breadth_mm / 82.8, limitada a 1.0–2.0x (mm)",
-          "help": "Objective: anchor the overall size of the hand to the patient by measuring straight across the back of the hand, index knuckle to pinky knuckle, with the fingers held together. Outcome: the whole palm and its joints scale uniformly. Use the SAME value on the matching fingers, tensioner box and gauntlet so all the printed parts fit together.",
-          "group": "Anthropometric"
-        },
-        {
-          "name": "scale_override",
-          "type": "number",
-          "initial": 0,
-          "min": 0,
-          "max": 2,
-          "step": 0.01,
-          "caption": "Manual scale-factor override (×) — 0 derives the scale from palm breadth; 1.0–2.0 sets it directly",
-          "label_pt": "Sobreposição de Escala (×)",
-          "caption_pt": "Sobreposição manual do fator de escala (×) — 0 deriva da largura da palma; 1.0–2.0 define diretamente",
-          "help": "Objective: bypass anthropometric sizing for direct control of the print scale. Outcome: leave at 0 to let palm breadth drive the size; enter 1.0–2.0 to scale by exactly that factor (1.3 ≈ a medium hand, the design's recommended starting size).",
-          "group": "Anthropometric"
-        },
-        {
-          "name": "mirrored",
-          "type": "enum",
-          "initial": false,
-          "options": [
-            {
-              "label": "Left hand",
-              "value": false
-            },
-            {
-              "label": "Right hand",
-              "value": true
-            }
-          ],
-          "caption": "Which hand to generate — Right hand mirrors the geometry along X",
-          "label_pt": "Espelhado",
-          "caption_pt": "Que mão gerar — a mão direita espelha a geometria ao longo de X",
-          "help": "Objective: choose a left or right hand. Outcome: 'Right hand' mirrors the model across X. Match the patient's affected side — the wrong hand will not fit.",
-          "group": "Anthropometric"
-        },
-        {
-          "name": "pivot_size",
-          "type": "enum",
-          "initial": 1.5875,
-          "options": [
-            {
-              "label": "Metric 1.5 mm pin",
-              "value": 1.5
-            },
-            {
-              "label": "1/16\" steel pin",
-              "value": 1.5875
-            },
-            {
-              "label": "3 mm screw",
-              "value": 3
-            }
-          ],
-          "caption": "Joint pivot size — pick the metal connector you will use; holes are drilled to match so a standard hardware kit fits every joint",
-          "label_pt": "Tamanho do Pivô",
-          "caption_pt": "Tamanho do pivô da junta — escolha o conector metálico a usar; os furos são feitos para corresponder, para que um kit de ferragens padrão sirva em todas as juntas",
-          "help": "Objective: this is the design's core feature — the joints are drilled for commercial metal pins/screws instead of printed pins, and the hole size is held constant as the hand scales so one hardware kit works at any size. Outcome: choose the connector you have (1.5 mm pin, 1/16\" dowel pin, or 3 mm screw); fingers, box and gauntlet should use the matching pin type.",
-          "group": "Hardware"
-        },
-        {
-          "name": "pivot_extra_clearance",
-          "type": "number",
-          "initial": 0,
-          "min": -0.5,
-          "max": 0.5,
-          "step": 0.01,
-          "caption": "Extra clearance on the pivot holes to tune fit for your printer (mm)",
-          "label_pt": "Folga do Pivô (em mm)",
-          "caption_pt": "Folga extra nos furos do pivô para afinar o ajuste à sua impressora (mm)",
-          "help": "Objective: fine-tune how tightly the metal pins fit. Outcome: increase if pins are too tight after printing, decrease if joints are loose. Pre-test on a single finger before committing to a whole hand.",
-          "group": "Hardware"
-        },
-        {
-          "name": "pins",
-          "type": "boolean",
-          "initial": true,
-          "caption": "Drill holes for steel pins (off = leave the original holes for printed plastic pins)",
-          "label_pt": "Pinos de Aço",
-          "caption_pt": "Furar para pinos de aço (desligado = manter os furos originais para pinos de plástico impressos)",
-          "help": "Objective: choose metal-pin joints (recommended) or the original printed-pin holes. Outcome: on, the parametric holes are drilled for the selected pivot size; off, the hand keeps its standard plastic-pin geometry.",
-          "group": "Hardware"
-        },
-        {
-          "name": "plugs",
-          "type": "boolean",
-          "initial": true,
-          "caption": "Plug the old plastic-pin holes when using steel pins for a clean joint",
-          "label_pt": "Tapar Furos Antigos",
-          "caption_pt": "Tapar os furos antigos de pinos de plástico ao usar pinos de aço, para uma junta limpa",
-          "help": "Objective: when using steel pins, fill in the larger original plastic-pin holes so the new precise holes are clean. Outcome: leave on for steel pins; turn off to retain the old holes for plastic pins.",
-          "group": "Hardware"
-        },
-        {
-          "name": "old_style_wrist",
-          "type": "boolean",
-          "initial": false,
-          "caption": "Use old-style plastic pins at the wrist even when the fingers use steel pins",
-          "label_pt": "Pulso Estilo Antigo",
-          "caption_pt": "Usar pinos de plástico antigos no pulso mesmo quando os dedos usam pinos de aço",
-          "help": "Objective: keep the original printed-pin wrist joint while still using steel pins on the fingers. Outcome: off uses M3 wrist screws (recommended); on retains the legacy plastic wrist pins.",
-          "group": "Hardware"
-        },
-        {
-          "name": "include_mesh",
-          "type": "enum",
-          "initial": 1,
-          "options": [
-            {
-              "label": "Standard mesh",
-              "value": 0
-            },
-            {
-              "label": "Simplified mesh",
-              "value": 1
-            }
-          ],
-          "caption": "Fused-in palm mesh — bonds a covering web into the palm to reduce assembly screws",
-          "label_pt": "Malha da Palma",
-          "caption_pt": "Malha da palma fundida — integra uma teia de cobertura na palma para reduzir parafusos de montagem",
-          "help": "Objective: optionally fuse the covering mesh into the palm so fewer screws are needed to attach it. Outcome: 'simplified mesh' is the usual choice; 'standard mesh' matches the original; disable to print a bare palm and attach the mesh separately.",
-          "group": "Options"
-        },
-        {
-          "name": "include_knuckle_covers",
-          "type": "boolean",
-          "initial": true,
-          "caption": "Print smooth covers over the knuckle joints",
-          "label_pt": "Tampas dos Nós",
-          "caption_pt": "Imprimir tampas suaves sobre as juntas dos nós dos dedos",
-          "help": "Objective: add tidy covers over the knuckle hinges. Outcome: on gives a cleaner, more finished look and protects the joints; off exposes the bare knuckle geometry.",
-          "group": "Options"
-        },
-        {
-          "name": "include_wrist_stamping_die",
-          "type": "boolean",
-          "initial": true,
-          "caption": "Also generate the wrist stamping die for thermoforming the 0.5 mm Igus bearing plastic",
-          "label_pt": "Matriz do Pulso",
-          "caption_pt": "Gerar também a matriz de estampagem do pulso para termoformar o plástico de chumaceira Igus de 0,5 mm",
-          "help": "Objective: include the small die used to heat-form the self-lubricating wrist bearing plastic. Outcome: on adds the die alongside the palm in the layout; turn off to print the palm by itself.",
-          "group": "Options"
-        },
-        {
-          "name": "string_channel_scale",
-          "type": "number",
-          "initial": 0.9,
-          "min": 0.5,
-          "max": 1,
-          "step": 0.05,
-          "caption": "Size of the tendon-string channels relative to the palm (×)",
-          "label_pt": "Canais de Cordão (×)",
-          "caption_pt": "Tamanho dos canais do cordão tendão em relação à palma (×)",
-          "help": "Objective: size the internal channels that the tensioning string runs through. Outcome: larger values ease threading the line; smaller values keep the palm more solid. Reduce only if your string is thin.",
-          "group": "Options"
-        },
-        {
-          "name": "elastic_channel_scale",
-          "type": "number",
-          "initial": 0.9,
-          "min": 0.5,
-          "max": 1.5,
-          "step": 0.05,
-          "caption": "Size of the return-elastic channels relative to the palm (×)",
-          "label_pt": "Canais de Elástico (×)",
-          "caption_pt": "Tamanho dos canais do elástico de retorno em relação à palma (×)",
-          "help": "Objective: size the channels carrying the elastic cords that re-open the fingers. Outcome: increase for thicker elastic, decrease to save material. Match to the elastic diameter you are using.",
-          "group": "Options"
-        },
-        {
-          "name": "serial_line1",
-          "type": "string",
-          "initial": "paraglider",
-          "caption": "Engraving line 1 (max ~15 characters) — e.g. builder or project name",
-          "label_pt": "Gravação Linha 1",
-          "caption_pt": "Linha de gravação 1 (máx. ~15 caracteres) — ex.: construtor ou nome do projeto",
-          "help": "Objective: emboss a traceability label into the palm. Outcome: appears on the part for record-keeping. Keep to about 15 characters per line so it fits.",
-          "group": "Engraving"
-        },
-        {
-          "name": "serial_line2",
-          "type": "string",
-          "initial": "",
-          "caption": "Engraving line 2 (max ~15 characters) — e.g. serial number",
-          "label_pt": "Gravação Linha 2",
-          "caption_pt": "Linha de gravação 2 (máx. ~15 caracteres) — ex.: número de série",
-          "group": "Engraving"
-        },
-        {
-          "name": "serial_line3",
-          "type": "string",
-          "initial": "",
-          "caption": "Engraving line 3 (max ~15 characters) — e.g. build date",
-          "label_pt": "Gravação Linha 3",
-          "caption_pt": "Linha de gravação 3 (máx. ~15 caracteres) — ex.: data de construção",
-          "group": "Engraving"
-        }
-      ],
-      "name_pt": "Paraglider · Palma (Unlimbited v3)",
-      "description_pt": "Palma estilo UnLimbited Phoenix v3 com malha fundida de maior resolução. Parte da família Paraglider (Flexible Flyer) de Marcus Mendenhall — uma adaptação paramétrica das mãos Phoenix Reborn / UnLimbited Phoenix v3 que permite escalar a palma e os dedos mantendo as juntas de pino metálico com tamanho constante, para que um kit de ferragens padrão sirva em qualquer tamanho de mão. Imprima as peças correspondentes com a mesma largura de palma. Reborn Hand por enablesierraleone, CC BY 3.0."
-    },
-    {
-      "id": "paraglider_palm_reborn_tensor",
-      "renderBackend": "manifold",
-      "name": "Paraglider · Palm + Tensioner (Reborn)",
-      "description": "Phoenix Reborn-style palm with integrated segmented-pipe tendon tensioners built in. Part of the Paraglider (Flexible Flyer) family by Marcus Mendenhall — a parametric adaptation of the Phoenix Reborn / UnLimbited Phoenix v3 hands that lets the palm and fingers scale while the metal-pin joints stay a constant size, so a standard hardware kit fits any hand size. Print the matching parts at the same palm breadth. Reborn Hand by enablesierraleone, CC BY 3.0.",
-      "file": "active/paraglider/paraglider_palm_left_tensor.scad",
-      "dependencies": [
-        {
-          "url": "active/paraglider/segmented_pipe_tensor.scad",
-          "path": "segmented_pipe_tensor.scad"
-        },
-        {
-          "url": "active/paraglider/palm_left_v2_nobox.stl",
-          "path": "palm_left_v2_nobox.stl"
-        }
-      ],
-      "parameters": [
-        {
-          "name": "palm_breadth_mm",
-          "type": "number",
-          "initial": 100,
-          "min": 81,
-          "max": 165,
-          "step": 1,
-          "caption": "Knuckle-to-knuckle metacarpal breadth — drives the uniform hand scale: scale = palm_breadth_mm / 80.6, clamped 1.0–2.0x (mm)",
-          "label_pt": "Largura da Palma (em mm)",
-          "caption_pt": "Largura metacarpal entre nós dos dedos — define a escala uniforme da mão: escala = palm_breadth_mm / 80.6, limitada a 1.0–2.0x (mm)",
-          "help": "Objective: anchor the overall size of the hand to the patient by measuring straight across the back of the hand, index knuckle to pinky knuckle, with the fingers held together. Outcome: the whole palm and its joints scale uniformly. Use the SAME value on the matching fingers, tensioner box and gauntlet so all the printed parts fit together.",
-          "group": "Anthropometric"
-        },
-        {
-          "name": "scale_override",
-          "type": "number",
-          "initial": 0,
-          "min": 0,
-          "max": 2,
-          "step": 0.01,
-          "caption": "Manual scale-factor override (×) — 0 derives the scale from palm breadth; 1.0–2.0 sets it directly",
-          "label_pt": "Sobreposição de Escala (×)",
-          "caption_pt": "Sobreposição manual do fator de escala (×) — 0 deriva da largura da palma; 1.0–2.0 define diretamente",
-          "help": "Objective: bypass anthropometric sizing for direct control of the print scale. Outcome: leave at 0 to let palm breadth drive the size; enter 1.0–2.0 to scale by exactly that factor (1.3 ≈ a medium hand, the design's recommended starting size).",
-          "group": "Anthropometric"
-        },
-        {
-          "name": "mirrored",
-          "type": "enum",
-          "initial": false,
-          "options": [
-            {
-              "label": "Left hand",
-              "value": false
-            },
-            {
-              "label": "Right hand",
-              "value": true
-            }
-          ],
-          "caption": "Which hand to generate — Right hand mirrors the geometry along X",
-          "label_pt": "Espelhado",
-          "caption_pt": "Que mão gerar — a mão direita espelha a geometria ao longo de X",
-          "help": "Objective: choose a left or right hand. Outcome: 'Right hand' mirrors the model across X. Match the patient's affected side — the wrong hand will not fit.",
-          "group": "Anthropometric"
-        },
-        {
-          "name": "pivot_size",
-          "type": "enum",
-          "initial": 1.5875,
-          "options": [
-            {
-              "label": "Metric 1.5 mm pin",
-              "value": 1.5
-            },
-            {
-              "label": "1/16\" steel pin",
-              "value": 1.5875
-            },
-            {
-              "label": "3 mm screw",
-              "value": 3
-            }
-          ],
-          "caption": "Joint pivot size — pick the metal connector you will use; holes are drilled to match so a standard hardware kit fits every joint",
-          "label_pt": "Tamanho do Pivô",
-          "caption_pt": "Tamanho do pivô da junta — escolha o conector metálico a usar; os furos são feitos para corresponder, para que um kit de ferragens padrão sirva em todas as juntas",
-          "help": "Objective: this is the design's core feature — the joints are drilled for commercial metal pins/screws instead of printed pins, and the hole size is held constant as the hand scales so one hardware kit works at any size. Outcome: choose the connector you have (1.5 mm pin, 1/16\" dowel pin, or 3 mm screw); fingers, box and gauntlet should use the matching pin type.",
-          "group": "Hardware"
-        },
-        {
-          "name": "pivot_extra_clearance",
-          "type": "number",
-          "initial": 0,
-          "min": -0.5,
-          "max": 0.5,
-          "step": 0.01,
-          "caption": "Extra clearance on the pivot holes to tune fit for your printer (mm)",
-          "label_pt": "Folga do Pivô (em mm)",
-          "caption_pt": "Folga extra nos furos do pivô para afinar o ajuste à sua impressora (mm)",
-          "help": "Objective: fine-tune how tightly the metal pins fit. Outcome: increase if pins are too tight after printing, decrease if joints are loose. Pre-test on a single finger before committing to a whole hand.",
-          "group": "Hardware"
-        },
-        {
-          "name": "pins",
-          "type": "boolean",
-          "initial": true,
-          "caption": "Drill holes for steel pins (off = leave the original holes for printed plastic pins)",
-          "label_pt": "Pinos de Aço",
-          "caption_pt": "Furar para pinos de aço (desligado = manter os furos originais para pinos de plástico impressos)",
-          "help": "Objective: choose metal-pin joints (recommended) or the original printed-pin holes. Outcome: on, the parametric holes are drilled for the selected pivot size; off, the hand keeps its standard plastic-pin geometry.",
-          "group": "Hardware"
-        },
-        {
-          "name": "plugs",
-          "type": "boolean",
-          "initial": true,
-          "caption": "Plug the old plastic-pin holes when using steel pins for a clean joint",
-          "label_pt": "Tapar Furos Antigos",
-          "caption_pt": "Tapar os furos antigos de pinos de plástico ao usar pinos de aço, para uma junta limpa",
-          "help": "Objective: when using steel pins, fill in the larger original plastic-pin holes so the new precise holes are clean. Outcome: leave on for steel pins; turn off to retain the old holes for plastic pins.",
-          "group": "Hardware"
-        },
-        {
-          "name": "old_style_wrist",
-          "type": "boolean",
-          "initial": false,
-          "caption": "Use old-style plastic pins at the wrist even when the fingers use steel pins",
-          "label_pt": "Pulso Estilo Antigo",
-          "caption_pt": "Usar pinos de plástico antigos no pulso mesmo quando os dedos usam pinos de aço",
-          "help": "Objective: keep the original printed-pin wrist joint while still using steel pins on the fingers. Outcome: off uses M3 wrist screws (recommended); on retains the legacy plastic wrist pins.",
-          "group": "Hardware"
-        },
-        {
-          "name": "include_mesh",
-          "type": "enum",
-          "initial": 1,
-          "options": [
-            {
-              "label": "Standard mesh",
-              "value": 0
-            },
-            {
-              "label": "Simplified mesh",
-              "value": 1
-            },
-            {
-              "label": "Demonstrator grip",
-              "value": 2
-            }
-          ],
-          "caption": "Fused-in palm mesh — bonds a covering web into the palm to reduce assembly screws",
-          "label_pt": "Malha da Palma",
-          "caption_pt": "Malha da palma fundida — integra uma teia de cobertura na palma para reduzir parafusos de montagem",
-          "help": "Objective: optionally fuse the covering mesh into the palm so fewer screws are needed to attach it. Outcome: 'simplified mesh' is the usual choice; 'standard mesh' matches the original; disable to print a bare palm and attach the mesh separately.",
-          "group": "Options"
-        },
-        {
-          "name": "include_knuckle_covers",
-          "type": "boolean",
-          "initial": true,
-          "caption": "Print smooth covers over the knuckle joints",
-          "label_pt": "Tampas dos Nós",
-          "caption_pt": "Imprimir tampas suaves sobre as juntas dos nós dos dedos",
-          "help": "Objective: add tidy covers over the knuckle hinges. Outcome: on gives a cleaner, more finished look and protects the joints; off exposes the bare knuckle geometry.",
-          "group": "Options"
-        },
-        {
-          "name": "include_wrist_stamping_die",
-          "type": "boolean",
-          "initial": true,
-          "caption": "Also generate the wrist stamping die for thermoforming the 0.5 mm Igus bearing plastic",
-          "label_pt": "Matriz do Pulso",
-          "caption_pt": "Gerar também a matriz de estampagem do pulso para termoformar o plástico de chumaceira Igus de 0,5 mm",
-          "help": "Objective: include the small die used to heat-form the self-lubricating wrist bearing plastic. Outcome: on adds the die alongside the palm in the layout; turn off to print the palm by itself.",
-          "group": "Options"
-        },
-        {
-          "name": "string_channel_scale",
-          "type": "number",
-          "initial": 0.9,
-          "min": 0.5,
-          "max": 1,
-          "step": 0.05,
-          "caption": "Size of the tendon-string channels relative to the palm (×)",
-          "label_pt": "Canais de Cordão (×)",
-          "caption_pt": "Tamanho dos canais do cordão tendão em relação à palma (×)",
-          "help": "Objective: size the internal channels that the tensioning string runs through. Outcome: larger values ease threading the line; smaller values keep the palm more solid. Reduce only if your string is thin.",
-          "group": "Options"
-        },
-        {
-          "name": "elastic_channel_scale",
-          "type": "number",
-          "initial": 0.9,
-          "min": 0.5,
-          "max": 1.5,
-          "step": 0.05,
-          "caption": "Size of the return-elastic channels relative to the palm (×)",
-          "label_pt": "Canais de Elástico (×)",
-          "caption_pt": "Tamanho dos canais do elástico de retorno em relação à palma (×)",
-          "help": "Objective: size the channels carrying the elastic cords that re-open the fingers. Outcome: increase for thicker elastic, decrease to save material. Match to the elastic diameter you are using.",
-          "group": "Options"
-        },
-        {
-          "name": "serial_line1",
-          "type": "string",
-          "initial": "paraglider",
-          "caption": "Engraving line 1 (max ~15 characters) — e.g. builder or project name",
-          "label_pt": "Gravação Linha 1",
-          "caption_pt": "Linha de gravação 1 (máx. ~15 caracteres) — ex.: construtor ou nome do projeto",
-          "help": "Objective: emboss a traceability label into the palm. Outcome: appears on the part for record-keeping. Keep to about 15 characters per line so it fits.",
-          "group": "Engraving"
-        },
-        {
-          "name": "serial_line2",
-          "type": "string",
-          "initial": "",
-          "caption": "Engraving line 2 (max ~15 characters) — e.g. serial number",
-          "label_pt": "Gravação Linha 2",
-          "caption_pt": "Linha de gravação 2 (máx. ~15 caracteres) — ex.: número de série",
-          "group": "Engraving"
-        },
-        {
-          "name": "serial_line3",
-          "type": "string",
-          "initial": "",
-          "caption": "Engraving line 3 (max ~15 characters) — e.g. build date",
-          "label_pt": "Gravação Linha 3",
-          "caption_pt": "Linha de gravação 3 (máx. ~15 caracteres) — ex.: data de construção",
-          "group": "Engraving"
-        }
-      ],
-      "name_pt": "Paraglider · Palma + Tensor (Reborn)",
-      "description_pt": "Palma estilo Phoenix Reborn com tensores de tendão de tubo segmentado integrados. Parte da família Paraglider (Flexible Flyer) de Marcus Mendenhall — uma adaptação paramétrica das mãos Phoenix Reborn / UnLimbited Phoenix v3 que permite escalar a palma e os dedos mantendo as juntas de pino metálico com tamanho constante, para que um kit de ferragens padrão sirva em qualquer tamanho de mão. Imprima as peças correspondentes com a mesma largura de palma. Reborn Hand por enablesierraleone, CC BY 3.0."
-    },
-    {
-      "id": "paraglider_palm_v3_tensor",
-      "renderBackend": "manifold",
-      "name": "Paraglider · Palm + Tensioner (Unlimbited v3)",
-      "description": "UnLimbited Phoenix v3-style palm with integrated segmented-pipe tendon tensioners built in. Part of the Paraglider (Flexible Flyer) family by Marcus Mendenhall — a parametric adaptation of the Phoenix Reborn / UnLimbited Phoenix v3 hands that lets the palm and fingers scale while the metal-pin joints stay a constant size, so a standard hardware kit fits any hand size. Print the matching parts at the same palm breadth. Reborn Hand by enablesierraleone, CC BY 3.0.",
-      "file": "active/paraglider/paraglider_palm_unlimbited_v3_tensor.scad",
-      "dependencies": [
-        {
-          "url": "active/paraglider/segmented_pipe_tensor.scad",
-          "path": "segmented_pipe_tensor.scad"
-        },
-        {
-          "url": "active/paraglider/palm_v3.stl",
-          "path": "palm_v3.stl"
-        }
-      ],
-      "parameters": [
-        {
-          "name": "palm_breadth_mm",
-          "type": "number",
-          "initial": 100,
-          "min": 83,
-          "max": 165,
-          "step": 1,
-          "caption": "Knuckle-to-knuckle metacarpal breadth — drives the uniform hand scale: scale = palm_breadth_mm / 82.8, clamped 1.0–2.0x (mm)",
-          "label_pt": "Largura da Palma (em mm)",
-          "caption_pt": "Largura metacarpal entre nós dos dedos — define a escala uniforme da mão: escala = palm_breadth_mm / 82.8, limitada a 1.0–2.0x (mm)",
-          "help": "Objective: anchor the overall size of the hand to the patient by measuring straight across the back of the hand, index knuckle to pinky knuckle, with the fingers held together. Outcome: the whole palm and its joints scale uniformly. Use the SAME value on the matching fingers, tensioner box and gauntlet so all the printed parts fit together.",
-          "group": "Anthropometric"
-        },
-        {
-          "name": "scale_override",
-          "type": "number",
-          "initial": 0,
-          "min": 0,
-          "max": 2,
-          "step": 0.01,
-          "caption": "Manual scale-factor override (×) — 0 derives the scale from palm breadth; 1.0–2.0 sets it directly",
-          "label_pt": "Sobreposição de Escala (×)",
-          "caption_pt": "Sobreposição manual do fator de escala (×) — 0 deriva da largura da palma; 1.0–2.0 define diretamente",
-          "help": "Objective: bypass anthropometric sizing for direct control of the print scale. Outcome: leave at 0 to let palm breadth drive the size; enter 1.0–2.0 to scale by exactly that factor (1.3 ≈ a medium hand, the design's recommended starting size).",
-          "group": "Anthropometric"
-        },
-        {
-          "name": "mirrored",
-          "type": "enum",
-          "initial": false,
-          "options": [
-            {
-              "label": "Left hand",
-              "value": false
-            },
-            {
-              "label": "Right hand",
-              "value": true
-            }
-          ],
-          "caption": "Which hand to generate — Right hand mirrors the geometry along X",
-          "label_pt": "Espelhado",
-          "caption_pt": "Que mão gerar — a mão direita espelha a geometria ao longo de X",
-          "help": "Objective: choose a left or right hand. Outcome: 'Right hand' mirrors the model across X. Match the patient's affected side — the wrong hand will not fit.",
-          "group": "Anthropometric"
-        },
-        {
-          "name": "pivot_size",
-          "type": "enum",
-          "initial": 1.5875,
-          "options": [
-            {
-              "label": "Metric 1.5 mm pin",
-              "value": 1.5
-            },
-            {
-              "label": "1/16\" steel pin",
-              "value": 1.5875
-            },
-            {
-              "label": "3 mm screw",
-              "value": 3
-            }
-          ],
-          "caption": "Joint pivot size — pick the metal connector you will use; holes are drilled to match so a standard hardware kit fits every joint",
-          "label_pt": "Tamanho do Pivô",
-          "caption_pt": "Tamanho do pivô da junta — escolha o conector metálico a usar; os furos são feitos para corresponder, para que um kit de ferragens padrão sirva em todas as juntas",
-          "help": "Objective: this is the design's core feature — the joints are drilled for commercial metal pins/screws instead of printed pins, and the hole size is held constant as the hand scales so one hardware kit works at any size. Outcome: choose the connector you have (1.5 mm pin, 1/16\" dowel pin, or 3 mm screw); fingers, box and gauntlet should use the matching pin type.",
-          "group": "Hardware"
-        },
-        {
-          "name": "pivot_extra_clearance",
-          "type": "number",
-          "initial": 0,
-          "min": -0.5,
-          "max": 0.5,
-          "step": 0.01,
-          "caption": "Extra clearance on the pivot holes to tune fit for your printer (mm)",
-          "label_pt": "Folga do Pivô (em mm)",
-          "caption_pt": "Folga extra nos furos do pivô para afinar o ajuste à sua impressora (mm)",
-          "help": "Objective: fine-tune how tightly the metal pins fit. Outcome: increase if pins are too tight after printing, decrease if joints are loose. Pre-test on a single finger before committing to a whole hand.",
-          "group": "Hardware"
-        },
-        {
-          "name": "pins",
-          "type": "boolean",
-          "initial": true,
-          "caption": "Drill holes for steel pins (off = leave the original holes for printed plastic pins)",
-          "label_pt": "Pinos de Aço",
-          "caption_pt": "Furar para pinos de aço (desligado = manter os furos originais para pinos de plástico impressos)",
-          "help": "Objective: choose metal-pin joints (recommended) or the original printed-pin holes. Outcome: on, the parametric holes are drilled for the selected pivot size; off, the hand keeps its standard plastic-pin geometry.",
-          "group": "Hardware"
-        },
-        {
-          "name": "plugs",
-          "type": "boolean",
-          "initial": true,
-          "caption": "Plug the old plastic-pin holes when using steel pins for a clean joint",
-          "label_pt": "Tapar Furos Antigos",
-          "caption_pt": "Tapar os furos antigos de pinos de plástico ao usar pinos de aço, para uma junta limpa",
-          "help": "Objective: when using steel pins, fill in the larger original plastic-pin holes so the new precise holes are clean. Outcome: leave on for steel pins; turn off to retain the old holes for plastic pins.",
-          "group": "Hardware"
-        },
-        {
-          "name": "old_style_wrist",
-          "type": "boolean",
-          "initial": false,
-          "caption": "Use old-style plastic pins at the wrist even when the fingers use steel pins",
-          "label_pt": "Pulso Estilo Antigo",
-          "caption_pt": "Usar pinos de plástico antigos no pulso mesmo quando os dedos usam pinos de aço",
-          "help": "Objective: keep the original printed-pin wrist joint while still using steel pins on the fingers. Outcome: off uses M3 wrist screws (recommended); on retains the legacy plastic wrist pins.",
-          "group": "Hardware"
-        },
-        {
-          "name": "include_mesh",
-          "type": "enum",
-          "initial": 1,
-          "options": [
-            {
-              "label": "Standard mesh",
-              "value": 0
-            },
-            {
-              "label": "Simplified mesh",
-              "value": 1
-            }
-          ],
-          "caption": "Fused-in palm mesh — bonds a covering web into the palm to reduce assembly screws",
-          "label_pt": "Malha da Palma",
-          "caption_pt": "Malha da palma fundida — integra uma teia de cobertura na palma para reduzir parafusos de montagem",
-          "help": "Objective: optionally fuse the covering mesh into the palm so fewer screws are needed to attach it. Outcome: 'simplified mesh' is the usual choice; 'standard mesh' matches the original; disable to print a bare palm and attach the mesh separately.",
-          "group": "Options"
-        },
-        {
-          "name": "include_knuckle_covers",
-          "type": "boolean",
-          "initial": true,
-          "caption": "Print smooth covers over the knuckle joints",
-          "label_pt": "Tampas dos Nós",
-          "caption_pt": "Imprimir tampas suaves sobre as juntas dos nós dos dedos",
-          "help": "Objective: add tidy covers over the knuckle hinges. Outcome: on gives a cleaner, more finished look and protects the joints; off exposes the bare knuckle geometry.",
-          "group": "Options"
-        },
-        {
-          "name": "include_wrist_stamping_die",
-          "type": "boolean",
-          "initial": true,
-          "caption": "Also generate the wrist stamping die for thermoforming the 0.5 mm Igus bearing plastic",
-          "label_pt": "Matriz do Pulso",
-          "caption_pt": "Gerar também a matriz de estampagem do pulso para termoformar o plástico de chumaceira Igus de 0,5 mm",
-          "help": "Objective: include the small die used to heat-form the self-lubricating wrist bearing plastic. Outcome: on adds the die alongside the palm in the layout; turn off to print the palm by itself.",
-          "group": "Options"
-        },
-        {
-          "name": "string_channel_scale",
-          "type": "number",
-          "initial": 0.9,
-          "min": 0.5,
-          "max": 1,
-          "step": 0.05,
-          "caption": "Size of the tendon-string channels relative to the palm (×)",
-          "label_pt": "Canais de Cordão (×)",
-          "caption_pt": "Tamanho dos canais do cordão tendão em relação à palma (×)",
-          "help": "Objective: size the internal channels that the tensioning string runs through. Outcome: larger values ease threading the line; smaller values keep the palm more solid. Reduce only if your string is thin.",
-          "group": "Options"
-        },
-        {
-          "name": "elastic_channel_scale",
-          "type": "number",
-          "initial": 0.9,
-          "min": 0.5,
-          "max": 1.5,
-          "step": 0.05,
-          "caption": "Size of the return-elastic channels relative to the palm (×)",
-          "label_pt": "Canais de Elástico (×)",
-          "caption_pt": "Tamanho dos canais do elástico de retorno em relação à palma (×)",
-          "help": "Objective: size the channels carrying the elastic cords that re-open the fingers. Outcome: increase for thicker elastic, decrease to save material. Match to the elastic diameter you are using.",
-          "group": "Options"
-        },
-        {
-          "name": "serial_line1",
-          "type": "string",
-          "initial": "paraglider",
-          "caption": "Engraving line 1 (max ~15 characters) — e.g. builder or project name",
-          "label_pt": "Gravação Linha 1",
-          "caption_pt": "Linha de gravação 1 (máx. ~15 caracteres) — ex.: construtor ou nome do projeto",
-          "help": "Objective: emboss a traceability label into the palm. Outcome: appears on the part for record-keeping. Keep to about 15 characters per line so it fits.",
-          "group": "Engraving"
-        },
-        {
-          "name": "serial_line2",
-          "type": "string",
-          "initial": "",
-          "caption": "Engraving line 2 (max ~15 characters) — e.g. serial number",
-          "label_pt": "Gravação Linha 2",
-          "caption_pt": "Linha de gravação 2 (máx. ~15 caracteres) — ex.: número de série",
-          "group": "Engraving"
-        },
-        {
-          "name": "serial_line3",
-          "type": "string",
-          "initial": "",
-          "caption": "Engraving line 3 (max ~15 characters) — e.g. build date",
-          "label_pt": "Gravação Linha 3",
-          "caption_pt": "Linha de gravação 3 (máx. ~15 caracteres) — ex.: data de construção",
-          "group": "Engraving"
-        }
-      ],
-      "name_pt": "Paraglider · Palma + Tensor (Unlimbited v3)",
-      "description_pt": "Palma estilo UnLimbited Phoenix v3 com tensores de tendão de tubo segmentado integrados. Parte da família Paraglider (Flexible Flyer) de Marcus Mendenhall — uma adaptação paramétrica das mãos Phoenix Reborn / UnLimbited Phoenix v3 que permite escalar a palma e os dedos mantendo as juntas de pino metálico com tamanho constante, para que um kit de ferragens padrão sirva em qualquer tamanho de mão. Imprima as peças correspondentes com a mesma largura de palma. Reborn Hand por enablesierraleone, CC BY 3.0."
-    },
-    {
-      "id": "paraglider_tensioner_box",
-      "renderBackend": "manifold",
-      "name": "Paraglider · Tensioner Box",
-      "description": "Wrist-drive tensioner box and whippletree pieces that slide into the thermoform gauntlet's dovetail track. Part of the Paraglider (Flexible Flyer) family by Marcus Mendenhall — a parametric adaptation of the Phoenix Reborn / UnLimbited Phoenix v3 hands that lets the palm and fingers scale while the metal-pin joints stay a constant size, so a standard hardware kit fits any hand size. Print the matching parts at the same palm breadth. Reborn Hand by enablesierraleone, CC BY 3.0.",
-      "file": "active/paraglider/gripper_box_pieces.scad",
-      "dependencies": [],
-      "parameters": [
-        {
-          "name": "palm_breadth_mm",
-          "type": "number",
-          "initial": 100,
-          "min": 81,
-          "max": 165,
-          "step": 1,
-          "caption": "Knuckle-to-knuckle metacarpal breadth — drives box scale: scale = palm_breadth_mm / 80.6, clamped 1.0–2.0x. Use the same value as the hand (mm)",
-          "label_pt": "Largura da Palma (em mm)",
-          "caption_pt": "Largura metacarpal entre nós dos dedos — define a escala da caixa: escala = palm_breadth_mm / 80.6, limitada a 1.0–2.0x. Use o mesmo valor da mão (mm)",
-          "help": "Objective: size the tensioner box to match the hand and gauntlet. Outcome: use the SAME palm breadth as the palm so the dovetail box fits the gauntlet track.",
-          "group": "Anthropometric"
-        },
-        {
-          "name": "scale_override",
-          "type": "number",
-          "initial": 0,
-          "min": 0,
-          "max": 2,
-          "step": 0.01,
-          "caption": "Manual scale-factor override (×) — 0 derives from palm breadth; 1.0–2.0 sets it directly",
-          "label_pt": "Sobreposição de Escala (×)",
-          "caption_pt": "Sobreposição manual do fator de escala (×) — 0 deriva da largura da palma; 1.0–2.0 define diretamente",
-          "group": "Anthropometric"
-        },
-        {
-          "name": "slide_clearance",
-          "type": "number",
-          "initial": 0.2,
-          "min": 0,
-          "max": 0.5,
-          "step": 0.01,
-          "caption": "Clearance on the dovetail slide — independent of scale so the fit stays consistent (mm)",
-          "label_pt": "Folga da Corrediça (em mm)",
-          "caption_pt": "Folga na corrediça de cauda de andorinha — independente da escala para manter o ajuste consistente (mm)",
-          "help": "Objective: tune how the box slides into the gauntlet dovetail. Outcome: held independent of hand scale so the joint does not get floppier at larger sizes. Increase if it binds, decrease if loose.",
-          "group": "Hardware"
-        },
-        {
-          "name": "screw_thread_dia",
-          "type": "number",
-          "initial": 2.8,
-          "min": 2,
-          "max": 4,
-          "step": 0.1,
-          "caption": "Root diameter of the tensioner screw thread for a snug fit (default suits M3) (mm)",
-          "label_pt": "Diâmetro da Rosca (em mm)",
-          "caption_pt": "Diâmetro de raiz da rosca do parafuso tensor para um ajuste justo (predefinição para M3) (mm)",
-          "group": "Hardware"
-        },
-        {
-          "name": "screw_head_dia",
-          "type": "number",
-          "initial": 5.5,
-          "min": 4,
-          "max": 8,
-          "step": 0.1,
-          "caption": "Screw head diameter (default suits M3) (mm)",
-          "label_pt": "Diâmetro da Cabeça (em mm)",
-          "caption_pt": "Diâmetro da cabeça do parafuso (predefinição para M3) (mm)",
-          "group": "Hardware"
-        },
-        {
-          "name": "screw_head_clearance",
-          "type": "number",
-          "initial": 1,
-          "min": 0.5,
-          "max": 3,
-          "step": 0.1,
-          "caption": "Minimum gap between the screw heads and the slider rail (mm)",
-          "label_pt": "Folga da Cabeça (em mm)",
-          "caption_pt": "Folga mínima entre as cabeças dos parafusos e o trilho da corrediça (mm)",
-          "group": "Hardware"
-        }
-      ],
-      "name_pt": "Paraglider · Caixa Tensora",
-      "description_pt": "Caixa tensora acionada pelo pulso e peças do balancim que deslizam para o trilho de cauda de andorinha da braçadeira termoformada. Parte da família Paraglider (Flexible Flyer) de Marcus Mendenhall — uma adaptação paramétrica das mãos Phoenix Reborn / UnLimbited Phoenix v3 que permite escalar a palma e os dedos mantendo as juntas de pino metálico com tamanho constante, para que um kit de ferragens padrão sirva em qualquer tamanho de mão. Imprima as peças correspondentes com a mesma largura de palma. Reborn Hand por enablesierraleone, CC BY 3.0."
-    },
-    {
-      "id": "paraglider_thermo_gauntlet",
-      "renderBackend": "manifold",
-      "name": "Paraglider · Thermo Gauntlet",
-      "description": "Short thermoformable forearm gauntlet with a dovetail track for the tensioner box and a wrist bearing seat. Print flat in PLA, then heat-form to the patient's forearm. Part of the Paraglider (Flexible Flyer) family by Marcus Mendenhall — a parametric adaptation of the Phoenix Reborn / UnLimbited Phoenix v3 hands that lets the palm and fingers scale while the metal-pin joints stay a constant size, so a standard hardware kit fits any hand size. Print the matching parts at the same palm breadth. Reborn Hand by enablesierraleone, CC BY 3.0.",
-      "file": "active/paraglider/thermo_gauntlet.scad",
-      "dependencies": [
-        {
-          "url": "active/paraglider/gripper_box_pieces.scad",
-          "path": "gripper_box_pieces.scad"
-        }
-      ],
-      "parameters": [
-        {
-          "name": "palm_breadth_mm",
-          "type": "number",
-          "initial": 100,
-          "min": 81,
-          "max": 165,
-          "step": 1,
-          "caption": "Knuckle-to-knuckle metacarpal breadth — drives gauntlet scale: scale = palm_breadth_mm / 80.6, clamped 1.0–2.0x. Use the same value as the hand (mm)",
-          "label_pt": "Largura da Palma (em mm)",
-          "caption_pt": "Largura metacarpal entre nós dos dedos — define a escala da braçadeira: escala = palm_breadth_mm / 80.6, limitada a 1.0–2.0x. Use o mesmo valor da mão (mm)",
-          "help": "Objective: scale the wrist gauntlet to match the hand. Outcome: use the SAME palm breadth as the palm so the gauntlet's dovetail track lines up with the tensioner box. This is a thermoform shell — print it flat, then heat it and mould it to the patient's forearm.",
-          "group": "Anthropometric"
-        },
-        {
-          "name": "scale_override",
-          "type": "number",
-          "initial": 0,
-          "min": 0,
-          "max": 2,
-          "step": 0.01,
-          "caption": "Manual scale-factor override (×) — 0 derives from palm breadth; 1.0–2.0 sets it directly",
-          "label_pt": "Sobreposição de Escala (×)",
-          "caption_pt": "Sobreposição manual do fator de escala (×) — 0 deriva da largura da palma; 1.0–2.0 define diretamente",
-          "group": "Anthropometric"
-        },
-        {
-          "name": "hole_clearance",
-          "type": "number",
-          "initial": 0.5,
-          "min": 0,
-          "max": 1,
-          "step": 0.01,
-          "caption": "Clearance around the screw holes — screws should be fairly loose-fitting (mm)",
-          "label_pt": "Folga dos Furos (em mm)",
-          "caption_pt": "Folga à volta dos furos dos parafusos — os parafusos devem ficar bastante soltos (mm)",
-          "help": "Objective: tune the screw-hole fit for your printer. Outcome: screws should be loose; increase if they bind.",
-          "group": "Hardware"
-        },
-        {
-          "name": "bearing_only",
-          "type": "boolean",
-          "initial": false,
-          "caption": "Print only the wrist bearing tab — a jig for thermoforming the bearing plastic",
-          "label_pt": "Apenas Chumaceira",
-          "caption_pt": "Imprimir apenas a aba da chumaceira do pulso — um gabarito para termoformar o plástico da chumaceira",
-          "help": "Objective: isolate the small wrist-bearing tab. Outcome: on prints only that tab, used as a forming jig for the 0.5 mm Igus bearing plastic; off prints the whole gauntlet.",
-          "group": "Options"
-        },
-        {
-          "name": "slide_only",
-          "type": "boolean",
-          "initial": false,
-          "caption": "Print only the dovetail track — to test the tensioner-box fit",
-          "label_pt": "Apenas Trilho",
-          "caption_pt": "Imprimir apenas o trilho de cauda de andorinha — para testar o ajuste da caixa tensora",
-          "help": "Objective: isolate the dovetail track for a quick fit test against the tensioner box. Outcome: on prints just the track; off prints the whole gauntlet.",
-          "group": "Options"
-        }
-      ],
-      "name_pt": "Paraglider · Braçadeira Termoformada",
-      "description_pt": "Braçadeira de antebraço curta e termoformável, com trilho de cauda de andorinha para a caixa tensora e assento de chumaceira no pulso. Imprima plana em PLA e depois molde a quente ao antebraço do paciente. Parte da família Paraglider (Flexible Flyer) de Marcus Mendenhall — uma adaptação paramétrica das mãos Phoenix Reborn / UnLimbited Phoenix v3 que permite escalar a palma e os dedos mantendo as juntas de pino metálico com tamanho constante, para que um kit de ferragens padrão sirva em qualquer tamanho de mão. Imprima as peças correspondentes com a mesma largura de palma. Reborn Hand por enablesierraleone, CC BY 3.0."
-    },
-    {
-      "id": "paraglider_unlimbited_arm",
-      "renderBackend": "manifold",
-      "name": "Paraglider · UnLimbited Arm",
-      "description": "Elbow-powered UnLimbited Arm (v2.1) adapted by Marcus Mendenhall to use 3 mm screw pins and match the Paraglider hand. Fully procedural — select one part at a time. Part of the Paraglider (Flexible Flyer) family by Marcus Mendenhall — a parametric adaptation of the Phoenix Reborn / UnLimbited Phoenix v3 hands that lets the palm and fingers scale while the metal-pin joints stay a constant size, so a standard hardware kit fits any hand size. Print the matching parts at the same palm breadth. Reborn Hand by enablesierraleone, CC BY 3.0.",
-      "file": "active/paraglider/UnLimbited_Arm_paraglider_v2.1.scad",
-      "dependencies": [],
-      "parameters": [
-        {
-          "name": "part",
-          "type": "enum",
-          "initial": "Cuff",
-          "options": [
-            {
-              "label": "Cuff",
-              "value": "Cuff"
-            },
-            {
-              "label": "Forearm",
-              "value": "Forearm"
-            },
-            {
-              "label": "Palm",
-              "value": "Palm"
-            },
-            {
-              "label": "Fingers",
-              "value": "Fingers"
-            },
-            {
-              "label": "Phalanx",
-              "value": "Phalanx"
-            },
-            {
-              "label": "Pins",
-              "value": "Pins"
-            },
-            {
-              "label": "Assembly Jig",
-              "value": "Jig"
-            }
-          ],
-          "caption": "Which printable part of the elbow-powered arm to preview and export",
-          "label_pt": "Peça",
-          "caption_pt": "Que peça imprimível do braço acionado pelo cotovelo pré-visualizar e exportar",
-          "help": "Objective: select one printable piece of the UnLimbited elbow-powered arm. Outcome: the preview and export show only the chosen part — print each in turn (cuff, forearm, palm, fingers, phalanx, pins) and use the jig to align parts during assembly.",
-          "group": "Visibility"
-        },
-        {
-          "name": "LeftRight",
-          "type": "enum",
-          "initial": "Left",
-          "options": [
-            {
-              "label": "Left arm",
-              "value": "Left"
-            },
-            {
-              "label": "Right arm",
-              "value": "Right"
-            }
-          ],
-          "caption": "Which side to generate — Right mirrors the geometry along X",
-          "label_pt": "Esquerda/Direita",
-          "caption_pt": "Que lado gerar — Direita espelha a geometria ao longo de X",
-          "help": "Objective: choose left or right arm. Outcome: 'Right' mirrors the model across X. Match the patient's affected side.",
-          "group": "Anthropometric"
-        },
-        {
-          "name": "HandLen",
-          "type": "number",
-          "initial": 135,
-          "min": 135,
-          "max": 230,
-          "step": 1,
-          "caption": "Total hand length, wrist crease to fingertip — sets the wrist joint width and overall hand scale (mm)",
-          "label_pt": "Comprimento da Mão (em mm)",
-          "caption_pt": "Comprimento total da mão, da dobra do pulso à ponta do dedo — define a largura da junta do pulso e a escala geral da mão (mm)",
-          "help": "Objective: size the elbow-powered hand to the patient by measuring from the wrist crease to the fingertip. Outcome: drives wrist width, joint sizes and overall scale. The design needs at least 135 mm for the forearm wrist joint to fit the palm.",
-          "group": "Anthropometric"
-        },
-        {
-          "name": "ForearmLen",
-          "type": "number",
-          "initial": 140,
-          "min": 120,
-          "max": 315,
-          "step": 1,
-          "caption": "Forearm length from wrist to elbow (mm)",
-          "label_pt": "Comprimento do Antebraço (em mm)",
-          "caption_pt": "Comprimento do antebraço, do pulso ao cotovelo (mm)",
-          "help": "Objective: fit the forearm section to the residual limb. Outcome: measure the usable forearm length and set it here; longer gives more leverage, shorter suits smaller arms.",
-          "group": "Anthropometric"
-        },
-        {
-          "name": "BicepCircum",
-          "type": "number",
-          "initial": 160,
-          "min": 110,
-          "max": 350,
-          "step": 1,
-          "caption": "Bicep circumference for sizing the upper-arm cuff (mm)",
-          "label_pt": "Circunferência do Bíceps (em mm)",
-          "caption_pt": "Circunferência do bíceps para dimensionar a braçadeira do braço (mm)",
-          "help": "Objective: fit the cuff around the upper arm. Outcome: measure around the bicep and set it here so the cuff wraps correctly.",
-          "group": "Anthropometric"
-        },
-        {
-          "name": "CuffLength",
-          "type": "number",
-          "initial": 65,
-          "min": 65,
-          "max": 90,
-          "step": 1,
-          "caption": "Length of the upper-arm cuff (mm)",
-          "label_pt": "Comprimento da Braçadeira (em mm)",
-          "caption_pt": "Comprimento da braçadeira do braço (mm)",
-          "help": "Objective: set how far the cuff extends along the upper arm. Outcome: longer gives more support and leverage; shorter is lighter.",
-          "group": "Anthropometric"
-        },
-        {
-          "name": "PinHoleDia",
-          "type": "number",
-          "initial": 3,
-          "min": 3,
-          "max": 6,
-          "step": 1,
-          "caption": "Joint pin / screw hole diameter for the arm hinges (mm)",
-          "label_pt": "Diâmetro do Pino (em mm)",
-          "caption_pt": "Diâmetro do furo do pino / parafuso das dobradiças do braço (mm)",
-          "help": "Objective: size the elbow and wrist hinge holes for your connectors. Outcome: the design uses 3 mm screws by default; the team advises Chicago/binding screws (glued) for the elbow as the original cuff pins can work loose.",
-          "group": "Hardware"
-        }
-      ],
-      "name_pt": "Paraglider · Braço UnLimbited",
-      "description_pt": "Braço UnLimbited acionado pelo cotovelo (v2.1), adaptado por Marcus Mendenhall para usar pinos de parafuso de 3 mm e corresponder à mão Paraglider. Totalmente procedimental — selecione uma peça de cada vez. Parte da família Paraglider (Flexible Flyer) de Marcus Mendenhall — uma adaptação paramétrica das mãos Phoenix Reborn / UnLimbited Phoenix v3 que permite escalar a palma e os dedos mantendo as juntas de pino metálico com tamanho constante, para que um kit de ferragens padrão sirva em qualquer tamanho de mão. Imprima as peças correspondentes com a mesma largura de palma. Reborn Hand por enablesierraleone, CC BY 3.0."
+      "description_pt": "Sistema protésico Paraglider (Flexible Flyer) completo num só modelo. O componente Mão constrói a palma (estilo Phoenix Reborn ou Unlimbited v3) e os cinco dedos, dimensionada a partir de medições antropométricas canónicas com escala independente por dedo e alternância de peças imprimíveis. O seletor de Componente também renderiza a Caixa Tensora e a Braçadeira Termoformada acionadas pelo pulso, e o Braço UnLimbited acionado pelo cotovelo. De Marcus Mendenhall, remix paramétrico das Phoenix v2 / Unlimbited v3 / Phoenix Reborn com juntas de pino metálico comerciais. Reborn Hand por enablesierraleone, CC BY 3.0."
     }
   ]
 }

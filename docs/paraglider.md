@@ -341,18 +341,30 @@ Mirror the palm in the slicer for the right-hand version, or set `mirrored = tru
 
 ---
 
-## 12. The full Paraglider family (v14.10.0)
+## 12. Single-entry consolidation (v14.11.0)
 
-The unified `paraglider_hand` model above (palm + fingers, full anthropometric alignment) is the primary entry. The remaining Paraglider source files were also integrated as their own dropdown entries so the complete printable system is available. These variant/accessory files live under `models/active/paraglider/` and are **raw upstream copies** (no `each` rewrite needed on the 2025.03.25 WASM build), with only two changes: the double-comma syntax fix (§2.2) on the palm files, and `palm_v3.3mf` converted to `palm_v3.stl` for WASM import safety.
+The whole Paraglider system is now exposed as **one** dropdown entry, `Paraglider · Hand`, with the variations as in-model options:
 
-| Model id | Source file | Dependencies | Sizing |
+- **`component`** selector — `Hand` (palm + fingers), `Box` (tensioner box), `Gauntlet` (thermo gauntlet), `Arm` (elbow-powered UnLimbited arm).
+- **`palm_style`** selector — `Reborn` (v2-derived mesh) or `UnlimbitedV3` (higher-res mesh) for the Hand.
+
+### Why a transpile step
+
+The components are separate `.scad` programs, and the four palm files are near-duplicate forks that share ~20 module names (`scaled_palm`, `do_channels`, `channel`, `mesh`, `plugs`, …). OpenSCAD's `use<>` resolves a module's free variables only against **file-top-level globals** (not the caller's locals — verified empirically), so the components cannot simply be `use`d together. They are instead **namespaced**: `scripts/namespace_scad.py` prefixes every identifier a file *defines* (modules, functions, top-level variables — never built-ins or string literals), wraps the file's top-level geometry into a `PREFIX_main()` module, and (for cross-deps like gauntlet→box or palm→pipe) inlines the dependency's library defs. The dispatcher `paraglider_hand.scad` then `include`s the prefixed bundles and dispatches on `component`/`palm_style`, driving each bundle from the Hand's shared inputs (`palm_breadth_mm`, `mirrored`, `overall_scale`).
+
+### Generated bundles (all under `models/active/paraglider_hand/`)
+
+| Bundle | Source | Prefix | Inlined libs |
 |---|---|---|---|
-| `paraglider_hand` | `paraglider_hand/paraglider_hand.scad` | `pipe.scad`, `fingerator.scad`, `paraglider_palm_left.scad`, `palm_left_v2_nobox.stl` | 5 active anthropometric + per-finger lengths |
-| `paraglider_palm_v3` | `paraglider/paraglider_palm_unlimbited_v3.scad` | `pipe.scad`, `palm_v3.stl` | `palm_breadth_mm` → scale (REF 82.8) |
-| `paraglider_palm_reborn_tensor` | `paraglider/paraglider_palm_left_tensor.scad` | `segmented_pipe_tensor.scad`, `palm_left_v2_nobox.stl` | `palm_breadth_mm` → scale (REF 80.6) |
-| `paraglider_palm_v3_tensor` | `paraglider/paraglider_palm_unlimbited_v3_tensor.scad` | `segmented_pipe_tensor.scad`, `palm_v3.stl` | `palm_breadth_mm` → scale (REF 82.8) |
-| `paraglider_tensioner_box` | `paraglider/gripper_box_pieces.scad` | — | `palm_breadth_mm` → scale (REF 80.6) |
-| `paraglider_thermo_gauntlet` | `paraglider/thermo_gauntlet.scad` | `gripper_box_pieces.scad` | `palm_breadth_mm` → scale (REF 80.6) |
-| `paraglider_unlimbited_arm` | `paraglider/UnLimbited_Arm_paraglider_v2.1.scad` | — | native `HandLen` (mm), elbow-powered |
+| `pg_v3palm.scad` | `paraglider_palm_unlimbited_v3.scad` | `V3_` | `pipe.scad` |
+| `pg_box.scad` | `gripper_box_pieces.scad` | `BOX_` | — |
+| `pg_gauntlet.scad` | `thermo_gauntlet.scad` | `GAU_` | `gripper_box_pieces.scad` defs |
+| `pg_arm.scad` | `UnLimbited_Arm_paraglider_v2.1.scad` | `ARM_` | — |
 
-The variant palms and accessories expose an anthropometric `palm_breadth_mm` (anchored to each part's measured 1.0× palm width) plus a raw `scale_override`, following the same "derive scale, allow manual override" pattern used by the Phoenix model. Print every part of a matching set at the **same** `palm_breadth_mm`. The standalone Reborn palm and fingerator are not separate entries — they are covered by the unified `paraglider_hand` via its part toggles and assembled/print-layout views.
+Each bundle was verified to render **byte-faithfully** against its standalone source (Box 3246, Gauntlet 2230, Arm/Cuff 10686 facets — exact matches), and the assembled dispatcher renders all five paths (Hand/Reborn, Hand/v3, Box, Gauntlet, Arm) with zero scoping warnings through the app's injection + dependency pipeline.
+
+### Notes / trade-offs
+
+- The two **integrated-tensioner palm variants** were dropped; tensioning is provided by the `Box` component.
+- For `palm_style = UnlimbitedV3` the v3 palm is driven at the Hand's `overall_scale` (Reborn-calibrated) so palm and fingers stay the same scale; the v3 mesh's native breadth differs from the Reborn mesh by ~3 %, so assembled-view knuckle alignment is approximate (the print-layout and palm geometry are unaffected).
+- The standalone upstream sources (`models/active/paraglider/`) were removed after generating the bundles; regenerate with `scripts/namespace_scad.py` from a fresh clone of the [upstream repo](https://github.com/mendenmh/flexible_flyer) if needed.

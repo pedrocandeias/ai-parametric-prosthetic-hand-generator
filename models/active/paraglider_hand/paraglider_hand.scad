@@ -42,9 +42,28 @@ thumb_length_mm = 65; // [35:1:100]
 // Mirror X axis for a right-hand orientation (default: left hand)
 mirrored = false;
 
+/* [Component] */
+// Which piece of the Paraglider system to render/export
+component = "Hand"; // [Hand, Box, Gauntlet, Arm]
+// Palm style for the Hand component
+palm_style = "Reborn"; // [Reborn, UnlimbitedV3]
+
 /* [Hardware] */
 // Pivot pin style — sets hole diameters in palm and phalanges
 pin_index = 1; // [0: 3mm screws + Delrin, 1: 1/16 inch pins + bearing, 2: 13ga nails + PTFE, 3: 1/16 inch pins no bearing]
+
+/* [Gauntlet] (component = Gauntlet) */
+GAU_bearing_only = false;  // print only the wrist bearing tab
+GAU_slide_only   = false;  // print only the dovetail track
+
+/* [Arm] (component = Arm) — elbow-powered UnLimbited arm */
+ARM_part        = "Cuff";  // [Cuff, Forearm, Palm, Fingers, Phalanx, Pins, Jig]
+ARM_LeftRight   = "Left";   // [Left, Right]
+ARM_HandLen     = 135;      // [135:230] total hand length (mm)
+ARM_ForearmLen  = 140;      // [120:315] forearm length (mm)
+ARM_BicepCircum = 160;      // [110:350] bicep circumference (mm)
+ARM_CuffLength  = 65;       // [65:90] upper-arm cuff length (mm)
+ARM_PinHoleDia  = 3;        // [3:6] joint pin/screw hole diameter (mm)
 
 /* [Visibility] */
 show_palm           = true;
@@ -185,6 +204,25 @@ use <pipe.scad>
 use <fingerator.scad>
 use <paraglider_palm_left.scad>
 
+// Drive the v3 palm from the Hand's shared inputs so palm + fingers stay
+// consistent. Declared BEFORE the include so the bundle's top-level vars
+// (e.g. V3_act_scale) resolve them.
+V3_overall_scale           = overall_scale;
+V3_include_mesh            = show_palm_mesh ? 1 : 0;
+V3_include_knuckle_covers  = show_knuckle_covers;
+V3_include_wrist_stamping_die = false;
+
+// ── Namespaced variant/accessory bundles (each exposes a *_main() / *_scaled_palm()) ──
+// Generated from the standalone Paraglider sources with every internal identifier
+// prefixed so they coexist in one file. Driven by the shared inputs above.
+include <pg_v3palm.scad>   // Unlimbited v3 palm → V3_scaled_palm()
+include <pg_box.scad>      // tensioner box      → BOX_main()
+include <pg_gauntlet.scad> // thermo gauntlet    → GAU_main()
+include <pg_arm.scad>      // elbow-powered arm  → ARM_main()
+
+// Skip the v3 palm's fontconfig text labels (no fontconfig in the WASM build).
+module V3_do_labels() { children(); }
+
 // ── Label override ─────────────────────────────────────────────────────────────
 // Overrides do_labels() from paraglider_palm_left.scad.
 // The WASM build has no fontconfig, so text() calls produce warnings and empty
@@ -267,9 +305,20 @@ module _thumb_phalanx(fscale=global_scale) {
         tab_thickness=adjusted_tabwidth/1.1, scale_size=fscale, thumb=true);
 }
 
+// ════════════════════════════════════════════════════════════════════════════════
+// COMPONENT DISPATCH
+// ════════════════════════════════════════════════════════════════════════════════
+if (component == "Box")      BOX_main();
+else if (component == "Gauntlet") GAU_main();
+else if (component == "Arm")      ARM_main();
+else if (component == "Hand") {
+
 // ── Palm (both modes) ─────────────────────────────────────────────────────────
 if (show_palm)
-    color(color_palm) scaled_palm();
+    color(color_palm) {
+        if (palm_style == "UnlimbitedV3") V3_scaled_palm();
+        else scaled_palm();
+    }
 
 if (!show_assembled) {
 // ════════════════════════════════════════════════════════════════════════════════
@@ -416,3 +465,5 @@ if (show_pins) color(color_pins) {
 }
 
 } // end assembled
+
+} // end component == "Hand"

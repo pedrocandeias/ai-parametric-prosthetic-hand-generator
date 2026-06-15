@@ -103,6 +103,8 @@ window.TRANSLATIONS = {
         'cfg.group.Visibility': 'Visibility',
         'cfg.group.Colors': 'Colors',
         'cfg.group.Engraving': 'Engraving',
+        'cfg.group.Component': 'Component',
+        'cfg.group.Arm': 'Arm',
 
         // Profile
         'profile.edit': 'Edit Profile',
@@ -414,6 +416,8 @@ window.TRANSLATIONS = {
         'cfg.group.Visibility': 'Visibilidade',
         'cfg.group.Colors': 'Cores',
         'cfg.group.Engraving': 'Gravação',
+        'cfg.group.Component': 'Componente',
+        'cfg.group.Arm': 'Braço',
 
         // Profile
         'profile.edit': 'Editar Perfil',
