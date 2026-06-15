@@ -10,6 +10,122 @@ Version format: `MAJOR.MINOR.PATCH`
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
+## v14.1.0 — 2026-06-15
+
+feat: extend translations (EN/PT) to the admin panel — app bar, tabs, Users tab (form, table, role/status badges, action buttons), Tech Assignments, and the Footer & Pages editor, plus a switcher in the admin bar and live re-render on language change. ~80 admin keys added. Not yet translated: transient toast messages and the detailed anthropometric measurement form labels (English fallback)
+
+## v14.0.0 — 2026-06-15
+
+feat: the platform is now translatable, with a language switcher (English + Portuguese). New lightweight i18n core (`i18n.js` + `translations.js`): static strings use `data-i18n`/`data-i18n-placeholder`/`data-i18n-title` attributes, JS-generated UI uses a global `t(key, vars)`, and the active language is detected from the browser and persisted in localStorage. Switchers sit in the app bar and on the login page; changing language re-renders the dynamic UI in place (no reload, editor state kept)
+feat: this first pass covers the main app — login/setup, dashboard, the configurator (tabs, AI panel, buttons, saved-config controls, "Enable"), profile, and the user menu/greeting. Admin panel, parameter tooltips/model descriptions, and CMS content pages are not yet translated (English fallback)
+
+## v13.11.0 — 2026-06-15
+
+docs: rewrite the Privacy Policy and Terms of Service pages to a broad, open-source "use at your own risk / no warranty / no liability" stance — removed all jurisdiction/legal-entity placeholders. Kept the strong "not a medical device" disclaimer. Updated `scripts/seed-content.js` and re-seeded the live pages
+
+## v13.10.0 — 2026-06-15
+
+fix: the bulk anthropometric CSV importer now keeps age groups as distinct profiles. The `group_name` previously omitted `age_group`, so same-population age bands collapsed to one arbitrary band; it now folds in a normalised age label (e.g. "…, age 19–30 (Country)"). Importing `multi_population_hand.csv` yields ~97 profiles instead of 27 — notably preserving a full pediatric series (Dutch children, ages 2–12) that was being silently dropped
+
+## v13.9.0 — 2026-06-15
+
+fix: raise the JSON request body limit from 1 MB to 8 MB so the admin "Import CSV" bulk anthropometric import works for the bundled `multi_population_hand.csv` (~1.1 MB), which previously exceeded the limit and 413'd
+
+## v13.8.0 — 2026-06-15
+
+fix: the admin "New Profile" (and Edit) anthropometric modal now actually opens. `openNew()`/`openEdit()` show it by adding the `active` class, but there was no `#anthro-modal.active` CSS rule, so it stayed `display:none`. Added `#anthro-modal.active { display: flex; }`
+
+## v13.7.0 — 2026-06-15
+
+feat: show the thermoformable palm-interior mesh by default on the Flexy Beast model — `show_thermoform` default flipped to `true` in both `flexy_beast.scad` and `models-config.json`
+
+## v13.6.0 — 2026-06-15
+
+feat: populate the footer content pages — Help Center, Documentation, Tutorials, Privacy Policy, Terms of Service, and Accessibility now have real Markdown content (added via the new idempotent `scripts/seed-content.js`). The footer Contact column is slimmed to a single email (`mailto:hello@handfab.pedrocandeias.net`) plus a GitHub link; Support/Legal columns link to the pages. Legal pages are general-purpose drafts with bracketed placeholders for jurisdiction/entity — they need legal review
+
+## v13.5.0 — 2026-06-15
+
+chore: remove the printed wrist hinge rod from the Flexy Beast model — dropped the `wrist_pin()` part and its `show_wrist_pin` toggle (also removed from `models-config.json`). The wrist pivot holes, clearance, and strap-flap splay remain, so the gauntlet still articulates on a pin/bolt the user supplies (hole sized by `wrist_pin_dia`)
+
+## v13.4.0 — 2026-06-14
+
+chore: move the gauntlet STL→SCAD reconstruction sources out of the platform model dir into `models/reconstruction/flexy_beast/` (source mesh, organic + primitive variant `.scad`, extracted profile/strap data, exported STLs, build artifacts, + a README). `models/active/flexy_beast/` now holds only the platform file `flexy_beast.scad` (which already inlines the finished gauntlet)
+chore: exclude `models/reconstruction/` from deploy (`deploy.sh`) — dev-only material, not shipped to the live platform
+
+## v13.3.0 — 2026-06-14
+
+fix: allow Google Fonts under the CSP — `style-src` now includes `https://fonts.googleapis.com` and a new `font-src` allows `https://fonts.gstatic.com`. Node/Passenger-served pages (e.g. the `/pages/<slug>` viewer) now load the DM Sans brand font instead of falling back to a system font
+
+## v13.2.0 — 2026-06-14
+
+feat: make the Flexy Beast wrist an articulating hinge. Added a printed wrist pin (cap-headed rod) that press-fits the palm wrist fins and lets the gauntlet rotate on it; the gauntlet strap flaps now auto-splay outward to sit just inside the fins for a snug pivot, and their pin holes are drilled round in assembly space (with clearance) so the cuff swings freely
+feat: new `[Wrist Hinge]` parameters in `models-config.json` — `show_wrist_pin`, `wrist_pin_dia` (defaults to the finger joint pin size), `wrist_pin_clearance`, `strap_splay_adjust`
+refactor: the palm wrist pin hole (`hardwarecutouts`) now sizes to `wrist_pin_dia` instead of a fixed 4 mm
+
+## v13.1.0 — 2026-06-14
+
+feat: add a parametric forearm gauntlet (wrist-powered tensioner cuff) to the Flexy Beast model, reconstructed from `Normal_Gauntlet_w_Tensioner.stl`. Built entirely from primitive shapes — a tapered oval half-pipe tunnel (hull of elliptical discs, shelled, palmar opening cut by a box) plus the tensioner boss, triangular crenellation slots, dorsal holes, and two distal straps
+feat: new `[Gauntlet]` parameters exposed in `models-config.json` — `show_gauntlet`, `gauntlet_width_mm` (forearm socket width), `gauntlet_length_mm`, `gauntlet_wall_mm`, `gauntlet_pos_adjust`. The cuff is a separate printed part positioned at the wrist, scaled to its own forearm dimensions (independent of knuckle breadth), with strap-tip pivot holes aligned to the palm's wrist hinge pin axis so it pins on as a hinged forearm piece
+chore: gauntlet modules use only core OpenSCAD primitives (no BOSL2) and are `g_`-prefixed/`$fn`-scoped, keeping `flexy_beast.scad` OpenSCAD-WASM compatible and isolated from the hand geometry
+
+## v13.0.0 — 2026-06-14
+
+feat: admin-managed footer + content pages (mini-CMS). New admin "Footer & Pages" tab lets admins edit the footer (brand, tagline, copyright, and add/remove/reorder columns + links, each link → an internal page or external URL) and create/edit/delete Markdown content pages
+feat: pages render at clean URLs `/pages/<slug>` via a new `page.html` viewer with a small safe Markdown renderer (`markdown.js`); the footer renders dynamically from `/api/content/footer` (`footer.js`) on every page, with the original markup as fallback
+feat: clean URL for the admin panel — `/admin` (drop `.html`); internal links updated (`admin.html` → `/admin`, `index.html` → `/`)
+feat: new `server/routes/contentRoutes.js` — `GET /api/content/footer` (public) / `PUT` (admin); `GET /api/content/pages` (admin list), `GET /api/content/pages/:slug` (public published), `POST/PUT/DELETE` (admin). New `site_settings` and `pages` tables in schema.sql (auto-created on startup)
+
+## v12.6.0 — 2026-06-14
+
+fix: the footer now appears on the configurator (`/edit`) and every in-app screen. Replaced the per-screen footers (which existed on selection + profile but were missing from customization) with a single shared footer rendered at the `#app-shell` level. The login/logout page keeps its own footer
+
+## v12.5.0 — 2026-06-14
+
+feat: the model name + description in the configurator is now a collapsible accordion (native `<details>`, closed by default) placed above the tab list, so it's available from all three tabs (AI Assistant, Parameters, Saved) instead of only Parameters. Chevron rotates when open; all element IDs preserved so the populate logic is unchanged
+
+## v12.4.0 — 2026-06-14
+
+feat: soften the Saved Configuration Save/Delete buttons in the configurator — muted emerald `#2bb673` and muted rose-red `#d9596a` (down from the saturated `#22c55e`/`#d4183d`), to sit better with the design. Scoped to `#config-save-btn`/`#config-delete-btn` so admin.html's green buttons are unaffected
+
+## v12.3.0 — 2026-06-14
+
+feat: the URL now reflects the active screen — `/dashboard` (model selection), `/edit` (configurator), `/profile`. Navigating updates the address bar via the History API, and browser back/forward switches screens. On a cold load / deep link the app lands on `/dashboard` (the editor and profile can't be restored from the URL alone). `show()` now syncs the URL; added a `popstate` handler
+
+## v12.2.0 — 2026-06-14
+
+feat: the app-bar logo is now a "back to dashboard" button — clicking it (or focusing + Enter/Space) returns to the model-selection screen and reloads it. Added hover/focus affordances and `role="button"`/`aria-label` for accessibility
+
+## v12.1.0 — 2026-06-14
+
+fix: set `app.set('trust proxy', 1)` so the app works correctly behind the cPanel/Passenger→Apache reverse proxy — fixes the `ERR_ERL_UNEXPECTED_X_FORWARDED_FOR` error from express-rate-limit and gives correct client IPs
+docs: note that the frontend uses absolute URLs (`/api/...`, `/models/...`) and therefore must be hosted at a domain/subdomain root, not a sub-path (Passenger does not strip a PassengerBaseURI for Node apps)
+
+## v12.0.0 — 2026-06-13
+
+refactor: replace the `better-sqlite3` native module with Node's built-in `node:sqlite` (`DatabaseSync`). `server/db.js` now imports `node:sqlite` and adds a `db.transaction(fn)` shim (BEGIN/COMMIT/ROLLBACK) so existing call sites (authService) are unchanged; all query call sites use positional params and were already compatible. Removes the only compiled dependency that needed a prebuilt binary, eliminating the glibc/compiler problems on the cPanel host (`bcrypt` remains, but it is N-API with a glibc-2.14 prebuilt and loads everywhere)
+chore: **requires Node ≥ 22** (where `node:sqlite` is available); added `engines.node >=22`. The production cPanel app runs on Node 24. Drop `better-sqlite3` from dependencies
+docs: update CLAUDE.md DB convention (node:sqlite + transaction shim, Node ≥22)
+
+## v11.5.0 — 2026-06-13
+
+feat: deploy.sh gains cPanel conveniences modelled on the bragagenda script — a hardcoded (editable) default target (pedrocan@pedrocandeias.net:/home/pedrocan/public_html/ai-parametric-prosthetic-hand-generator), `--port` for custom SSH ports, `--dry-run`, and a pre-deploy remote backup (sqlite `.backup` of data/app.db + a code tarball into backups/, excluding data/node_modules/backups). rsync now runs over `ssh -p` and still defaults to no `--delete`; the secret-exclusion safety-net and `collect` staging are unchanged. Post-deploy hint now describes the cPanel Node.js App setup instead of `npm start`
+
+## v11.4.0 — 2026-06-13
+
+docs: add a cPanel (Phusion Passenger) deployment path to DEPLOYMENT.md as "Option C" — create-app-first ordering, `server/index.js` startup file, rsync without `--delete` to preserve Passenger's `.htaccess`, panel-based npm install + env vars, and a native-module (bcrypt/better-sqlite3) build caveat
+
+## v11.3.0 — 2026-06-13
+
+feat: parameter help tooltips now show a detailed "Objective / Outcome" explanation for every Flexy Beast parameter (new `help` field per parameter in `models-config.json`). The tooltip prefers `help` and falls back to the short `caption`; the inline caption line is unchanged. Tooltip widened to 320px for the longer text
+
+## v11.2.0 — 2026-06-13
+
+feat: add help tooltips (ⓘ icon) next to every parameter label in the configurator. Hovering or keyboard-focusing the icon shows the parameter's description in a body-level tooltip that is never clipped by the scrollable panel; the existing always-visible caption line is retained
+
+## v11.1.0 — 2026-06-13
+
+chore: deactivate the Paraglider Hand model — moved `models/active/paraglider_hand/` to `models/inactive/paraglider_hand/` and removed its entry from `models-config.json`, so the configurator now only offers Flexy Beast. Files are retained under `models/inactive/` for future reactivation
+
 ## v11.0.0 — 2026-06-06
 
 feat: imported anthropometric datasets now drive the design flow. New `server/services/profileMapping.js` maps a profile's `measurements` (palm.width_mm, digits.*.total_length_mm) onto canonical model parameters, clamped to each parameter's bounds

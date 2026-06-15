@@ -440,7 +440,12 @@ router.post('/import-csv-bulk', adminOnly, (req, res, next) => {
         for (const [, g] of groups) {
             const percentileLabel = g.percentile ? `— ${g.percentile}` : '';
             const sexLabel        = g.sex ? ` ${g.sex}` : '';
-            const group_name      = `${g.population}${sexLabel} (${g.country})${percentileLabel}`.trim();
+            // Keep age groups as distinct profiles — fold age_group into the name
+            // (normalise "19-30" → "19–30"). Without this, same-population age bands
+            // collapse to one arbitrary band. Empty/whitespace age → no age label.
+            const ageRaw          = (g.age_group || '').trim();
+            const ageLabel        = ageRaw ? `, age ${ageRaw.replace(/\s*-\s*/g, '–')}` : '';
+            const group_name      = `${g.population}${sexLabel}${ageLabel} (${g.country})${percentileLabel}`.trim();
 
             // Idempotency check
             const existing = db.prepare(

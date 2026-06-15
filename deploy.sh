@@ -12,13 +12,18 @@
 #       Stage every server-bound file into DIR (default ./deploy). With --tar,
 #       also produce DIR.tar.gz. Nothing leaves the machine.
 #
-#   ./deploy.sh deploy <user@host:/path> [--out DIR] [--delete] [--yes]
-#       Run collect, then rsync the staged tree to the remote destination.
-#       --delete removes remote files no longer present locally.
+#   ./deploy.sh deploy [user@host:/path] [--port N] [--dry-run] [--no-backup]
+#                      [--out DIR] [--delete] [--yes]
+#       Run collect, back up the remote (DB + code tarball into backups/), then
+#       rsync the staged tree up. With no destination it uses the cPanel target
+#       configured below. No --delete by default, so server-only files
+#       (Passenger .htaccess, the live data/ DB) are preserved.
 #
 # Examples:
 #   ./deploy.sh collect --tar
-#   ./deploy.sh deploy deploy@example.com:/var/www/prosthetic-hand --delete
+#   ./deploy.sh deploy                       # → configured cPanel target
+#   ./deploy.sh deploy --dry-run             # preview, no changes
+#   ./deploy.sh deploy user@host:/path --port 2222
 #
 set -euo pipefail
 
@@ -28,6 +33,16 @@ MAKE_TAR=false
 RSYNC_DELETE=false
 ASSUME_YES=false
 DESTINATION=""
+DRY_RUN=false
+DO_BACKUP=true
+
+# --- Default cPanel deploy target (same account as bragagenda) ----------------
+# Override the destination by passing user@host:/path; override the SSH port
+# with --port. The app runs under cPanel's "Setup Node.js App" (Passenger).
+REMOTE_USER="pedrocan"
+REMOTE_HOST="pedrocandeias.net"
+REMOTE_PORT="22"
+REMOTE_PATH="/home/pedrocan/public_html/sites/handfab"
 
 # Files and directories that must NEVER reach the server, or that the server
 # rebuilds for itself. Patterns are matched by rsync (basename unless anchored).
@@ -36,6 +51,8 @@ EXCLUDES=(
     ".env"                              # API keys / JWT secret  (.env.example IS shipped)
     "config.json"                       # deprecated secrets file
     "data/"                             # dev SQLite DB — server creates its own on first run
+    # --- server-managed: cPanel/Passenger owns the app-root .htaccess ---
+    ".htaccess"                         # NEVER ship: would wipe the CloudLinux Passenger block
     # --- dependencies: reinstalled on the server with `npm ci` ---
     "node_modules/"                     # native modules (better-sqlite3, bcrypt) are arch-specific
     # --- version control ---
@@ -62,6 +79,7 @@ EXCLUDES=(
     # --- reference / deprecated material ---
     "Hand Fab prosthetic configurator/"
     "models/old_models/"
+    "models/reconstruction/"            # STL→SCAD reconstruction sources (dev-only)
     "config.example.json"
     "TODO.MD"
     # --- the deploy machinery itself ---
@@ -70,7 +88,23 @@ EXCLUDES=(
 )
 
 usage() {
-    sed -n '2,28p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+    cat <<'USAGE'
+Deployment helper for the AI Parametric Prosthetic Hand Generator.
+
+Usage:
+  ./deploy.sh collect [--out DIR] [--tar]
+      Stage the deployable tree locally (default ./deploy). --tar also makes a .tar.gz.
+
+  ./deploy.sh deploy [user@host:/path] [--port N] [--dry-run] [--no-backup] [--delete] [--yes]
+      collect → remote backup → rsync up. No destination = the configured cPanel target.
+      No --delete by default (preserves Passenger .htaccess, the live data/ DB, etc.).
+
+Examples:
+  ./deploy.sh collect --tar
+  ./deploy.sh deploy                 # configured cPanel target
+  ./deploy.sh deploy --dry-run       # preview only
+  ./deploy.sh deploy user@host:/path --port 2222
+USAGE
     exit "${1:-0}"
 }
 
@@ -120,18 +154,50 @@ do_collect() {
     echo ""
 }
 
+# Back up the remote app (DB + code tarball) before we overwrite anything.
+# Safe to run before the very first deploy: if the app dir does not exist yet
+# the remote shell exits 0 and nothing is backed up.
+remote_backup() {
+    local ssh_target="$1" dest_path="$2"
+    echo "→ Backing up remote (skipped if the app dir does not exist yet)…"
+    ssh -p "${REMOTE_PORT}" "${ssh_target}" "
+        cd '${dest_path}' 2>/dev/null || exit 0
+        mkdir -p backups
+        ts=\$(date +%Y%m%d-%H%M%S)
+        if [ -f data/app.db ]; then
+            sqlite3 data/app.db \".backup 'backups/app-\${ts}.db'\" 2>/dev/null \
+                || cp data/app.db \"backups/app-\${ts}.db\" 2>/dev/null || true
+        fi
+        tar -czf \"backups/code-\${ts}.tar.gz\" \
+            --exclude=./data --exclude=./node_modules --exclude=./backups \
+            . 2>/dev/null || true
+    " && echo "  backup done." || echo "  ⚠ backup step reported a problem (continuing)."
+    echo ""
+}
+
 # Push the staged tree to the remote destination.
 do_deploy() {
     do_collect
 
+    # Default to the configured cPanel target when no destination was given.
+    if [ -z "${DESTINATION}" ]; then
+        DESTINATION="${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}"
+    fi
+    local ssh_target="${DESTINATION%%:*}"
+    local dest_path="${DESTINATION#*:}"
+
     echo "=========================================="
     echo "  Deploying to remote"
     echo "=========================================="
-    echo "Destination: ${DESTINATION}"
+    echo "Destination: ${DESTINATION}  (ssh port ${REMOTE_PORT})"
+    [ "${DRY_RUN}" = true ]      && echo "Mode: DRY RUN (no changes will be made)"
     [ "${RSYNC_DELETE}" = true ] && echo "Mode: mirror (--delete: removes stale remote files)"
+    if [ "${DO_BACKUP}" = true ] && [ "${DRY_RUN}" != true ]; then
+        echo "Backup: remote DB + code tarball → ${dest_path}/backups/"
+    fi
     echo ""
 
-    if [ "${ASSUME_YES}" != true ]; then
+    if [ "${ASSUME_YES}" != true ] && [ "${DRY_RUN}" != true ]; then
         read -r -p "Continue with deployment? (y/N) " reply
         case "${reply}" in
             [Yy]*) ;;
@@ -139,9 +205,19 @@ do_deploy() {
         esac
     fi
 
-    local rsync_args=(-avz --progress)
+    if [ "${DO_BACKUP}" = true ] && [ "${DRY_RUN}" != true ]; then
+        remote_backup "${ssh_target}" "${dest_path}"
+    fi
+
+    local rsync_args=(-avz --progress -e "ssh -p ${REMOTE_PORT}")
+    [ "${DRY_RUN}" = true ]      && rsync_args+=(--dry-run)
     [ "${RSYNC_DELETE}" = true ] && rsync_args+=(--delete)
     rsync "${rsync_args[@]}" "${OUT_DIR}/" "${DESTINATION}/"
+
+    [ "${DRY_RUN}" = true ] && { echo ""; echo "(DRY RUN — nothing was changed.)"; echo ""; return 0; }
+
+    # cPanel "Application root" is relative to the home dir.
+    local app_root="${dest_path#/home/${ssh_target#*@}/}"
 
     echo ""
     echo "=========================================="
@@ -149,12 +225,18 @@ do_deploy() {
     echo "=========================================="
     cat <<EOF
 
-Next steps on the server (${DESTINATION##*:}):
-  1. cd ${DESTINATION##*:}
-  2. cp .env.example .env   &&   edit .env  (JWT_SECRET + API keys)
-  3. npm ci --omit=dev      # compiles native modules for this machine
-  4. node scripts/create-admin.js <username> <email> <password>   # first run only
-  5. npm start              # or run under pm2/systemd
+First deploy only — set up the Node.js app in cPanel:
+  1. Setup Node.js App → Create Application
+       Application root        = ${app_root}
+       Application startup file = server/index.js
+       Application mode        = Production   (Node 18 or 20 LTS)
+  2. Environment variables (in the panel): JWT_SECRET, ANTHROPIC_API_KEY,
+     OPENAI_API_KEY, NODE_ENV=production
+  3. Run NPM Install   (compiles bcrypt + better-sqlite3 on the server)
+  4. node scripts/create-admin.js <username> <email> <password>   # via the panel's venv shell
+  5. Restart the app in the panel
+
+Subsequent deploys: re-run ./deploy.sh deploy, then click Restart in the panel.
 EOF
     echo ""
 }
@@ -175,6 +257,10 @@ while [ $# -gt 0 ]; do
         --out=*)  OUT_DIR="${1#*=}"; shift ;;
         --tar)    MAKE_TAR=true; shift ;;
         --delete) RSYNC_DELETE=true; shift ;;
+        --port)   REMOTE_PORT="$2"; shift 2 ;;
+        --port=*) REMOTE_PORT="${1#*=}"; shift ;;
+        --dry-run) DRY_RUN=true; shift ;;
+        --no-backup) DO_BACKUP=false; shift ;;
         -y|--yes) ASSUME_YES=true; shift ;;
         -h|--help) usage 0 ;;
         -*)       echo "Unknown option: '$1'" >&2; usage 1 ;;
@@ -193,12 +279,6 @@ case "${OUT_DIR}" in
     /*) ;;
     *) OUT_DIR="$( cd "$( dirname "${OUT_DIR}" )" 2>/dev/null && pwd )/$( basename "${OUT_DIR}" )" || OUT_DIR="${SCRIPT_DIR}/deploy" ;;
 esac
-
-if [ "${MODE}" = "deploy" ] && [ -z "${DESTINATION}" ]; then
-    echo "❌ deploy mode requires a destination, e.g. user@host:/path" >&2
-    echo ""
-    usage 1
-fi
 
 case "${MODE}" in
     collect) do_collect ;;

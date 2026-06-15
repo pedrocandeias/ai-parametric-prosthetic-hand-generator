@@ -30,8 +30,18 @@ class ParameterEditor {
         // Populate model selector
         this.populateModelSelector();
 
+        // Set up parameter help tooltips (body-level, never clipped by panels)
+        this.setupParamTooltips();
+
         // Set up save/load config UI (wired after auth ready)
         this.setupConfigPanel();
+
+        // Re-render parameter controls in the new language (keeps current values)
+        window.addEventListener('i18n:change', () => {
+            if (this.currentModel && this.currentModel.parameters) {
+                this.generateParameterControls(this.currentModel.parameters);
+            }
+        });
 
         // Listen for auth events
         window.addEventListener('auth:login', () => this.onAuthChange());
@@ -289,7 +299,7 @@ class ParameterEditor {
             </p>
         `;
         document.getElementById('editor').value = '';
-        this.updateStatus('Ready', '');
+        this.updateStatus(t('cfg.ready'), '');
     }
 
     displayModelInfo(model) {
@@ -378,6 +388,66 @@ class ParameterEditor {
         this.validateParameters();
     }
 
+    setupParamTooltips() {
+        // Single reusable tooltip element appended to <body> so it is never
+        // clipped by the scrollable parameter panel (overflow: auto).
+        let tip = document.getElementById('param-tooltip');
+        if (!tip) {
+            tip = document.createElement('div');
+            tip.id = 'param-tooltip';
+            tip.setAttribute('role', 'tooltip');
+            document.body.appendChild(tip);
+        }
+
+        const show = (icon) => {
+            const text = icon.getAttribute('data-help');
+            if (!text) return;
+            tip.textContent = text;
+            tip.style.display = 'block';
+            // Position above the icon, centered, clamped to the viewport.
+            const r = icon.getBoundingClientRect();
+            const tr = tip.getBoundingClientRect();
+            const margin = 8;
+            let left = r.left + r.width / 2 - tr.width / 2;
+            left = Math.max(margin, Math.min(left, window.innerWidth - tr.width - margin));
+            let top = r.top - tr.height - margin;
+            let placement = 'top';
+            if (top < margin) { top = r.bottom + margin; placement = 'bottom'; } // flip below if no room
+            tip.style.left = `${left}px`;
+            tip.style.top = `${top}px`;
+            tip.dataset.placement = placement;
+            tip.classList.add('visible');
+        };
+        const hide = () => {
+            tip.classList.remove('visible');
+            tip.style.display = 'none';
+        };
+
+        // Event delegation: controls are re-rendered whenever a model loads.
+        document.addEventListener('mouseover', (e) => {
+            const icon = e.target.closest && e.target.closest('.param-help');
+            if (icon) show(icon);
+        });
+        document.addEventListener('mouseout', (e) => {
+            if (e.target.closest && e.target.closest('.param-help')) hide();
+        });
+        document.addEventListener('focusin', (e) => {
+            const icon = e.target.closest && e.target.closest('.param-help');
+            if (icon) show(icon);
+        });
+        document.addEventListener('focusout', (e) => {
+            if (e.target.closest && e.target.closest('.param-help')) hide();
+        });
+    }
+
+    escapeAttr(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+    }
+
     formatParamName(name) {
         // "palm_breadth_mm" → "Palm Breadth (in mm)"
         // "show_palm"       → "Show Palm"
@@ -394,6 +464,10 @@ class ParameterEditor {
         const value = this.parameters[param.name];
         const label = this.formatParamName(param.name);
         const linkIndicator = param.dependsOn ? `<span class="param-dep-indicator" title="Driven by ${this.formatParamName(param.dependsOn)}">⇠</span>` : '';
+        const helpText = param.help || param.caption;
+        const helpIcon = helpText
+            ? `<span class="param-help" tabindex="0" role="button" aria-label="${this.escapeAttr(helpText)}" data-help="${this.escapeAttr(helpText)}">ⓘ</span>`
+            : '';
 
         let controlHtml = '';
 
@@ -401,13 +475,13 @@ class ParameterEditor {
             controlHtml = `
                 <div class="param-item">
                     <div class="param-label">
-                        <span class="param-name">${label}${linkIndicator}</span>
+                        <span class="param-name">${label}${linkIndicator}${helpIcon}</span>
                         <span class="param-value" id="value-${param.name}">${value}</span>
                     </div>
                     <div class="param-caption">${param.caption}</div>
                     <div class="checkbox-container">
                         <input type="checkbox" id="param-${param.name}" ${value ? 'checked' : ''}>
-                        <label for="param-${param.name}">Enable</label>
+                        <label for="param-${param.name}">${t('cfg.enable')}</label>
                     </div>
                 </div>
             `;
@@ -416,7 +490,7 @@ class ParameterEditor {
                 controlHtml = `
                     <div class="param-item">
                         <div class="param-label">
-                            <span class="param-name">${label}${linkIndicator}</span>
+                            <span class="param-name">${label}${linkIndicator}${helpIcon}</span>
                             <span class="param-value" id="value-${param.name}">${value}</span>
                         </div>
                         <div class="param-caption">${param.caption}</div>
@@ -438,7 +512,7 @@ class ParameterEditor {
                 controlHtml = `
                     <div class="param-item">
                         <div class="param-label">
-                            <span class="param-name">${label}${linkIndicator}</span>
+                            <span class="param-name">${label}${linkIndicator}${helpIcon}</span>
                             <span class="param-value" id="value-${param.name}">${value}</span>
                         </div>
                         <div class="param-caption">${param.caption}</div>
@@ -457,7 +531,7 @@ class ParameterEditor {
             controlHtml = `
                 <div class="param-item">
                     <div class="param-label">
-                        <span class="param-name">${label}${linkIndicator}</span>
+                        <span class="param-name">${label}${linkIndicator}${helpIcon}</span>
                     </div>
                     <div class="param-caption">${param.caption}</div>
                     <select id="param-${param.name}" class="param-control">${options}</select>
@@ -467,7 +541,7 @@ class ParameterEditor {
             controlHtml = `
                 <div class="param-item">
                     <div class="param-label">
-                        <span class="param-name">${label}${linkIndicator}</span>
+                        <span class="param-name">${label}${linkIndicator}${helpIcon}</span>
                         <span class="param-value" id="value-${param.name}">${value}</span>
                     </div>
                     <div class="param-caption">${param.caption}</div>
@@ -1465,7 +1539,7 @@ class ParameterEditor {
         if (type === 'success' || type === 'error') {
             setTimeout(() => {
                 if (statusDiv.textContent === message) {
-                    statusDiv.textContent = 'Ready';
+                    statusDiv.textContent = t('cfg.ready');
                     statusDiv.className = 'status';
                 }
             }, 3000);

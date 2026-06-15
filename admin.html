@@ -240,6 +240,25 @@
         .tab-panel { display: none; }
         .tab-panel.active { display: block; }
 
+        /* Footer & Pages editor */
+        .btn-sm { padding: 5px 11px !important; font-size: 0.8125rem !important; }
+        #pages-table td a { color: #6366f1; text-decoration: none; }
+        #pages-table .btn-sm + .btn-sm { margin-left: 4px; }
+        .content-grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1rem; }
+        @media (max-width: 720px) { .content-grid3 { grid-template-columns: 1fr; } }
+        .footer-col { border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; margin-bottom: 0.75rem; background: #fafafa; }
+        .footer-col-head { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.6rem; }
+        .footer-col-head input { flex: 1; font-weight: 600; }
+        .footer-col-links { display: flex; flex-direction: column; gap: 0.4rem; }
+        .footer-link-row { display: grid; grid-template-columns: 1fr 110px 1.4fr auto; gap: 0.5rem; align-items: center; }
+        @media (max-width: 720px) { .footer-link-row { grid-template-columns: 1fr 1fr; } }
+        .footer-col-actions { margin-top: 0.5rem; }
+        .icon-btn-x { background: none; border: none; color: #999; cursor: pointer; font-size: 1.15rem; line-height: 1; padding: 2px 8px; border-radius: 6px; }
+        .icon-btn-x:hover { background: #fff0f3; color: #d4183d; }
+        .page-status-pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 500; }
+        .page-status-pill.published { background: #e9f9f0; color: #198a55; }
+        .page-status-pill.draft { background: #f1f1f4; color: #717182; }
+
         /* ── Cards ── */
         .card {
             background: var(--surface);
@@ -482,6 +501,7 @@
             overflow-y: auto;
             backdrop-filter: blur(4px);
         }
+        #anthro-modal.active { display: flex; }
         .anthro-box {
             background: var(--surface);
             border-radius: var(--radius-xl);
@@ -674,7 +694,7 @@
     <header class="admin-app-bar">
         <div class="admin-app-bar-inner">
             <div style="display:flex;align-items:center;gap:12px">
-                <a href="index.html" class="admin-logo">
+                <a href="/" class="admin-logo">
                     <svg class="admin-logo-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <defs><linearGradient id="alg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#a855f7"/><stop offset="50%" stop-color="#ec4899"/><stop offset="100%" stop-color="#f97316"/></linearGradient></defs>
                         <path d="M35 65 L35 85 C35 88 37 90 40 90 L60 90 C63 90 65 88 65 85 L65 65 Z" fill="url(#alg)" opacity="0.9"/>
@@ -693,10 +713,14 @@
                     </svg>
                     <span class="admin-logo-text">Hand Fab</span>
                 </a>
-                <span class="admin-bar-title">Admin Panel</span>
+                <span class="admin-bar-title" data-i18n="admin.title">Admin Panel</span>
             </div>
             <nav class="admin-bar-nav">
-                <a href="index.html">← Back to App</a>
+                <select class="lang-switcher" data-i18n-aria-label="lang.label" aria-label="Language" style="appearance:none;-webkit-appearance:none;border:1px solid #d0d0d8;background:#fff;color:#717182;font-size:0.8125rem;font-weight:600;padding:6px 10px;border-radius:8px;cursor:pointer">
+                    <option value="en">EN</option>
+                    <option value="pt">PT</option>
+                </select>
+                <a href="/" data-i18n="admin.backToApp">← Back to App</a>
                 <div class="admin-user-menu" id="admin-user-menu">
                     <button class="admin-user-btn" id="admin-user-btn" aria-haspopup="true" aria-expanded="false">
                         <div class="admin-user-avatar" id="admin-user-avatar">A</div>
@@ -704,14 +728,14 @@
                         <svg class="admin-user-chevron" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                     </button>
                     <div class="admin-user-dropdown" role="menu">
-                        <a href="index.html" class="admin-dropdown-item">
+                        <a href="/" class="admin-dropdown-item">
                             <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                            Back to App
+                            <span data-i18n="admin.backToApp">Back to App</span>
                         </a>
                         <div class="admin-dropdown-divider"></div>
                         <button class="admin-dropdown-item danger" id="admin-logout">
                             <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                            Log Out
+                            <span data-i18n="menu.signOut">Log Out</span>
                         </button>
                     </div>
                 </div>
@@ -724,17 +748,18 @@
 
         <div id="admin-content" style="display:none">
             <div class="tabs">
-                <button class="tab-btn active" data-tab="users">Users</button>
-                <button class="tab-btn" data-tab="assignments">Tech Assignments</button>
-                <button class="tab-btn" data-tab="anthropometric">Anthropometric Profiles</button>
+                <button class="tab-btn active" data-tab="users" data-i18n="admin.tabUsers">Users</button>
+                <button class="tab-btn" data-tab="assignments" data-i18n="admin.tabAssignments">Tech Assignments</button>
+                <button class="tab-btn" data-tab="anthropometric" data-i18n="admin.tabAnthro">Anthropometric Profiles</button>
+                <button class="tab-btn" data-tab="content" data-i18n="admin.tabContent">Footer &amp; Pages</button>
             </div>
 
             <!-- Users tab -->
             <div class="tab-panel active" id="tab-users">
                 <div class="card">
                     <div class="card-header">
-                        <h2>Users</h2>
-                        <button class="btn-success" id="create-user-btn"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg> Create User</button>
+                        <h2 data-i18n="admin.usersHeading">Users</h2>
+                        <button class="btn-success" id="create-user-btn"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg> <span data-i18n="admin.createUser">Create User</span></button>
                     </div>
 
                     <div class="inline-form" id="create-user-form">
@@ -742,41 +767,41 @@
                             <div class="error-msg" id="create-user-error"></div>
                         </div>
                         <div>
-                            <label>Username</label>
+                            <label data-i18n="admin.username">Username</label>
                             <input type="text" id="new-username" placeholder="username">
                         </div>
                         <div>
-                            <label>Email</label>
+                            <label data-i18n="admin.email">Email</label>
                             <input type="email" id="new-email" placeholder="user@example.com">
                         </div>
                         <div>
-                            <label>Password</label>
-                            <input type="password" id="new-password" placeholder="min 8 chars">
+                            <label data-i18n="admin.password">Password</label>
+                            <input type="password" id="new-password" data-i18n-placeholder="admin.passwordMin" placeholder="min 8 chars">
                         </div>
                         <div>
-                            <label>Role</label>
+                            <label data-i18n="admin.role">Role</label>
                             <select id="new-role">
-                                <option value="user">User</option>
-                                <option value="tech">Tech</option>
-                                <option value="admin">Admin</option>
+                                <option value="user" data-i18n="admin.roleUser">User</option>
+                                <option value="tech" data-i18n="admin.roleTech">Tech</option>
+                                <option value="admin" data-i18n="admin.roleAdmin">Admin</option>
                             </select>
                         </div>
                         <div class="full form-actions">
-                            <button class="btn-primary" id="save-new-user-btn">Create</button>
-                            <button class="btn-secondary" id="cancel-create-btn">Cancel</button>
+                            <button class="btn-primary" id="save-new-user-btn" data-i18n="admin.create">Create</button>
+                            <button class="btn-secondary" id="cancel-create-btn" data-i18n="admin.cancel">Cancel</button>
                         </div>
                     </div>
 
                     <table id="users-table">
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Username</th>
-                                <th>Email</th>
-                                <th>Role</th>
-                                <th>Status</th>
-                                <th>Created</th>
-                                <th>Actions</th>
+                                <th data-i18n="admin.colId">ID</th>
+                                <th data-i18n="admin.username">Username</th>
+                                <th data-i18n="admin.email">Email</th>
+                                <th data-i18n="admin.role">Role</th>
+                                <th data-i18n="admin.colStatus">Status</th>
+                                <th data-i18n="admin.colCreated">Created</th>
+                                <th data-i18n="admin.colActions">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="users-tbody"></tbody>
@@ -788,10 +813,10 @@
             <div class="tab-panel" id="tab-anthropometric">
                 <div class="card">
                     <div class="card-header">
-                        <h2>Anthropometric Profiles</h2>
+                        <h2 data-i18n="admin.anthroHeading">Anthropometric Profiles</h2>
                         <div style="display:flex;gap:0.5rem;align-items:center">
-                            <button class="btn-secondary" id="anthro-bulk-import-btn" title="Import population profiles from multi_population_hand.csv"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Import CSV</button>
-                            <button class="btn-success" id="anthro-new-btn"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg> New Profile</button>
+                            <button class="btn-secondary" id="anthro-bulk-import-btn" title="Import population profiles from multi_population_hand.csv"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> <span data-i18n="admin.importCsv">Import CSV</span></button>
+                            <button class="btn-success" id="anthro-new-btn"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg> <span data-i18n="admin.newProfile">New Profile</span></button>
                         </div>
                         <input type="file" id="anthro-bulk-file" accept=".csv" style="display:none">
                     </div>
@@ -835,7 +860,7 @@
             <div class="tab-panel" id="tab-assignments">
                 <div class="card">
                     <div class="card-header">
-                        <h2>Tech → Patient Assignments</h2>
+                        <h2 data-i18n="admin.assignmentsHeading">Tech → Patient Assignments</h2>
                     </div>
                     <table>
                         <thead>
@@ -848,6 +873,69 @@
                         <tbody id="assignments-tbody"></tbody>
                     </table>
                 </div>
+            </div>
+
+            <!-- Footer & Pages tab -->
+            <div class="tab-panel" id="tab-content">
+
+                <!-- Footer editor -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 data-i18n="admin.footerHeading">Footer</h2>
+                        <button class="btn-primary" id="footer-save-btn" data-i18n="admin.saveFooter">Save footer</button>
+                    </div>
+                    <div class="error-msg" id="footer-error"></div>
+                    <div class="content-grid3">
+                        <div><label data-i18n="admin.brandTitle">Brand title</label><input type="text" id="footer-brand"></div>
+                        <div><label data-i18n="admin.tagline">Tagline</label><input type="text" id="footer-tagline"></div>
+                        <div><label data-i18n="admin.copyright">Copyright</label><input type="text" id="footer-copyright"></div>
+                    </div>
+                    <div id="footer-columns" class="footer-columns"></div>
+                    <button class="btn-secondary" id="footer-add-column" style="margin-top:0.75rem" data-i18n="admin.addColumn">+ Add column</button>
+                </div>
+
+                <!-- Pages -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 data-i18n="admin.pagesHeading">Pages</h2>
+                        <button class="btn-success" id="page-new-btn"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg> <span data-i18n="admin.newPage">New page</span></button>
+                    </div>
+                    <div class="inline-form" id="page-form">
+                        <div class="full"><div class="error-msg" id="page-error"></div></div>
+                        <input type="hidden" id="page-id">
+                        <div>
+                            <label data-i18n="admin.pageTitle">Title</label>
+                            <input type="text" id="page-title" placeholder="Privacy Policy">
+                        </div>
+                        <div>
+                            <label data-i18n="admin.pageSlug">Slug (URL)</label>
+                            <input type="text" id="page-slug" placeholder="privacy-policy">
+                        </div>
+                        <div>
+                            <label data-i18n="admin.colStatus">Status</label>
+                            <select id="page-published">
+                                <option value="1" data-i18n="admin.statusPublished">Published</option>
+                                <option value="0" data-i18n="admin.statusDraft">Draft (hidden)</option>
+                            </select>
+                        </div>
+                        <div class="full">
+                            <label data-i18n="admin.body">Body (Markdown)</label>
+                            <textarea id="page-body" rows="12" placeholder="# Heading&#10;&#10;Write **Markdown** here. Supports headings, lists, links, bold/italic, code."></textarea>
+                        </div>
+                        <div class="full form-actions">
+                            <button class="btn-primary" id="page-save-btn" data-i18n="admin.savePage">Save page</button>
+                            <button class="btn-secondary" id="page-cancel-btn" data-i18n="admin.cancel">Cancel</button>
+                            <a class="btn-secondary" id="page-open-link" href="#" target="_blank" rel="noopener" style="display:none" data-i18n="admin.open">Open ↗</a>
+                        </div>
+                    </div>
+                    <table id="pages-table">
+                        <thead>
+                            <tr><th data-i18n="admin.colTitle">Title</th><th data-i18n="admin.colSlug">Slug</th><th data-i18n="admin.colStatus">Status</th><th data-i18n="admin.colUpdated">Updated</th><th data-i18n="admin.colActions">Actions</th></tr>
+                        </thead>
+                        <tbody id="pages-tbody"></tbody>
+                    </table>
+                </div>
+
             </div>
         </div>
     </div>
@@ -1186,6 +1274,8 @@
 
     <div id="toast"></div>
 
+    <script src="translations.js"></script>
+    <script src="i18n.js"></script>
     <script src="auth.js"></script>
     <script src="anthropometric.js"></script>
     <script src="admin.js"></script>

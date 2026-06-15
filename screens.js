@@ -6,6 +6,11 @@
 const Screens = (() => {
     let _prevScreen = 'selection';
 
+    // ── URL routing: keep the address bar in sync with the active screen ──────
+    const SCREEN_TO_PATH = { selection: '/dashboard', customization: '/edit', profile: '/profile' };
+    const PATH_TO_SCREEN = { '/': 'selection', '/dashboard': 'selection', '/edit': 'customization', '/profile': 'profile' };
+    const screenForPath = (p) => PATH_TO_SCREEN[p] || 'selection';
+
     function esc(str) {
         return String(str)
             .replace(/&/g, '&amp;')
@@ -14,10 +19,22 @@ const Screens = (() => {
             .replace(/"/g, '&quot;');
     }
 
-    function show(name) {
+    // DOM-only screen toggle (no URL change) — used by the router/popstate.
+    function applyScreen(name) {
         document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
         const screen = document.getElementById(`screen-${name}`);
         if (screen) screen.classList.add('active');
+    }
+
+    // Navigate to a screen AND reflect it in the URL (adds a history entry).
+    function show(name) {
+        applyScreen(name);
+        const path = SCREEN_TO_PATH[name] || '/dashboard';
+        if (window.location.pathname === path) {
+            history.replaceState({ screen: name }, '', path);
+        } else {
+            history.pushState({ screen: name }, '', path);
+        }
     }
 
     // ── Selection page ────────────────────────────────────────────────────────
@@ -46,11 +63,11 @@ const Screens = (() => {
                         <div class="role-card-left">
                             <div class="role-card-icon purple">${settingsIcon}</div>
                             <div>
-                                <div class="role-card-title">Admin Dashboard</div>
-                                <div class="role-card-sub">Manage users, models and configurations</div>
+                                <div class="role-card-title">${t('role.adminTitle')}</div>
+                                <div class="role-card-sub">${t('role.adminSub')}</div>
                             </div>
                         </div>
-                        <a href="admin.html" class="btn-primary btn-sm">Open Dashboard</a>
+                        <a href="/admin" class="btn-primary btn-sm">${t('role.openDashboard')}</a>
                     </div>
                 </div>`;
         } else if (isTech) {
@@ -60,11 +77,11 @@ const Screens = (() => {
                         <div class="role-card-left">
                             <div class="role-card-icon green">${fileEditIcon}</div>
                             <div>
-                                <div class="role-card-title">Editor Dashboard</div>
-                                <div class="role-card-sub">Review and edit user prosthetic profiles</div>
+                                <div class="role-card-title">${t('role.editorTitle')}</div>
+                                <div class="role-card-sub">${t('role.editorSub')}</div>
                             </div>
                         </div>
-                        <a href="admin.html" class="btn-primary btn-sm">Open Dashboard</a>
+                        <a href="/admin" class="btn-primary btn-sm">${t('role.openDashboard')}</a>
                     </div>
                 </div>`;
         }
@@ -78,7 +95,7 @@ const Screens = (() => {
             const data = await res.json();
             const models = data.models || [];
             if (!models.length) {
-                grid.innerHTML = '<p class="sel-empty">No models available.</p>';
+                grid.innerHTML = `<p class="sel-empty">${t('dash.noModels')}</p>`;
                 return;
             }
             // Keep parameterEditor's config in sync so model lookups never
@@ -132,12 +149,12 @@ const Screens = (() => {
                         <p>${esc((m.description || '').slice(0, 130))}${(m.description || '').length > 130 ? '…' : ''}</p>
                     </div>
                     <div class="sel-model-action">
-                        <button class="btn-primary btn-block" tabindex="-1">Start New</button>
+                        <button class="btn-primary btn-block" tabindex="-1">${t('dash.startNew')}</button>
                     </div>
                 </div>`;
             }).join('');
         } catch {
-            grid.innerHTML = '<p class="sel-empty">Failed to load models.</p>';
+            grid.innerHTML = `<p class="sel-empty">${t('dash.loadFail')}</p>`;
         }
     }
 
@@ -153,7 +170,7 @@ const Screens = (() => {
             if (!res.ok) throw new Error();
             const configs = await res.json();
             if (!configs.length) {
-                list.innerHTML = '<p class="sel-empty">No saved configurations yet. Configure a model and save it to see it here.</p>';
+                list.innerHTML = `<p class="sel-empty">${t('dash.noSaved')}</p>`;
                 return;
             }
             list.innerHTML = configs.map(c => {
@@ -179,7 +196,7 @@ const Screens = (() => {
                 </div>`;
             }).join('');
         } catch {
-            list.innerHTML = '<p class="sel-empty">Failed to load saved configurations.</p>';
+            list.innerHTML = `<p class="sel-empty">${t('dash.loadSavedFail')}</p>`;
         }
     }
 
@@ -199,7 +216,7 @@ const Screens = (() => {
 
     function _setCustomizationTitle(name) {
         const title = document.getElementById('customization-title');
-        if (title) title.textContent = name ? `Customize Your Prosthetic — Type: ${name}` : 'Customize Your Prosthetic';
+        if (title) title.textContent = name ? t('cfg.titleTyped', { name }) : t('cfg.title');
     }
 
     async function openConfig(configId) {
@@ -313,12 +330,38 @@ const Screens = (() => {
         // Auth events → show/hide app shell
         window.addEventListener('auth:login', async () => {
             document.getElementById('app-shell')?.classList.add('active');
-            show('selection');
+            // Land on the dashboard regardless of any deep-link path — the editor
+            // and profile can't be cold-restored from the URL alone. replaceState
+            // avoids leaving a phantom history entry behind.
+            applyScreen('selection');
+            history.replaceState({ screen: 'selection' }, '', '/dashboard');
             await loadSelectionData();
         });
 
         window.addEventListener('auth:logout', () => {
             document.getElementById('app-shell')?.classList.remove('active');
+        });
+
+        // Browser back/forward → sync the active screen with the URL. The editor
+        // DOM persists in-session, so returning to /edit re-shows the loaded model.
+        window.addEventListener('popstate', async () => {
+            if (!document.getElementById('app-shell')?.classList.contains('active')) return;
+            const name = screenForPath(window.location.pathname);
+            applyScreen(name);
+            if (name === 'selection') await loadSelectionData();
+        });
+
+        // ── Language change → re-render the JS-built parts in the new language.
+        window.addEventListener('i18n:change', () => {
+            const active = document.querySelector('.app-screen.active')?.id;
+            if (active === 'screen-selection') loadSelectionData();
+            // restore the model-typed breadcrumb (apply() reset it to the generic key)
+            const pe = window.parameterEditor;
+            if (pe && pe.currentModel) _setCustomizationTitle(pe.currentModel.name);
+            // refresh the greeting (dynamic name → can't use data-i18n)
+            const user = (typeof Auth !== 'undefined') && Auth.getUser && Auth.getUser();
+            const nameEl = document.getElementById('user-menu-name');
+            if (user && nameEl) nameEl.textContent = t('menu.greeting', { name: user.username });
         });
 
         // ── Selection page: model cards
@@ -349,6 +392,20 @@ const Screens = (() => {
         document.getElementById('btn-back-to-selection')?.addEventListener('click', async () => {
             show('selection');
             await loadSelectionData();
+        });
+
+        // ── App-bar logo: return to the main dashboard (selection screen)
+        const appLogo = document.getElementById('app-logo');
+        const goToDashboard = async () => {
+            show('selection');
+            await loadSelectionData();
+        };
+        appLogo?.addEventListener('click', goToDashboard);
+        appLogo?.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                goToDashboard();
+            }
         });
 
         // ── User menu: edit profile

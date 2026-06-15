@@ -232,7 +232,7 @@ function updateUserMenu(user) {
         menu.classList.add('active');
         if (loginBtn) loginBtn.style.display = 'none';
         const nameEl = document.getElementById('user-menu-name');
-        if (nameEl) nameEl.textContent = 'Hello, ' + user.username;
+        if (nameEl) nameEl.textContent = (window.t ? t('menu.greeting', { name: user.username }) : 'Hello, ' + user.username);
         const avatarEl = document.getElementById('user-avatar-initials');
         if (avatarEl) avatarEl.textContent = user.username.charAt(0).toUpperCase();
 

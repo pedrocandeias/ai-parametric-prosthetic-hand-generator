@@ -125,6 +125,56 @@ sudo systemctl start prosthetic-hand
 sudo systemctl status prosthetic-hand
 ```
 
+### Option C — cPanel (Phusion Passenger)
+
+On shared cPanel hosting you do **not** run `npm start`, `pm2`, `systemd`, or your own
+Nginx. cPanel's **Setup Node.js App** tool runs the app under Phusion Passenger and
+proxies your domain to it automatically. The app is already compatible: it reads
+`process.env.PORT` (Passenger injects it), loads `dotenv`, and its entry point is
+`server/index.js`.
+
+**Order matters — create the app first, then push files into the folder it makes.**
+
+1. **cPanel → Setup Node.js App → Create Application**
+
+   | Field | Value |
+   |---|---|
+   | Node.js version | 18 or 20 LTS (best native-module compatibility) |
+   | Application mode | Production |
+   | Application root | e.g. `prosthetic-hand` (under your home dir) |
+   | Application URL | your domain/subdomain |
+   | Application startup file | `server/index.js` |
+
+2. **Upload the build** into the Application root (`/home/<cpaneluser>/prosthetic-hand`).
+   Do **not** ship `node_modules` — `bcrypt` and `better-sqlite3` are native and must be
+   compiled on the server. With SSH enabled, rsync the staged tree **without `--delete`**
+   so cPanel's Passenger `.htaccess` in the app root is preserved:
+
+   ```bash
+   ./deploy.sh deploy <cpaneluser>@<host>:/home/<cpaneluser>/prosthetic-hand
+   # custom SSH port? prefix with: RSYNC_RSH="ssh -p 2222"
+   ```
+
+3. **Install dependencies** — click **Run NPM Install** in the panel, or via SSH activate
+   the venv shown in the panel header, then:
+
+   ```bash
+   source ~/nodevenv/prosthetic-hand/<ver>/bin/activate && cd ~/prosthetic-hand
+   npm ci --omit=dev
+   ```
+
+4. **Environment variables** — add `JWT_SECRET`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`,
+   and `NODE_ENV=production` in the panel's *Environment variables* section (leave `PORT`
+   to Passenger). This replaces the `.env` file in steps 2–3 above.
+
+5. **First admin + restart** — from the activated venv shell run
+   `node scripts/create-admin.js <user> <email> <password>`, then click **Restart**.
+
+> **Gotcha:** if *Run NPM Install* fails, it is almost always the native modules
+> (`bcrypt`, `better-sqlite3`) failing to compile on shared hosting. Try a Node version
+> with a matching prebuilt binary, or ask the host to permit the build. Skip section 5
+> (Nginx) entirely — Passenger handles the reverse proxy and TLS through cPanel.
+
 ---
 
 ## 5. Nginx Reverse Proxy

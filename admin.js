@@ -17,13 +17,14 @@ function toast(msg, type = 'success') {
 }
 
 function roleBadge(role) {
-    return `<span class="badge badge-${role}">${role}</span>`;
+    const label = t('admin.role' + role.charAt(0).toUpperCase() + role.slice(1));
+    return `<span class="badge badge-${role}">${label}</span>`;
 }
 
 function statusBadge(isActive) {
     return isActive
-        ? '<span class="badge badge-active">Active</span>'
-        : '<span class="badge badge-inactive">Inactive</span>';
+        ? `<span class="badge badge-active">${t('admin.active')}</span>`
+        : `<span class="badge badge-inactive">${t('admin.inactive')}</span>`;
 }
 
 function fmtDate(s) {
@@ -58,12 +59,12 @@ function renderUsersTable(users) {
             <td>${fmtDate(u.created_at)}</td>
             <td>
                 <div class="action-cell">
-                    <button class="btn-primary btn-edit" data-id="${u.id}">Edit</button>
-                    <button class="btn-warning btn-change-role" data-id="${u.id}" data-role="${u.role}">Role</button>
-                    <button class="btn-secondary btn-reset-token" data-id="${u.id}">Reset Token</button>
+                    <button class="btn-primary btn-edit" data-id="${u.id}">${t('admin.edit')}</button>
+                    <button class="btn-warning btn-change-role" data-id="${u.id}" data-role="${u.role}">${t('admin.changeRole')}</button>
+                    <button class="btn-secondary btn-reset-token" data-id="${u.id}">${t('admin.resetToken')}</button>
                     ${u.is_active
-                        ? `<button class="btn-secondary btn-suspend" data-id="${u.id}">Suspend</button>`
-                        : `<button class="btn-success btn-activate" data-id="${u.id}">Activate</button>`}
+                        ? `<button class="btn-secondary btn-suspend" data-id="${u.id}">${t('admin.suspend')}</button>`
+                        : `<button class="btn-success btn-activate" data-id="${u.id}">${t('admin.activate')}</button>`}
                 </div>
             </td>
         `;
@@ -142,7 +143,7 @@ function renderAssignmentsTab(users) {
     tbody.innerHTML = '';
 
     if (techs.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" style="color:#888;padding:1.5rem">No tech users found. Create a user with role=tech first.</td></tr>';
+        tbody.innerHTML = `<tr><td colspan="3" style="color:#888;padding:1.5rem">${t('admin.noTechs')}</td></tr>`;
         return;
     }
 
@@ -154,10 +155,10 @@ function renderAssignmentsTab(users) {
             <td>
                 <div style="display:flex;gap:0.5rem;align-items:center">
                     <select id="add-patient-select-${tech.id}" style="padding:0.3rem;border:1px solid #ddd;border-radius:4px;font-size:0.85rem">
-                        <option value="">— select user —</option>
+                        <option value="">${t('admin.selectUser')}</option>
                         ${regularUsers.map(u => `<option value="${u.id}">${escHtml(u.username)}</option>`).join('')}
                     </select>
-                    <button class="btn-primary btn-add-patient" data-tech="${tech.id}" style="white-space:nowrap">Assign</button>
+                    <button class="btn-primary btn-add-patient" data-tech="${tech.id}" style="white-space:nowrap">${t('admin.assign')}</button>
                 </div>
             </td>
         `;
@@ -179,7 +180,7 @@ async function loadPatients(techId) {
         if (!res.ok) { cell.textContent = 'Error'; return; }
 
         if (patients.length === 0) {
-            cell.textContent = 'None assigned';
+            cell.textContent = t('admin.noneAssigned');
             return;
         }
 
@@ -514,6 +515,7 @@ function setupTabs() {
             panel?.classList.add('active');
             // Load profiles when switching to anthropometric tab
             if (btn.dataset.tab === 'anthropometric') loadAnthroProfiles();
+            if (btn.dataset.tab === 'content') { loadFooter(); loadPages(); }
         });
     });
 }
@@ -528,6 +530,227 @@ function escHtml(str) {
         .replace(/"/g, '&quot;');
 }
 
+// ── Footer & Pages (content) ─────────────────────────────────────────────────
+
+let footerColumns = []; // [{ title, links: [{ label, type, target }] }]
+
+async function loadFooter() {
+    try {
+        const res = await fetch('/api/content/footer');
+        const cfg = await res.json();
+        document.getElementById('footer-brand').value = cfg.brandTitle || '';
+        document.getElementById('footer-tagline').value = cfg.tagline || '';
+        document.getElementById('footer-copyright').value = cfg.copyright || '';
+        footerColumns = (Array.isArray(cfg.columns) ? cfg.columns : []).map(c => ({
+            title: c.title || '',
+            links: (c.links || []).map(l => ({
+                label: l.label || '',
+                type: l.type === 'page' ? 'page' : 'url',
+                target: l.target || '',
+            })),
+        }));
+        renderFooterColumns();
+    } catch {
+        toast('Failed to load footer', 'error');
+    }
+}
+
+function renderFooterColumns() {
+    const wrap = document.getElementById('footer-columns');
+    wrap.innerHTML = footerColumns.map((col, ci) => `
+        <div class="footer-col" data-col="${ci}">
+            <div class="footer-col-head">
+                <input type="text" class="col-title" placeholder="${t('admin.columnTitle')}" value="${escHtml(col.title)}">
+                <button class="icon-btn-x col-remove" title="${t('admin.removeColumn')}" type="button">&times;</button>
+            </div>
+            <div class="footer-col-links">
+                ${col.links.map((l, li) => `
+                    <div class="footer-link-row" data-link="${li}">
+                        <input type="text" class="link-label" placeholder="${t('admin.linkLabel')}" value="${escHtml(l.label)}">
+                        <select class="link-type">
+                            <option value="page" ${l.type === 'page' ? 'selected' : ''}>${t('admin.linkPage')}</option>
+                            <option value="url" ${l.type === 'url' ? 'selected' : ''}>${t('admin.linkUrl')}</option>
+                        </select>
+                        <input type="text" class="link-target" placeholder="${l.type === 'page' ? 'page-slug' : 'https://…'}" value="${escHtml(l.target)}">
+                        <button class="icon-btn-x link-remove" title="${t('admin.removeLink')}" type="button">&times;</button>
+                    </div>
+                `).join('')}
+            </div>
+            <div class="footer-col-actions">
+                <button class="btn-secondary btn-sm link-add" type="button">${t('admin.addLink')}</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Read the current DOM inputs back into footerColumns before any re-render/save.
+function syncFooterFromDom() {
+    footerColumns = Array.from(document.querySelectorAll('#footer-columns .footer-col')).map(colEl => ({
+        title: colEl.querySelector('.col-title').value,
+        links: Array.from(colEl.querySelectorAll('.footer-link-row')).map(row => ({
+            label: row.querySelector('.link-label').value,
+            type: row.querySelector('.link-type').value,
+            target: row.querySelector('.link-target').value,
+        })),
+    }));
+}
+
+async function saveFooter() {
+    syncFooterFromDom();
+    const payload = {
+        brandTitle: document.getElementById('footer-brand').value,
+        tagline: document.getElementById('footer-tagline').value,
+        copyright: document.getElementById('footer-copyright').value,
+        columns: footerColumns,
+    };
+    const errEl = document.getElementById('footer-error');
+    errEl.textContent = '';
+    try {
+        const res = await Auth.fetchWithAuth('/api/content/footer', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) { errEl.textContent = data.error || 'Failed to save footer'; return; }
+        toast('Footer saved');
+    } catch {
+        errEl.textContent = 'Network error';
+    }
+}
+
+function slugify(s) {
+    return String(s).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80);
+}
+
+let _pagesById = {};
+
+async function loadPages() {
+    const tbody = document.getElementById('pages-tbody');
+    try {
+        const res = await Auth.fetchWithAuth('/api/content/pages');
+        const pages = await res.json();
+        if (!res.ok) { tbody.innerHTML = `<tr><td colspan="5">Failed to load pages</td></tr>`; return; }
+        _pagesById = {};
+        pages.forEach(p => { _pagesById[p.id] = p; });
+        if (!pages.length) { tbody.innerHTML = `<tr><td colspan="5" style="color:#999">${t('admin.noPages')}</td></tr>`; return; }
+        tbody.innerHTML = pages.map(p => `
+            <tr data-id="${p.id}">
+                <td>${escHtml(p.title)}</td>
+                <td><a href="/pages/${encodeURIComponent(p.slug)}" target="_blank" rel="noopener">/pages/${escHtml(p.slug)}</a></td>
+                <td><span class="page-status-pill ${p.is_published ? 'published' : 'draft'}">${p.is_published ? t('admin.statusPublished') : t('admin.pillDraft')}</span></td>
+                <td>${fmtDate(p.updated_at)}</td>
+                <td>
+                    <button class="btn-secondary btn-sm page-edit" type="button">${t('admin.edit')}</button>
+                    <button class="btn-danger btn-sm page-delete" type="button">${t('admin.delete')}</button>
+                </td>
+            </tr>
+        `).join('');
+        tbody.querySelectorAll('.page-edit').forEach(b => b.addEventListener('click', e => openPageForm(_pagesById[e.target.closest('tr').dataset.id])));
+        tbody.querySelectorAll('.page-delete').forEach(b => b.addEventListener('click', e => {
+            const id = Number(e.target.closest('tr').dataset.id);
+            deletePage(id, _pagesById[id]);
+        }));
+    } catch {
+        tbody.innerHTML = `<tr><td colspan="5">Failed to load pages</td></tr>`;
+    }
+}
+
+function openPageForm(page) {
+    document.getElementById('page-error').textContent = '';
+    document.getElementById('page-id').value = page ? page.id : '';
+    document.getElementById('page-title').value = page ? page.title : '';
+    const slugEl = document.getElementById('page-slug');
+    slugEl.value = page ? page.slug : '';
+    slugEl.dataset.touched = page ? '1' : '';
+    document.getElementById('page-body').value = page ? page.body : '';
+    document.getElementById('page-published').value = page && !page.is_published ? '0' : '1';
+    const openLink = document.getElementById('page-open-link');
+    if (page) { openLink.style.display = ''; openLink.href = '/pages/' + encodeURIComponent(page.slug); }
+    else { openLink.style.display = 'none'; }
+    document.getElementById('page-form').classList.add('open');
+    document.getElementById('page-title').focus();
+}
+
+function closePageForm() {
+    document.getElementById('page-form').classList.remove('open');
+}
+
+async function savePage() {
+    const id = document.getElementById('page-id').value;
+    const payload = {
+        title: document.getElementById('page-title').value.trim(),
+        slug: document.getElementById('page-slug').value.trim(),
+        body: document.getElementById('page-body').value,
+        is_published: document.getElementById('page-published').value === '1',
+    };
+    const errEl = document.getElementById('page-error');
+    errEl.textContent = '';
+    try {
+        const res = await Auth.fetchWithAuth(id ? `/api/content/pages/${id}` : '/api/content/pages', {
+            method: id ? 'PUT' : 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) { errEl.textContent = data.error || 'Failed to save page'; return; }
+        toast(id ? 'Page updated' : 'Page created');
+        closePageForm();
+        loadPages();
+    } catch {
+        errEl.textContent = 'Network error';
+    }
+}
+
+async function deletePage(id, page) {
+    if (!confirm(`Delete page "${page ? page.title : id}"? This cannot be undone.`)) return;
+    try {
+        const res = await Auth.fetchWithAuth(`/api/content/pages/${id}`, { method: 'DELETE' });
+        if (!res.ok) { const d = await res.json().catch(() => ({})); toast(d.error || 'Failed to delete', 'error'); return; }
+        toast('Page deleted');
+        loadPages();
+    } catch {
+        toast('Network error', 'error');
+    }
+}
+
+function setupContentTab() {
+    const colsWrap = document.getElementById('footer-columns');
+    colsWrap.addEventListener('click', (e) => {
+        const colEl = e.target.closest('.footer-col');
+        if (!colEl) return;
+        const ci = Number(colEl.dataset.col);
+        if (e.target.classList.contains('col-remove')) {
+            syncFooterFromDom(); footerColumns.splice(ci, 1); renderFooterColumns();
+        } else if (e.target.classList.contains('link-add')) {
+            syncFooterFromDom(); footerColumns[ci].links.push({ label: '', type: 'page', target: '' }); renderFooterColumns();
+        } else if (e.target.classList.contains('link-remove')) {
+            syncFooterFromDom();
+            const li = Number(e.target.closest('.footer-link-row').dataset.link);
+            footerColumns[ci].links.splice(li, 1); renderFooterColumns();
+        }
+    });
+    colsWrap.addEventListener('change', (e) => {
+        if (e.target.classList.contains('link-type')) {
+            const target = e.target.closest('.footer-link-row').querySelector('.link-target');
+            target.placeholder = e.target.value === 'page' ? 'page-slug' : 'https://…';
+        }
+    });
+    document.getElementById('footer-add-column').addEventListener('click', () => {
+        syncFooterFromDom(); footerColumns.push({ title: 'New column', links: [] }); renderFooterColumns();
+    });
+    document.getElementById('footer-save-btn').addEventListener('click', saveFooter);
+
+    document.getElementById('page-new-btn').addEventListener('click', () => openPageForm());
+    document.getElementById('page-cancel-btn').addEventListener('click', closePageForm);
+    document.getElementById('page-save-btn').addEventListener('click', savePage);
+    document.getElementById('page-title').addEventListener('input', (e) => {
+        const slugEl = document.getElementById('page-slug');
+        if (!document.getElementById('page-id').value && !slugEl.dataset.touched) slugEl.value = slugify(e.target.value);
+    });
+    document.getElementById('page-slug').addEventListener('input', (e) => { e.target.dataset.touched = '1'; });
+}
+
 // ── Boot ──────────────────────────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -535,22 +758,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('admin-logout')?.addEventListener('click', async (e) => {
         e.preventDefault();
         await Auth.logout();
-        window.location.href = 'index.html';
+        window.location.href = '/';
     });
 
     // Override the default showLoginModal to redirect to main page for login
-    window.showLoginModal = () => { window.location.href = 'index.html'; };
+    window.showLoginModal = () => { window.location.href = '/'; };
 
     // Restore session
     const ok = await Auth.tryRestoreSession();
     if (!ok) {
-        window.location.href = 'index.html';
+        window.location.href = '/';
         return;
     }
 
     const user = Auth.getUser();
     if (user?.role !== 'admin') {
-        document.getElementById('admin-loading').textContent = 'Access denied. Admin role required.';
+        document.getElementById('admin-loading').textContent = t('admin.accessDenied');
         return;
     }
 
@@ -562,7 +785,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const name = user.username || 'Admin';
         const greetEl = document.getElementById('admin-user-greeting');
         const avatarEl = document.getElementById('admin-user-avatar');
-        if (greetEl) greetEl.textContent = `Hello, ${name}`;
+        if (greetEl) greetEl.textContent = t('menu.greeting', { name });
         if (avatarEl) avatarEl.textContent = name.charAt(0).toUpperCase();
     }
 
@@ -586,5 +809,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupResetTokenModal();
     setupCreateUserForm();
     setupAnthroTab();
+    setupContentTab();
     loadUsers();
+
+    // Re-render the JS-built tables/editors in the new language.
+    window.addEventListener('i18n:change', () => {
+        const u = Auth.getUser && Auth.getUser();
+        const greetEl = document.getElementById('admin-user-greeting');
+        if (u && greetEl) greetEl.textContent = t('menu.greeting', { name: u.username || 'Admin' });
+        if (allUsers && allUsers.length) { renderUsersTable(allUsers); renderAssignmentsTab(allUsers); }
+        const contentTab = document.getElementById('tab-content');
+        if (contentTab && contentTab.classList.contains('active')) { renderFooterColumns(); loadPages(); }
+    });
 });

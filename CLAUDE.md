@@ -47,7 +47,7 @@ browser
 
 server/
   ├── index.js          Express entry point
-  ├── db.js             better-sqlite3 + auto-migration
+  ├── db.js             node:sqlite (built-in) + auto-migration
   ├── schema.sql        DB schema
   ├── middleware/
   │   ├── auth.js       requireAuth, requireRole()
@@ -66,7 +66,7 @@ server/
 ## Key Conventions
 
 - **Auth**: Access tokens go in `Authorization: Bearer <token>` header only. Never store in localStorage. Refresh token lives in HttpOnly cookie.
-- **DB**: All queries use `better-sqlite3` (synchronous). Wrap async-only code (bcrypt, fetch) in `async` route handlers with `try/catch → next(err)`.
+- **DB**: All queries use Node's built-in `node:sqlite` (`DatabaseSync`, synchronous) — **requires Node ≥ 22**. No native module to compile. `server/db.js` adds a `db.transaction(fn)` shim (BEGIN/COMMIT/ROLLBACK) for better-sqlite3-style call sites. Wrap async-only code (bcrypt, fetch) in `async` route handlers with `try/catch → next(err)`.
 - **Validation**: All request bodies validated with `zod` before touching the DB.
 - **Error responses**: Always `{ error: "message" }` JSON — never HTML error pages from API routes.
 - **RBAC**: `admin` > `tech` > `user`. Tech users can access configs for their assigned patients. Ownership checks are in `configRoutes.js` `canAccessConfig()`.

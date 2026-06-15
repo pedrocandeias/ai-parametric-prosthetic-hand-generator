@@ -70,6 +70,24 @@ CREATE TABLE IF NOT EXISTS password_reset_tokens (
     used       INTEGER NOT NULL DEFAULT 0
 );
 
+-- Key/value store for editable site settings (footer config lives here as JSON)
+CREATE TABLE IF NOT EXISTS site_settings (
+    key        TEXT    PRIMARY KEY,
+    value      TEXT    NOT NULL,            -- JSON blob
+    updated_at TEXT    NOT NULL DEFAULT (datetime('now'))
+);
+
+-- Admin-authored content pages (Markdown), linked from the footer
+CREATE TABLE IF NOT EXISTS pages (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    slug         TEXT    NOT NULL UNIQUE COLLATE NOCASE,
+    title        TEXT    NOT NULL,
+    body         TEXT    NOT NULL DEFAULT '',   -- Markdown source
+    is_published INTEGER NOT NULL DEFAULT 1,
+    created_at   TEXT    NOT NULL DEFAULT (datetime('now')),
+    updated_at   TEXT    NOT NULL DEFAULT (datetime('now'))
+);
+
 CREATE INDEX IF NOT EXISTS idx_configurations_user ON configurations(user_id);
 CREATE INDEX IF NOT EXISTS idx_assignments_tech    ON tech_assignments(tech_id);
 CREATE INDEX IF NOT EXISTS idx_refresh_user        ON refresh_tokens(user_id);
