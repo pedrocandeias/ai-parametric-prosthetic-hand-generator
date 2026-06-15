@@ -19,12 +19,17 @@ cp .env.example .env
 nano .env
 ```
 
-### `Cannot find module 'express'` / `Cannot find module 'better-sqlite3'`
+### `Cannot find module 'express'` / `Cannot find module 'bcrypt'`
 
 Dependencies are not installed:
 ```bash
 npm install
 ```
+
+### `Cannot find package 'node:sqlite'` / SQLite errors on startup
+
+The database uses Node's built-in `node:sqlite`, which requires **Node ≥ 22**
+(available without a flag on Node 24). Check `node --version` and upgrade if older.
 
 ### Port already in use
 

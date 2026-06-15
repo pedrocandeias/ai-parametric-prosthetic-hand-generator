@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- **Node.js 18+** — [nodejs.org](https://nodejs.org/)
+- **Node.js ≥ 22** — [nodejs.org](https://nodejs.org/) (the DB uses the built-in `node:sqlite`)
 - An Anthropic or OpenAI API key (optional — required for AI suggestions)
 
 ---

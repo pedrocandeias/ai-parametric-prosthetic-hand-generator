@@ -10,8 +10,8 @@ For production, run it behind an Nginx reverse proxy with TLS.
 ## Prerequisites
 
 ```bash
-# Node.js 18+
-node --version   # must be 18 or higher
+# Node.js >= 22  (the DB uses the built-in node:sqlite — nothing to compile)
+node --version   # must be 22 or higher
 
 # npm 9+
 npm --version
@@ -146,9 +146,10 @@ proxies your domain to it automatically. The app is already compatible: it reads
    | Application startup file | `server/index.js` |
 
 2. **Upload the build** into the Application root (`/home/<cpaneluser>/prosthetic-hand`).
-   Do **not** ship `node_modules` — `bcrypt` and `better-sqlite3` are native and must be
-   compiled on the server. With SSH enabled, rsync the staged tree **without `--delete`**
-   so cPanel's Passenger `.htaccess` in the app root is preserved:
+   Do **not** ship `node_modules` — let the server install it. (`bcrypt` is the only native
+   dependency and installs as a prebuilt N-API binary; SQLite is built into Node, so there is
+   nothing to compile.) With SSH enabled, rsync the staged tree **without `--delete`** so
+   cPanel's Passenger `.htaccess` in the app root is preserved:
 
    ```bash
    ./deploy.sh deploy <cpaneluser>@<host>:/home/<cpaneluser>/prosthetic-hand
@@ -170,10 +171,12 @@ proxies your domain to it automatically. The app is already compatible: it reads
 5. **First admin + restart** — from the activated venv shell run
    `node scripts/create-admin.js <user> <email> <password>`, then click **Restart**.
 
-> **Gotcha:** if *Run NPM Install* fails, it is almost always the native modules
-> (`bcrypt`, `better-sqlite3`) failing to compile on shared hosting. Try a Node version
-> with a matching prebuilt binary, or ask the host to permit the build. Skip section 5
-> (Nginx) entirely — Passenger handles the reverse proxy and TLS through cPanel.
+> **Note:** the production app runs on **Node 24**. SQLite is provided by Node's built-in
+> `node:sqlite`, so there is no `better-sqlite3` to compile — this is exactly why the DB
+> driver was migrated. `bcrypt` ships a prebuilt N-API binary (glibc 2.14), which loads on
+> the cPanel host without a compiler. If *Run NPM Install* ever fails on `bcrypt`, pick a
+> Node version with a matching prebuild. Skip section 5 (Nginx) entirely — Passenger handles
+> the reverse proxy and TLS through cPanel.
 
 ---
 
@@ -299,7 +302,7 @@ The SQLite schema is applied automatically on startup (`CREATE TABLE IF NOT EXIS
 
 ## 10. Deployment Checklist
 
-- [ ] Node.js 18+ installed
+- [ ] Node.js ≥ 22 installed
 - [ ] `npm install --omit=dev` complete
 - [ ] `.env` created with real `JWT_SECRET`, `PORT=3000`, `NODE_ENV=production`
 - [ ] AI keys set (if using AI suggestions)

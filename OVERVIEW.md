@@ -135,9 +135,9 @@ No server involvement. Typical render time: 500ms – 3000ms depending on model 
 
 | Layer | Technology |
 |-------|-----------|
-| Runtime | Node.js 18+ |
+| Runtime | Node.js ≥ 22 |
 | HTTP framework | Express 4 |
-| Database | SQLite via better-sqlite3 |
+| Database | SQLite via Node's built-in `node:sqlite` |
 | Auth | bcrypt + JWT (HS256) + HttpOnly cookies |
 | Validation | Zod |
 | Security headers | Helmet |

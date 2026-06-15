@@ -10,6 +10,10 @@ Version format: `MAJOR.MINOR.PATCH`
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
+## v14.7.0 — 2026-06-15
+
+docs: accuracy pass on the remaining docs — bump the Node requirement to ≥22 across DEPLOYMENT.md, DEPLOY-QUICKSTART.md, QUICK-START.md and OVERVIEW.md; replace `better-sqlite3` references with `node:sqlite` (DEPLOYMENT.md note, OVERVIEW.md stack table, TROUBLESHOOTING.md); flag the live cPanel/Passenger path in DEPLOY-QUICKSTART; correct the native-module guidance (bcrypt prebuilt, SQLite built into Node) and the model list (Phoenix added, Paraglider under inactive/)
+
 ## v14.6.0 — 2026-06-15
 
 docs: bring README.md up to date — add the UnLimbited Phoenix Hand model (Paraglider kept, marked returning), bump the Node requirement to ≥22 (node:sqlite, no native compile), add the multilingual (EN/PT) and editable footer/content-pages (CMS) features, refresh the deployment notes (cPanel/Passenger, bcrypt prebuilt) and project structure (i18n/footer/markdown/page.html, content route, seed-content.js, models active/inactive), and document the `/api/content/*` endpoints
