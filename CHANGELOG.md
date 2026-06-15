@@ -10,6 +10,10 @@ Version format: `MAJOR.MINOR.PATCH`
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
+## v14.5.0 — 2026-06-15
+
+docs: add the live deployment URL (handfab.pedrocandeias.net) to the top of README.md
+
 ## v14.4.0 — 2026-06-15
 
 feat: multilingual content pages (CMS). Each language is its own linked page record — the `pages` table gains `language` + `translation_group` columns (auto-migrated on startup; existing pages become their own en group). New `POST /api/content/pages/:id/translate` clones a page into a chosen language, pre-filled from the source, that the admin then edits. The public viewer (`/pages/<slug>?lang=xx`) resolves to the visitor's-language translation within the group, falling back to the original. `page.html` gains a language switcher and re-fetches on change; the admin Pages tab shows a Lang column, per-row "+ LANG" Translate buttons, and a language field on the page form
