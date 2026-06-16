@@ -10,6 +10,10 @@ Version format: `MAJOR.MINOR.PATCH`
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
+## v14.13.0 — 2026-06-16
+
+fix: Flexy Beast per-part STL export no longer includes the gauntlet in every part. The gauntlet is gated by `show_gauntlet` in the SCAD but was absent from the model's `parts` list, so the per-part export override (which only toggles off variables belonging to a declared part) never set it false — every exported finger/palm STL silently bundled the forearm cuff. Added the gauntlet as its own printable part (`show_gauntlet`), which both excludes it from the other parts' exports and lets it be exported on its own. Verified: palm-only export drops from ~20.6k to 14.4k facets (gauntlet gone); gauntlet-only export is 6.3k facets.
+
 ## v14.12.0 — 2026-06-16
 
 feat: add transactional email subsystem (SMTP via nodemailer) powering three flows — self-service "forgot password" (public, non-enumerating `POST /api/auth/forgot-password` that emails a reset link reusing the existing token machinery), email verification on self-service registration (`POST /api/auth/verify-email` + `POST /api/auth/resend-verification`), and an admin "account created" notification when a user is created from the admin panel. New `server/services/emailService.js` lazily builds the SMTP transport and degrades to a logged no-op when SMTP is unconfigured, so nothing breaks until credentials are supplied. Frontend gains a Forgot-password view, a verification view, and handling of `/reset?token=…` and `/verify?token=…` email links (token auto-filled, stripped from the URL); 12 new EN/PT i18n keys (parity 308=308).

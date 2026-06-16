@@ -480,6 +480,13 @@
           ]
         },
         {
+          "id": "gauntlet",
+          "name": "Gauntlet (forearm cuff)",
+          "toggles": [
+            "show_gauntlet"
+          ]
+        },
+        {
           "id": "index_base",
           "name": "Index finger — base",
           "toggles": [
