@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
     role          TEXT    NOT NULL DEFAULT 'user'
         CHECK (role IN ('admin', 'tech', 'user')),
     is_active     INTEGER NOT NULL DEFAULT 1,
+    email_verified INTEGER NOT NULL DEFAULT 0,
     created_at    TEXT    NOT NULL DEFAULT (datetime('now')),
     updated_at    TEXT    NOT NULL DEFAULT (datetime('now'))
 );
@@ -70,6 +71,15 @@ CREATE TABLE IF NOT EXISTS password_reset_tokens (
     used       INTEGER NOT NULL DEFAULT 0
 );
 
+CREATE TABLE IF NOT EXISTS email_verification_tokens (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token_hash TEXT    NOT NULL UNIQUE,   -- SHA-256 of opaque token
+    expires_at TEXT    NOT NULL,
+    created_at TEXT    NOT NULL DEFAULT (datetime('now')),
+    used       INTEGER NOT NULL DEFAULT 0
+);
+
 -- Key/value store for editable site settings (footer config lives here as JSON)
 CREATE TABLE IF NOT EXISTS site_settings (
     key        TEXT    PRIMARY KEY,
@@ -94,5 +104,6 @@ CREATE INDEX IF NOT EXISTS idx_configurations_user ON configurations(user_id);
 CREATE INDEX IF NOT EXISTS idx_assignments_tech    ON tech_assignments(tech_id);
 CREATE INDEX IF NOT EXISTS idx_refresh_user        ON refresh_tokens(user_id);
 CREATE INDEX IF NOT EXISTS idx_reset_user          ON password_reset_tokens(user_id);
+CREATE INDEX IF NOT EXISTS idx_verify_user         ON email_verification_tokens(user_id);
 CREATE INDEX IF NOT EXISTS idx_anthro_country ON anthropometric_profiles(country);
 CREATE INDEX IF NOT EXISTS idx_anthro_gender  ON anthropometric_profiles(gender);

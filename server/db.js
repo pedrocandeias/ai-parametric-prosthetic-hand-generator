@@ -59,4 +59,15 @@ if (pagesSql && !/translation_group/i.test(pagesSql)) {
 // Backfill: every existing/un-grouped page is its own translation group (by slug).
 db.exec(`UPDATE pages SET translation_group = slug WHERE translation_group IS NULL OR translation_group = ''`);
 
+// Migration: add `email_verified` to `users` on existing DBs. New self-service
+// registrations start unverified (0); existing accounts are grandfathered to
+// verified (1) so enabling REQUIRE_EMAIL_VERIFICATION never locks out current users.
+const usersSql = (db.prepare(
+    `SELECT sql FROM sqlite_master WHERE type='table' AND name='users'`
+).get() || {}).sql || '';
+if (usersSql && !/email_verified/i.test(usersSql)) {
+    db.exec(`ALTER TABLE users ADD COLUMN email_verified INTEGER NOT NULL DEFAULT 0`);
+    db.exec(`UPDATE users SET email_verified = 1`);
+}
+
 module.exports = db;

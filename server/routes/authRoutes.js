@@ -13,8 +13,15 @@ const {
     revokeRefreshToken,
     issueResetToken,
     consumeResetToken,
+    issueVerificationToken,
+    consumeVerificationToken,
 } = require('../services/authService');
+const emailService = require('../services/emailService');
 const { requireAuth, requireRole } = require('../middleware/auth');
+
+// Whether unverified users are blocked from logging in. New registrations always
+// receive a verification email regardless; this only gates the login endpoint.
+const requireEmailVerification = () => process.env.REQUIRE_EMAIL_VERIFICATION === 'true';
 
 const router = express.Router();
 
@@ -52,6 +59,16 @@ const resetLimiter = rateLimit({
     legacyHeaders: false,
 });
 
+// Shared by forgot-password, verify-email and resend-verification (email-sending
+// endpoints that are cheap to abuse).
+const emailLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    message: { error: 'Too many email requests, try again later' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
 // --- Validation schemas ---
 const LoginSchema = z.object({
     login: z.string().min(1), // username or email
@@ -71,6 +88,14 @@ const ResetRequestSchema = z.object({
 const ResetRedeemSchema = z.object({
     token: z.string().min(1),
     new_password: z.string().min(8).max(128),
+});
+
+const ForgotSchema = z.object({
+    login: z.string().min(1), // username or email
+});
+
+const VerifyEmailSchema = z.object({
+    token: z.string().min(1),
 });
 
 // --- Helpers ---
@@ -103,6 +128,13 @@ router.post('/login', loginLimiter, async (req, res, next) => {
         const valid = await verifyPassword(password, user.password_hash);
         if (!valid) {
             return res.status(401).json({ error: 'Invalid credentials' });
+        }
+
+        if (requireEmailVerification() && !user.email_verified) {
+            return res.status(403).json({
+                error: 'Please verify your email address before signing in.',
+                code: 'email_unverified',
+            });
         }
 
         const accessToken = signAccessToken(user);
@@ -143,6 +175,22 @@ router.post('/register', registerLimiter, async (req, res, next) => {
         const info = stmt.run(username, email, passwordHash);
 
         const user = { id: info.lastInsertRowid, username, email, role: 'user' };
+
+        // Issue + email a verification link (best-effort; never blocks the flow).
+        try {
+            const verifyToken = issueVerificationToken(user.id);
+            const verifyUrl = `${emailService.baseUrl(req)}/verify?token=${verifyToken}`;
+            emailService.sendVerification(email, { username, verifyUrl })
+                .catch(err => console.error('[register] verification email failed:', err.message));
+        } catch (err) {
+            console.error('[register] could not issue verification token:', err.message);
+        }
+
+        // When verification is mandatory, don't auto-login — ask them to confirm first.
+        if (requireEmailVerification()) {
+            return res.status(201).json({ verificationRequired: true });
+        }
+
         const accessToken = signAccessToken(user);
         const refreshToken = issueRefreshToken(user.id);
 
@@ -229,6 +277,82 @@ router.post('/reset', resetLimiter, async (req, res, next) => {
 
         setRefreshCookie(res, refreshToken);
         res.json({ accessToken, user });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// POST /api/auth/forgot-password — public, self-service. Emails a reset link.
+// Always responds 200 regardless of whether the account exists (anti-enumeration).
+router.post('/forgot-password', emailLimiter, async (req, res, next) => {
+    try {
+        const result = ForgotSchema.safeParse(req.body);
+        if (!result.success) {
+            return res.status(400).json({ error: result.error.errors[0].message });
+        }
+
+        const { login } = result.data;
+        const user = db.prepare(
+            `SELECT id, username, email FROM users WHERE (username = ? OR email = ?) AND is_active = 1`
+        ).get(login, login);
+
+        if (user) {
+            try {
+                const token = issueResetToken(user.id);
+                const resetUrl = `${emailService.baseUrl(req)}/reset?token=${token}`;
+                await emailService.sendPasswordReset(user.email, { username: user.username, resetUrl });
+            } catch (err) {
+                console.error('[forgot-password] failed to send reset email:', err.message);
+            }
+        }
+
+        // Non-enumerating: identical response whether or not the user exists.
+        res.json({ ok: true });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// POST /api/auth/verify-email — public, redeems an email-verification token.
+router.post('/verify-email', emailLimiter, (req, res, next) => {
+    try {
+        const result = VerifyEmailSchema.safeParse(req.body);
+        if (!result.success) {
+            return res.status(400).json({ error: result.error.errors[0].message });
+        }
+
+        const user = consumeVerificationToken(result.data.token);
+        if (!user) {
+            return res.status(400).json({ error: 'Invalid or expired verification token' });
+        }
+
+        res.json({ ok: true, user });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// POST /api/auth/resend-verification — authenticated; re-sends to current user.
+router.post('/resend-verification', requireAuth, emailLimiter, async (req, res, next) => {
+    try {
+        const user = db.prepare(
+            `SELECT id, username, email, email_verified FROM users WHERE id = ? AND is_active = 1`
+        ).get(req.user.sub);
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        if (user.email_verified) {
+            return res.json({ ok: true, alreadyVerified: true });
+        }
+
+        try {
+            const token = issueVerificationToken(user.id);
+            const verifyUrl = `${emailService.baseUrl(req)}/verify?token=${token}`;
+            await emailService.sendVerification(user.email, { username: user.username, verifyUrl });
+        } catch (err) {
+            console.error('[resend-verification] failed to send email:', err.message);
+        }
+
+        res.json({ ok: true });
     } catch (err) {
         next(err);
     }

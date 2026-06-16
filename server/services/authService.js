@@ -103,6 +103,9 @@ function pruneExpiredTokens() {
     db.prepare(
         `DELETE FROM password_reset_tokens WHERE expires_at < datetime('now') OR used = 1`
     ).run();
+    db.prepare(
+        `DELETE FROM email_verification_tokens WHERE expires_at < datetime('now') OR used = 1`
+    ).run();
 }
 
 // ── Password reset tokens ─────────────────────────────────────────────────
@@ -155,6 +158,55 @@ function consumeResetToken(plainToken, newPasswordHash) {
     return { id: row.uid, username: row.username, email: row.email, role: row.role };
 }
 
+// ── Email verification tokens ─────────────────────────────────────────────
+
+const VERIFICATION_TOKEN_TTL_HOURS = 24;
+
+function issueVerificationToken(userId) {
+    // Invalidate any existing unused tokens for this user
+    db.prepare(
+        `UPDATE email_verification_tokens SET used = 1 WHERE user_id = ? AND used = 0`
+    ).run(userId);
+
+    const token = uuidv4();
+    const tokenHash = hashToken(token);
+    const expiresAt = new Date(Date.now() + VERIFICATION_TOKEN_TTL_HOURS * 3600 * 1000)
+        .toISOString()
+        .replace('T', ' ')
+        .substring(0, 19);
+
+    db.prepare(
+        `INSERT INTO email_verification_tokens (user_id, token_hash, expires_at) VALUES (?, ?, ?)`
+    ).run(userId, tokenHash, expiresAt);
+
+    return token;
+}
+
+function consumeVerificationToken(plainToken) {
+    const tokenHash = hashToken(plainToken);
+    const row = db.prepare(
+        `SELECT evt.id, evt.user_id, evt.expires_at, evt.used,
+                u.id AS uid, u.username, u.email, u.role, u.is_active
+         FROM email_verification_tokens evt
+         JOIN users u ON u.id = evt.user_id
+         WHERE evt.token_hash = ?`
+    ).get(tokenHash);
+
+    if (!row) return null;
+    if (row.used) return null;
+    if (new Date(row.expires_at) < new Date()) return null;
+    if (!row.is_active) return null;
+
+    db.transaction(() => {
+        db.prepare(`UPDATE email_verification_tokens SET used = 1 WHERE id = ?`).run(row.id);
+        db.prepare(
+            `UPDATE users SET email_verified = 1, updated_at = datetime('now') WHERE id = ?`
+        ).run(row.user_id);
+    })();
+
+    return { id: row.uid, username: row.username, email: row.email, role: row.role };
+}
+
 module.exports = {
     hashPassword,
     verifyPassword,
@@ -166,4 +218,6 @@ module.exports = {
     pruneExpiredTokens,
     issueResetToken,
     consumeResetToken,
+    issueVerificationToken,
+    consumeVerificationToken,
 };

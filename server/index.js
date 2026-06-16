@@ -16,6 +16,7 @@ const configRoutes = require('./routes/configRoutes');
 const aiRoutes = require('./routes/aiRoutes');
 const anthropometricRoutes = require('./routes/anthropometricRoutes');
 const contentRoutes = require('./routes/contentRoutes');
+const emailService = require('./services/emailService');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -108,6 +109,7 @@ app.use(errorHandler);
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
     console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`Email (SMTP): ${emailService.isConfigured() ? 'enabled' : 'disabled (no SMTP_* configured)'}`);
 });
 
 module.exports = app;

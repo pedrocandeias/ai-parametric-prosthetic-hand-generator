@@ -4,6 +4,7 @@ const express = require('express');
 const { z } = require('zod');
 const db = require('../db');
 const { hashPassword } = require('../services/authService');
+const emailService = require('../services/emailService');
 const { requireAuth, requireRole } = require('../middleware/auth');
 
 const router = express.Router();
@@ -54,9 +55,20 @@ router.post('/', requireAuth, requireRole('admin'), async (req, res, next) => {
         if (existing) return res.status(409).json({ error: 'Username or email already taken' });
 
         const passwordHash = await hashPassword(password);
+        // Admin-created accounts are trusted — mark verified so they can sign in
+        // immediately even when REQUIRE_EMAIL_VERIFICATION is enabled.
         const info = db.prepare(
-            `INSERT INTO users (username, email, password_hash, role) VALUES (?, ?, ?, ?)`
+            `INSERT INTO users (username, email, password_hash, role, email_verified) VALUES (?, ?, ?, ?, 1)`
         ).run(username, email, passwordHash, role);
+
+        // Notify the new user their account exists (best-effort; never blocks).
+        try {
+            const loginUrl = `${emailService.baseUrl(req)}/`;
+            emailService.sendAccountCreated(email, { username, loginUrl })
+                .catch(err => console.error('[users.create] notification email failed:', err.message));
+        } catch (err) {
+            console.error('[users.create] could not send notification:', err.message);
+        }
 
         res.status(201).json({ id: info.lastInsertRowid, username, email, role, is_active: 1 });
     } catch (err) {

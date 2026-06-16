@@ -106,8 +106,37 @@ const Auth = (() => {
         const data = await safeJson(res);
         if (!res.ok) throw new Error(data.error || 'Registration failed');
 
+        // When email verification is mandatory the server withholds the token.
+        if (data.verificationRequired) {
+            return { verificationRequired: true };
+        }
+
         setSession(data.accessToken, data.user);
         return data.user;
+    }
+
+    async function forgotPassword(login) {
+        const res = await fetch('/api/auth/forgot-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ login }),
+        });
+        const data = await safeJson(res);
+        if (!res.ok) throw new Error(data.error || 'Request failed');
+        return data;
+    }
+
+    async function verifyEmail(token) {
+        const res = await fetch('/api/auth/verify-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ token }),
+        });
+        const data = await safeJson(res);
+        if (!res.ok) throw new Error(data.error || 'Verification failed');
+        return data;
     }
 
     async function resetPassword(token, newPassword) {
@@ -185,6 +214,8 @@ const Auth = (() => {
         fetchWithAuth,
         setupAdmin,
         resetPassword,
+        forgotPassword,
+        verifyEmail,
         getUser,
         getToken,
         isAuthenticated,
@@ -216,9 +247,25 @@ function showAuthError(viewId, msg) {
     if (el) { el.textContent = msg; el.classList.add('active'); }
 }
 
+function showAuthSuccess(viewId, msg) {
+    const el = document.getElementById(`${viewId}-success`);
+    if (el) { if (msg) el.textContent = msg; el.classList.add('active'); }
+}
+
+// Convenience: translate with a hard-coded fallback (i18n may not be loaded yet).
+function tr(key, fallback, vars) {
+    return window.t ? t(key, vars) : fallback;
+}
+
 function clearAuthErrors() {
     document.querySelectorAll('.auth-error').forEach(el => {
         el.textContent = '';
+        el.classList.remove('active');
+    });
+    // Success banners are cleared too, except those whose text is i18n-managed
+    // (data-i18n) — those keep their translated default for re-display.
+    document.querySelectorAll('.auth-success').forEach(el => {
+        if (!el.hasAttribute('data-i18n')) el.textContent = '';
         el.classList.remove('active');
     });
 }
@@ -253,6 +300,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Listen for auth events to update header UI
     window.addEventListener('auth:login', (e) => updateUserMenu(e.detail));
     window.addEventListener('auth:logout', () => updateUserMenu(null));
+
+    // ── Email links: /verify?token=… and /reset?token=… ──
+    const params = new URLSearchParams(window.location.search);
+    const verifyToken = params.get('verify') || (window.location.pathname === '/verify' && params.get('token'));
+    const resetToken = window.location.pathname === '/reset' ? params.get('token') : null;
+
+    if (verifyToken) {
+        showLoginModal('verify');
+        try {
+            await Auth.verifyEmail(verifyToken);
+            const pending = document.getElementById('verify-pending');
+            if (pending) pending.style.display = 'none';
+            showAuthSuccess('verify');
+        } catch (err) {
+            const pending = document.getElementById('verify-pending');
+            if (pending) pending.style.display = 'none';
+            showAuthError('verify', err.message);
+        }
+        history.replaceState(null, '', '/'); // strip the token from the URL
+        return;
+    }
+
+    if (resetToken) {
+        const tokenInput = document.getElementById('reset-token-input');
+        if (tokenInput) { tokenInput.value = resetToken; tokenInput.readOnly = true; }
+        const hint = document.querySelector('#login-view-reset .reset-hint');
+        if (hint) hint.setAttribute('data-i18n', 'login.resetHintEmail');
+        showLoginModal('reset');
+        if (window.I18n && I18n.apply) I18n.apply();
+        history.replaceState(null, '', '/'); // strip the token from the URL
+        return;
+    }
 
     // Check if first-run setup is needed
     try {
@@ -305,8 +384,15 @@ function setupLoginModalEvents() {
             const btn = registerForm.querySelector('button[type=submit]');
             btn.disabled = true;
             try {
-                await Auth.register(username, email, password);
-                hideLoginModal();
+                const result = await Auth.register(username, email, password);
+                if (result && result.verificationRequired) {
+                    // Server withheld the session pending email verification.
+                    switchLoginView('login');
+                    showAuthSuccess('login', tr('login.verifyPrompt',
+                        'Account created. Check your email to verify your address before signing in.'));
+                } else {
+                    hideLoginModal();
+                }
             } catch (err) {
                 showAuthError('register', err.message);
             } finally {
@@ -331,6 +417,28 @@ function setupLoginModalEvents() {
                 hideLoginModal();
             } catch (err) {
                 showAuthError('setup', err.message);
+            } finally {
+                btn.disabled = false;
+            }
+        });
+    }
+
+    // ── Forgot-password form ──
+    const forgotForm = document.getElementById('forgot-form');
+    if (forgotForm) {
+        forgotForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearAuthErrors();
+            const login = document.getElementById('forgot-login').value.trim();
+            const btn = forgotForm.querySelector('button[type=submit]');
+            btn.disabled = true;
+            try {
+                await Auth.forgotPassword(login);
+                // Always show the same confirmation (non-enumerating).
+                forgotForm.style.display = 'none';
+                showAuthSuccess('forgot');
+            } catch (err) {
+                showAuthError('forgot', err.message);
             } finally {
                 btn.disabled = false;
             }
@@ -372,6 +480,17 @@ function setupLoginModalEvents() {
         e.preventDefault(); clearAuthErrors(); switchLoginView('reset');
     });
     document.getElementById('go-login-from-reset')?.addEventListener('click', (e) => {
+        e.preventDefault(); clearAuthErrors(); switchLoginView('login');
+    });
+    document.getElementById('go-forgot')?.addEventListener('click', (e) => {
+        e.preventDefault(); clearAuthErrors();
+        const f = document.getElementById('forgot-form'); if (f) f.style.display = '';
+        switchLoginView('forgot');
+    });
+    document.getElementById('go-login-from-forgot')?.addEventListener('click', (e) => {
+        e.preventDefault(); clearAuthErrors(); switchLoginView('login');
+    });
+    document.getElementById('go-login-from-verify')?.addEventListener('click', (e) => {
         e.preventDefault(); clearAuthErrors(); switchLoginView('login');
     });
 

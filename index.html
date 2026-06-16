@@ -1633,6 +1633,7 @@ button { font-family: var(--font); cursor: pointer; transition: all 0.15s; borde
             </div>
             <p class="login-sub" data-i18n="login.subtitle">Custom Hand Prosthetic Configuration System</p>
             <div class="auth-error" id="login-error"></div>
+            <div class="auth-success" id="login-success"></div>
             <form id="login-form" autocomplete="on">
                 <div class="form-group">
                     <input type="text" id="login-username" name="login" autocomplete="username" data-i18n-placeholder="login.username" placeholder="Username" required>
@@ -1643,8 +1644,11 @@ button { font-family: var(--font); cursor: pointer; transition: all 0.15s; borde
                 <button type="submit" class="btn-submit" data-i18n="login.tabLogin">Login</button>
             </form>
             <div class="auth-links">
+                <a id="go-forgot" data-i18n="login.forgot">Forgot password?</a>
+            </div>
+            <div class="auth-links">
                 <span data-i18n="login.needAccount">Don't have an account?</span> <a id="go-register" data-i18n="login.registerLink">Register</a>
-                &nbsp;&middot;&nbsp; <a id="go-reset" data-i18n="login.resetPassword">Reset Password</a>
+                &nbsp;&middot;&nbsp; <a id="go-reset" data-i18n="login.haveToken">Have a reset token?</a>
             </div>
         </div>
 
@@ -1671,6 +1675,23 @@ button { font-family: var(--font); cursor: pointer; transition: all 0.15s; borde
             </div>
         </div>
 
+        <div id="login-view-forgot" class="login-view" style="display:none">
+            <h2 data-i18n="login.forgotTitle">Forgot Password</h2>
+            <p class="reset-hint" data-i18n="login.forgotHint">Enter your username or email and we'll send you a link to reset your password.</p>
+            <div class="auth-error" id="forgot-error"></div>
+            <div class="auth-success" id="forgot-success" data-i18n="login.forgotSent">If an account matches, a reset link is on its way. Check your email.</div>
+            <form id="forgot-form" autocomplete="on">
+                <div class="form-group">
+                    <label for="forgot-login" data-i18n="login.usernameOrEmail">Username or Email</label>
+                    <input type="text" id="forgot-login" name="login" autocomplete="username" required>
+                </div>
+                <button type="submit" class="btn-submit" data-i18n="login.sendResetLink">Send Reset Link</button>
+            </form>
+            <div class="auth-links">
+                <a id="go-login-from-forgot" data-i18n="login.backToSignIn">Back to Sign In</a>
+            </div>
+        </div>
+
         <div id="login-view-reset" class="login-view" style="display:none">
             <h2 data-i18n="login.resetPassword">Reset Password</h2>
             <p class="reset-hint" data-i18n="login.resetHint">Enter the reset token provided by your administrator and choose a new password.</p>
@@ -1688,6 +1709,16 @@ button { font-family: var(--font); cursor: pointer; transition: all 0.15s; borde
             </form>
             <div class="auth-links">
                 <a id="go-login-from-reset" data-i18n="login.backToSignIn">Back to Sign In</a>
+            </div>
+        </div>
+
+        <div id="login-view-verify" class="login-view" style="display:none">
+            <h2 data-i18n="login.verifyTitle">Email Verification</h2>
+            <div class="auth-error" id="verify-error"></div>
+            <div class="auth-success" id="verify-success" data-i18n="login.verifySuccess">Your email is verified. You can now sign in.</div>
+            <p class="reset-hint" id="verify-pending" data-i18n="login.verifyPending">Verifying your email…</p>
+            <div class="auth-links">
+                <a id="go-login-from-verify" data-i18n="login.backToSignIn">Back to Sign In</a>
             </div>
         </div>
 
