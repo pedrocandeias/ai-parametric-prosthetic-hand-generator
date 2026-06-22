@@ -10,6 +10,14 @@ Version format: `MAJOR.MINOR.PATCH`
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
+## v14.14.0 — 2026-06-22
+
+feat: the appbar help (?) button now opens an anchored help popover instead of a blocking `alert()`. The panel shows a numbered 6-step getting-started walkthrough (pick a model → adjust parameters → AI assistant → import measurements → render & export → save), plus a "More help" section with collapsible documentation: an anatomical field guide (palm/finger/gauntlet measurements) and keyboard/viewer controls, and a contact-support link. Closes on outside click or Esc; fully localised in EN + PT.
+
+## v14.13.1 — 2026-06-16
+
+fix: help button icon now renders its question-mark dot. The appbar help icon (Feather `help-circle`) draws its dot as a zero-length `M12 17h.01` stroke, which is only visible with `stroke-linecap="round"`. The SVG was missing that attribute, so the dot disappeared and the icon looked incomplete. Added `stroke-linecap="round" stroke-linejoin="round"`.
+
 ## v14.13.0 — 2026-06-16
 
 fix: Flexy Beast per-part STL export no longer includes the gauntlet in every part. The gauntlet is gated by `show_gauntlet` in the SCAD but was absent from the model's `parts` list, so the per-part export override (which only toggles off variables belonging to a declared part) never set it false — every exported finger/palm STL silently bundled the forearm cuff. Added the gauntlet as its own printable part (`show_gauntlet`), which both excludes it from the other parts' exports and lets it be exported on its own. Verified: palm-only export drops from ~20.6k to 14.4k facets (gauntlet gone); gauntlet-only export is 6.3k facets.

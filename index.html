@@ -234,6 +234,112 @@ body::before {
     transition: all 0.15s;
 }
 #help-btn:hover { background: var(--surface-2); color: var(--text-primary); }
+#help-menu { position: relative; display: inline-flex; }
+#help-menu.open #help-btn { background: var(--surface-2); color: var(--text-primary); border-color: var(--accent, var(--border-strong)); }
+
+#help-popover {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 340px;
+    max-width: calc(100vw - 24px);
+    max-height: min(70vh, 560px);
+    overflow-y: auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.16);
+    z-index: 9000;
+}
+#help-menu.open #help-popover { display: block; }
+
+.help-pop-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 16px;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+}
+.help-pop-header svg { color: var(--accent, var(--text-secondary)); flex-shrink: 0; }
+
+.help-pop-body { padding: 14px 16px; }
+.help-pop-intro {
+    margin: 0 0 14px;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+
+.help-tips { list-style: none; margin: 0 0 16px; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.help-tips li { display: flex; gap: 10px; align-items: flex-start; }
+.help-tip-num {
+    flex-shrink: 0;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--accent-subtle);
+    color: var(--accent, var(--text-primary));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-top: 1px;
+}
+.help-tip-text { display: flex; flex-direction: column; gap: 2px; }
+.help-tip-text strong { font-size: 0.8125rem; font-weight: 600; color: var(--text-primary); }
+.help-tip-text span { font-size: 0.78125rem; line-height: 1.45; color: var(--text-secondary); }
+
+.help-pop-section-title {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 4px 0 8px;
+}
+.help-docs { list-style: none; margin: 0; padding: 0; }
+.help-docs a,
+.help-doc-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    margin: 0 -10px;
+    width: calc(100% + 20px);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    font-family: var(--font);
+    transition: background 0.1s, color 0.1s;
+}
+.help-doc-toggle { background: none; border: none; cursor: pointer; text-align: left; }
+.help-docs a > span,
+.help-doc-toggle > span:not(.help-doc-caret) { flex: 1; }
+.help-docs a svg,
+.help-doc-toggle svg { color: var(--text-muted); flex-shrink: 0; }
+.help-docs a:hover,
+.help-doc-toggle:hover { background: var(--accent-subtle); color: var(--text-primary); }
+.help-docs a:hover svg,
+.help-doc-toggle:hover svg { color: var(--accent, var(--text-primary)); }
+.help-doc-caret { transition: transform 0.15s; }
+.help-doc-toggle[aria-expanded="true"] .help-doc-caret { transform: rotate(180deg); }
+
+.help-doc-detail {
+    padding: 4px 2px 8px 30px;
+    font-size: 0.78125rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+.help-doc-detail p { margin: 0 0 6px; }
+.help-doc-detail ul { list-style: disc; margin: 0; padding-left: 16px; display: flex; flex-direction: column; gap: 4px; }
+.help-doc-detail strong { color: var(--text-primary); font-weight: 600; }
 
 #user-menu-dropdown {
     display: none;
@@ -1826,9 +1932,79 @@ button { font-family: var(--font); cursor: pointer; transition: all 0.15s; borde
                     <option value="en">EN</option>
                     <option value="pt">PT</option>
                 </select>
-                <button id="help-btn" data-i18n-title="appbar.help" title="Help" aria-label="Help">
-                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
-                </button>
+                <div id="help-menu">
+                    <button id="help-btn" data-i18n-title="appbar.help" title="Help" aria-label="Help" aria-haspopup="dialog" aria-expanded="false" aria-controls="help-popover">
+                        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                    </button>
+                    <div id="help-popover" role="dialog" aria-modal="false" data-i18n-aria-label="help.title" aria-label="Help &amp; Tips">
+                        <div class="help-pop-header">
+                            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                            <span data-i18n="help.title">Help &amp; Tips</span>
+                        </div>
+                        <div class="help-pop-body">
+                            <p class="help-pop-intro" data-i18n="help.intro">Hand Fab turns patient measurements into a 3D-printable prosthetic. Follow these steps to design and export a hand.</p>
+                            <ol class="help-tips">
+                                <li>
+                                    <span class="help-tip-num">1</span>
+                                    <span class="help-tip-text"><strong data-i18n="help.tip.start.t">Pick a model</strong><span data-i18n="help.tip.start.d">Choose a prosthetic hand family from the dashboard to open it in the configurator.</span></span>
+                                </li>
+                                <li>
+                                    <span class="help-tip-num">2</span>
+                                    <span class="help-tip-text"><strong data-i18n="help.tip.params.t">Adjust parameters</strong><span data-i18n="help.tip.params.d">Edit dimensions in the side panel. Hover the ⓘ next to any field for what it measures and its typical range.</span></span>
+                                </li>
+                                <li>
+                                    <span class="help-tip-num">3</span>
+                                    <span class="help-tip-text"><strong data-i18n="help.tip.ai.t">Use the AI assistant</strong><span data-i18n="help.tip.ai.d">Describe the patient in plain words and let the AI suggest a starting size — then refine it manually.</span></span>
+                                </li>
+                                <li>
+                                    <span class="help-tip-num">4</span>
+                                    <span class="help-tip-text"><strong data-i18n="help.tip.import.t">Import measurements</strong><span data-i18n="help.tip.import.d">Load an anthropometric profile to auto-fill matching fields from a patient's recorded measurements.</span></span>
+                                </li>
+                                <li>
+                                    <span class="help-tip-num">5</span>
+                                    <span class="help-tip-text"><strong data-i18n="help.tip.render.t">Render &amp; export</strong><span data-i18n="help.tip.render.d">Preview the result in the 3D viewer, then export an STL for slicing and printing.</span></span>
+                                </li>
+                                <li>
+                                    <span class="help-tip-num">6</span>
+                                    <span class="help-tip-text"><strong data-i18n="help.tip.save.t">Save your work</strong><span data-i18n="help.tip.save.d">Store a configuration to reload it later or share it with an assigned technician.</span></span>
+                                </li>
+                            </ol>
+                            <div class="help-pop-section-title" data-i18n="help.docsTitle">More help</div>
+                            <ul class="help-docs">
+                                <li>
+                                    <button type="button" class="help-doc-toggle" aria-expanded="false" aria-controls="help-detail-params">
+                                        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                                        <span data-i18n="help.doc.params">Field guide — what each measurement means</span>
+                                        <svg class="help-doc-caret" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                    </button>
+                                    <div id="help-detail-params" class="help-doc-detail" hidden>
+                                        <p data-i18n="help.detail.params.intro">Lengths are anatomical (knuckle crease to fingertip), measured in millimetres:</p>
+                                        <ul>
+                                            <li><strong data-i18n="help.detail.params.palm.t">Palm breadth/length/thickness</strong> — <span data-i18n="help.detail.params.palm.d">knuckle-to-knuckle width, wrist-to-MCP length, and palm-to-back thickness.</span></li>
+                                            <li><strong data-i18n="help.detail.params.fingers.t">Finger lengths</strong> — <span data-i18n="help.detail.params.fingers.d">MCP crease to tip for each digit and the thumb.</span></li>
+                                            <li><strong data-i18n="help.detail.params.gauntlet.t">Gauntlet width</strong> — <span data-i18n="help.detail.params.gauntlet.d">forearm socket width ≈ wrist circumference ÷ π, plus clearance.</span></li>
+                                        </ul>
+                                    </div>
+                                </li>
+                                <li>
+                                    <button type="button" class="help-doc-toggle" aria-expanded="false" aria-controls="help-detail-shortcuts">
+                                        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/></svg>
+                                        <span data-i18n="help.doc.shortcuts">Keyboard &amp; viewer controls</span>
+                                        <svg class="help-doc-caret" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                    </button>
+                                    <div id="help-detail-shortcuts" class="help-doc-detail" hidden>
+                                        <ul>
+                                            <li><span data-i18n="help.detail.shortcuts.rotate">Drag in the viewer to rotate the model.</span></li>
+                                            <li><span data-i18n="help.detail.shortcuts.zoom">Scroll to zoom; right-drag to pan.</span></li>
+                                            <li><span data-i18n="help.detail.shortcuts.esc">Press Esc to close this panel and other menus.</span></li>
+                                        </ul>
+                                    </div>
+                                </li>
+                                <li><a id="help-doc-support" href="mailto:support@handfab.app"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="m22 6-10 7L2 6"/></svg><span data-i18n="help.doc.support">Contact support</span></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
                 <div id="user-menu">
                     <button id="user-menu-toggle" aria-haspopup="true" aria-expanded="false">
                         <div class="user-avatar" id="user-avatar-initials">A</div>
@@ -2412,10 +2588,47 @@ button { font-family: var(--font); cursor: pointer; transition: all 0.15s; borde
         }
     });
 
-    // Help button tooltip
-    document.getElementById('help-btn')?.addEventListener('click', () => {
-        alert('Hand Fab Prosthetic Configurator\n\nSelect a model to start, or load a saved configuration.\nUse the AI assistant for parameter suggestions.');
-    });
+    // Help popover — anchored panel with tips + documentation links
+    (function () {
+        const menu = document.getElementById('help-menu');
+        const btn = document.getElementById('help-btn');
+        if (!menu || !btn) return;
+
+        const close = () => {
+            if (!menu.classList.contains('open')) return;
+            menu.classList.remove('open');
+            btn.setAttribute('aria-expanded', 'false');
+        };
+        const open = () => {
+            menu.classList.add('open');
+            btn.setAttribute('aria-expanded', 'true');
+        };
+
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            menu.classList.contains('open') ? close() : open();
+        });
+        // Close on outside click, but keep open when interacting inside the panel
+        document.addEventListener('click', (e) => {
+            if (!menu.contains(e.target)) close();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') close();
+        });
+        // Closing one menu shouldn't leave the other open
+        document.getElementById('user-menu-toggle')?.addEventListener('click', close);
+
+        // Collapsible documentation sections inside the popover
+        menu.querySelectorAll('.help-doc-toggle').forEach((toggle) => {
+            toggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const detail = document.getElementById(toggle.getAttribute('aria-controls'));
+                const expanded = toggle.getAttribute('aria-expanded') === 'true';
+                toggle.setAttribute('aria-expanded', String(!expanded));
+                if (detail) detail.hidden = expanded;
+            });
+        });
+    })();
 })();
 </script>
 
