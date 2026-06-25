@@ -1384,13 +1384,16 @@ class ParameterEditor {
         const baseCode = document.getElementById('editor').value;
         this.showLoading(true);
 
+        // Switch assembled-view models into their flat print-bed layout so every
+        // exported STL sits flat for slicing instead of floating in assembled pose.
+        const exportCode = this._applyExportLayout(baseCode);
+
         try {
             const files = [];
             for (let i = 0; i < selections.length; i++) {
                 const sel = selections[i];
                 this.updateStatus(`Exporting ${sel.name}… (${i + 1}/${selections.length})`, '');
-                const code = sel.combined ? baseCode : this._buildPartCode(baseCode, sel);
-                const data = await this._renderStlFromCode(code);
+                const data = await this._renderSelection(sel, exportCode);
                 files.push({ name: `${this.currentModel.id}_${sel.id}.stl`, data });
             }
 
@@ -1410,6 +1413,57 @@ class ParameterEditor {
         }
     }
 
+    // Render one export selection to a bed-seated binary STL.
+    //
+    // For the "Whole model" selection on a model that declares printable parts, we
+    // render each part on its own, drop each to the bed, and merge the meshes into
+    // one plate. This guarantees every part sits co-planar on Z=0 regardless of how
+    // its model authors that part's height — far more robust than seating the whole
+    // assembly in one pass, where parts authored at different heights would float.
+    async _renderSelection(sel, exportCode) {
+        const parts = (this.currentModel && this.currentModel.parts) || [];
+        if (sel.combined && parts.length) {
+            const datas = [];
+            for (const p of parts) {
+                datas.push(this._dropStlToBed(await this._renderStlFromCode(this._buildPartCode(exportCode, p))));
+            }
+            return this._mergeBinaryStl(datas);
+        }
+        const code = sel.combined ? exportCode : this._buildPartCode(exportCode, sel);
+        return this._dropStlToBed(await this._renderStlFromCode(code));
+    }
+
+    // Concatenate several binary-STL meshes into one. Triangle payloads are copied
+    // verbatim (positions already absolute), so parts keep their laid-out X/Y tile
+    // positions and individually-seated Z. Empty/oversized inputs are skipped.
+    _mergeBinaryStl(datas) {
+        const valid = datas.filter(d => d instanceof Uint8Array && d.length >= 84
+            && 84 + new DataView(d.buffer, d.byteOffset, d.byteLength).getUint32(80, true) * 50 <= d.length);
+        if (valid.length <= 1) return valid[0] || new Uint8Array(84);
+        const triCount = d => new DataView(d.buffer, d.byteOffset, d.byteLength).getUint32(80, true);
+        const total = valid.reduce((sum, d) => sum + triCount(d), 0);
+        const out = new Uint8Array(84 + total * 50);
+        new DataView(out.buffer).setUint32(80, total, true);
+        let off = 84;
+        for (const d of valid) {
+            const bytes = triCount(d) * 50;
+            out.set(d.subarray(84, 84 + bytes), off);
+            off += bytes;
+        }
+        return out;
+    }
+
+    // Append the model's declared export-layout overrides (e.g. `show_assembled =
+    // false;` or `print_layout = true;`) so assembled-view models export their flat
+    // print-bed layout. Models without an `exportLayout` map are returned unchanged.
+    _applyExportLayout(baseCode) {
+        const overrides = this.currentModel && this.currentModel.exportLayout;
+        if (!overrides || typeof overrides !== 'object') return baseCode;
+        const lines = Object.entries(overrides).map(([k, v]) => `${k} = ${JSON.stringify(v)};`);
+        if (!lines.length) return baseCode;
+        return `${baseCode}\n\n// -- export print-layout override --\n${lines.join('\n')}\n`;
+    }
+
     // Append overrides that isolate a single part: enable this part's toggles and
     // disable every other part's toggles. OpenSCAD honours the last assignment.
     _buildPartCode(baseCode, part) {
@@ -1418,6 +1472,35 @@ class ParameterEditor {
         const on = new Set(part.toggles || []);
         const lines = Array.from(allToggles).map(t => `${t} = ${on.has(t) ? 'true' : 'false'};`);
         return `${baseCode}\n\n// -- per-part export override (${part.id}) --\n${lines.join('\n')}\n`;
+    }
+
+    // Translate a binary-STL mesh in place so its lowest vertex rests on Z=0 (the
+    // print bed). Models author parts in their own coordinate frame — assembled
+    // poses, wrist-pin datums — so an exported part can float above or sink below
+    // the bed. Seating every part on Z=0 makes each STL drop-in printable and keeps
+    // the tiled whole-model plate flat. A no-op for parts already on the bed.
+    _dropStlToBed(data) {
+        if (!(data instanceof Uint8Array) || data.length < 84) return data;
+        const dv = new DataView(data.buffer, data.byteOffset, data.byteLength);
+        const triCount = dv.getUint32(80, true);
+        if (84 + triCount * 50 > data.length) return data; // not the binary STL we expect
+        let minZ = Infinity;
+        for (let t = 0; t < triCount; t++) {
+            const base = 84 + t * 50;
+            for (let v = 0; v < 3; v++) {
+                const z = dv.getFloat32(base + 12 + v * 12 + 8, true);
+                if (z < minZ) minZ = z;
+            }
+        }
+        if (!isFinite(minZ) || Math.abs(minZ) < 1e-6) return data;
+        for (let t = 0; t < triCount; t++) {
+            const base = 84 + t * 50;
+            for (let v = 0; v < 3; v++) {
+                const off = base + 12 + v * 12 + 8;
+                dv.setFloat32(off, dv.getFloat32(off, true) - minZ, true);
+            }
+        }
+        return data;
     }
 
     // Render SCAD source to a binary-STL Uint8Array via a one-shot worker.

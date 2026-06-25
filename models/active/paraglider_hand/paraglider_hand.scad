@@ -339,29 +339,42 @@ _x_thumb  = _fp + 125;
 // ── Row Y offsets — phalanxes at Y=0, fingertips offset above
 _tip_row   = 50;  // mm above phalanx row
 
+// Parts are emitted in their native (authored) orientation, which rests flat on
+// the bed (Zmin=0, flat back down). No 180° flip — that would push parts below
+// the bed and seat them on the rounded grip face, both bad for slicing.
 if (show_index) color(color_index) {
-    translate([_x_index, 0,        0]) rotate([0, 180, 0]) _finger_phalanx(index_scale);
-    translate([_x_index, _tip_row, 0]) rotate([0, 180, 0]) _long_finger(index_scale);
+    translate([_x_index, 0,        0]) _finger_phalanx(index_scale);
+    translate([_x_index, _tip_row, 0]) _long_finger(index_scale);
 }
 
 if (show_middle) color(color_middle) {
-    translate([_x_middle, 0,        0]) rotate([0, 180, 0]) _finger_phalanx(global_scale);
-    translate([_x_middle, _tip_row, 0]) rotate([0, 180, 0]) _long_finger(global_scale);
+    translate([_x_middle, 0,        0]) _finger_phalanx(global_scale);
+    translate([_x_middle, _tip_row, 0]) _long_finger(global_scale);
 }
 
 if (show_ring) color(color_ring) {
-    translate([_x_ring, 0,        0]) rotate([0, 180, 0]) _finger_phalanx(ring_scale);
-    translate([_x_ring, _tip_row, 0]) rotate([0, 180, 0]) _short_finger(ring_scale);
+    translate([_x_ring, 0,        0]) _finger_phalanx(ring_scale);
+    translate([_x_ring, _tip_row, 0]) _short_finger(ring_scale);
 }
 
 if (show_pinky) color(color_pinky) {
-    translate([_x_pinky, 0,        0]) rotate([0, 180, 0]) _finger_phalanx(pinky_scale);
-    translate([_x_pinky, _tip_row, 0]) rotate([0, 180, 0]) _short_finger(pinky_scale);
+    translate([_x_pinky, 0,        0]) _finger_phalanx(pinky_scale);
+    translate([_x_pinky, _tip_row, 0]) _short_finger(pinky_scale);
 }
 
 if (show_thumb) color(color_thumb) {
-    translate([_x_thumb, 0,        0]) rotate([0, 180, 0]) _thumb_phalanx(global_scale);
-    translate([_x_thumb, _tip_row, 0]) rotate([0, 180, 0]) _thumb_tip(global_scale);
+    translate([_x_thumb, 0,        0]) _thumb_phalanx(global_scale);
+    translate([_x_thumb, _tip_row, 0]) _thumb_tip(global_scale);
+}
+
+// Pivot pins laid flat in a row beside the fingers, resting on the bed, so the
+// "pins" part exports geometry instead of an empty file in print-layout mode.
+if (show_pins) color(color_pins) {
+    _pin_len = 30 * overall_scale;
+    _pin_r   = pivot_dia / 2;
+    for (i = [0:5])
+        translate([_x_thumb + 45, i * (pivot_dia + 3), _pin_r])
+            rotate([0, 90, 0]) cylinder(d=pivot_dia, h=_pin_len, center=false, $fn=16);
 }
 
 } else {

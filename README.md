@@ -98,37 +98,36 @@ The app is a single Node.js process that serves both the REST API and the static
 frontend, so deploying means shipping the source tree (minus secrets, the dev
 database, and `node_modules`) and running `npm ci` + `npm start` on the server.
 
-`deploy.sh` automates this in two modes:
+The live site runs on **cPanel + Phusion Passenger** (Node 24). There is no build
+step — `app.js`, `models/`, and the `.scad` files ship as-is. The everyday deploy
+is a single command:
 
 ```bash
-# Stage every server-bound file into ./deploy/ (nothing leaves the machine).
-# Add --tar to also produce deploy.tar.gz.
-./deploy.sh collect --tar
-
-# Stage, then rsync the package to a remote host.
-# Add --delete to mirror (remove stale remote files); --yes to skip the prompt.
-./deploy.sh deploy user@your-server.com:/opt/prosthetic-hand --delete
+./deploy.sh deploy --dry-run     # preview exactly what will transfer (no changes)
+./deploy.sh deploy               # → configured cPanel target, after a remote DB+code backup
 ```
 
-The collected package **excludes** secrets (`.env`), the dev SQLite DB (`data/`),
-`node_modules`, `.git`, tests, and local tooling — a post-stage safety check
-aborts if any of those slip through. `.env.example` *is* included as a template.
+With **no destination** it uses the configured cPanel target; the script stages
+the tree, takes a remote backup (DB + code tarball), then rsyncs. Useful flags:
+`--port N` (SSH port), `--yes` (skip the confirm prompt), `--delete` (mirror —
+removes stale remote files, use with care). To target a different host, pass
+`user@host:/path` explicitly. Use `./deploy.sh collect --tar` to stage a
+`deploy.tar.gz` locally without uploading.
 
-On the server, after the files land:
+The package **excludes** secrets (`.env`), the dev SQLite DB (`data/`),
+`node_modules`, `.git`, tests, and — critically — the server-managed
+**`.htaccess`** (it holds the Passenger config and the COOP/COEP headers the
+OpenSCAD WASM needs). A post-stage safety check aborts if a secret or `data/`
+slips through. `.env.example` *is* included as a template.
 
-```bash
-cd /opt/prosthetic-hand
-cp .env.example .env        # then edit: JWT_SECRET + API keys
-npm ci --omit=dev           # bcrypt is a prebuilt N-API binary; SQLite is built into Node — nothing to compile
-node scripts/create-admin.js admin admin@example.com 'StrongPassword!'   # first run only
-npm start                   # or run under pm2 / systemd / Passenger
-```
+**After a deploy:** client-only changes (`app.js`, `index.html`, `models/`,
+`.scad`) are live as soon as the browser refetches. Changes under `server/**`
+need a **Restart** in the cPanel "Setup Node.js App" panel; new dependencies also
+need **Run NPM Install** there.
 
-The live site runs on **cPanel + Phusion Passenger** (Node 24). `deploy.sh` has a
-configurable default target plus `--port`, `--dry-run`, and a pre-deploy remote
-backup. See [DEPLOY-QUICKSTART.md](DEPLOY-QUICKSTART.md) for a pm2 + Nginx
-walkthrough and [DEPLOYMENT.md](DEPLOYMENT.md) for the full production guide,
-including the **cPanel/Passenger** path (Option C), systemd, TLS, and backups.
+First-time server setup (create the cPanel Node app, set `JWT_SECRET` + API keys,
+`npm ci`, `create-admin`) and a pm2 + Nginx VPS alternative are covered in
+[DEPLOYMENT.md](DEPLOYMENT.md) and [DEPLOY-QUICKSTART.md](DEPLOY-QUICKSTART.md).
 
 ---
 

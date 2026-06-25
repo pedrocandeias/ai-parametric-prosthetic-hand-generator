@@ -10,6 +10,14 @@ Version format: `MAJOR.MINOR.PATCH`
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
+## v14.15.0 — 2026-06-24
+
+feat: "Export all" STL now lays every part flat on the print bed instead of in the assembled hand pose. Models that render an assembled hand for the on-screen preview (Flexy Beast, Paraglider) switch to a flat print-bed layout only when exporting — the preview stays assembled. Each exported part is seated on Z=0 (the exporter drops every STL's lowest point to the bed), and the "Whole model" single file is built by rendering each part on the bed and merging them into one co-planar plate, so nothing floats or prints as supports-heavy assembled geometry.
+- feat: Flexy Beast gains a `print_layout` mode (`printlayout()`) that spreads the palm, gauntlet, four fingers (base + tip), and thumb side-by-side in their native print orientations.
+- fix: Paraglider print-bed layout no longer flips finger parts below the bed (parts now rest co-planar on Z=0) and now emits the pivot pins laid flat, so the "Pivot pins" part exports geometry instead of an empty file.
+- feat: models can declare an `exportLayout` map in `models-config.json` (e.g. `{ "print_layout": true }`) that the exporter applies to every exported part.
+- docs: document the cPanel/Passenger deployment workflow (`./deploy.sh deploy`, dry-run, what needs a cPanel restart, the server-managed `.htaccess`/WASM headers) in `CLAUDE.md` and `README.md`.
+
 ## v14.14.0 — 2026-06-22
 
 feat: the appbar help (?) button now opens an anchored help popover instead of a blocking `alert()`. The panel shows a numbered 6-step getting-started walkthrough (pick a model → adjust parameters → AI assistant → import measurements → render & export → save), plus a "More help" section with collapsible documentation: an anatomical field guide (palm/finger/gauntlet measurements) and keyboard/viewer controls, and a contact-support link. Closes on outside click or Esc; fully localised in EN + PT.

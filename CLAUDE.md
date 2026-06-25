@@ -85,6 +85,41 @@ These are blocked by Express before static serving and must never be served:
 
 Do not add any route that reads from `.env` or `config.json` and forwards values to the client.
 
+## Deployment
+
+The live site runs on **cPanel + Phusion Passenger** at `pedrocandeias.net`
+(app root `/home/pedrocan/public_html/sites/handfab`). Deployment is just an
+rsync of the working tree — there is no build step; `app.js`, `models/`, and the
+`.scad` files are served as-is.
+
+```bash
+./deploy.sh deploy --dry-run     # preview exactly what will transfer (no changes)
+./deploy.sh deploy               # → configured cPanel target, after a remote DB+code backup
+```
+
+- With **no destination argument** it uses the configured cPanel target. Pass
+  `user@host:/path` (and `--port N`) to override; `--yes` skips the confirm
+  prompt; `--delete` mirrors (removes stale remote files — use with care).
+- `deploy.sh` **collects** the tree first, hard-excluding `.env`, `data/` (the
+  live SQLite DB), `node_modules/`, `.git/`, `tests/`, and **`.htaccess`**, then
+  rsyncs. A post-stage safety check aborts if a secret or `data/` slips through.
+- **`.htaccess` is server-managed and never shipped.** It holds the CloudLinux
+  Passenger block *and* the `Cross-Origin-Opener-Policy: same-origin` +
+  `Cross-Origin-Embedder-Policy: require-corp` headers that the OpenSCAD WASM
+  needs (Passenger serves static files bypassing Express, so these live in
+  `.htaccess`, not `server/index.js`). If prod 3D rendering breaks, check these
+  headers **first**.
+
+**What needs a restart after deploy:**
+- **Client-only changes** (`app.js`, `index.html`, `models/`, `.scad`, `auth.js`)
+  are live as soon as the browser refetches — no restart needed.
+- **Server changes** (`server/**`) need a **Restart** in the cPanel "Setup
+  Node.js App" panel; new dependencies also need **Run NPM Install** there.
+
+Full production guide (first-run cPanel app setup, env vars, TLS, backups) is in
+[DEPLOYMENT.md](DEPLOYMENT.md); a pm2 + Nginx VPS alternative is in
+[DEPLOY-QUICKSTART.md](DEPLOY-QUICKSTART.md).
+
 ## Adding a New API Route
 
 1. Create `server/routes/myRoutes.js`

@@ -57,6 +57,12 @@ show_thermoform = true;
 // Mirror geometry for right hand (default produces left hand)
 mirrored = false;
 
+// Print-bed layout: spread every part flat side-by-side for 3D printing instead
+// of the assembled hand pose. Set true by the STL exporter; the preview keeps the
+// assembled view (false). Each part is emitted in its native print orientation;
+// the exporter seats each on the bed (Z=0) when writing the STL.
+print_layout = false;
+
 /* [Gauntlet] */
 
 // Show the forearm gauntlet — a separate printed part (wrist-powered tensioner
@@ -197,7 +203,8 @@ g_strap_splay      = g_strap_tip_target / g_sx - 22.95;   // native (current tip
 // ── Top-level assembly ────────────────────────────────────────────────────────
 
 mirror([mirrored ? 1 : 0, 0, 0])
-    handlayout();
+    if (print_layout) printlayout();
+    else handlayout();
 
 // ── Assembly ──────────────────────────────────────────────────────────────────
 
@@ -217,6 +224,45 @@ module handlayout(sp = 14) {
         if (show_thumb_tip) translate([0, -22*yScaleFactor, 0*zScaleFactor]) rotate([0, 0, -90]) thumbtip();
     }
     if (show_gauntlet) gauntlet_part();
+}
+
+// ── Print-bed layout ──────────────────────────────────────────────────────────
+
+// Every part spread out flat for 3D printing, instead of handlayout's assembled
+// hand pose. Each piece keeps its native print orientation (palm palmar-down,
+// fingers on their backs, cuff on its straps); the STL exporter seats each part
+// on Z=0 when writing the file. Pieces are gated exactly as handlayout gates them
+// so per-part STL export isolates the same geometry. Spacing scales with the hand.
+module printlayout() {
+    _row    = 15 * yScaleFactor;   // Y pitch between stacked finger pieces
+    _base_x = 56 * xScaleFactor;   // X of the finger-base column (clear of the palm)
+    _tip_x  = 96 * xScaleFactor;   // X of the fingertip column
+
+    // Palm in its native orientation.
+    if (show_palm) cyborgbeastpalm();
+
+    // Four fingers stacked index→pinky; each piece gated like handlayout.
+    _fingers = [
+        [show_index,  show_index_base,  show_index_tip,  indexProp],
+        [show_middle, show_middle_base, show_middle_tip, middleProp],
+        [show_ring,   show_ring_base,   show_ring_tip,   ringProp],
+        [show_pinky,  show_pinky_base,  show_pinky_tip,  pinkyProp],
+    ];
+    for (i = [0:len(_fingers)-1]) let(f = _fingers[i], _y = (1.5 - i) * _row)
+        if (f[0]) {
+            if (f[1]) translate([_base_x, _y, 0]) fingerbase(length = 20 * f[3] * fingerLength);
+            if (f[2]) translate([_tip_x,  _y, 0]) fingertip_curved_solid(length = 17 * f[3] * fingerLength, pad = finger_pads);
+        }
+
+    // Thumb base + tip on a row below the fingers.
+    if (show_thumb) let(_yt = -2.7 * _row) {
+        if (show_thumb_base) translate([_base_x, _yt, 0]) fingerbase(length = 20 * thumbProp * fingerLength);
+        if (show_thumb_tip)  translate([_tip_x,  _yt, 0]) thumbtip();
+    }
+
+    // Gauntlet (forearm cuff) below the palm, in its native cuff orientation.
+    if (show_gauntlet)
+        translate([0, -72 * yScaleFactor, 0]) scale([g_sx, g_sy, g_sx]) gauntlet();
 }
 
 // ── Gauntlet (forearm cuff) ───────────────────────────────────────────────────

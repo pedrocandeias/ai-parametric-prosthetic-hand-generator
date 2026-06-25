@@ -3,6 +3,9 @@
     {
       "id": "flexy_beast",
       "renderBackend": "manifold",
+      "exportLayout": {
+        "print_layout": true
+      },
       "name": "Flexy Beast",
       "description": "Wrist-powered prosthetic hand adapted from the Flexy Beast by daprice — a mashup of the Parametric Cyborg Beast (MakerBlock) and the Flexy Hand (Steve Wood / Gyrobot). Flexible joints replace Chicago screws and elastics for a lighter, cheaper, easier-to-assemble design. Scale is derived from the Cyborg Beast sizing guide: xScaleFactor = (palm_breadth_mm + 5) / 55. All finger lengths are driven anthropometrically; per-finger proportions are inferred from the individual length inputs relative to the middle finger.",
       "file": "active/flexy_beast/flexy_beast.scad",
@@ -675,6 +678,9 @@
     {
       "id": "paraglider_hand",
       "renderBackend": "manifold",
+      "exportLayout": {
+        "show_assembled": false
+      },
       "name": "Paraglider · Hand",
       "description": "Complete Paraglider (Flexible Flyer) prosthetic system in one model. The Hand component builds the palm (Phoenix Reborn or Unlimbited v3 style) plus all five fingers, sized from canonical anthropometric measurements with independent per-finger scaling and printable part toggles. The Component selector also renders the wrist-drive Tensioner Box and Thermo Gauntlet, and the separate elbow-powered UnLimbited Arm. By Marcus Mendenhall, parametric remix of Phoenix v2 / Unlimbited v3 / Phoenix Reborn using commercial metal-pin joints. Reborn Hand by enablesierraleone, CC BY 3.0.",
       "file": "active/paraglider_hand/paraglider_hand.scad",
