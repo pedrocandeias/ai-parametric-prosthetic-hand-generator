@@ -10,6 +10,16 @@ Version format: `MAJOR.MINOR.PATCH`
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
+## v14.17.0 — 2026-06-28
+
+fix: the Paraglider · Hand **Reborn palm** (the default `palm_style`) now resizes to `palm_breadth_mm`. It was frozen at the 83 mm "medium" size for every patient: `scaled_palm()` lives in `paraglider_palm_left.scad`, which is pulled in with `use` (lexically scoped), so it read that file's hardcoded `overall_scale = 1.25` and ignored the anthropometric `overall_scale = palm_breadth_mm / 66.4` computed in the main file. The fingers were unaffected (they receive their scale as a module argument), so a child-sized configuration produced child fingers on an adult palm. Fix re-applies the intended scale at the Reborn call site (`scale(overall_scale / 1.25) scaled_palm()`); verified the palm now scales (breadth 62→84.9 mm, 83→113.7 mm unchanged, 96→131.5 mm) with L/breadth constant. The UnlimbitedV3 palm was already correct (`pg_v3palm.scad` is `include`d). Found via the AI-sizing→STL export simulation (`tests/paraglider-ai-sim/`).
+
+## v14.16.0 — 2026-06-28
+
+fix: AI grounding now picks the right anthropometric population profile. `findBestProfileMatch` (server/services/profileMapping.js) previously anchored almost every patient on *ANSUR I Male 50th Percentile* — the male gender token `'m,'` was a substring of the units `"mm,"`/`"cm,"`, so any description containing a measurement was read as male, and gender/age parsing was English-only. Tokens are now matched on Unicode word boundaries and are multilingual (EN/PT/ES); age parsing understands "anos"/"años"; numeric `age_group` values ("7", "18-30", "80+", "Adult (Military, 17–40)") are bucketed to child/adult/elderly with numeric proximity, so a 7-year-old maps to the age-7 children dataset and a woman to a female dataset.
+- feat: optional LLM-based extraction of patient `{gender, age}` (`extractPatientAttributes` in aiService.js, via `claude-haiku-4-5`) anchors grounding for free-text/multilingual descriptions. It runs only when the deterministic parser leaves a gap, and degrades gracefully (falls back to text parsing) on any error or missing key.
+- test: add hermetic unit tests for the matcher (`test/profileMapping.test.js`, run with `npm run test:unit`) covering the units-as-male regression, multilingual gender/age parsing, age-group bucketing, and hint overrides.
+
 ## v14.15.0 — 2026-06-24
 
 feat: "Export all" STL now lays every part flat on the print bed instead of in the assembled hand pose. Models that render an assembled hand for the on-screen preview (Flexy Beast, Paraglider) switch to a flat print-bed layout only when exporting — the preview stays assembled. Each exported part is seated on Z=0 (the exporter drops every STL's lowest point to the bed), and the "Whole model" single file is built by rendering each part on the bed and merging them into one co-planar plate, so nothing floats or prints as supports-heavy assembled geometry.

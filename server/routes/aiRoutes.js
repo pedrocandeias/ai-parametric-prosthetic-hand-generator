@@ -5,13 +5,15 @@ const path = require('path');
 const fs = require('fs');
 const rateLimit = require('express-rate-limit');
 const { z } = require('zod');
-const { callAnthropic, callOpenAI } = require('../services/aiService');
+const { callAnthropic, callOpenAI, extractPatientAttributes } = require('../services/aiService');
 const { requireAuth } = require('../middleware/auth');
 const db = require('../db');
 const {
     mapProfileToModelParameters,
     findBestProfileMatch,
     buildGroundingBlock,
+    normGender,
+    extractAge,
 } = require('../services/profileMapping');
 
 const router = express.Router();
@@ -36,7 +38,7 @@ function getModelDef(modelId) {
  * profile and return a grounding block to anchor the LLM. Best-effort: any
  * failure returns '' so suggestions still work ungrounded.
  */
-function buildGrounding(patientText, modelId) {
+async function buildGrounding(patientText, modelId) {
     try {
         const modelDef = getModelDef(modelId);
         if (!patientText || !modelDef) return '';
@@ -46,7 +48,21 @@ function buildGrounding(patientText, modelId) {
             FROM anthropometric_profiles
         `).all();
 
-        const match = findBestProfileMatch(patientText, candidates);
+        // Resolve the patient's gender/age to anchor the population match. The
+        // deterministic parser is reliable and free, so we only spend an LLM call
+        // when it leaves a gap (e.g. qualitative descriptions in any language).
+        let hints = { gender: normGender(patientText), age: extractAge(patientText) };
+        if (!hints.gender || hints.age == null) {
+            const llm = await extractPatientAttributes(patientText);
+            if (llm) {
+                hints = {
+                    gender: hints.gender || llm.gender,
+                    age: hints.age != null ? hints.age : llm.age,
+                };
+            }
+        }
+
+        const match = findBestProfileMatch(patientText, candidates, hints);
         if (!match) return '';
 
         const row = db.prepare('SELECT profile, ai_context FROM anthropometric_profiles WHERE id = ?')
@@ -92,7 +108,7 @@ router.post('/suggest', requireAuth, aiLimiter, async (req, res, next) => {
         const { provider, prompt, patient_text, model_id } = result.data;
 
         // Anchor on dataset means when we can match a population group.
-        const grounding = buildGrounding(patient_text, model_id);
+        const grounding = await buildGrounding(patient_text, model_id);
         const finalPrompt = grounding ? `${prompt}\n${grounding}` : prompt;
 
         let text;

@@ -106,6 +106,16 @@ old_style_wrist = false;
 // REF_PALM = 66.4 mm (palm breadth at scale 1.0)
 overall_scale = palm_breadth_mm / 66.4;
 
+// The Reborn palm module scaled_palm() lives in paraglider_palm_left.scad, pulled
+// in with `use` below. `use` is lexically scoped, so that module reads ITS OWN
+// file's hardcoded `overall_scale = 1.25` (the 83 mm "medium" palm) and ignores
+// the anthropometric overall_scale computed here — i.e. the Reborn palm did not
+// resize to palm_breadth_mm at all. (The UnlimbitedV3 palm is fine: pg_v3palm.scad
+// is `include`d, so its V3_overall_scale resolves to the value set here.) We undo
+// the freeze by re-applying the intended scale at the Reborn call site:
+//   1.25 (baked) × REBORN_BAKED_FIX = overall_scale  ⇒  REBORN_BAKED_FIX = overall_scale / 1.25
+REBORN_PALM_BAKED_SCALE = 1.25; // = 83 / 66.4, the value frozen inside the palm module
+
 // Finger scale is independent of palm scale so that, e.g., a child hand with
 // narrow palm but shorter fingers renders each part at the correct size.
 // REF_FINGER = 57.6 mm (total finger assembly length at scale 1.0);
@@ -317,7 +327,7 @@ else if (component == "Hand") {
 if (show_palm)
     color(color_palm) {
         if (palm_style == "UnlimbitedV3") V3_scaled_palm();
-        else scaled_palm();
+        else scale(overall_scale / REBORN_PALM_BAKED_SCALE) scaled_palm(); // re-apply anthropometric scale frozen out by `use` (see Scale derivation)
     }
 
 if (!show_assembled) {

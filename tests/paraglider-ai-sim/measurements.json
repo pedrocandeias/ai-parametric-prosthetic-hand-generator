@@ -1,0 +1,222 @@
+{
+  "exported": {
+    "baseline_defaults": {
+      "palm": {
+        "len_mm": 113.7,
+        "wid_mm": 100.8,
+        "hei_mm": 38.19,
+        "vol_cm3": null,
+        "watertight": false,
+        "tris": 23252
+      },
+      "index": {
+        "len_mm": 93.08,
+        "wid_mm": 19.69,
+        "hei_mm": 14.49,
+        "vol_cm3": null,
+        "watertight": false,
+        "tris": 3068
+      },
+      "middle": {
+        "len_mm": 95.62,
+        "wid_mm": 20.85,
+        "hei_mm": 15.34,
+        "vol_cm3": null,
+        "watertight": false,
+        "tris": 3068
+      },
+      "ring": {
+        "len_mm": 90.72,
+        "wid_mm": 19.69,
+        "hei_mm": 14.49,
+        "vol_cm3": null,
+        "watertight": false,
+        "tris": 3068
+      },
+      "pinky": {
+        "len_mm": 82.94,
+        "wid_mm": 15.92,
+        "hei_mm": 11.72,
+        "vol_cm3": null,
+        "watertight": false,
+        "tris": 3068
+      },
+      "thumb": {
+        "len_mm": 89.87,
+        "wid_mm": 20.85,
+        "hei_mm": 16.74,
+        "vol_cm3": 9.93,
+        "watertight": true,
+        "tris": 3606
+      }
+    },
+    "ai_child": {
+      "palm": {
+        "len_mm": 84.94,
+        "wid_mm": 75.3,
+        "hei_mm": 28.53,
+        "vol_cm3": null,
+        "watertight": false,
+        "tris": 23244
+      },
+      "index": {
+        "len_mm": 82.95,
+        "wid_mm": 15.06,
+        "hei_mm": 11.08,
+        "vol_cm3": null,
+        "watertight": false,
+        "tris": 3080
+      },
+      "middle": {
+        "len_mm": 85.48,
+        "wid_mm": 16.21,
+        "hei_mm": 11.93,
+        "vol_cm3": null,
+        "watertight": false,
+        "tris": 3080
+      },
+      "ring": {
+        "len_mm": 80.54,
+        "wid_mm": 14.77,
+        "hei_mm": 10.87,
+        "vol_cm3": null,
+        "watertight": false,
+        "tris": 3080
+      },
+      "pinky": {
+        "len_mm": 73.95,
+        "wid_mm": 11.58,
+        "hei_mm": 8.52,
+        "vol_cm3": null,
+        "watertight": false,
+        "tris": 3080
+      },
+      "thumb": {
+        "len_mm": 81.01,
+        "wid_mm": 16.21,
+        "hei_mm": 13.02,
+        "vol_cm3": 4.61,
+        "watertight": true,
+        "tris": 3614
+      }
+    },
+    "ai_woman": {
+      "palm": {
+        "len_mm": 105.49,
+        "wid_mm": 93.52,
+        "hei_mm": 35.43,
+        "vol_cm3": null,
+        "watertight": false,
+        "tris": 23252
+      },
+      "index": {
+        "len_mm": 93.72,
+        "wid_mm": 19.98,
+        "hei_mm": 14.7,
+        "vol_cm3": null,
+        "watertight": false,
+        "tris": 3068
+      },
+      "middle": {
+        "len_mm": 98.15,
+        "wid_mm": 22.0,
+        "hei_mm": 16.19,
+        "vol_cm3": null,
+        "watertight": false,
+        "tris": 3080
+      },
+      "ring": {
+        "len_mm": 93.12,
+        "wid_mm": 20.85,
+        "hei_mm": 15.34,
+        "vol_cm3": null,
+        "watertight": false,
+        "tris": 3068
+      },
+      "pinky": {
+        "len_mm": 84.73,
+        "wid_mm": 16.79,
+        "hei_mm": 12.36,
+        "vol_cm3": null,
+        "watertight": false,
+        "tris": 3068
+      },
+      "thumb": {
+        "len_mm": 92.08,
+        "wid_mm": 22.0,
+        "hei_mm": 17.67,
+        "vol_cm3": 11.71,
+        "watertight": true,
+        "tris": 3598
+      }
+    },
+    "ai_man": {
+      "palm": {
+        "len_mm": 131.51,
+        "wid_mm": 116.59,
+        "hei_mm": 44.17,
+        "vol_cm3": null,
+        "watertight": false,
+        "tris": 23252
+      },
+      "index": {
+        "len_mm": 100.05,
+        "wid_mm": 22.87,
+        "hei_mm": 16.83,
+        "vol_cm3": null,
+        "watertight": false,
+        "tris": 3088
+      },
+      "middle": {
+        "len_mm": 104.49,
+        "wid_mm": 24.9,
+        "hei_mm": 18.33,
+        "vol_cm3": null,
+        "watertight": false,
+        "tris": 3084
+      },
+      "ring": {
+        "len_mm": 99.11,
+        "wid_mm": 23.74,
+        "hei_mm": 17.47,
+        "vol_cm3": null,
+        "watertight": false,
+        "tris": 3088
+      },
+      "pinky": {
+        "len_mm": 90.12,
+        "wid_mm": 19.4,
+        "hei_mm": 14.28,
+        "vol_cm3": null,
+        "watertight": false,
+        "tris": 3068
+      },
+      "thumb": {
+        "len_mm": 97.62,
+        "wid_mm": 24.9,
+        "hei_mm": 19.99,
+        "vol_cm3": 17.05,
+        "watertight": true,
+        "tris": 3590
+      }
+    }
+  },
+  "static_reference": {
+    "reborn_palm_nobox": {
+      "len_mm": 90.96,
+      "wid_mm": 80.64,
+      "hei_mm": 30.55,
+      "vol_cm3": 39.65,
+      "watertight": true,
+      "tris": 13308
+    },
+    "unlimbited_v3_palm": {
+      "len_mm": 92.0,
+      "wid_mm": 82.86,
+      "hei_mm": 30.64,
+      "vol_cm3": 47.76,
+      "watertight": true,
+      "tris": 73878
+    }
+  }
+}

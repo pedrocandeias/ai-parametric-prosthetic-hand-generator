@@ -1,6 +1,6 @@
 {
   "name": "ai-parametric-prosthetic-hand-generator",
-  "version": "14.15.0",
+  "version": "14.17.0",
   "description": "AI-powered prosthetic hand customization with Node.js backend",
   "main": "server/index.js",
   "engines": {
@@ -13,7 +13,8 @@
     "restart": "npm run stop; sleep 1; node server/index.js",
     "create-admin": "node scripts/create-admin.js",
     "test": "playwright test",
-    "test:ui": "playwright test --ui"
+    "test:ui": "playwright test --ui",
+    "test:unit": "node --test test/*.test.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",

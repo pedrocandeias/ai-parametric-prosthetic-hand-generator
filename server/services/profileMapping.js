@@ -88,28 +88,42 @@ function mapProfileToModelParameters(profile, modelDef) {
 
 // ── AI grounding ───────────────────────────────────────────────────────────
 
-const GENDER_TOKENS = {
-    male:   ['man', 'male', 'boy', 'gentleman', 'm,', ' m '],
-    female: ['woman', 'female', 'girl', 'lady', 'f,', ' f '],
+// Whole-word gender tokens, matched with \b boundaries (NOT substring) so that
+// units like "mm," / "cm," can never be read as the male token "m". Multilingual
+// (EN / PT / ES) because patient descriptions arrive in the clinician's language.
+const GENDER_WORDS = {
+    male:   ['man', 'male', 'boy', 'gentleman', 'homem', 'menino', 'rapaz', 'masculino', 'hombre', 'chico', 'niño', 'nino'],
+    female: ['woman', 'female', 'girl', 'lady', 'mulher', 'menina', 'rapariga', 'feminino', 'mujer', 'chica', 'niña', 'nina'],
 };
 
-const AGE_TOKENS = {
-    child:   ['child', 'kid', 'boy', 'girl', 'toddler', 'infant'],
-    elderly: ['elderly', 'senior', 'old', 'aged', 'geriatric'],
+// Whole-word age-category cues (used only when no numeric age is present).
+const AGE_WORDS = {
+    child:   ['child', 'children', 'kid', 'boy', 'girl', 'toddler', 'infant', 'baby',
+              'criança', 'crianca', 'menino', 'menina', 'bebé', 'bebe', 'niño', 'nino', 'niña', 'nina'],
+    elderly: ['elderly', 'senior', 'aged', 'geriatric', 'idoso', 'idosa', 'ancião', 'anciao', 'anciano', 'mayor'],
 };
+
+function hasWord(lowerText, word) {
+    // Unicode-aware word boundary: the token must be flanked by non-letters.
+    const w = word.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp(`(^|[^\\p{L}])${w}([^\\p{L}]|$)`, 'u').test(lowerText);
+}
 
 function normGender(text) {
-    const t = ` ${text.toLowerCase()} `;
-    if (GENDER_TOKENS.female.some(k => t.includes(k))) return 'female';
-    if (GENDER_TOKENS.male.some(k => t.includes(k)))   return 'male';
+    const t = (text || '').toLowerCase();
+    if (GENDER_WORDS.female.some(w => hasWord(t, w))) return 'female';
+    if (GENDER_WORDS.male.some(w => hasWord(t, w)))   return 'male';
     return null;
 }
 
-/** Pull the first plausible age (years) from free text, if any. */
+/** Pull the first plausible age (years) from free text, if any. EN/PT/ES. */
 function extractAge(text) {
-    const m = text.match(/(\d{1,2})\s*(?:years?|yrs?|yo|year-old|y\/o)\b/i) ||
-              text.match(/\bage[d]?\s*[:=]?\s*(\d{1,2})\b/i);
-    return m ? parseInt(m[1], 10) : null;
+    const t = String(text || '');
+    const m = t.match(/(\d{1,3})\s*(?:years?|yrs?|yo|year-old|y\/o|anos?|años?|anys?)\b/i) ||
+              t.match(/\b(?:age[d]?|idade|edad)\s*[:=]?\s*(\d{1,3})\b/i);
+    if (!m) return null;
+    const age = parseInt(m[1], 10);
+    return age > 0 && age <= 120 ? age : null;
 }
 
 function ageGroupFromYears(age) {
@@ -120,22 +134,41 @@ function ageGroupFromYears(age) {
 }
 
 /**
+ * Reduce a stored `age_group` string to a representative age in years. Handles
+ * numeric singletons ("7"), ranges ("18-30", "17–40"), open ranges ("80+",
+ * "65+"), and descriptive labels ("Adult (Military, 17–40)"). Returns null when
+ * no number can be recovered.
+ */
+function profileAgeYears(ageGroup) {
+    if (ageGroup == null) return null;
+    const s = String(ageGroup);
+    const nums = (s.match(/\d{1,3}/g) || []).map(Number).filter(n => n > 0 && n <= 120);
+    if (nums.length === 0) return null;
+    if (/\+/.test(s) && nums.length === 1) return nums[0] + 5; // "65+" → ~70
+    if (nums.length === 1) return nums[0];
+    return Math.round((Math.min(...nums) + Math.max(...nums)) / 2); // range midpoint
+}
+
+/**
  * Heuristically pick the population profile that best matches a free-text
- * patient description. Scores on gender, country (substring of group_name or
- * country column), and age group. Returns null when nothing scores.
+ * patient description. Scores on gender, age category + numeric proximity,
+ * country, and dataset quality. Returns null when nothing meaningful matches.
  *
  * @param {string} text       free-text patient description
  * @param {object[]} profiles rows with { id, group_name, country, gender, age_group }
+ * @param {object} [hints]    optional structured override { gender, age } —
+ *                            e.g. extracted by an LLM. Falls back to text parsing.
  * @returns {object|null} the best-matching row, or null
  */
-function findBestProfileMatch(text, profiles) {
-    if (!text || !Array.isArray(profiles) || profiles.length === 0) return null;
+function findBestProfileMatch(text, profiles, hints = null) {
+    if (!Array.isArray(profiles) || profiles.length === 0) return null;
+    const lower = (text || '').toLowerCase();
 
-    const lower = text.toLowerCase();
-    const wantGender = normGender(text);
-    const wantAgeGroup = ageGroupFromYears(extractAge(text)) ||
-        (AGE_TOKENS.child.some(k => lower.includes(k)) ? 'child'
-            : AGE_TOKENS.elderly.some(k => lower.includes(k)) ? 'elderly' : null);
+    const wantGender = (hints && hints.gender) || normGender(lower);
+    const wantAge = (hints && Number.isFinite(hints.age)) ? hints.age : extractAge(lower);
+    const wantAgeGroup = ageGroupFromYears(wantAge) ||
+        (AGE_WORDS.child.some(w => hasWord(lower, w)) ? 'child'
+            : AGE_WORDS.elderly.some(w => hasWord(lower, w)) ? 'elderly' : null);
 
     let best = null;
     let bestScore = 0;
@@ -143,23 +176,35 @@ function findBestProfileMatch(text, profiles) {
     for (const p of profiles) {
         let score = 0;
 
+        // Gender — strong signal. Penalise a clear opposite-gender mismatch.
         if (wantGender && p.gender) {
             if (p.gender === wantGender) score += 3;
-            else if (p.gender !== 'mixed' && p.gender !== 'other') score -= 2;
+            else if (p.gender !== 'mixed' && p.gender !== 'other') score -= 3;
         }
 
+        // Age category match (child / adult / elderly) — strong, discriminative.
+        const pAge = profileAgeYears(p.age_group);
+        const pAgeGroup = ageGroupFromYears(pAge);
+        if (wantAgeGroup && pAgeGroup) {
+            if (pAgeGroup === wantAgeGroup) score += 3;
+            else score -= 2; // wrong life stage (e.g. adult dataset for a child)
+        }
+
+        // Numeric age proximity — disambiguates within a category (e.g. age 7 vs 2).
+        if (Number.isFinite(wantAge) && Number.isFinite(pAge)) {
+            score += 1.5 * (1 - Math.min(Math.abs(wantAge - pAge), 40) / 40);
+        }
+
+        // Country — substring of the patient text.
         const country = (p.country || '').toLowerCase().trim();
-        if (country && country !== 'global' && lower.includes(country)) score += 3;
+        if (country && country !== 'global' && lower.includes(country)) score += 1.5;
 
-        if (wantAgeGroup && p.age_group) {
-            const ag = p.age_group.toLowerCase();
-            if (ag.includes(wantAgeGroup)) score += 2;
-            else if (wantAgeGroup === 'adult' && (ag.includes('young') || ag.includes('18'))) score += 1;
-        }
-
-        // Mild preference for 50th-percentile / mean groups when otherwise tied.
+        // Dataset-quality preference: representative percentiles and surveys that
+        // actually carry full hand measurements (so the grounding block won't be
+        // empty). Acts as a tiebreak, not a primary signal.
         const gn = (p.group_name || '').toLowerCase();
-        if (gn.includes('50th') || gn.includes('mean') || gn.includes('median')) score += 0.5;
+        if (gn.includes('50th') || gn.includes('mean') || gn.includes('median')) score += 1;
+        if (gn.includes('hand')) score += 1;
 
         if (score > bestScore) { bestScore = score; best = p; }
     }
@@ -199,4 +244,9 @@ module.exports = {
     mapProfileToModelParameters,
     findBestProfileMatch,
     buildGroundingBlock,
+    // exported for unit tests
+    normGender,
+    extractAge,
+    ageGroupFromYears,
+    profileAgeYears,
 };

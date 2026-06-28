@@ -41,20 +41,57 @@ function httpsPost(url, headers, body) {
     });
 }
 
-async function callAnthropic(promptText) {
+async function callAnthropicModel(promptText, { model = 'claude-sonnet-4-6', maxTokens = 1024, temperature } = {}) {
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) throw Object.assign(new Error('ANTHROPIC_API_KEY not configured'), { status: 503 });
+
+    const body = {
+        model,
+        max_tokens: maxTokens,
+        messages: [{ role: 'user', content: promptText }],
+    };
+    if (typeof temperature === 'number') body.temperature = temperature;
 
     const data = await httpsPost(
         'https://api.anthropic.com/v1/messages',
         { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
-        {
-            model: 'claude-sonnet-4-6',
-            max_tokens: 1024,
-            messages: [{ role: 'user', content: promptText }],
-        }
+        body
     );
     return data.content[0].text;
+}
+
+async function callAnthropic(promptText) {
+    return callAnthropicModel(promptText, { model: 'claude-sonnet-4-6', maxTokens: 1024 });
+}
+
+/**
+ * Best-effort structured extraction of patient attributes from a free-text
+ * description, used to anchor population-profile grounding (see profileMapping).
+ * Returns { gender, age } or null on any failure — callers must fall back to the
+ * deterministic text parser. Uses a small, fast model and a tight token budget.
+ *
+ * @param {string} text  free-text patient description (any language)
+ * @returns {Promise<{gender: ('male'|'female'|null), age: (number|null)}|null>}
+ */
+async function extractPatientAttributes(text) {
+    if (!process.env.ANTHROPIC_API_KEY || !text || !String(text).trim()) return null;
+    try {
+        const out = await callAnthropicModel(
+            'Extract attributes from this prosthetics patient description. Respond with ONLY a ' +
+            'JSON object: {"gender": "male" | "female" | null, "age": <integer years> | null}. ' +
+            'Infer gender from words in ANY language (e.g. "mulher"/"mujer"=female, "homem"/"hombre"=male; ' +
+            'a generic "criança"/"child" with no gender stated is null). Use age only if given in years ' +
+            '(e.g. "7 anos", "34 years old"). No prose, no markdown.\n\nDescription: ' + String(text),
+            { model: 'claude-haiku-4-5-20251001', maxTokens: 80, temperature: 0 }
+        );
+        const j = JSON.parse((out.match(/\{[\s\S]*\}/) || [out])[0]);
+        const gender = (j.gender === 'male' || j.gender === 'female') ? j.gender : null;
+        const ageNum = Number(j.age);
+        const age = Number.isFinite(ageNum) && ageNum > 0 && ageNum <= 120 ? Math.round(ageNum) : null;
+        return { gender, age };
+    } catch {
+        return null;
+    }
 }
 
 async function callOpenAI(promptText) {
@@ -74,4 +111,4 @@ async function callOpenAI(promptText) {
     return data.choices[0].message.content;
 }
 
-module.exports = { callAnthropic, callOpenAI };
+module.exports = { callAnthropic, callAnthropicModel, callOpenAI, extractPatientAttributes };
