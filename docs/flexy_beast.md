@@ -206,6 +206,22 @@ This means all four lengths are expressed relative to the middle finger, which i
 
 `palm_length_mm` and `palm_thickness_mm` are not represented as parameters because the Flexy Beast palm geometry is not designed for independent X/Y/Z scaling: the string channels, joint slots, and knuckle cutouts are routed at angles that assume isotropic scale. Separate length or thickness inputs would distort these features.
 
+### Validation
+
+An end-to-end simulation (real `/edit` flow: AI sizing → STL export, then `trimesh`
+measurement of every exported part) confirms the mapping above holds in the produced
+geometry. Across child/woman/man/default configs the palm length scales **linearly**
+with `palm_breadth_mm` (length / breadth ≈ **1.49–1.52**, constant), and each finger
+part scales with its `*_finger_length_mm` input. Sized to the same hand, the part
+envelopes also match the daprice 160 % demo STLs to within ~1 % on the palm. Full
+prompts, AI-applied parameters and per-part dimensions:
+[`docs/flexy-beast-ai-sim/`](flexy-beast-ai-sim/flexy-beast_ai-sizing-dimensional-report_2026-06-28.md).
+
+The same run surfaced (and the platform then fixed, v14.16.0) a grounding-matcher bug
+that had been anchoring every patient on a male population profile regardless of the
+described sex/age — see `docs/ai_anthropometric_validation.md` §2.4. Flexy Beast is a
+consumer of that grounding path, so the fix improves its sizing for women and children.
+
 ---
 
 ## 6. Hardware Parameters

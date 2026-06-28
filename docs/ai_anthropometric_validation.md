@@ -83,8 +83,9 @@ dataset:
 
 1. The frontend sends `patient_text` and `model_id` alongside the prompt.
 2. `server/services/profileMapping.js · findBestProfileMatch` scores every stored population
-   profile against the free text by **gender**, **country**, and **age group**, and selects the
-   best match (above a minimum score; otherwise none).
+   profile against the free text by **gender**, **age category + numeric age proximity**, and
+   **country**, with a tiebreak toward representative percentile/mean and hand-survey datasets,
+   and selects the best match (above a minimum score; otherwise none).
 3. `mapProfileToModelParameters` projects that profile's `measurements` onto the live model's
    parameters — clamped to each parameter's bounds — and `buildGroundingBlock` appends the
    measured means to the prompt as an explicit anchor (see Appendix A).
@@ -95,6 +96,22 @@ Grounding is best-effort and backward compatible: if no profile matches (or the 
 empty) the request proceeds ungrounded, and the response reports `grounded: true|false`. The
 same `profileMapping` module powers the configurator's "Population baseline" picker, so the
 seed-from-dataset path and the AI-grounding path share one translation.
+
+> **Matcher robustness (v14.16.0).** The gender/age parser was originally English-only and used
+> substring tokens, so the male token `'m,'` matched the units `"mm,"`/`"cm,"` — **any** patient
+> text containing a measurement was read as *male*, and Portuguese/Spanish terms were ignored.
+> In practice this anchored almost every description (including children and women) on
+> *ANSUR I Male 50th Percentile*. It was found by the end-to-end simulations below and fixed:
+> tokens now match on Unicode word boundaries and are multilingual (EN/PT/ES), age parsing
+> understands `anos`/`años`, and numeric `age_group` values (`"7"`, `"18-30"`, `"80+"`) are
+> bucketed to child/adult/elderly with numeric proximity. Hermetic unit tests live in
+> `test/profileMapping.test.js` (`npm run test:unit`).
+>
+> **Optional LLM extraction (v14.16.0).** For free-text or multilingual descriptions where the
+> deterministic parser leaves a gap, `aiService.extractPatientAttributes` (a fast
+> `claude-haiku-4-5` call) extracts `{gender, age}` to anchor the match. It runs **only** when
+> the deterministic parse is incomplete and degrades gracefully (falls back to text parsing) on
+> any error or missing key — so structured inputs incur no extra call.
 
 This shifts the relevant validation question for qualitative inputs: where §4 measured the
 model's *unaided* priors, grounded runs additionally test whether the system **anchors on the
@@ -322,8 +339,15 @@ only its names.
 - **Grounded re-validation:** re-run §4–§5 with dataset grounding (§2.4) enabled and compare
   against the ungrounded baseline — does anchoring on the matched population group reduce
   run-to-run variance (§4.4) and tighten qualitative-input estimates without overriding supplied
-  measurements? Also validate the `findBestProfileMatch` heuristic itself (does it pick the
-  right group for ambiguous or unmatched descriptions?).
+  measurements? _(Still open as a statistical study.)_
+  - ✅ **`findBestProfileMatch` validated (2026-06-28).** End-to-end browser simulations
+    (login → AI suggest → STL export) on Flexy Beast and Paraglider showed the matcher anchored
+    a child, a woman and a man **all** on *ANSUR I Male 50th Percentile*, exposing the
+    units-as-male / English-only bug. Fixed in v14.16.0 (§2.4); post-fix the same inputs match
+    *Dutch children age 7*, *ANSUR I Female*, and *ANSUR I Male* respectively. Full runs, prompts
+    and per-part dimensions in
+    [`docs/flexy-beast-ai-sim/`](flexy-beast-ai-sim/flexy-beast_ai-sizing-dimensional-report_2026-06-28.md)
+    and [`docs/paraglider-ai-sim/`](paraglider-ai-sim/paraglider-hand_ai-sizing-dimensional-report_2026-06-28.md).
 - **Permanent regression set:** retain the demographics-only profiles as a standing test, since
   that path serves the lowest-knowledge user.
 

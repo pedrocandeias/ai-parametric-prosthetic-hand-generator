@@ -114,13 +114,47 @@ module do_labels() { children(); }
 
 ---
 
-## 4. Dynamic Scoping Approach
+## 4. Variable Scoping: `use<>` is Lexical, Not Dynamic
 
-OpenSCAD's `use<file.scad>` directive imports the modules and functions defined in the file but does not execute top-level code and does not import variable bindings. When an imported module is later called, OpenSCAD resolves variable references using **dynamic scoping**: it walks up the call stack looking for a definition, starting from the calling scope.
+> ⚠️ **Correction (v14.17.0).** Earlier revisions of this section claimed that
+> `use<>` resolves a module's variables by *dynamic* scoping (from the caller). That
+> is **wrong**, and the mistaken assumption caused a real sizing bug — the Reborn
+> palm silently ignored `palm_breadth_mm`. The accurate rule and the fix are below.
 
-This means that if the wrapper defines `overall_scale = 1.35` and then calls `scaled_palm()` (imported from `paraglider_palm_left.scad`), the module will use `overall_scale = 1.35` from the wrapper's scope — overriding the `overall_scale = 1.25` that appears in the original file.
+OpenSCAD's `use <file.scad>` imports the **modules and functions** defined in a file
+but does **not** import its top-level variable bindings and does **not** run its
+top-level geometry. For ordinary (non-`$`) variables, references inside an imported
+module are resolved **lexically** — against the top-level globals of the file that
+*defines* the module, **not** the file that calls it. Only `$`-prefixed **special
+variables** are dynamically scoped from the call site.
 
-The consequence is that **every variable referenced inside the source modules must be defined in the wrapper**. This includes not only the obvious scalar parameters but also derived arrays and constants:
+Consequence: `paraglider_palm_left.scad` defines `overall_scale = 1.25` at its top
+level, and `scaled_palm()` reads *that* value. When `paraglider_hand.scad` computes
+`overall_scale = palm_breadth_mm / 66.4` and then calls `scaled_palm()` via
+`use <paraglider_palm_left.scad>`, the module still uses **1.25** — the wrapper's
+value is invisible to it. So the **Reborn palm did not resize to `palm_breadth_mm`**:
+every patient got the 83 mm "medium" palm, while the fingers (which receive their
+scale as an explicit module argument) scaled correctly.
+
+**Fix (v14.17.0).** `scaled_palm()` already bakes scale 1.25, so the missing
+anthropometric scale is re-applied at the Reborn call site:
+
+```openscad
+if (palm_style == "UnlimbitedV3") V3_scaled_palm();
+else scale(overall_scale / 1.25) scaled_palm();  // 1.25 × overall_scale/1.25 = palm_breadth_mm/66.4
+```
+
+Verified end-to-end in [`docs/paraglider-ai-sim/`](paraglider-ai-sim/paraglider-hand_ai-sizing-dimensional-report_2026-06-28.md)
+(palm now scales: breadth 62→84.9 mm, 83→113.7 mm unchanged, 96→131.5 mm). The
+`UnlimbitedV3` palm was never affected: `pg_v3palm.scad` is brought in with
+**`include`** (see the Namespacing section below), which *does* share top-level scope,
+so its `V3_overall_scale` resolves to the value set in the dispatcher. The same
+lexical rule is exactly why the variant bundles cannot simply be `use`d — they are
+namespaced and `include`d instead.
+
+The variables below are the palm file's own top-level globals that `scaled_palm()`
+depends on (for reference; in the unified copy they live in the wrapper alongside the
+`use`):
 
 ```openscad
 slot_dx = [[[10,0,0],0],[[-4,0,0],0],[[-18,-4,0],0],[[-32,-10,0],0]];
