@@ -1,0 +1,41 @@
+{
+  "reference_palm_100pct": {
+    "L": 91.96,
+    "W": 82.17,
+    "H": 30.55
+  },
+  "exported": {
+    "baseline_defaults": {
+      "L": 91.96,
+      "W": 82.17,
+      "H": 30.55,
+      "HandPerc": 100,
+      "ref_scaled_W": 82.17,
+      "match_mm": 0.0
+    },
+    "ai_child": {
+      "L": 69.89,
+      "W": 62.45,
+      "H": 23.22,
+      "HandPerc": 76,
+      "ref_scaled_W": 62.45,
+      "match_mm": 0.0
+    },
+    "ai_woman": {
+      "L": 91.96,
+      "W": 82.17,
+      "H": 30.55,
+      "HandPerc": 100,
+      "ref_scaled_W": 82.17,
+      "match_mm": 0.0
+    },
+    "ai_man": {
+      "L": 107.67,
+      "W": 96.19,
+      "H": 35.77,
+      "HandPerc": 117,
+      "ref_scaled_W": 96.13,
+      "match_mm": 0.06
+    }
+  }
+}

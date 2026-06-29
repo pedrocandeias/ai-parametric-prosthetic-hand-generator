@@ -1,0 +1,71 @@
+{
+  "profiles": [
+    {
+      "id": "child",
+      "anthropometric_input": "Criança de 7 anos, mão pequena. Largura da palma (nó a nó) cerca de 62 mm, dedo médio cerca de 56 mm, polegar cerca de 48 mm.",
+      "full_prompt_sent": "You are sizing a 3D-printed parametric prosthetic hand model (\"UnLimbited Phoenix Hand\") for a patient.\n\nPatient anthropometric data:\nCriança de 7 anos, mão pequena. Largura da palma (nó a nó) cerca de 62 mm, dedo médio cerca de 56 mm, polegar cerca de 48 mm.\n\nThese are the model's adjustable parameters. Each has a name, a caption describing what it controls, an allowed range (min/max where applicable), and the current value:\n[\n  {\n    \"name\": \"palm_breadth_mm\",\n    \"caption\": \"Knuckle-to-knuckle metacarpal breadth — drives the uniform print scale: HandPerc = palm_breadth_mm / 82 × 100, clamped to 100–160% (mm)\",\n    \"type\": \"number\",\n    \"min\": 82,\n    \"max\": 131,\n    \"current\": 82\n  },\n  {\n    \"name\": \"HandPerc_override\",\n    \"caption\": \"Manual print-scale override (%) — 0 derives the scale from palm breadth; 100–160 sets it directly\",\n    \"type\": \"number\",\n    \"min\": 0,\n    \"max\": 160,\n    \"current\": 0\n  },\n  {\n    \"name\": \"LeftRight\",\n    \"caption\": \"Which hand to generate — Right hand mirrors the geometry along X\",\n    \"type\": \"enum\",\n    \"current\": \"Left\"\n  },\n  {\n    \"name\": \"part\",\n    \"caption\": \"Which printable part to preview and export — the Phoenix is printed one part at a time\",\n    \"type\": \"enum\",\n    \"current\": \"Palm\"\n  }\n]\n\nGuidance:\n- Anthropometric parameters are anatomical measurements in millimetres. Use the patient's data to set them directly. Canonical fields (when present): palm_breadth_mm (knuckle-to-knuckle, ~70-100mm adult), palm_length_mm (wrist to MCP, ~90-120mm), palm_thickness_mm (~22-38mm), index/middle/ring/pinky_finger_length_mm (MCP crease to tip), thumb_length_mm, gauntlet_width_mm (≈ wrist circumference / π + ~5mm clearance).\n- If the data is qualitative (e.g. \"woman, 172cm, slim build\"), estimate plausible adult measurements from population norms; women typically run smaller than men.\n- Keep proportions realistic relative to each other (e.g. middle finger longest, pinky shortest).\n- Only suggest values for parameters listed above, by their exact name, and stay within each parameter's min/max.\n- Leave hardware/visibility/color parameters at their current values unless the patient data clearly implies a change.\n\nRespond with ONLY a valid JSON object mapping parameter names to suggested values. No prose, no markdown.",
+      "patient_text": "Criança de 7 anos, mão pequena. Largura da palma (nó a nó) cerca de 62 mm, dedo médio cerca de 56 mm, polegar cerca de 48 mm.",
+      "model_id": "unlimbed_phoenix_hand",
+      "ai_raw_response": "```json\n{\n  \"palm_breadth_mm\": 82,\n  \"HandPerc_override\": 76\n}\n```",
+      "grounded": true,
+      "applied_params": {
+        "palm_breadth_mm": 82,
+        "HandPerc_override": 76,
+        "LeftRight": "Left",
+        "part": "Palm"
+      },
+      "status": "AI suggestions applied successfully",
+      "exportFile": "ai_child__unlimbed_phoenix_hand_combined.stl"
+    },
+    {
+      "id": "woman",
+      "anthropometric_input": "Mulher adulta, 34 anos, 165 cm, constituição magra. Sem medidas exatas — estima valores plausíveis a partir de normas populacionais.",
+      "full_prompt_sent": "You are sizing a 3D-printed parametric prosthetic hand model (\"UnLimbited Phoenix Hand\") for a patient.\n\nPatient anthropometric data:\nMulher adulta, 34 anos, 165 cm, constituição magra. Sem medidas exatas — estima valores plausíveis a partir de normas populacionais.\n\nThese are the model's adjustable parameters. Each has a name, a caption describing what it controls, an allowed range (min/max where applicable), and the current value:\n[\n  {\n    \"name\": \"palm_breadth_mm\",\n    \"caption\": \"Knuckle-to-knuckle metacarpal breadth — drives the uniform print scale: HandPerc = palm_breadth_mm / 82 × 100, clamped to 100–160% (mm)\",\n    \"type\": \"number\",\n    \"min\": 82,\n    \"max\": 131,\n    \"current\": 82\n  },\n  {\n    \"name\": \"HandPerc_override\",\n    \"caption\": \"Manual print-scale override (%) — 0 derives the scale from palm breadth; 100–160 sets it directly\",\n    \"type\": \"number\",\n    \"min\": 0,\n    \"max\": 160,\n    \"current\": 76\n  },\n  {\n    \"name\": \"LeftRight\",\n    \"caption\": \"Which hand to generate — Right hand mirrors the geometry along X\",\n    \"type\": \"enum\",\n    \"current\": \"Left\"\n  },\n  {\n    \"name\": \"part\",\n    \"caption\": \"Which printable part to preview and export — the Phoenix is printed one part at a time\",\n    \"type\": \"enum\",\n    \"current\": \"Palm\"\n  }\n]\n\nGuidance:\n- Anthropometric parameters are anatomical measurements in millimetres. Use the patient's data to set them directly. Canonical fields (when present): palm_breadth_mm (knuckle-to-knuckle, ~70-100mm adult), palm_length_mm (wrist to MCP, ~90-120mm), palm_thickness_mm (~22-38mm), index/middle/ring/pinky_finger_length_mm (MCP crease to tip), thumb_length_mm, gauntlet_width_mm (≈ wrist circumference / π + ~5mm clearance).\n- If the data is qualitative (e.g. \"woman, 172cm, slim build\"), estimate plausible adult measurements from population norms; women typically run smaller than men.\n- Keep proportions realistic relative to each other (e.g. middle finger longest, pinky shortest).\n- Only suggest values for parameters listed above, by their exact name, and stay within each parameter's min/max.\n- Leave hardware/visibility/color parameters at their current values unless the patient data clearly implies a change.\n\nRespond with ONLY a valid JSON object mapping parameter names to suggested values. No prose, no markdown.",
+      "patient_text": "Mulher adulta, 34 anos, 165 cm, constituição magra. Sem medidas exatas — estima valores plausíveis a partir de normas populacionais.",
+      "model_id": "unlimbed_phoenix_hand",
+      "ai_raw_response": "```json\n{\n  \"palm_breadth_mm\": 82,\n  \"HandPerc_override\": 0,\n  \"LeftRight\": \"Left\"\n}\n```",
+      "grounded": true,
+      "applied_params": {
+        "palm_breadth_mm": 82,
+        "HandPerc_override": 0,
+        "LeftRight": "Left",
+        "part": "Palm"
+      },
+      "status": "AI suggestions applied successfully",
+      "exportFile": "ai_woman__unlimbed_phoenix_hand_combined.stl"
+    },
+    {
+      "id": "man",
+      "anthropometric_input": "Homem adulto, 45 anos, 188 cm, mãos grandes. Largura dos nós dos dedos cerca de 96 mm, dedo médio cerca de 86 mm.",
+      "full_prompt_sent": "You are sizing a 3D-printed parametric prosthetic hand model (\"UnLimbited Phoenix Hand\") for a patient.\n\nPatient anthropometric data:\nHomem adulto, 45 anos, 188 cm, mãos grandes. Largura dos nós dos dedos cerca de 96 mm, dedo médio cerca de 86 mm.\n\nThese are the model's adjustable parameters. Each has a name, a caption describing what it controls, an allowed range (min/max where applicable), and the current value:\n[\n  {\n    \"name\": \"palm_breadth_mm\",\n    \"caption\": \"Knuckle-to-knuckle metacarpal breadth — drives the uniform print scale: HandPerc = palm_breadth_mm / 82 × 100, clamped to 100–160% (mm)\",\n    \"type\": \"number\",\n    \"min\": 82,\n    \"max\": 131,\n    \"current\": 82\n  },\n  {\n    \"name\": \"HandPerc_override\",\n    \"caption\": \"Manual print-scale override (%) — 0 derives the scale from palm breadth; 100–160 sets it directly\",\n    \"type\": \"number\",\n    \"min\": 0,\n    \"max\": 160,\n    \"current\": 0\n  },\n  {\n    \"name\": \"LeftRight\",\n    \"caption\": \"Which hand to generate — Right hand mirrors the geometry along X\",\n    \"type\": \"enum\",\n    \"current\": \"Left\"\n  },\n  {\n    \"name\": \"part\",\n    \"caption\": \"Which printable part to preview and export — the Phoenix is printed one part at a time\",\n    \"type\": \"enum\",\n    \"current\": \"Palm\"\n  }\n]\n\nGuidance:\n- Anthropometric parameters are anatomical measurements in millimetres. Use the patient's data to set them directly. Canonical fields (when present): palm_breadth_mm (knuckle-to-knuckle, ~70-100mm adult), palm_length_mm (wrist to MCP, ~90-120mm), palm_thickness_mm (~22-38mm), index/middle/ring/pinky_finger_length_mm (MCP crease to tip), thumb_length_mm, gauntlet_width_mm (≈ wrist circumference / π + ~5mm clearance).\n- If the data is qualitative (e.g. \"woman, 172cm, slim build\"), estimate plausible adult measurements from population norms; women typically run smaller than men.\n- Keep proportions realistic relative to each other (e.g. middle finger longest, pinky shortest).\n- Only suggest values for parameters listed above, by their exact name, and stay within each parameter's min/max.\n- Leave hardware/visibility/color parameters at their current values unless the patient data clearly implies a change.\n\nRespond with ONLY a valid JSON object mapping parameter names to suggested values. No prose, no markdown.",
+      "patient_text": "Homem adulto, 45 anos, 188 cm, mãos grandes. Largura dos nós dos dedos cerca de 96 mm, dedo médio cerca de 86 mm.",
+      "model_id": "unlimbed_phoenix_hand",
+      "ai_raw_response": "```json\n{\n  \"palm_breadth_mm\": 96\n}\n```",
+      "grounded": true,
+      "applied_params": {
+        "palm_breadth_mm": 96,
+        "HandPerc_override": 0,
+        "LeftRight": "Left",
+        "part": "Palm"
+      },
+      "status": "AI suggestions applied successfully",
+      "exportFile": "ai_man__unlimbed_phoenix_hand_combined.stl"
+    }
+  ],
+  "partsExported": [
+    "palm",
+    "index_base",
+    "index_tip",
+    "middle_base",
+    "middle_tip",
+    "thumb_base",
+    "thumb_tip"
+  ],
+  "defaults": {
+    "palm_breadth_mm": 82,
+    "HandPerc_override": 0,
+    "LeftRight": "Left",
+    "part": "Palm"
+  },
+  "baselineFile": "baseline_defaults__unlimbed_phoenix_hand_combined.stl"
+}

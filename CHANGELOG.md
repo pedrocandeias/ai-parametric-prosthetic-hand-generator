@@ -10,6 +10,10 @@ Version format: `MAJOR.MINOR.PATCH`
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
+## v14.18.0 — 2026-06-28
+
+fix: the UnLimbited Phoenix Hand print scale can no longer drop below the supported 100% (≈82 mm palm). `HandPerc_override` has a declared range of `[0:160]`, but only `0` (auto) and `100–160` (direct scale) are meaningful — the `1–99` band was a dead zone that bypassed the floor that `palm_breadth_mm` (clamped to 100–160%) enforces. During the AI-sizing simulation the model returned `HandPerc_override = 76` for a child, scaling the Phoenix mesh to 76% (62 mm) — below the minimum the mesh supports, and inconsistently with the woman profile (floored to 100%). Both scale paths in `UnLimbitedPhoenix.scad` are now clamped to 100–160%, so neither an auto-derived small breadth nor a manual override can go sub-100%. Verified: override 76→100% (82.17 mm), 0→82.17 mm, 130→130% (106.8 mm). Found and documented via `docs/phoenix-ai-sim/`.
+
 ## v14.17.0 — 2026-06-28
 
 fix: the Paraglider · Hand **Reborn palm** (the default `palm_style`) now resizes to `palm_breadth_mm`. It was frozen at the 83 mm "medium" size for every patient: `scaled_palm()` lives in `paraglider_palm_left.scad`, which is pulled in with `use` (lexically scoped), so it read that file's hardcoded `overall_scale = 1.25` and ignored the anthropometric `overall_scale = palm_breadth_mm / 66.4` computed in the main file. The fingers were unaffected (they receive their scale as a module argument), so a child-sized configuration produced child fingers on an adult palm. Fix re-applies the intended scale at the Reborn call site (`scale(overall_scale / 1.25) scaled_palm()`); verified the palm now scales (breadth 62→84.9 mm, 83→113.7 mm unchanged, 96→131.5 mm) with L/breadth constant. The UnlimbitedV3 palm was already correct (`pg_v3palm.scad` is `include`d). Found via the AI-sizing→STL export simulation (`tests/paraglider-ai-sim/`).

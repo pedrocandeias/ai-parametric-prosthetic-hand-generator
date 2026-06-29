@@ -42,9 +42,13 @@ HandPerc_override = 0; // [0:160]
 
 // Reference palm breadth (mm) of the unscaled (100%) Phoenix mesh.
 REF_PALM_BREADTH = 82;
-// Derived uniform print scale (%), clamped to the model's printable 100-160% range.
+// Derived uniform print scale (%). BOTH paths are clamped to the model's printable
+// 100-160% range: the Phoenix mesh is not supported below 100%, so neither an
+// auto-derived small palm_breadth_mm nor a manual override may drop under it. (The
+// override's declared range [0:160] otherwise leaves a 1-99 dead zone that would
+// silently bypass the floor.)
 HandPerc = HandPerc_override > 0
-    ? HandPerc_override
+    ? max(100, min(160, HandPerc_override))
     : max(100, min(160, palm_breadth_mm / REF_PALM_BREADTH * 100));
 
 
