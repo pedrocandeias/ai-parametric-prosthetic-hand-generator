@@ -1,46 +1,48 @@
-# AI-Assisted Anthropometric Sizing of a Parametric Prosthetic Hand — A Validation Study
+# Dimensionamento Antropométrico Assistido por IA de uma Mão Protésica Paramétrica — Um Estudo de Validação
 
-## Abstract
+## Resumo
 
-This document reports a structured validation of the platform's **AI parameter-suggestion
-pipeline**, in which a large language model (LLM) infers a complete set of anthropometric
-dimensions for a 3D-printable parametric prosthetic hand (the *Flexy Beast* model) from
-free-text patient descriptions. The central hypothesis is that a non-expert user — who does
-not know clinical hand measurements — can nonetheless obtain an anatomically plausible,
-print-ready design by describing the patient in ordinary language. We define a validation
-protocol (range conformance, finger proportionality, adult plausibility, age-appropriate
-scaling, and contralateral handedness) and apply it across two experiments spanning the
-realistic input spectrum: rich direct measurements, partial data, and demographics only.
-Across both experiments the model produced valid, in-range, anatomically ordered output in
-every case. We also document the system's non-deterministic behaviour, a heuristic
-false-positive in our own test, and one genuine robustness gap (handedness inferred rather
-than instructed). Results are a single representative sample; the protocol — not the exact
-millimetres — is the contribution.
-
----
-
-## 1. Introduction & Motivation
-
-Conventional prosthetic fitting requires a clinician to capture a set of hand measurements
-(palm breadth, per-digit lengths, etc.) using calipers and standardised landmarks. The target
-user of this platform is instead a **layperson** — a patient or family member — who has neither
-the vocabulary nor the instruments for that task. The AI step exists specifically to bridge
-this gap: it transforms whatever information the user *can* provide into the structured,
-millimetre-precise parameter set the parametric CAD model requires.
-
-This reframes the success criterion. The system is not asked to reproduce a gold-standard
-clinical measurement; it is asked to produce a **reasonable, safe, editable starting point**
-from sparse input, which the user (or a reviewing technician) then fine-tunes via the
-parameter controls before export. Accessibility for the low-knowledge user is therefore the
-primary design value, and it drives what we validate: graceful behaviour across the full range
-of input richness, anatomical self-consistency, and safety-relevant correctness (notably the
-hand side).
+Este documento relata uma validação estruturada do **pipeline de sugestão de parâmetros por
+IA** da plataforma, no qual um modelo de linguagem de grande dimensão (LLM) infere um conjunto
+completo de dimensões antropométricas para uma mão protésica paramétrica imprimível em 3D (o
+modelo *Flexy Beast*) a partir de descrições de pacientes em texto livre. A hipótese central é
+que um utilizador não especialista — que desconhece as medições clínicas da mão — pode ainda
+assim obter um desenho anatomicamente plausível e pronto a imprimir descrevendo o paciente em
+linguagem corrente. Definimos um protocolo de validação (conformidade com os intervalos,
+proporcionalidade dos dedos, plausibilidade no adulto, escalonamento adequado à idade e
+lateralidade contralateral) e aplicamo-lo em dois experimentos que abrangem todo o espectro
+realista de entradas: medições diretas ricas, dados parciais e apenas dados demográficos. Em
+ambos os experimentos o modelo produziu, em todos os casos, resultados válidos, dentro dos
+intervalos e anatomicamente ordenados. Documentamos também o comportamento não determinístico
+do sistema, um falso positivo heurístico no nosso próprio teste e uma lacuna genuína de
+robustez (lateralidade inferida em vez de instruída). Os resultados são uma única amostra
+representativa; o protocolo — e não os milímetros exatos — é o contributo.
 
 ---
 
-## 2. System Architecture
+## 1. Introdução e Motivação
 
-### 2.1 Pipeline overview
+A adaptação protésica convencional exige que um clínico capture um conjunto de medições da mão
+(largura da palma, comprimentos por dedo, etc.) usando paquímetros e pontos de referência
+normalizados. O utilizador-alvo desta plataforma é, pelo contrário, um **leigo** — um paciente
+ou familiar — que não tem nem o vocabulário nem os instrumentos para essa tarefa. O passo de IA
+existe especificamente para colmatar esta lacuna: transforma a informação que o utilizador
+*consegue* fornecer no conjunto de parâmetros estruturado e com precisão milimétrica que o
+modelo CAD paramétrico requer.
+
+Isto reformula o critério de sucesso. Não se pede ao sistema que reproduza uma medição clínica
+de referência; pede-se-lhe que produza um **ponto de partida razoável, seguro e editável** a
+partir de entradas escassas, que o utilizador (ou um técnico revisor) afina depois através dos
+controlos de parâmetros antes da exportação. A acessibilidade para o utilizador com pouco
+conhecimento é, portanto, o valor primário de desenho, e é ela que determina o que validamos:
+comportamento gracioso em todo o espectro de riqueza das entradas, autoconsistência anatómica e
+correção relevante para a segurança (nomeadamente o lado da mão).
+
+---
+
+## 2. Arquitetura do Sistema
+
+### 2.1 Visão geral do pipeline
 
 ```
 free-text description
@@ -56,134 +58,142 @@ free-text description
    → parametric re-render (OpenSCAD WASM)  →  user fine-tuning  →  STL export
 ```
 
-### 2.2 Prompt construction
+### 2.2 Construção do prompt
 
-The prompt is assembled per request and embeds the **current** model's parameter definitions,
-so the LLM is always grounded in the live schema (names, captions, allowed ranges, current
-values) rather than a hardcoded list. It instructs the model to (i) treat anthropometric
-parameters as anatomical measurements in millimetres, (ii) estimate from population norms when
-only qualitative data is given, (iii) preserve realistic inter-finger proportions, (iv) emit
-only known parameter names within each range, and (v) leave non-anatomical parameters
-(hardware/visibility/colour) at their defaults unless implied. The full template is reproduced
-in Appendix A.
+O prompt é montado por pedido e incorpora as definições de parâmetros do modelo **atual**, de
+forma a que o LLM esteja sempre fundamentado no schema vivo (nomes, legendas, intervalos
+permitidos, valores atuais) em vez de numa lista fixa. Instrui o modelo a (i) tratar os
+parâmetros antropométricos como medições anatómicas em milímetros, (ii) estimar a partir de
+normas populacionais quando apenas são dados dados qualitativos, (iii) preservar proporções
+inter-dedos realistas, (iv) emitir apenas nomes de parâmetros conhecidos dentro de cada
+intervalo e (v) deixar os parâmetros não anatómicos (hardware/visibilidade/cor) nos seus
+valores por omissão, salvo se implicados. O template completo é reproduzido no Apêndice A.
 
-### 2.3 Canonical anthropometric schema
+### 2.3 Schema antropométrico canónico
 
-The parameter names are deliberately aligned with the platform's anthropometric import
-pipeline (see `CLAUDE.md`), so AI output, CSV-imported population profiles, and manual entry
-all share one measurement vocabulary. The adult reference ranges used as plausibility bounds
-are reproduced in Appendix B.
+Os nomes dos parâmetros estão deliberadamente alinhados com o pipeline de importação
+antropométrica da plataforma (ver `CLAUDE.md`), de modo a que a saída da IA, os perfis
+populacionais importados de CSV e a introdução manual partilhem todos um único vocabulário de
+medição. Os intervalos de referência do adulto usados como limites de plausibilidade são
+reproduzidos no Apêndice B.
 
-### 2.4 Dataset grounding (as of v11.0.0)
+### 2.4 Grounding por dataset (a partir da v11.0.0)
 
-Originally the LLM estimated qualitative cases from its **own** training-derived population
-norms; the platform's imported population datasets (Appendix C) were a passive reference
-library that did not enter the prompt. Suggestions are now optionally **grounded** on that
-dataset:
+Originalmente o LLM estimava os casos qualitativos a partir das **suas próprias** normas
+populacionais derivadas do treino; os datasets populacionais importados pela plataforma
+(Apêndice C) eram uma biblioteca de referência passiva que não entrava no prompt. As sugestões
+são agora opcionalmente **grounded** sobre esse dataset:
 
-1. The frontend sends `patient_text` and `model_id` alongside the prompt.
-2. `server/services/profileMapping.js · findBestProfileMatch` scores every stored population
-   profile against the free text by **gender**, **age category + numeric age proximity**, and
-   **country**, with a tiebreak toward representative percentile/mean and hand-survey datasets,
-   and selects the best match (above a minimum score; otherwise none).
-3. `mapProfileToModelParameters` projects that profile's `measurements` onto the live model's
-   parameters — clamped to each parameter's bounds — and `buildGroundingBlock` appends the
-   measured means to the prompt as an explicit anchor (see Appendix A).
-4. The prompt instructs that **supplied patient measurements take precedence** over these
-   population means, so grounding biases the *priors*, not the user's data.
+1. O frontend envia `patient_text` e `model_id` juntamente com o prompt.
+2. `server/services/profileMapping.js · findBestProfileMatch` pontua cada perfil populacional
+   armazenado em função do texto livre por **género**, **categoria etária + proximidade
+   numérica de idade** e **país**, com um critério de desempate a favor de datasets
+   representativos de percentil/média e de levantamentos de mãos, e seleciona a melhor
+   correspondência (acima de uma pontuação mínima; caso contrário, nenhuma).
+3. `mapProfileToModelParameters` projeta as `measurements` desse perfil nos parâmetros do
+   modelo vivo — limitadas aos limites de cada parâmetro — e `buildGroundingBlock` anexa as
+   médias medidas ao prompt como uma âncora explícita (ver Apêndice A).
+4. O prompt instrui que **as medições fornecidas do paciente têm precedência** sobre estas
+   médias populacionais, pelo que o grounding enviesa os *priors*, não os dados do utilizador.
 
-Grounding is best-effort and backward compatible: if no profile matches (or the dataset is
-empty) the request proceeds ungrounded, and the response reports `grounded: true|false`. The
-same `profileMapping` module powers the configurator's "Population baseline" picker, so the
-seed-from-dataset path and the AI-grounding path share one translation.
+O grounding é best-effort e retrocompatível: se nenhum perfil corresponder (ou o dataset estiver
+vazio) o pedido prossegue sem grounding, e a resposta indica `grounded: true|false`. O mesmo
+módulo `profileMapping` alimenta o seletor "Population baseline" do configurador, pelo que o
+caminho de seed-from-dataset e o caminho de grounding por IA partilham uma única tradução.
 
-> **Matcher robustness (v14.16.0).** The gender/age parser was originally English-only and used
-> substring tokens, so the male token `'m,'` matched the units `"mm,"`/`"cm,"` — **any** patient
-> text containing a measurement was read as *male*, and Portuguese/Spanish terms were ignored.
-> In practice this anchored almost every description (including children and women) on
-> *ANSUR I Male 50th Percentile*. It was found by the end-to-end simulations below and fixed:
-> tokens now match on Unicode word boundaries and are multilingual (EN/PT/ES), age parsing
-> understands `anos`/`años`, and numeric `age_group` values (`"7"`, `"18-30"`, `"80+"`) are
-> bucketed to child/adult/elderly with numeric proximity. Hermetic unit tests live in
-> `test/profileMapping.test.js` (`npm run test:unit`).
+> **Robustez do matcher (v14.16.0).** O parser de género/idade era originalmente apenas em
+> inglês e usava tokens de substring, pelo que o token masculino `'m,'` correspondia às unidades
+> `"mm,"`/`"cm,"` — **qualquer** texto de paciente que contivesse uma medição era lido como
+> *masculino*, e os termos em português/espanhol eram ignorados. Na prática isto ancorava quase
+> todas as descrições (incluindo crianças e mulheres) em *ANSUR I Male 50th Percentile*. Foi
+> detetado pelas simulações end-to-end abaixo e corrigido: os tokens correspondem agora em
+> fronteiras de palavra Unicode e são multilingues (EN/PT/ES), a análise de idade compreende
+> `anos`/`años`, e os valores numéricos de `age_group` (`"7"`, `"18-30"`, `"80+"`) são
+> classificados em criança/adulto/idoso com proximidade numérica. Os testes unitários herméticos
+> estão em `test/profileMapping.test.js` (`npm run test:unit`).
 >
-> **Optional LLM extraction (v14.16.0).** For free-text or multilingual descriptions where the
-> deterministic parser leaves a gap, `aiService.extractPatientAttributes` (a fast
-> `claude-haiku-4-5` call) extracts `{gender, age}` to anchor the match. It runs **only** when
-> the deterministic parse is incomplete and degrades gracefully (falls back to text parsing) on
-> any error or missing key — so structured inputs incur no extra call.
+> **Extração opcional por LLM (v14.16.0).** Para descrições em texto livre ou multilingues onde
+> o parser determinístico deixa uma lacuna, `aiService.extractPatientAttributes` (uma chamada
+> rápida `claude-haiku-4-5`) extrai `{gender, age}` para ancorar a correspondência. Corre
+> **apenas** quando a análise determinística está incompleta e degrada-se graciosamente (recorre
+> à análise de texto) em qualquer erro ou chave em falta — pelo que as entradas estruturadas não
+> incorrem em nenhuma chamada adicional.
 
-This shifts the relevant validation question for qualitative inputs: where §4 measured the
-model's *unaided* priors, grounded runs additionally test whether the system **anchors on the
-matched group** without overriding stated measurements. The §3.3 invariants (schema, ordering,
-range, scaling) still apply unchanged.
+Isto desloca a questão de validação relevante para as entradas qualitativas: onde a §4 mediu os
+*priors* não auxiliados do modelo, as execuções com grounding testam adicionalmente se o sistema
+**se ancora no grupo correspondente** sem sobrepor as medições declaradas. Os invariantes da
+§3.3 (schema, ordenação, intervalo, escalonamento) continuam a aplicar-se inalterados.
 
 ---
 
-## 3. Methodology
+## 3. Metodologia
 
-### 3.1 Model & configuration
+### 3.1 Modelo e configuração
 
-| Item | Value |
+| Item | Valor |
 |---|---|
-| Target CAD model | `flexy_beast` (fully self-contained parametric SCAD) |
-| LLM provider / model | Anthropic · `claude-sonnet-4-6` |
-| Endpoint | `POST /api/ai/suggest` (admin-authenticated) |
-| Output contract | single JSON object, parameter→value |
-| Date of run | 2026-06-05 |
+| Modelo CAD alvo | `flexy_beast` (SCAD paramétrico totalmente autocontido) |
+| Fornecedor / modelo de LLM | Anthropic · `claude-sonnet-4-6` |
+| Endpoint | `POST /api/ai/suggest` (autenticado como admin) |
+| Contrato de saída | objeto JSON único, parâmetro→valor |
+| Data da execução | 2026-06-05 |
 
-### 3.2 Experimental design
+### 3.2 Desenho experimental
 
-Two experiments were defined to cover complementary axes:
+Foram definidos dois experimentos para cobrir eixos complementares:
 
-- **Experiment 1 — inference from population proxies (§4).** Five profiles described purely by
-  *indirect* body proxies (age, sex, weight, height, region, arm length) with **no** hand
-  measurements. This isolates the model's ability to infer hand anthropometry from
-  demographics — the dominant real-world "common user" case.
-- **Experiment 2 — input-spectrum & contralateral handedness (§5).** Three unilateral-amputation
-  profiles spanning rich → sparse input, testing verbatim use of supplied measurements,
-  proportional estimation of missing fields, and correct mirroring to the amputated side.
+- **Experimento 1 — inferência a partir de proxies populacionais (§4).** Cinco perfis descritos
+  puramente por proxies corporais *indiretos* (idade, sexo, peso, altura, região, comprimento do
+  braço) **sem** quaisquer medições da mão. Isto isola a capacidade do modelo de inferir a
+  antropometria da mão a partir de dados demográficos — o caso dominante do "utilizador comum" no
+  mundo real.
+- **Experimento 2 — espectro de entradas e lateralidade contralateral (§5).** Três perfis de
+  amputação unilateral abrangendo entradas ricas → escassas, testando o uso literal das medições
+  fornecidas, a estimativa proporcional dos campos em falta e o espelhamento correto para o lado
+  amputado.
 
-### 3.3 Validation criteria
+### 3.3 Critérios de validação
 
-Each suggestion is evaluated against five criteria:
+Cada sugestão é avaliada segundo cinco critérios:
 
-1. **Schema conformance** — output parses as JSON; every key is a real model parameter; every
-   numeric value lies within its declared `min`/`max`.
-2. **Finger proportionality** — middle ≥ index, middle ≥ ring, pinky is shortest, thumb < middle.
-3. **Adult plausibility** — for adult profiles, each measurement falls within the canonical
-   adult range (Appendix B).
-4. **Age-appropriate scaling** — minors scale below adult norms and flex-joint hardware is
-   reduced for children's hands.
-5. **Handedness correctness** (Experiment 2) — `mirrored` is set so the prosthesis matches the
-   *amputated* side, i.e. the mirror of the measured/intact hand.
+1. **Conformidade com o schema** — a saída é parseável como JSON; cada chave é um parâmetro real
+   do modelo; cada valor numérico situa-se dentro do seu `min`/`max` declarado.
+2. **Proporcionalidade dos dedos** — médio ≥ indicador, médio ≥ anelar, o mindinho é o mais
+   curto, polegar < médio.
+3. **Plausibilidade no adulto** — para perfis adultos, cada medição cai dentro do intervalo
+   canónico do adulto (Apêndice B).
+4. **Escalonamento adequado à idade** — os menores escalam abaixo das normas do adulto e o
+   hardware das articulações flexíveis é reduzido para mãos de criança.
+5. **Correção da lateralidade** (Experimento 2) — `mirrored` é definido de modo a que a prótese
+   corresponda ao lado *amputado*, isto é, o espelho da mão medida/intacta.
 
-### 3.4 On non-determinism
+### 3.4 Sobre o não determinismo
 
-LLM sampling is **stochastic**: identical input does not yield identical output. Consequently
-the numeric tables below are a **single representative draw**, and §4.4 quantifies the
-run-to-run variation we observed. The validation criteria are designed to be
-*distributional invariants* — properties expected to hold on every draw — rather than assertions
-about specific values. This is the appropriate epistemic stance for validating a stochastic
-component: we test the shape and safety of the output, not its exact coordinates.
+A amostragem do LLM é **estocástica**: entradas idênticas não produzem saídas idênticas. Por
+conseguinte, as tabelas numéricas abaixo são uma **única extração representativa**, e a §4.4
+quantifica a variação entre execuções que observámos. Os critérios de validação foram concebidos
+para serem *invariantes distribucionais* — propriedades que se espera que se verifiquem em cada
+extração — em vez de afirmações sobre valores específicos. Esta é a postura epistémica adequada
+para validar um componente estocástico: testamos a forma e a segurança da saída, não as suas
+coordenadas exatas.
 
 ---
 
-## 4. Experiment 1 — Inference from population proxies
+## 4. Experimento 1 — Inferência a partir de proxies populacionais
 
-### 4.1 Profiles (indirect proxies only)
+### 4.1 Perfis (apenas proxies indiretos)
 
-| # | Label | Free-text input |
+| # | Etiqueta | Entrada em texto livre |
 |---|---|---|
-| 1 | Man 28 🇧🇷 | `man, 28 years old, 82kg, 180cm height, Brazil, arm length 70cm` |
-| 2 | Girl 10 🇯🇵 | `girl, 10 years old, 32kg, 138cm height, Japan, small frame` |
-| 3 | Woman 65 🇳🇬 | `woman, 65 years old, 68kg, 160cm height, Nigeria, arm length 62cm` |
-| 4 | Man 50 🇩🇪 | `man, 50 years old, 95kg, 175cm height, Germany, broad hands, arm length 66cm` |
-| 5 | Teen 15 🇮🇳 | `teenage boy, 15 years old, 60kg, 168cm height, India, slim build, arm length 67cm` |
+| 1 | Homem 28 🇧🇷 | `man, 28 years old, 82kg, 180cm height, Brazil, arm length 70cm` |
+| 2 | Menina 10 🇯🇵 | `girl, 10 years old, 32kg, 138cm height, Japan, small frame` |
+| 3 | Mulher 65 🇳🇬 | `woman, 65 years old, 68kg, 160cm height, Nigeria, arm length 62cm` |
+| 4 | Homem 50 🇩🇪 | `man, 50 years old, 95kg, 175cm height, Germany, broad hands, arm length 66cm` |
+| 5 | Adolescente 15 🇮🇳 | `teenage boy, 15 years old, 60kg, 168cm height, India, slim build, arm length 67cm` |
 
-### 4.2 Results (representative run, mm)
+### 4.2 Resultados (execução representativa, mm)
 
-| Parameter | Man 28 🇧🇷 | Girl 10 🇯🇵 | Woman 65 🇳🇬 | Man 50 🇩🇪 | Teen 15 🇮🇳 |
+| Parâmetro | Homem 28 🇧🇷 | Menina 10 🇯🇵 | Mulher 65 🇳🇬 | Homem 50 🇩🇪 | Adolescente 15 🇮🇳 |
 |---|---|---|---|---|---|
 | `palm_breadth_mm` | 90 | 62 | 74 | 95 | 72 |
 | `index_finger_length_mm` | 76 | 52 | 64 | 78 | 64 |
@@ -194,187 +204,296 @@ component: we test the shape and safety of the output, not its exact coordinates
 | `joint_dia` (hardware) | 7 | **5** | *default* | 7 | 7 |
 | `joint_thick` (hardware) | 4 | **2** | *default* | 4 | 4 |
 
-*Bold = AI proactively reduced flex-joint hardware for a child's hand. "default" = parameter
-omitted, leaving the model's current value (per the "leave hardware unless implied" rule).*
+*Negrito = a IA reduziu proativamente o hardware das articulações flexíveis para uma mão de
+criança. "default" = parâmetro omitido, deixando o valor atual do modelo (segundo a regra
+"deixar o hardware salvo se implicado").*
 
-### 4.3 Validation
+### 4.3 Validação
 
-**Summary: 14 checks passed, 1 warning, 0 failures.**
+**Resumo: 14 verificações passadas, 1 aviso, 0 falhas.**
 
-- **Schema conformance:** all 5 parsed; every key valid; all values in range. ✓ *(This is also
-  the regression check for the prompt fix — the prior prompt was hardcoded for the removed
-  "Fingerator" model and steered the LLM toward nonexistent parameters that were then silently
-  dropped on apply.)*
-- **Proportionality:** all 5 satisfy middle-longest / pinky-shortest / thumb < middle. ✓
-- **Adult plausibility:** the three adults all fall within canonical adult ranges. ✓
-- **Age scaling:** Girl 10 scaled to `palm_breadth` 62 mm and reduced hardware to 5 mm / 2 mm
-  unprompted. ✓
-- **Warning (not a model error):** the 15-year-old received `palm_breadth` 72 mm; our test's
-  blanket "`minor ⇒ < 70 mm`" heuristic flagged it, but 72 mm is correct for a tall, slim
-  mid-teen whose hand is essentially adult-sized. The fault is in the over-strict assertion,
-  not the suggestion.
+- **Conformidade com o schema:** os 5 foram parseados; cada chave válida; todos os valores
+  dentro do intervalo. ✓ *(Esta é também a verificação de regressão para a correção do prompt —
+  o prompt anterior estava codificado para o modelo "Fingerator" removido e direcionava o LLM
+  para parâmetros inexistentes que eram depois silenciosamente descartados na aplicação.)*
+- **Proporcionalidade:** os 5 satisfazem médio-mais-longo / mindinho-mais-curto / polegar <
+  médio. ✓
+- **Plausibilidade no adulto:** os três adultos caem todos dentro dos intervalos canónicos do
+  adulto. ✓
+- **Escalonamento por idade:** a Menina 10 escalou para `palm_breadth` 62 mm e reduziu o
+  hardware para 5 mm / 2 mm sem instrução. ✓
+- **Aviso (não é erro do modelo):** o adolescente de 15 anos recebeu `palm_breadth` 72 mm; a
+  heurística genérica do nosso teste "`menor ⇒ < 70 mm`" assinalou-o, mas 72 mm está correto
+  para um adolescente alto e magro de meia-adolescência cuja mão tem essencialmente tamanho
+  adulto. A falha está na asserção demasiado estrita, não na sugestão.
 
-### 4.4 Run-to-run variation (illustrating §3.4)
+### 4.4 Variação entre execuções (ilustrando a §3.4)
 
-Comparing this run with a prior independent run on the same Man 28 🇧🇷 profile:
+Comparando esta execução com uma execução independente anterior sobre o mesmo perfil Homem 28
+🇧🇷:
 
-| Field | Prior run | This run | Δ |
+| Campo | Execução anterior | Esta execução | Δ |
 |---|---|---|---|
 | `palm_breadth_mm` | 88 | 90 | +2 |
 | `index_finger_length_mm` | 74 | 76 | +2 |
 | `middle_finger_length_mm` | 78 | 80 | +2 |
 | `thumb_length_mm` | 68 | 70 | +2 |
 
-The variation is small (±2–3 mm, ~2–3%) and **preserves all invariants** (ordering, ranges,
-proportions). The Woman 65 🇳🇬 profile additionally illustrates *structural* non-determinism: in
-one run the model emitted explicit `joint_dia`/`joint_thick`, in another it omitted them
-(leaving defaults) — both valid under the prompt contract. This bounds the expected jitter for
-downstream consumers and reinforces that the AI output is a **starting point**, refined by the
-user, not a fixed prescription.
+A variação é pequena (±2–3 mm, ~2–3%) e **preserva todos os invariantes** (ordenação,
+intervalos, proporções). O perfil Mulher 65 🇳🇬 ilustra adicionalmente o não determinismo
+*estrutural*: numa execução o modelo emitiu explicitamente `joint_dia`/`joint_thick`, noutra
+omitiu-os (deixando os valores por omissão) — ambos válidos sob o contrato do prompt. Isto
+limita o jitter esperado para os consumidores a jusante e reforça que a saída da IA é um **ponto
+de partida**, refinado pelo utilizador, não uma prescrição fixa.
 
 ---
 
-## 5. Experiment 2 — Input-spectrum & contralateral handedness
+## 5. Experimento 2 — Espectro de entradas e lateralidade contralateral
 
-### 5.1 Rationale
+### 5.1 Fundamentação
 
-In practice the user supplies *whatever they have*. For a **unilateral amputation**, the richest
-available data is direct measurement of the **intact contralateral hand**; the prosthesis must
-then be produced for the **opposite** (amputated) side, i.e. the geometric mirror of the
-measured hand. The `mirrored` parameter (`false` = left, `true` = right) governs this. This
-experiment spans three richness levels and verifies both verbatim use of supplied values and
-correct side assignment.
+Na prática, o utilizador fornece *aquilo que tem*. Para uma **amputação unilateral**, os dados
+mais ricos disponíveis são a medição direta da **mão contralateral intacta**; a prótese deve
+então ser produzida para o lado **oposto** (amputado), isto é, o espelho geométrico da mão
+medida. O parâmetro `mirrored` (`false` = esquerda, `true` = direita) governa isto. Este
+experimento abrange três níveis de riqueza e verifica tanto o uso literal dos valores fornecidos
+como a atribuição correta do lado.
 
-### 5.2 Profiles
+### 5.2 Perfis
 
-| Scenario | Input | Amputated side → required prosthesis |
+| Cenário | Entrada | Lado amputado → prótese necessária |
 |---|---|---|
-| Direct contralateral | full intact-LEFT-hand measurements | right → RIGHT |
-| Partial + demographics | man 40; only `pb=90` from intact RIGHT hand | left → LEFT |
-| Demographics only | woman 30, East Asian, 158 cm | right → RIGHT |
+| Contralateral direto | medições completas da mão ESQUERDA intacta | direita → DIREITA |
+| Parcial + demográficos | homem 40; apenas `pb=90` da mão DIREITA intacta | esquerda → ESQUERDA |
+| Apenas demográficos | mulher 30, asiática oriental, 158 cm | direita → DIREITA |
 
-### 5.3 Results (representative run, mm)
+### 5.3 Resultados (execução representativa, mm)
 
-| Scenario | `palm_breadth` | idx / mid / ring / pky / thumb | AI `mirrored` | Side correct |
+| Cenário | `palm_breadth` | ind / méd / anel / mind / polegar | `mirrored` da IA | Lado correto |
 |---|---|---|---|---|
-| Direct contralateral | 84 *(verbatim)* | 72 / 78 / 75 / 58 / 64 *(verbatim)* | `true` | ✓ |
-| Partial + demographics | 90 *(verbatim)* | 76 / 80 / 76 / 62 / 72 *(estimated)* | `false` | ✓ |
-| Demographics only | 72 *(estimated)* | 61 / 65 / 62 / 48 / 57 *(estimated)* | `true` | ✓ |
+| Contralateral direto | 84 *(literal)* | 72 / 78 / 75 / 58 / 64 *(literal)* | `true` | ✓ |
+| Parcial + demográficos | 90 *(literal)* | 76 / 80 / 76 / 62 / 72 *(estimado)* | `false` | ✓ |
+| Apenas demográficos | 72 *(estimado)* | 61 / 65 / 62 / 48 / 57 *(estimado)* | `true` | ✓ |
 
-### 5.4 Findings
+### 5.4 Conclusões
 
-- **Provided measurements are used verbatim** — the model does not re-estimate over data the
-  user supplied (all six values in scenario 1; the lone `pb=90` in scenario 2 passed through).
-- **Partial input blends correctly** — supplied values are retained and missing fields are
-  estimated *proportionally around them*.
-- **Demographics-only degrades gracefully** — the core low-knowledge path produces a full,
-  plausible set.
-- **Handedness was correct in all three** — the model produced the mirror of the intact side.
+- **As medições fornecidas são usadas literalmente** — o modelo não reestima sobre os dados que
+  o utilizador forneceu (todos os seis valores no cenário 1; o único `pb=90` no cenário 2 passou
+  diretamente).
+- **A entrada parcial combina-se corretamente** — os valores fornecidos são retidos e os campos
+  em falta são estimados *proporcionalmente em torno deles*.
+- **Apenas-demográficos degrada-se graciosamente** — o caminho central de baixo conhecimento
+  produz um conjunto completo e plausível.
+- **A lateralidade esteve correta nos três** — o modelo produziu o espelho do lado intacto.
 
-> ⚠ **Threat to validity — handedness is *inferred*, not *instructed*.** The prompt does not
-> mention handedness or mirroring; the model deduced it from natural-language phrasing
-> ("missing the RIGHT hand"). With `claude-sonnet-4-6` and full-sentence input this was
-> reliable across runs, but for terse clinical shorthand (e.g. *"L hand pb84, R amp"*) it is not
-> guaranteed. Because a wrong-side hand is unusable and a non-expert may not notice, an explicit
-> contralateral/mirror rule in the prompt is the recommended hardening (see §8).
-
----
-
-## 6. Discussion
-
-**Anatomical fidelity.** Across eight distinct profiles the model honoured the standard digit
-ordering and adult/paediatric magnitude norms, and reflected both **sexual dimorphism** (men >
-women on every field) and **regional population variation** (the country influenced estimates).
-The 65-year-old woman and the slim 15-year-old converged on similar small-adult sizes, which is
-anatomically reasonable and indicates the model reasons over multiple proxies jointly rather
-than keying on a single attribute.
-
-**Graceful degradation.** The two experiments jointly demonstrate a monotone relationship
-between input richness and reliance on priors: supplied measurements are used verbatim, partial
-data anchors proportional estimation, and demographics-only falls back fully to population
-norms — without the user needing to know which fields matter. This is precisely the behaviour
-the accessibility goal requires.
-
-**Emergent hardware adaptation.** The reduction of flex-joint dimensions for a child's hand was
-not requested in the profile text; it follows from the parameter *captions* (which note "reduce
-for small children's hands"), showing the model uses the injected schema's documentation, not
-only its names.
+> ⚠ **Ameaça à validade — a lateralidade é *inferida*, não *instruída*.** O prompt não menciona
+> lateralidade nem espelhamento; o modelo deduziu-a a partir do fraseado em linguagem natural
+> ("missing the RIGHT hand"). Com `claude-sonnet-4-6` e entrada em frase completa isto foi
+> fiável ao longo das execuções, mas para abreviaturas clínicas concisas (por ex. *"L hand
+> pb84, R amp"*) não está garantido. Como uma mão do lado errado é inutilizável e um não
+> especialista pode não reparar, uma regra explícita de contralateral/espelho no prompt é o
+> reforço recomendado (ver §9).
 
 ---
 
-## 7. Limitations & Threats to Validity
+## 6. Experimento 3 — Validação Geométrica Inter-Modelos (IA → exportação STL)
 
-1. **Single-draw sampling.** Results are one representative run per profile. We characterise but
-   do not statistically bound the output distribution; a rigorous study would aggregate many
-   draws and report per-parameter dispersion.
-2. **No clinical ground truth.** Plausibility bounds are population ranges, not per-patient
-   measured truth. This validates *reasonableness*, not *accuracy* against a real hand.
-3. **Inferred handedness.** As noted in §5.4, side assignment relies on model inference and is a
-   latent safety risk for terse input until made explicit.
-4. **Heuristic brittleness in the harness.** The "minor ⇒ palm < 70 mm" check produced a
-   false positive; test heuristics must allow for near-adult adolescents.
-5. **Stochastic infrastructure faults.** One burst of rapid back-to-back calls returned an
-   empty/unparseable response; a short delay resolved it. Production use should add retry/backoff
-   and strict JSON-schema validation with a re-prompt on failure.
-6. **Model/version coupling.** Findings are specific to `claude-sonnet-4-6`; behaviour
-   (especially the emergent inferences) may differ on other models or future versions and
-   should be re-validated on change.
-7. **Experiments predate dataset grounding.** The §4–§5 runs (2026-06-05) measured the model's
-   *unaided* priors; server-side grounding (§2.4) shipped afterwards (v11.0.0, 2026-06-06) and
-   is now default-on. The reported numbers therefore characterise ungrounded behaviour; grounded
-   behaviour has not yet been re-measured under this protocol.
+Onde os Experimentos 1–2 mediram as estimativas **numéricas** do LLM, o Experimento 3 fecha o
+ciclo até à **geometria impressa**, em **todos os três** modelos ativos. Cada execução conduz a
+interface `/edit` real de ponta a ponta com Playwright/Chromium — login → escrever uma descrição
+de paciente → `POST /api/ai/suggest` real (`claude-sonnet-4-6`, grounding ativo) → aplicar →
+**Exportar STL** pelo caminho de produção OpenSCAD-WASM — e depois mede cada malha exportada com
+`trimesh`. *(Execuções: 2026-06-28, matcher de grounding corrigido na v14.16.0.)* Quatro
+configurações por modelo: um **baseline** por omissão mais três perfis de paciente (criança /
+mulher adulta / homem adulto).
+
+Detalhe por modelo, prompts e tabelas por peça:
+[Flexy Beast](flexy-beast-ai-sim/flexy-beast_ai-sizing-dimensional-report_2026-06-28.md) ·
+[Paraglider](paraglider-ai-sim/paraglider-hand_ai-sizing-dimensional-report_2026-06-28.md) ·
+[UnLimbited Phoenix](phoenix-ai-sim/unlimbited-phoenix-hand_ai-sizing-dimensional-report_2026-06-28.md).
+
+### 6.1 Modelos em teste
+
+| Modelo | Entradas antropométricas | Exportação | Mecanismo de escala | Mão mínima imprimível |
+|---|---|---|---|---|
+| Flexy Beast | largura da palma + 5 comprimentos de dedos | 12 peças de impressão | `xScaleFactor=(breadth+5)/55`, escalas de comprimento por dedo | pequena (capaz para criança) |
+| Paraglider · Hand | largura/comprimento/espessura da palma + 5 dedos | 7 peças | `overall_scale=breadth/66.4` (palma) + por dedo | tendencialmente adulto |
+| UnLimbited Phoenix | apenas largura da palma | modelo inteiro, 1 ficheiro | `HandPerc=breadth/82×100` uniforme, **limitado a 100–160 %** | **≈82 mm (100 %)** |
+
+### 6.2 Dimensionamento por IA entre modelos (parâmetros aplicados)
+
+Todas as doze execuções devolveram `grounded: true` e valores dentro do intervalo e
+anatomicamente ordenados.
+
+| Perfil | Flexy `palm_breadth` / `middle` | Paraglider `palm_breadth` / `middle` | Phoenix `palm_breadth` |
+|---|---|---|---|
+| baseline | 83 / 72 | 83 / 72 | 82 |
+| criança | 62 / 56 | 62 / 56 | **82** *(no piso; +`HandPerc_override=76`)* |
+| mulher | 77 / 77 | 77 / 76 | **82** *(no piso)* |
+| homem | 96 / 86 | 96 / 86 | 96 |
+
+Os dois modelos multi-parâmetro dimensionam-se de forma **quase idêntica** (independentemente de
+qual modelo está carregado — a estimativa segue o paciente, não a malha). O Phoenix expõe o piso
+da sua única entrada: perfis abaixo de 82 mm não podem ser expressos, pelo que a IA devolveu 82 —
+exceto para a criança, onde recorreu à saída de emergência `HandPerc_override` (ver §6.5, defeito
+3).
+
+### 6.3 Palma exportada — rácio de escala vs baseline (maior dimensão)
+
+| Perfil | Flexy Beast | Paraglider | Phoenix |
+|---|---:|---:|---:|
+| baseline | 1.000 (124.2 mm) | 1.000 (113.7 mm) | 1.000 (92.0 mm) |
+| criança | 0.761 | 0.747 | 0.760 † |
+| mulher | 0.932 | 0.928 | **1.000** ‡ |
+| homem | 1.148 | 1.157 | 1.171 |
+
+† A criança do Phoenix só encolheu porque a IA usou `HandPerc_override = 76` (76 %), o que
+**contornou** o piso de 100 % do modelo — um defeito, agora corrigido (§6.5); após a correção é
+1.000.
+‡ A mulher do Phoenix (estimada em ~77 mm < 82) é **limitada ao piso de 100 %** — o modelo não a
+consegue imprimir mais pequena, por desenho. O Flexy e o Paraglider escalam-na para baixo
+suavemente (~0.93).
+
+A geometria segue as entradas **linearmente** nos dois modelos escaláveis (comprimento/largura da
+palma do Flexy ≈ 1.49–1.52 constante; Paraglider ≈ 1.37 constante), confirmando que o mapeamento
+de parâmetros chega à malha.
+
+### 6.4 Fidelidade à geometria de origem
+
+| Modelo | Referência estática | Concordância |
+|---|---|---|
+| Flexy Beast | STLs de demonstração daprice (160 %) | palma dentro de ~1 % quando dimensionada para a mesma mão |
+| Paraglider | malha da palma Flexible Flyer Reborn | corresponde após a correção de escala da palma (§6.5, defeito 2) |
+| UnLimbited Phoenix | `UnLimbited_Arm_V2.2.scad` a montante (mesma malha embebida) | **exato** — ≤ 0.06 mm; idêntico byte a byte a 100 % |
+
+### 6.5 Defeitos encontrados e corrigidos
+
+Fechar o ciclo dos números até à **geometria** foi o que fez emergir estes — nenhum era visível
+nas verificações numéricas dos Experimentos 1–2. Os três foram corrigidos e re-verificados de
+ponta a ponta.
+
+| # | Âmbito | Defeito | Correção |
+|---|---|---|---|
+| 1 | Grounding (todos os modelos) | `findBestProfileMatch` ancorava **todos** os pacientes em *ANSUR I Male 50th* — o token masculino `'m,'` correspondia às unidades `"mm,"`/`"cm,"`, e a análise era apenas em inglês (§2.4) | **v14.16.0** — tokens multilingues em fronteira de palavra Unicode, classificação por idade, extração opcional por LLM |
+| 2 | Palma do Paraglider | A palma Reborn estava **congelada** no tamanho de 83 mm — `scaled_palm()` é importada com `use` (com escopo léxico) e lia o `overall_scale=1.25` codificado da biblioteca, ignorando `palm_breadth_mm` | **v14.17.0** — reaplicar a escala no local de chamada |
+| 3 | Override do Phoenix | `HandPerc_override` (intervalo `[0:160]`) tinha uma zona morta `1–99` **sem piso**; a IA usou `76` para imprimir uma palma de criança a 62 mm, abaixo do mínimo suportado de 100 % | **v14.18.0** — limitar também o ramo do override a 100–160 % |
+
+### 6.6 Orientação para seleção de modelo
+
+Os três modelos são **complementares**, não intermutáveis, por tamanho imprimível:
+
+- **Flexy Beast** — escala para o mais pequeno; a escolha certa para **crianças** e mãos
+  estreitas.
+- **Paraglider · Hand** — entradas antropométricas mais ricas (acrescenta
+  comprimento/espessura da palma); bom para adultos num intervalo amplo.
+- **UnLimbited Phoenix** — malha fixa, **apenas 82 mm e acima**; excelente fidelidade ao
+  original mas inadequado para mãos pequenas (o seu próprio texto de ajuda redireciona para o
+  Flexy Beast).
+
+Para os perfis de criança e mulher aqui, o Flexy Beast ou o Paraglider são corretos; o Phoenix
+limita-os ao piso. Isto é agora consistente na geometria após a correção do defeito 3.
 
 ---
 
-## 8. Future Work
+## 7. Discussão
 
-- **Explicit contralateral/mirroring rule** in the prompt, removing reliance on inference for a
-  safety-relevant parameter.
-- **Statistical validation:** N-draw sampling per profile with reported mean/σ per parameter and
-  invariant pass-rates.
-- **Schema-validated output:** enforce a JSON schema server-side and auto-re-prompt on violation,
-  rather than silently dropping unknown keys.
-- **Ground-truth benchmarking** against measured-hand datasets to quantify estimation error, not
-  just plausibility.
-- **Grounded re-validation:** re-run §4–§5 with dataset grounding (§2.4) enabled and compare
-  against the ungrounded baseline — does anchoring on the matched population group reduce
-  run-to-run variance (§4.4) and tighten qualitative-input estimates without overriding supplied
-  measurements? _(Still open as a statistical study.)_
-  - ✅ **`findBestProfileMatch` validated (2026-06-28).** End-to-end browser simulations
-    (login → AI suggest → STL export) on Flexy Beast and Paraglider showed the matcher anchored
-    a child, a woman and a man **all** on *ANSUR I Male 50th Percentile*, exposing the
-    units-as-male / English-only bug. Fixed in v14.16.0 (§2.4); post-fix the same inputs match
-    *Dutch children age 7*, *ANSUR I Female*, and *ANSUR I Male* respectively. Full runs, prompts
-    and per-part dimensions in
+**Fidelidade anatómica.** Em oito perfis distintos o modelo respeitou a ordenação padrão dos
+dedos e as normas de magnitude do adulto/pediátricas, e refletiu tanto o **dimorfismo sexual**
+(homens > mulheres em todos os campos) como a **variação populacional regional** (o país
+influenciou as estimativas). A mulher de 65 anos e o jovem magro de 15 anos convergiram para
+tamanhos semelhantes de adulto pequeno, o que é anatomicamente razoável e indica que o modelo
+raciocina conjuntamente sobre múltiplos proxies em vez de se fixar num único atributo.
+
+**Degradação graciosa.** Os dois experimentos demonstram em conjunto uma relação monótona entre
+a riqueza das entradas e a dependência dos priors: as medições fornecidas são usadas
+literalmente, os dados parciais ancoram a estimativa proporcional e apenas-demográficos recorre
+totalmente às normas populacionais — sem o utilizador precisar de saber quais os campos
+relevantes. Este é precisamente o comportamento que o objetivo de acessibilidade exige.
+
+**Adaptação emergente de hardware.** A redução das dimensões das articulações flexíveis para uma
+mão de criança não foi pedida no texto do perfil; decorre das *legendas* dos parâmetros (que
+indicam "reduzir para mãos de crianças pequenas"), mostrando que o modelo usa a documentação do
+schema injetado, e não apenas os seus nomes.
+
+---
+
+## 8. Limitações e Ameaças à Validade
+
+1. **Amostragem de extração única.** Os resultados são uma execução representativa por perfil.
+   Caracterizamos mas não limitamos estatisticamente a distribuição de saída; um estudo rigoroso
+   agregaria muitas extrações e reportaria a dispersão por parâmetro.
+2. **Sem verdade de terreno clínica.** Os limites de plausibilidade são intervalos populacionais,
+   não a verdade medida por paciente. Isto valida a *razoabilidade*, não a *exatidão* face a uma
+   mão real.
+3. **Lateralidade inferida.** Como referido na §5.4, a atribuição do lado depende da inferência
+   do modelo e é um risco latente de segurança para entradas concisas até ser tornada explícita.
+4. **Fragilidade heurística no harness.** A verificação "menor ⇒ palma < 70 mm" produziu um
+   falso positivo; as heurísticas de teste têm de contemplar adolescentes quase-adultos.
+5. **Falhas estocásticas de infraestrutura.** Uma rajada de chamadas rápidas consecutivas
+   devolveu uma resposta vazia/não parseável; um pequeno atraso resolveu-a. O uso em produção
+   deveria acrescentar retry/backoff e validação estrita de JSON-schema com um novo prompt em
+   caso de falha.
+6. **Acoplamento a modelo/versão.** As conclusões são específicas de `claude-sonnet-4-6`; o
+   comportamento (em especial as inferências emergentes) pode diferir noutros modelos ou versões
+   futuras e deve ser re-validado em caso de mudança.
+7. **Os experimentos antecedem o grounding por dataset.** As execuções da §4–§5 (2026-06-05)
+   mediram os priors *não auxiliados* do modelo; o grounding do lado do servidor (§2.4) foi
+   lançado depois (v11.0.0, 2026-06-06) e está agora ativo por omissão. Os números reportados
+   caracterizam, portanto, o comportamento sem grounding; o comportamento com grounding ainda
+   não foi re-medido sob este protocolo.
+
+---
+
+## 9. Trabalho Futuro
+
+- **Regra explícita de contralateral/espelhamento** no prompt, removendo a dependência da
+  inferência para um parâmetro relevante para a segurança.
+- **Validação estatística:** amostragem de N extrações por perfil com média/σ reportadas por
+  parâmetro e taxas de aprovação dos invariantes.
+- **Saída validada por schema:** impor um JSON schema do lado do servidor e fazer auto-re-prompt
+  em caso de violação, em vez de descartar silenciosamente chaves desconhecidas.
+- **Benchmarking face à verdade de terreno** contra datasets de mãos medidas para quantificar o
+  erro de estimativa, não apenas a plausibilidade.
+- **Re-validação com grounding:** re-executar a §4–§5 com o grounding por dataset (§2.4) ativado
+  e comparar com o baseline sem grounding — será que a ancoragem no grupo populacional
+  correspondente reduz a variância entre execuções (§4.4) e aperta as estimativas de entradas
+  qualitativas sem sobrepor as medições fornecidas? _(Ainda em aberto como estudo estatístico.)_
+  - ✅ **`findBestProfileMatch` validado (2026-06-28).** As simulações de browser end-to-end
+    (login → sugestão por IA → exportação STL) no Flexy Beast e no Paraglider mostraram que o
+    matcher ancorava uma criança, uma mulher e um homem **todos** em *ANSUR I Male 50th
+    Percentile*, expondo o bug de unidades-como-masculino / apenas-inglês. Corrigido na v14.16.0
+    (§2.4); após a correção as mesmas entradas correspondem a *Dutch children age 7*, *ANSUR I
+    Female* e *ANSUR I Male* respetivamente. Execuções completas, prompts e dimensões por peça em
     [`docs/flexy-beast-ai-sim/`](flexy-beast-ai-sim/flexy-beast_ai-sizing-dimensional-report_2026-06-28.md)
-    and [`docs/paraglider-ai-sim/`](paraglider-ai-sim/paraglider-hand_ai-sizing-dimensional-report_2026-06-28.md).
-- **Permanent regression set:** retain the demographics-only profiles as a standing test, since
-  that path serves the lowest-knowledge user.
+    e [`docs/paraglider-ai-sim/`](paraglider-ai-sim/paraglider-hand_ai-sizing-dimensional-report_2026-06-28.md).
+- **Conjunto permanente de regressão:** reter os perfis de apenas-demográficos como teste
+  permanente, dado que esse caminho serve o utilizador de menor conhecimento.
 
 ---
 
-## 9. Reproducibility
+## 10. Reprodutibilidade
 
-The server must be running with a valid `ANTHROPIC_API_KEY` in `.env`. The validation harness
-logs in as an admin, reconstructs the exact frontend prompt for each profile (injecting the live
-`flexy_beast` parameter schema from `models/models-config.json`), calls `POST /api/ai/suggest`,
-parses the returned JSON, and applies the §3.3 criteria. Because sampling is stochastic, expect
-the numbers to differ between runs while the invariant checks continue to pass. When issuing many
-requests in quick succession, insert a short delay (or retry with backoff) to avoid transient
-provider errors.
+O servidor deve estar em execução com uma `ANTHROPIC_API_KEY` válida no `.env`. O harness de
+validação inicia sessão como admin, reconstrói o prompt exato do frontend para cada perfil
+(injetando o schema de parâmetros vivo de `flexy_beast` a partir de `models/models-config.json`),
+chama `POST /api/ai/suggest`, parseia o JSON devolvido e aplica os critérios da §3.3. Como a
+amostragem é estocástica, espere que os números difiram entre execuções enquanto as verificações
+de invariantes continuam a passar. Ao emitir muitos pedidos em sucessão rápida, insira um pequeno
+atraso (ou retry com backoff) para evitar erros transitórios do fornecedor.
 
-**Grounding control.** To reproduce the *ungrounded* §4–§5 numbers, omit `patient_text`/`model_id`
-from the request body (or run against a database with no imported profiles) so no grounding block
-is appended; the response field `grounded` confirms which path executed. To exercise grounded
-behaviour, send both fields exactly as the live frontend does and import a population dataset
-(Appendix C) first.
+**Controlo do grounding.** Para reproduzir os números *sem grounding* da §4–§5, omita
+`patient_text`/`model_id` do corpo do pedido (ou execute contra uma base de dados sem perfis
+importados) para que nenhum bloco de grounding seja anexado; o campo de resposta `grounded`
+confirma qual o caminho executado. Para exercitar o comportamento com grounding, envie ambos os
+campos exatamente como o frontend vivo faz e importe primeiro um dataset populacional (Apêndice
+C).
 
 ---
 
-## Appendix A — Prompt template
+## Apêndice A — Template do prompt
 
-For each profile the frontend sends the following (the live prompt embeds the full Flexy Beast
-parameter JSON in place of the abbreviated array):
+Para cada perfil o frontend envia o seguinte (o prompt vivo incorpora o JSON completo dos
+parâmetros do Flexy Beast em vez do array abreviado):
 
 ```
 You are sizing a 3D-printed parametric prosthetic hand model ("Flexy Beast") for a patient.
@@ -401,8 +520,8 @@ Guidance:
 Respond with ONLY a valid JSON object mapping parameter names to suggested values.
 ```
 
-When dataset grounding (§2.4) finds a matching population group, the server appends the
-following block to the prompt above before calling the provider:
+Quando o grounding por dataset (§2.4) encontra um grupo populacional correspondente, o servidor
+anexa o seguinte bloco ao prompt acima antes de chamar o fornecedor:
 
 ```
 Reference population data — the closest matching group in our anthropometric
@@ -419,67 +538,69 @@ description (build, height, stated measurements). Supplied patient measurements 
 take precedence over these population means.
 ```
 
-The values above are the real means for the *ANSUR I Female 50th Percentile* group as returned
-by `GET /api/anthropometric/1/model-parameters?model_id=flexy_beast` — i.e. the identical
-projection the configurator's "Population baseline" picker applies.
+Os valores acima são as médias reais do grupo *ANSUR I Female 50th Percentile* tal como
+devolvidas por `GET /api/anthropometric/1/model-parameters?model_id=flexy_beast` — isto é, a
+projeção idêntica que o seletor "Population baseline" do configurador aplica.
 
-## Appendix B — Canonical adult anthropometric ranges
+## Apêndice B — Intervalos antropométricos canónicos do adulto
 
-Source: `CLAUDE.md` (Anthropometric Parameter Alignment). Used as plausibility bounds in §3.3.4.
+Fonte: `CLAUDE.md` (Anthropometric Parameter Alignment). Usados como limites de plausibilidade na
+§3.3.4.
 
-| Parameter | Measurement | Typical adult range |
+| Parâmetro | Medição | Intervalo típico do adulto |
 |---|---|---|
-| `palm_breadth_mm` | Knuckle-to-knuckle metacarpal breadth | 70–100 mm |
-| `middle_finger_length_mm` | MCP crease to middle fingertip | 60–115 mm |
-| `index_finger_length_mm` | Index MCP crease to tip | 55–110 mm |
-| `ring_finger_length_mm` | Ring MCP crease to tip | 55–110 mm |
-| `pinky_finger_length_mm` | Pinky MCP crease to tip | 40–85 mm |
-| `thumb_length_mm` | Thumb MCP crease to tip | 45–80 mm |
+| `palm_breadth_mm` | Largura metacarpal nó-a-nó | 70–100 mm |
+| `middle_finger_length_mm` | Prega MCP à ponta do dedo médio | 60–115 mm |
+| `index_finger_length_mm` | Prega MCP do indicador à ponta | 55–110 mm |
+| `ring_finger_length_mm` | Prega MCP do anelar à ponta | 55–110 mm |
+| `pinky_finger_length_mm` | Prega MCP do mindinho à ponta | 40–85 mm |
+| `thumb_length_mm` | Prega MCP do polegar à ponta | 45–80 mm |
 
-## Appendix C — Population dataset bulk import
+## Apêndice C — Importação em massa de dataset populacional
 
-§2.3 notes that AI output, manual entry, and **CSV-imported population profiles** share one
-measurement vocabulary. This appendix documents how that population library is built from the
-bundled research dataset, since the import path is easy to misread.
+A §2.3 nota que a saída da IA, a introdução manual e os **perfis populacionais importados de
+CSV** partilham um único vocabulário de medição. Este apêndice documenta como essa biblioteca
+populacional é construída a partir do dataset de investigação incluído, dado que o caminho de
+importação é fácil de interpretar mal.
 
-### C.1 What the dataset is
+### C.1 O que é o dataset
 
-`data/multi_population_hand.csv` is a **research-literature dataset**, not a list of individual
-patients. Each row is a single published measurement (e.g. *"Finger length (right hand) -
-Thumb"*) for one population, tagged with its source study, page/citation, country, sex, age
-group, sample size, and a `stat_type` (`mean`, `std_dev`, `min`, `max`, or a percentile). One
-population therefore spans many rows — one per measurement × statistic.
+`data/multi_population_hand.csv` é um **dataset de literatura de investigação**, não uma lista de
+pacientes individuais. Cada linha é uma única medição publicada (por ex. *"Finger length (right
+hand) - Thumb"*) para uma população, etiquetada com o seu estudo de origem, página/citação,
+país, sexo, faixa etária, dimensão da amostra e um `stat_type` (`mean`, `std_dev`, `min`, `max`
+ou um percentil). Uma população abrange, portanto, muitas linhas — uma por medição × estatística.
 
-### C.2 How "Import CSV Dataset" works
+### C.2 Como funciona "Import CSV Dataset"
 
-The control is a **local file picker**, not a server fetch. The admin-panel button
-(`admin.js`) triggers a hidden `<input type="file">`; the browser reads the chosen file's text
-client-side (`file.text()`) and POSTs it as `csv_text` to
-`POST /api/anthropometric/import-csv-bulk` (`server/routes/anthropometricRoutes.js`). The
-server never loads the path over HTTP — the `data/...` reference in the docs is just where the
-file sits on the operator's disk. (Consequently the `/data/* → 404` static block is irrelevant
-to import; it only guards URL requests.)
+O controlo é um **seletor de ficheiro local**, não um fetch do servidor. O botão do painel de
+admin (`admin.js`) aciona um `<input type="file">` oculto; o browser lê o texto do ficheiro
+escolhido no lado do cliente (`file.text()`) e fá-lo POST como `csv_text` para
+`POST /api/anthropometric/import-csv-bulk` (`server/routes/anthropometricRoutes.js`). O servidor
+nunca carrega o caminho por HTTP — a referência `data/...` nos docs é apenas onde o ficheiro
+reside no disco do operador. (Por conseguinte, o bloqueio estático `/data/* → 404` é irrelevante
+para a importação; apenas protege pedidos de URL.)
 
-Server-side processing:
+Processamento do lado do servidor:
 
-1. **Parse** the CSV, re-joining rows split across newlines inside quoted citation fields
-   (balanced-quote check).
-2. **Filter** to usable rows: keep only `stat_type === 'mean'`, only measurements present in
-   `MEASUREMENT_MAP`, and only positive numeric `value_mm`. Std-dev / min / max / percentile
-   *value* rows are discarded.
-3. **Group** rows by the composite key `population | country | sex | age_group | percentile`.
-   All the per-digit and palm means for one population collapse into a **single profile**;
-   first mean wins per field.
-4. **Derive & insert** — for each group the `anthropometricImporter` derives the geometry
-   parameters (`palm_breadth_mm`, finger lengths, …) and an AI-context blob, and one row is
-   inserted into `anthropometric_profiles`.
+1. **Parse** do CSV, voltando a juntar linhas divididas por quebras de linha dentro de campos de
+   citação entre aspas (verificação de aspas balanceadas).
+2. **Filtrar** para linhas utilizáveis: manter apenas `stat_type === 'mean'`, apenas medições
+   presentes em `MEASUREMENT_MAP`, e apenas `value_mm` numérico positivo. As linhas de *valor*
+   de std-dev / min / max / percentil são descartadas.
+3. **Agrupar** as linhas pela chave composta `population | country | sex | age_group |
+   percentile`. Todas as médias por dedo e da palma de uma população colapsam num **único
+   perfil**; a primeira média vence por campo.
+4. **Derivar e inserir** — para cada grupo o `anthropometricImporter` deriva os parâmetros de
+   geometria (`palm_breadth_mm`, comprimentos de dedos, …) e um blob de contexto de IA, e uma
+   linha é inserida em `anthropometric_profiles`.
 
-The response is `{ created, skipped, total_groups }`, surfaced in the UI as a toast.
+A resposta é `{ created, skipped, total_groups }`, exibida na UI como um toast.
 
-### C.3 Idempotency
+### C.3 Idempotência
 
-Each group is given a deterministic `group_name`
-(e.g. `Young adults (age 18-30) female (Turkey) — 50th`). Before insert:
+A cada grupo é atribuído um `group_name` determinístico
+(por ex. `Young adults (age 18-30) female (Turkey) — 50th`). Antes de inserir:
 
 ```js
 const existing = db.prepare(
@@ -488,13 +609,13 @@ const existing = db.prepare(
 if (existing) { skipped++; continue; }
 ```
 
-So re-running the import is safe: the second run reports `created: 0, skipped: N` with no
-duplicates. **Caveat:** the dedupe key is `group_name`, which omits `data_source` — two
-different studies producing the same population/sex/country/percentile label would collide, and
-the first import wins rather than the two being merged.
+Por isso re-executar a importação é seguro: a segunda execução reporta `created: 0, skipped: N`
+sem duplicados. **Ressalva:** a chave de deduplicação é `group_name`, que omite `data_source` —
+dois estudos diferentes que produzam a mesma etiqueta de população/sexo/país/percentil
+colidiriam, e a primeira importação vence em vez de as duas serem fundidas.
 
-### C.4 Note on availability
+### C.4 Nota sobre disponibilidade
 
-`data/` is gitignored, so `data/multi_population_hand.csv` is **not tracked in the repository**
-and is excluded by `deploy.sh`. It must be supplied to the operator's machine out-of-band
-before the import step in the README/QUICK-START guides can be followed.
+`data/` está em gitignore, pelo que `data/multi_population_hand.csv` **não está versionado no
+repositório** e é excluído pelo `deploy.sh`. Deve ser fornecido à máquina do operador por outra
+via antes de o passo de importação nos guias README/QUICK-START poder ser seguido.
