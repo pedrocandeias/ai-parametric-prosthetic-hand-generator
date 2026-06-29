@@ -9,6 +9,8 @@
       "name": "Flexy Beast",
       "description": "Wrist-powered prosthetic hand adapted from the Flexy Beast by daprice — a mashup of the Parametric Cyborg Beast (MakerBlock) and the Flexy Hand (Steve Wood / Gyrobot). Flexible joints replace Chicago screws and elastics for a lighter, cheaper, easier-to-assemble design. Scale is derived from the Cyborg Beast sizing guide: xScaleFactor = (palm_breadth_mm + 5) / 55. All finger lengths are driven anthropometrically; per-finger proportions are inferred from the individual length inputs relative to the middle finger.",
       "file": "active/flexy_beast/flexy_beast.scad",
+      "limb": "hand",
+      "aiGuidance": "Canonical fields when present: palm_breadth_mm (knuckle-to-knuckle, ~70-100mm adult), palm_length_mm (wrist to MCP, ~90-120mm), palm_thickness_mm (~22-38mm), index/middle/ring/pinky_finger_length_mm (MCP crease to tip), thumb_length_mm, gauntlet_width_mm (approx. wrist circumference / PI + ~5mm clearance). Keep finger proportions realistic: middle finger longest, pinky shortest.",
       "dependencies": [],
       "parameters": [
         {
@@ -97,6 +99,7 @@
         },
         {
           "name": "mirrored",
+          "role": "laterality",
           "type": "enum",
           "initial": false,
           "options": [
@@ -579,6 +582,8 @@
       "name": "UnLimbited Phoenix Hand",
       "description": "Team UnLimbited Phoenix Hand V1.0 by Stephen Robert Davies & Drew Murray (original Phoenix Hand by Jason Bryant). A wrist-powered prosthetic hand with a thermoformable palm and a reverse-dovetail tensioner gauntlet. The design is distributed as fixed printable meshes, so fit is controlled by a single uniform print scale. Here that scale is derived anthropometrically from knuckle-to-knuckle palm breadth — the unscaled mesh spans REF_PALM_BREADTH = 82 mm at 100% — and is clamped to the model's printable 100–160% range. Choose one part at a time to preview or export. Licensed CC BY-NC-SA 4.0 — teamunlimbited.org.",
       "file": "active/unlimbed_phoenix_hand/UnLimbitedPhoenix.scad",
+      "limb": "hand",
+      "aiGuidance": "Canonical fields when present: palm_breadth_mm (knuckle-to-knuckle, ~70-100mm adult), palm_length_mm (wrist to MCP, ~90-120mm), palm_thickness_mm (~22-38mm), index/middle/ring/pinky_finger_length_mm (MCP crease to tip), thumb_length_mm, gauntlet_width_mm (approx. wrist circumference / PI + ~5mm clearance). Keep finger proportions realistic: middle finger longest, pinky shortest.",
       "dependencies": [],
       "parameters": [
         {
@@ -609,6 +614,7 @@
         },
         {
           "name": "LeftRight",
+          "role": "laterality",
           "type": "enum",
           "initial": "Left",
           "options": [
@@ -684,6 +690,8 @@
       "name": "Paraglider · Hand",
       "description": "Complete Paraglider (Flexible Flyer) prosthetic system in one model. The Hand component builds the palm (Phoenix Reborn or Unlimbited v3 style) plus all five fingers, sized from canonical anthropometric measurements with independent per-finger scaling and printable part toggles. The Component selector also renders the wrist-drive Tensioner Box and Thermo Gauntlet, and the separate elbow-powered UnLimbited Arm. By Marcus Mendenhall, parametric remix of Phoenix v2 / Unlimbited v3 / Phoenix Reborn using commercial metal-pin joints. Reborn Hand by enablesierraleone, CC BY 3.0.",
       "file": "active/paraglider_hand/paraglider_hand.scad",
+      "limb": "hand",
+      "aiGuidance": "Canonical fields when present: palm_breadth_mm (knuckle-to-knuckle, ~70-100mm adult), palm_length_mm (wrist to MCP, ~90-120mm), palm_thickness_mm (~22-38mm), index/middle/ring/pinky_finger_length_mm (MCP crease to tip), thumb_length_mm, gauntlet_width_mm (approx. wrist circumference / PI + ~5mm clearance). Keep finger proportions realistic: middle finger longest, pinky shortest.",
       "dependencies": [
         {
           "url": "active/paraglider_hand/pipe.scad",
@@ -877,6 +885,7 @@
         },
         {
           "name": "mirrored",
+          "role": "laterality",
           "type": "enum",
           "initial": false,
           "options": [

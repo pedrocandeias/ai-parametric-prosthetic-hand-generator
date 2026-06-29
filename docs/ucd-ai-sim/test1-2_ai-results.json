@@ -1,0 +1,527 @@
+[
+  {
+    "id": "t1_vague_child_pt",
+    "test": "T1-realistic",
+    "model": "flexy_beast",
+    "input": "O meu filho tem 7 anos e tem a mão pequenina, mais ou menos do tamanho de uma bola de ténis.",
+    "grounded": true,
+    "matched_group": "Dutch children (TU Delft KIMA 1993 study) male, age 7 (Netherlands)",
+    "hints": {
+      "gender": "male",
+      "age": 7
+    },
+    "usedLLM": true,
+    "parsed": true,
+    "error": null,
+    "suggested": {
+      "palm_breadth_mm": 64,
+      "middle_finger_length_mm": 59,
+      "index_finger_length_mm": 55,
+      "ring_finger_length_mm": 55,
+      "pinky_finger_length_mm": 44,
+      "thumb_length_mm": 48,
+      "joint_dia": 5,
+      "joint_thick": 2,
+      "gauntlet_width_mm": 46,
+      "gauntlet_length_mm": 80,
+      "wrist_pin_dia": 5
+    },
+    "validation": {
+      "rangeOK": true,
+      "ordering": "OK",
+      "plausible": "OK",
+      "issues": []
+    },
+    "expect": {
+      "ageGroup": "child",
+      "note": "vago, sem mm"
+    }
+  },
+  {
+    "id": "t1_no_numbers_woman_pt",
+    "test": "T1-realistic",
+    "model": "flexy_beast",
+    "input": "Uma senhora, magrinha e baixa.",
+    "grounded": true,
+    "matched_group": "ANSUR I Female 50th Percentile + Hand Survey",
+    "hints": {
+      "gender": "female",
+      "age": null
+    },
+    "usedLLM": true,
+    "parsed": true,
+    "error": null,
+    "suggested": {
+      "palm_breadth_mm": 74,
+      "middle_finger_length_mm": 73,
+      "index_finger_length_mm": 66,
+      "ring_finger_length_mm": 69,
+      "pinky_finger_length_mm": 56,
+      "thumb_length_mm": 60,
+      "joint_dia": 6,
+      "joint_thick": 3,
+      "gauntlet_width_mm": 55,
+      "gauntlet_length_mm": 95
+    },
+    "validation": {
+      "rangeOK": true,
+      "ordering": "OK",
+      "plausible": "OK",
+      "issues": []
+    },
+    "expect": {
+      "ageGroup": "adult",
+      "gender": "female",
+      "note": "só qualitativo"
+    }
+  },
+  {
+    "id": "t1_comparative_pt",
+    "test": "T1-realistic",
+    "model": "flexy_beast",
+    "input": "A mão dele é um bocadinho mais pequena que a minha, e eu calço luvas tamanho M.",
+    "grounded": true,
+    "matched_group": "ANSUR I Male 50th Percentile + Hand Survey",
+    "hints": {
+      "gender": "male",
+      "age": null
+    },
+    "usedLLM": true,
+    "parsed": true,
+    "error": null,
+    "suggested": {
+      "palm_breadth_mm": 80,
+      "middle_finger_length_mm": 74,
+      "index_finger_length_mm": 67,
+      "ring_finger_length_mm": 71,
+      "pinky_finger_length_mm": 58,
+      "thumb_length_mm": 63
+    },
+    "validation": {
+      "rangeOK": true,
+      "ordering": "OK",
+      "plausible": "OK",
+      "issues": []
+    },
+    "expect": {
+      "note": "comparativo, sem medidas"
+    }
+  },
+  {
+    "id": "t1_slang_man_pt",
+    "test": "T1-realistic",
+    "model": "flexy_beast",
+    "input": "Gajo grande, mãos de pedreiro, joga à bola ao fim de semana.",
+    "grounded": true,
+    "matched_group": "ANSUR I Male 50th Percentile + Hand Survey",
+    "hints": {
+      "gender": "male",
+      "age": null
+    },
+    "usedLLM": true,
+    "parsed": true,
+    "error": null,
+    "suggested": {
+      "palm_breadth_mm": 97,
+      "middle_finger_length_mm": 89,
+      "index_finger_length_mm": 80,
+      "ring_finger_length_mm": 84,
+      "pinky_finger_length_mm": 69,
+      "thumb_length_mm": 75
+    },
+    "validation": {
+      "rangeOK": true,
+      "ordering": "OK",
+      "plausible": "OK",
+      "issues": []
+    },
+    "expect": {
+      "ageGroup": "adult",
+      "gender": "male",
+      "note": "gíria"
+    }
+  },
+  {
+    "id": "t1_en_girl",
+    "test": "T1-realistic",
+    "model": "flexy_beast",
+    "input": "My daughter is 9, quite petite.",
+    "grounded": true,
+    "matched_group": "Dutch children (TU Delft KIMA 1993 study) female, age 9 (Netherlands)",
+    "hints": {
+      "gender": "female",
+      "age": 9
+    },
+    "usedLLM": true,
+    "parsed": true,
+    "error": null,
+    "suggested": {
+      "palm_breadth_mm": 64,
+      "middle_finger_length_mm": 62,
+      "index_finger_length_mm": 58,
+      "ring_finger_length_mm": 58,
+      "pinky_finger_length_mm": 46,
+      "thumb_length_mm": 50,
+      "joint_dia": 5,
+      "joint_thick": 2,
+      "gauntlet_width_mm": 47,
+      "gauntlet_length_mm": 80,
+      "wrist_pin_dia": 5
+    },
+    "validation": {
+      "rangeOK": true,
+      "ordering": "OK",
+      "plausible": "OK",
+      "issues": []
+    },
+    "expect": {
+      "ageGroup": "child",
+      "gender": "female",
+      "note": "EN"
+    }
+  },
+  {
+    "id": "t1_es_elderly_man",
+    "test": "T1-realistic",
+    "model": "flexy_beast",
+    "input": "Hombre mayor, manos grandes.",
+    "grounded": true,
+    "matched_group": "Dutch elderly (TU Delft Geron 1998 study) male, age 65–69 (Netherlands)",
+    "hints": {
+      "gender": "male",
+      "age": null
+    },
+    "usedLLM": true,
+    "parsed": true,
+    "error": null,
+    "suggested": {
+      "palm_breadth_mm": 91,
+      "middle_finger_length_mm": 82,
+      "index_finger_length_mm": 78,
+      "ring_finger_length_mm": 79,
+      "pinky_finger_length_mm": 63,
+      "thumb_length_mm": 72,
+      "gauntlet_width_mm": 72,
+      "gauntlet_length_mm": 130
+    },
+    "validation": {
+      "rangeOK": true,
+      "ordering": "OK",
+      "plausible": "OK",
+      "issues": []
+    },
+    "expect": {
+      "ageGroup": "elderly",
+      "gender": "male",
+      "note": "ES"
+    }
+  },
+  {
+    "id": "t1_fr_woman",
+    "test": "T1-realistic",
+    "model": "flexy_beast",
+    "input": "Une femme adulte, taille moyenne, mince.",
+    "grounded": true,
+    "matched_group": "ANSUR I Female 50th Percentile + Hand Survey",
+    "hints": {
+      "gender": "female",
+      "age": null
+    },
+    "usedLLM": true,
+    "parsed": true,
+    "error": null,
+    "suggested": {
+      "palm_breadth_mm": 77,
+      "middle_finger_length_mm": 77,
+      "index_finger_length_mm": 70,
+      "ring_finger_length_mm": 73,
+      "pinky_finger_length_mm": 59,
+      "thumb_length_mm": 64,
+      "gauntlet_width_mm": 57
+    },
+    "validation": {
+      "rangeOK": true,
+      "ordering": "OK",
+      "plausible": "OK",
+      "issues": []
+    },
+    "expect": {
+      "gender": "female",
+      "note": "FR (fora de EN/PT/ES)"
+    }
+  },
+  {
+    "id": "t1_minimal",
+    "test": "T1-realistic",
+    "model": "flexy_beast",
+    "input": "criança",
+    "grounded": true,
+    "matched_group": "Dutch children (TU Delft KIMA 1993 study) female, age 2 (Netherlands)",
+    "hints": {
+      "gender": null,
+      "age": null
+    },
+    "usedLLM": true,
+    "parsed": true,
+    "error": null,
+    "suggested": {
+      "palm_breadth_mm": 55,
+      "middle_finger_length_mm": 45,
+      "index_finger_length_mm": 42,
+      "ring_finger_length_mm": 42,
+      "pinky_finger_length_mm": 33,
+      "thumb_length_mm": 37,
+      "joint_dia": 5,
+      "joint_thick": 2,
+      "gauntlet_width_mm": 42,
+      "gauntlet_length_mm": 75,
+      "gauntlet_wall_mm": 2
+    },
+    "validation": {
+      "rangeOK": true,
+      "ordering": "OK",
+      "plausible": "OK",
+      "issues": []
+    },
+    "expect": {
+      "ageGroup": "child",
+      "note": "uma palavra"
+    }
+  },
+  {
+    "id": "t2_right_hand",
+    "test": "T2-handedness",
+    "model": "flexy_beast",
+    "input": "Homem adulto, 90 mm de palma, precisa de prótese para a mão DIREITA.",
+    "grounded": true,
+    "matched_group": "ANSUR I Male 50th Percentile + Hand Survey",
+    "hints": {
+      "gender": "male",
+      "age": null
+    },
+    "usedLLM": true,
+    "parsed": true,
+    "error": null,
+    "suggested": {
+      "palm_breadth_mm": 90,
+      "middle_finger_length_mm": 84,
+      "index_finger_length_mm": 76,
+      "ring_finger_length_mm": 80,
+      "pinky_finger_length_mm": 65,
+      "thumb_length_mm": 71,
+      "mirrored": true
+    },
+    "validation": {
+      "rangeOK": true,
+      "ordering": "OK",
+      "plausible": "OK",
+      "issues": []
+    },
+    "expect": {
+      "mirrored": true,
+      "note": "direita explícita → mirrored=true"
+    }
+  },
+  {
+    "id": "t2_left_hand",
+    "test": "T2-handedness",
+    "model": "flexy_beast",
+    "input": "Mulher adulta, prótese para a mão esquerda.",
+    "grounded": true,
+    "matched_group": "ANSUR I Female 50th Percentile + Hand Survey",
+    "hints": {
+      "gender": "female",
+      "age": null
+    },
+    "usedLLM": true,
+    "parsed": true,
+    "error": null,
+    "suggested": {
+      "palm_breadth_mm": 79,
+      "middle_finger_length_mm": 79,
+      "index_finger_length_mm": 71,
+      "ring_finger_length_mm": 74,
+      "pinky_finger_length_mm": 60,
+      "thumb_length_mm": 65,
+      "mirrored": true
+    },
+    "validation": {
+      "rangeOK": true,
+      "ordering": "OK",
+      "plausible": "OK",
+      "issues": []
+    },
+    "expect": {
+      "mirrored": false,
+      "note": "esquerda → mirrored=false (default)"
+    }
+  },
+  {
+    "id": "t2_implicit_hand",
+    "test": "T2-handedness",
+    "model": "flexy_beast",
+    "input": "Adulto, palma 90 mm.",
+    "grounded": false,
+    "matched_group": null,
+    "hints": {
+      "gender": null,
+      "age": null
+    },
+    "usedLLM": true,
+    "parsed": true,
+    "error": null,
+    "suggested": {
+      "palm_breadth_mm": 90,
+      "middle_finger_length_mm": 72,
+      "index_finger_length_mm": 68,
+      "ring_finger_length_mm": 68,
+      "pinky_finger_length_mm": 55,
+      "thumb_length_mm": 60
+    },
+    "validation": {
+      "rangeOK": true,
+      "ordering": "OK",
+      "plausible": "OK",
+      "issues": []
+    },
+    "expect": {
+      "mirrored": false,
+      "note": "mão não indicada → não deve adivinhar"
+    }
+  },
+  {
+    "id": "t2_failsafe_huge",
+    "test": "T2-failsafe",
+    "model": "flexy_beast",
+    "input": "Mãos gigantes, palma com 200 mm.",
+    "grounded": false,
+    "matched_group": null,
+    "hints": {
+      "gender": null,
+      "age": null
+    },
+    "usedLLM": true,
+    "parsed": true,
+    "error": null,
+    "suggested": {
+      "palm_breadth_mm": 110,
+      "middle_finger_length_mm": 120,
+      "index_finger_length_mm": 114,
+      "ring_finger_length_mm": 114,
+      "pinky_finger_length_mm": 92,
+      "thumb_length_mm": 100
+    },
+    "validation": {
+      "rangeOK": true,
+      "ordering": "OK",
+      "plausible": "OK",
+      "issues": []
+    },
+    "expect": {
+      "note": "deve clampar palm_breadth a <=110"
+    }
+  },
+  {
+    "id": "t2_failsafe_zero",
+    "test": "T2-failsafe",
+    "model": "flexy_beast",
+    "input": "Palma de 0 mm.",
+    "grounded": false,
+    "matched_group": null,
+    "hints": {
+      "gender": null,
+      "age": null
+    },
+    "usedLLM": true,
+    "parsed": true,
+    "error": null,
+    "suggested": {
+      "palm_breadth_mm": 55,
+      "middle_finger_length_mm": 40,
+      "index_finger_length_mm": 40,
+      "ring_finger_length_mm": 40,
+      "pinky_finger_length_mm": 30,
+      "thumb_length_mm": 35,
+      "joint_dia": 4,
+      "joint_thick": 2,
+      "gauntlet_width_mm": 40,
+      "gauntlet_length_mm": 70
+    },
+    "validation": {
+      "rangeOK": true,
+      "ordering": "OK",
+      "plausible": "OK",
+      "issues": []
+    },
+    "expect": {
+      "note": "deve produzir valor são (>= min)"
+    }
+  },
+  {
+    "id": "t2_steer_phoenix_child",
+    "test": "T2-steering",
+    "model": "unlimbed_phoenix_hand",
+    "input": "Criança de 7 anos, mão pequena, palma cerca de 62 mm.",
+    "grounded": true,
+    "matched_group": "Dutch children (TU Delft KIMA 1993 study) female, age 7 (Netherlands)",
+    "hints": {
+      "gender": null,
+      "age": 7
+    },
+    "usedLLM": true,
+    "parsed": true,
+    "error": null,
+    "suggested": {
+      "palm_breadth_mm": 82,
+      "HandPerc_override": 0,
+      "LeftRight": "Left",
+      "part": "Palm"
+    },
+    "validation": {
+      "rangeOK": true,
+      "ordering": "n/a",
+      "plausible": "OK",
+      "issues": []
+    },
+    "expect": {
+      "note": "Phoenix floor: palm_breadth>=82; modelo inadequado p/ criança"
+    }
+  },
+  {
+    "id": "t2_steer_flexy_child",
+    "test": "T2-steering",
+    "model": "flexy_beast",
+    "input": "Criança de 7 anos, mão pequena, palma cerca de 62 mm.",
+    "grounded": true,
+    "matched_group": "Dutch children (TU Delft KIMA 1993 study) female, age 7 (Netherlands)",
+    "hints": {
+      "gender": null,
+      "age": 7
+    },
+    "usedLLM": true,
+    "parsed": true,
+    "error": null,
+    "suggested": {
+      "palm_breadth_mm": 62,
+      "middle_finger_length_mm": 57,
+      "index_finger_length_mm": 53,
+      "ring_finger_length_mm": 53,
+      "pinky_finger_length_mm": 43,
+      "thumb_length_mm": 46,
+      "joint_dia": 5,
+      "joint_thick": 2,
+      "gauntlet_width_mm": 46,
+      "gauntlet_length_mm": 80,
+      "wrist_pin_dia": 5
+    },
+    "validation": {
+      "rangeOK": true,
+      "ordering": "OK",
+      "plausible": "OK",
+      "issues": []
+    },
+    "expect": {
+      "note": "contraste: Flexy escala para baixo sem problema"
+    }
+  }
+]

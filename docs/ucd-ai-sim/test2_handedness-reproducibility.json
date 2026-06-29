@@ -1,0 +1,385 @@
+[
+  {
+    "id": "left_r0",
+    "test": "hand",
+    "model": "flexy_beast",
+    "input": "Mulher adulta, prótese para a mão esquerda.",
+    "grounded": true,
+    "matched_group": "ANSUR I Female 50th Percentile + Hand Survey",
+    "hints": {
+      "gender": "female",
+      "age": null
+    },
+    "usedLLM": true,
+    "parsed": true,
+    "error": null,
+    "suggested": {
+      "palm_breadth_mm": 79,
+      "middle_finger_length_mm": 79,
+      "index_finger_length_mm": 71,
+      "ring_finger_length_mm": 74,
+      "pinky_finger_length_mm": 60,
+      "thumb_length_mm": 65,
+      "mirrored": true
+    },
+    "validation": {
+      "rangeOK": true,
+      "ordering": "OK",
+      "plausible": "OK",
+      "issues": []
+    },
+    "expect": {
+      "mirrored": false
+    }
+  },
+  {
+    "id": "right_r0",
+    "test": "hand",
+    "model": "flexy_beast",
+    "input": "Homem adulto, 90 mm de palma, precisa de prótese para a mão DIREITA.",
+    "grounded": true,
+    "matched_group": "ANSUR I Male 50th Percentile + Hand Survey",
+    "hints": {
+      "gender": "male",
+      "age": null
+    },
+    "usedLLM": true,
+    "parsed": true,
+    "error": null,
+    "suggested": {
+      "palm_breadth_mm": 90,
+      "middle_finger_length_mm": 84,
+      "index_finger_length_mm": 76,
+      "ring_finger_length_mm": 80,
+      "pinky_finger_length_mm": 65,
+      "thumb_length_mm": 71,
+      "mirrored": true
+    },
+    "validation": {
+      "rangeOK": true,
+      "ordering": "OK",
+      "plausible": "OK",
+      "issues": []
+    },
+    "expect": {
+      "mirrored": true
+    }
+  },
+  {
+    "id": "left_en_r0",
+    "test": "hand",
+    "model": "flexy_beast",
+    "input": "Adult, needs a prosthesis for the LEFT hand.",
+    "grounded": false,
+    "matched_group": null,
+    "hints": {
+      "gender": null,
+      "age": null
+    },
+    "usedLLM": true,
+    "parsed": true,
+    "error": null,
+    "suggested": {
+      "palm_breadth_mm": 83,
+      "middle_finger_length_mm": 72,
+      "index_finger_length_mm": 68,
+      "ring_finger_length_mm": 68,
+      "pinky_finger_length_mm": 55,
+      "thumb_length_mm": 65,
+      "mirrored": true
+    },
+    "validation": {
+      "rangeOK": true,
+      "ordering": "OK",
+      "plausible": "OK",
+      "issues": []
+    },
+    "expect": {
+      "mirrored": false
+    }
+  },
+  {
+    "id": "left_r1",
+    "test": "hand",
+    "model": "flexy_beast",
+    "input": "Mulher adulta, prótese para a mão esquerda.",
+    "grounded": true,
+    "matched_group": "ANSUR I Female 50th Percentile + Hand Survey",
+    "hints": {
+      "gender": "female",
+      "age": null
+    },
+    "usedLLM": true,
+    "parsed": true,
+    "error": null,
+    "suggested": {
+      "palm_breadth_mm": 79,
+      "middle_finger_length_mm": 79,
+      "index_finger_length_mm": 71,
+      "ring_finger_length_mm": 74,
+      "pinky_finger_length_mm": 60,
+      "thumb_length_mm": 65,
+      "mirrored": true
+    },
+    "validation": {
+      "rangeOK": true,
+      "ordering": "OK",
+      "plausible": "OK",
+      "issues": []
+    },
+    "expect": {
+      "mirrored": false
+    }
+  },
+  {
+    "id": "right_r1",
+    "test": "hand",
+    "model": "flexy_beast",
+    "input": "Homem adulto, 90 mm de palma, precisa de prótese para a mão DIREITA.",
+    "grounded": true,
+    "matched_group": "ANSUR I Male 50th Percentile + Hand Survey",
+    "hints": {
+      "gender": "male",
+      "age": null
+    },
+    "usedLLM": true,
+    "parsed": true,
+    "error": null,
+    "suggested": {
+      "palm_breadth_mm": 90,
+      "middle_finger_length_mm": 84,
+      "index_finger_length_mm": 76,
+      "ring_finger_length_mm": 80,
+      "pinky_finger_length_mm": 65,
+      "thumb_length_mm": 71,
+      "mirrored": true
+    },
+    "validation": {
+      "rangeOK": true,
+      "ordering": "OK",
+      "plausible": "OK",
+      "issues": []
+    },
+    "expect": {
+      "mirrored": true
+    }
+  },
+  {
+    "id": "left_en_r1",
+    "test": "hand",
+    "model": "flexy_beast",
+    "input": "Adult, needs a prosthesis for the LEFT hand.",
+    "grounded": false,
+    "matched_group": null,
+    "hints": {
+      "gender": null,
+      "age": null
+    },
+    "usedLLM": true,
+    "parsed": true,
+    "error": null,
+    "suggested": {
+      "palm_breadth_mm": 83,
+      "middle_finger_length_mm": 72,
+      "index_finger_length_mm": 68,
+      "ring_finger_length_mm": 68,
+      "pinky_finger_length_mm": 55,
+      "thumb_length_mm": 65,
+      "mirrored": true
+    },
+    "validation": {
+      "rangeOK": true,
+      "ordering": "OK",
+      "plausible": "OK",
+      "issues": []
+    },
+    "expect": {
+      "mirrored": false
+    }
+  },
+  {
+    "id": "left_r2",
+    "test": "hand",
+    "model": "flexy_beast",
+    "input": "Mulher adulta, prótese para a mão esquerda.",
+    "grounded": true,
+    "matched_group": "ANSUR I Female 50th Percentile + Hand Survey",
+    "hints": {
+      "gender": "female",
+      "age": null
+    },
+    "usedLLM": true,
+    "parsed": true,
+    "error": null,
+    "suggested": {
+      "palm_breadth_mm": 79,
+      "middle_finger_length_mm": 79,
+      "index_finger_length_mm": 71,
+      "ring_finger_length_mm": 74,
+      "pinky_finger_length_mm": 60,
+      "thumb_length_mm": 65,
+      "mirrored": true
+    },
+    "validation": {
+      "rangeOK": true,
+      "ordering": "OK",
+      "plausible": "OK",
+      "issues": []
+    },
+    "expect": {
+      "mirrored": false
+    }
+  },
+  {
+    "id": "right_r2",
+    "test": "hand",
+    "model": "flexy_beast",
+    "input": "Homem adulto, 90 mm de palma, precisa de prótese para a mão DIREITA.",
+    "grounded": true,
+    "matched_group": "ANSUR I Male 50th Percentile + Hand Survey",
+    "hints": {
+      "gender": "male",
+      "age": null
+    },
+    "usedLLM": true,
+    "parsed": true,
+    "error": null,
+    "suggested": {
+      "palm_breadth_mm": 90,
+      "middle_finger_length_mm": 84,
+      "index_finger_length_mm": 76,
+      "ring_finger_length_mm": 80,
+      "pinky_finger_length_mm": 65,
+      "thumb_length_mm": 71,
+      "mirrored": true
+    },
+    "validation": {
+      "rangeOK": true,
+      "ordering": "OK",
+      "plausible": "OK",
+      "issues": []
+    },
+    "expect": {
+      "mirrored": true
+    }
+  },
+  {
+    "id": "left_en_r2",
+    "test": "hand",
+    "model": "flexy_beast",
+    "input": "Adult, needs a prosthesis for the LEFT hand.",
+    "grounded": false,
+    "matched_group": null,
+    "hints": {
+      "gender": null,
+      "age": null
+    },
+    "usedLLM": true,
+    "parsed": false,
+    "error": "read ETIMEDOUT",
+    "validation": null,
+    "expect": {
+      "mirrored": false
+    }
+  },
+  {
+    "id": "left_r3",
+    "test": "hand",
+    "model": "flexy_beast",
+    "input": "Mulher adulta, prótese para a mão esquerda.",
+    "grounded": true,
+    "matched_group": "ANSUR I Female 50th Percentile + Hand Survey",
+    "hints": {
+      "gender": "female",
+      "age": null
+    },
+    "usedLLM": true,
+    "parsed": true,
+    "error": null,
+    "suggested": {
+      "palm_breadth_mm": 79,
+      "middle_finger_length_mm": 79,
+      "index_finger_length_mm": 71,
+      "ring_finger_length_mm": 74,
+      "pinky_finger_length_mm": 60,
+      "thumb_length_mm": 65,
+      "mirrored": true
+    },
+    "validation": {
+      "rangeOK": true,
+      "ordering": "OK",
+      "plausible": "OK",
+      "issues": []
+    },
+    "expect": {
+      "mirrored": false
+    }
+  },
+  {
+    "id": "right_r3",
+    "test": "hand",
+    "model": "flexy_beast",
+    "input": "Homem adulto, 90 mm de palma, precisa de prótese para a mão DIREITA.",
+    "grounded": true,
+    "matched_group": "ANSUR I Male 50th Percentile + Hand Survey",
+    "hints": {
+      "gender": "male",
+      "age": null
+    },
+    "usedLLM": true,
+    "parsed": true,
+    "error": null,
+    "suggested": {
+      "palm_breadth_mm": 90,
+      "middle_finger_length_mm": 84,
+      "index_finger_length_mm": 76,
+      "ring_finger_length_mm": 80,
+      "pinky_finger_length_mm": 65,
+      "thumb_length_mm": 71,
+      "mirrored": true
+    },
+    "validation": {
+      "rangeOK": true,
+      "ordering": "OK",
+      "plausible": "OK",
+      "issues": []
+    },
+    "expect": {
+      "mirrored": true
+    }
+  },
+  {
+    "id": "left_en_r3",
+    "test": "hand",
+    "model": "flexy_beast",
+    "input": "Adult, needs a prosthesis for the LEFT hand.",
+    "grounded": false,
+    "matched_group": null,
+    "hints": {
+      "gender": null,
+      "age": null
+    },
+    "usedLLM": true,
+    "parsed": true,
+    "error": null,
+    "suggested": {
+      "palm_breadth_mm": 83,
+      "middle_finger_length_mm": 72,
+      "index_finger_length_mm": 68,
+      "ring_finger_length_mm": 68,
+      "pinky_finger_length_mm": 55,
+      "thumb_length_mm": 65,
+      "mirrored": true,
+      "gauntlet_width_mm": 60
+    },
+    "validation": {
+      "rangeOK": true,
+      "ordering": "OK",
+      "plausible": "OK",
+      "issues": []
+    },
+    "expect": {
+      "mirrored": false
+    }
+  }
+]

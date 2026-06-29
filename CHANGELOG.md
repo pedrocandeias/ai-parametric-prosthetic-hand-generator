@@ -10,6 +10,14 @@ Version format: `MAJOR.MINOR.PATCH`
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
+## v14.20.0 — 2026-06-29
+
+refactor: make the AI sizing prompt model-driven — first structural step of the universalization roadmap (towards limbs beyond the hand). The hand-specific domain guidance (canonical measurement fields, finger-proportion hint) and the limb noun were hardcoded in `app.js`; they now come from two per-model fields in `models-config.json`: `limb` (e.g. `"hand"`) and `aiGuidance`. The prompt intro reads "prosthetic &lt;limb&gt; model" from config, and the domain-guidance line is injected from the model's `aiGuidance`, so a future lower-limb model (foot/leg) carries its own vocabulary and hints without any code change. Hand-sizing quality is unchanged (verified: same applied parameters, laterality still omitted, grounding intact). Roadmap documented in `docs/ai_anthropometric_validation.md` §9.1.
+
+## v14.19.0 — 2026-06-29
+
+fix: limb side (left/right) is now controlled solely by the user in the UI — the AI no longer infers or overrides it. A UCD evaluation found the AI emitted `mirrored=true` (right hand) regardless of the requested side, so explicit left-hand requests silently produced a right hand (reproducible 4/4) — a safety defect a layperson can't catch until printed. Handedness parameters are now tagged `role: "laterality"` in `models-config.json` (`mirrored` on Flexy Beast & Paraglider, `LeftRight` on Phoenix); `app.js` excludes them from the AI's suggestible parameter list, injects the user's chosen side into the prompt as a fixed fact, and defensively drops any laterality key from `applySuggestions`. Verified: the AI now omits `mirrored` in 9/9 runs (incl. UI-says-left / text-says-right conflict). Designed generically as **laterality** (not "handedness") so it already applies to any future paired limb (arm, foot, leg). The prompt intro was also de-specialised from "prosthetic hand" to "prosthetic" toward broader limb support.
+
 ## v14.18.0 — 2026-06-28
 
 fix: the UnLimbited Phoenix Hand print scale can no longer drop below the supported 100% (≈82 mm palm). `HandPerc_override` has a declared range of `[0:160]`, but only `0` (auto) and `100–160` (direct scale) are meaningful — the `1–99` band was a dead zone that bypassed the floor that `palm_breadth_mm` (clamped to 100–160%) enforces. During the AI-sizing simulation the model returned `HandPerc_override = 76` for a child, scaling the Phoenix mesh to 76% (62 mm) — below the minimum the mesh supports, and inconsistently with the woman profile (floored to 100%). Both scale paths in `UnLimbitedPhoenix.scad` are now clamped to 100–160%, so neither an auto-derived small breadth nor a manual override can go sub-100%. Verified: override 76→100% (82.17 mm), 0→82.17 mm, 130→130% (106.8 mm). Found and documented via `docs/phoenix-ai-sim/`.

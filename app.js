@@ -1677,13 +1677,28 @@ class ParameterEditor {
         this.updateStatus('Getting AI suggestions...', '');
 
         try {
-            const promptText = `You are sizing a 3D-printed parametric prosthetic hand model ("${this.currentModel.name}") for a patient.
+            // Laterality (left/right) is the user's UI choice — never the AI's to infer.
+            // Exclude role:"laterality" params from what the AI may set, and state the
+            // side the user already picked so the output stays consistent. Generic by
+            // design: applies to any paired limb (hand, arm, foot, leg), not just hands.
+            const lateralityParams = this.currentModel.parameters.filter(p => p.role === 'laterality');
+            const aiParams = this.currentModel.parameters.filter(p => p.role !== 'laterality');
+            const sideLabel = (p) => {
+                const v = this.parameters[p.name];
+                if (typeof v === 'boolean') return v ? 'right' : 'left';
+                return String(v).toLowerCase().includes('right') ? 'right' : 'left';
+            };
+            const sideNote = lateralityParams.length
+                ? `\n- Limb side (left/right) has already been chosen by the user in the UI: ${[...new Set(lateralityParams.map(sideLabel))].join(', ')} side. Treat it as fixed — do NOT include ${lateralityParams.map(p => p.name).join(' or ')} in your output, and do not change the side.`
+                : '';
+            const limbNoun = this.currentModel.limb ? `${this.currentModel.limb} ` : '';
+            const promptText = `You are sizing a 3D-printed parametric prosthetic ${limbNoun}model ("${this.currentModel.name}") for a patient.
 
 Patient anthropometric data:
 ${anthropometricInput}
 
 These are the model's adjustable parameters. Each has a name, a caption describing what it controls, an allowed range (min/max where applicable), and the current value:
-${JSON.stringify(this.currentModel.parameters.map(p => ({
+${JSON.stringify(aiParams.map(p => ({
     name: p.name,
     caption: p.caption,
     type: p.type,
@@ -1693,11 +1708,11 @@ ${JSON.stringify(this.currentModel.parameters.map(p => ({
 })), null, 2)}
 
 Guidance:
-- Anthropometric parameters are anatomical measurements in millimetres. Use the patient's data to set them directly. Canonical fields (when present): palm_breadth_mm (knuckle-to-knuckle, ~70-100mm adult), palm_length_mm (wrist to MCP, ~90-120mm), palm_thickness_mm (~22-38mm), index/middle/ring/pinky_finger_length_mm (MCP crease to tip), thumb_length_mm, gauntlet_width_mm (≈ wrist circumference / π + ~5mm clearance).
-- If the data is qualitative (e.g. "woman, 172cm, slim build"), estimate plausible adult measurements from population norms; women typically run smaller than men.
-- Keep proportions realistic relative to each other (e.g. middle finger longest, pinky shortest).
+- Anthropometric parameters are anatomical measurements in millimetres; use the patient's data to set them directly, guided by each parameter's caption above.
+- If the data is qualitative (e.g. "woman, 172cm, slim build"), estimate plausible measurements from population norms; women typically run smaller than men, and children smaller than adults.${this.currentModel.aiGuidance ? '\n- ' + this.currentModel.aiGuidance : ''}
+- Keep proportions anatomically realistic relative to each other.
 - Only suggest values for parameters listed above, by their exact name, and stay within each parameter's min/max.
-- Leave hardware/visibility/color parameters at their current values unless the patient data clearly implies a change.
+- Leave hardware/visibility/color parameters at their current values unless the patient data clearly implies a change.${sideNote}
 
 Respond with ONLY a valid JSON object mapping parameter names to suggested values. No prose, no markdown.`;
 
@@ -1889,8 +1904,14 @@ Respond with ONLY a valid JSON object mapping parameter names to suggested value
     }
 
     applySuggestions(suggestions) {
+        // Laterality (left/right) is user-controlled in the UI — never let an AI
+        // suggestion change it, even if the model returns it (belt-and-suspenders
+        // alongside excluding it from the prompt). Generic across paired limbs.
+        const lateralityNames = new Set(
+            (this.currentModel?.parameters || []).filter(p => p.role === 'laterality').map(p => p.name));
         // Apply suggested values to parameters
         for (const [paramName, value] of Object.entries(suggestions)) {
+            if (lateralityNames.has(paramName)) continue;
             if (this.parameters.hasOwnProperty(paramName)) {
                 this.parameters[paramName] = value;
 

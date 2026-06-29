@@ -446,8 +446,13 @@ schema injetado, e não apenas os seus nomes.
 
 ## 9. Trabalho Futuro
 
-- **Regra explícita de contralateral/espelhamento** no prompt, removendo a dependência da
-  inferência para um parâmetro relevante para a segurança.
+- ✅ **Lateralidade determinística (feito, v14.19.0).** A mão/lado (esquerda/direita) deixou de
+  ser inferida pela IA — passou a ser exclusivamente a escolha da UI: os parâmetros ganham
+  `role: "laterality"` no config, são excluídos da lista que a IA sugere, o lado escolhido é
+  injetado no prompt como facto fixo, e qualquer chave de lateralidade vinda da IA é descartada.
+  Verificado (a IA omite `mirrored` 9/9). Implementada de forma genérica (laterality, não
+  "handedness") — ver a subsecção **Universalização** abaixo e
+  [`docs/ucd-ai-sim/`](ucd-ai-sim/ucd-ai-sizing-evaluation_2026-06-29.md) §2c.
 - **Validação estatística:** amostragem de N extrações por perfil com média/σ reportadas por
   parâmetro e taxas de aprovação dos invariantes.
 - **Saída validada por schema:** impor um JSON schema do lado do servidor e fazer auto-re-prompt
@@ -468,6 +473,38 @@ schema injetado, e não apenas os seus nomes.
     e [`docs/paraglider-ai-sim/`](paraglider-ai-sim/paraglider-hand_ai-sizing-dimensional-report_2026-06-28.md).
 - **Conjunto permanente de regressão:** reter os perfis de apenas-demográficos como teste
   permanente, dado que esse caminho serve o utilizador de menor conhecimento.
+
+### 9.1 Universalização para outros membros (mão hoje → membro inferior amanhã)
+
+A plataforma é hoje de **membros superiores** (mãos), mas o pipeline de dimensionamento por
+IA pode servir outros membros (braço, pé, perna). O princípio de desenho é **retirar do
+código os pressupostos específicos da mão** e declará-los no *config do modelo*, em três
+camadas:
+
+**Camada 1 — estrutural, de baixo custo (✅ feita, v14.19.0–v14.20.0).**
+- ✅ **Lateralidade genérica** (`role: "laterality"`, v14.19.0) — já se aplica a qualquer
+  membro par, não só à mão.
+- ✅ **Prompt model-driven** (v14.20.0): cada modelo declara no config um campo `limb`
+  (ex.: `"hand"`) e um `aiGuidance` (a orientação de domínio antes *hardcoded* — campos
+  canónicos, proporções dos dedos). O intro do prompt passa a ler "prosthetic &lt;limb&gt;
+  model" do config e a linha de domínio vem do `aiGuidance` do modelo. Um modelo de pé traz a
+  sua própria orientação **sem alterar código**; a qualidade da mão mantém-se (verificado).
+- Resta o reforço de UI: cópia/categorização por membro (texto de UI, agrupamento de modelos).
+
+**Camada 2 — a generalização do schema antropométrico (núcleo do trabalho).**
+- Generalizar `profileMapping.PARAM_TO_MEASUREMENT_PATH` (hoje fixo em `palm.width_mm`,
+  `digits.*`) para ser **declarado pelo modelo** ou indexado por tipo de membro — ex.: um
+  modelo de pé mapeia `foot_length_mm → foot.length_mm`.
+- Estender a árvore `profile.measurements` (e o pipeline de importação por CSV) com ramos de
+  membro inferior; o matcher de grounding (género/idade/país) já é agnóstico ao membro.
+
+**Camada 3 — dados e conteúdo.**
+- Datasets populacionais de membro inferior (os atuais são de mão — ANSUR *hand survey*).
+- Categorizar os modelos por membro na UI; tabela de alinhamento de parâmetros por membro no
+  `CLAUDE.md`.
+
+A Camada 1 dá universalidade estrutural sem dados novos e com risco baixo; a Camada 2 é o
+trabalho central e merece um desenho dedicado antes da implementação.
 
 ---
 
