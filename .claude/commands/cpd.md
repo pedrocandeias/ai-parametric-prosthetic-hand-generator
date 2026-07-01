@@ -20,6 +20,7 @@ Conventional-Commits subject yourself from the diff.
 ## 2. Safety checks (abort on failure)
 - **No stray scratch in the source tree:** `find . -path ./deploy -prune -o -path ./node_modules -prune -o -path ./.git -prune -o \( -type d \( -name 'out_*' -o -name 'stl_*' \) \) -print`. If anything shows up under a model/source dir, it must be deleted before deploying (the deployer copies everything except its hard-excludes, so scratch would ship to prod). The 2026-06-28 deploy nearly shipped `models/active/paraglider_hand/out_pg2/` — always check.
 - **CHANGELOG + version:** per `CLAUDE.md`, every code change needs a `CHANGELOG.md` entry and a matching `package.json` `version`. If a code file changed but CHANGELOG/version weren't bumped, stop and add them (or confirm with the user).
+- **Asset cache-buster:** if any front-end JS changed (`app.js`, `translations.js`, `i18n.js`, `auth.js`, `footer.js`, `screens.js`), the `?v=<version>` query on the `<script>` tags in `index.html` must match the new `package.json` version — otherwise returning browsers serve stale cached JS and new strings/i18n keys render raw (e.g. `cfg.tabColors`). Bump them together.
 
 ## 3. Commit
 - If on the default branch (`main`), create a feature branch first; otherwise commit on the current branch.

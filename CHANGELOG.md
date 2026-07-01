@@ -10,6 +10,10 @@ Version format: `MAJOR.MINOR.PATCH`
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
+## v14.24.0 — 2026-07-01
+
+fix: **cache-bust front-end JS on deploy.** Returning browsers were serving stale cached copies of the static scripts (no `?v=` query, no `Cache-Control` header), so newly deployed strings didn't appear — e.g. the new Colors tab rendered its raw i18n key `cfg.tabColors` because the cached `translations.js` lacked the translation. All local `<script>` tags now carry a `?v=<version>` query (`translations.js`, `i18n.js`, `auth.js`, `footer.js`, `screens.js`, `app.js`); bump it to match `package.json` on each release so a deploy always invalidates the cache. Documented as a `/cpd` safety check. (Production content was already correct — this was purely a client caching problem.)
+
 ## v14.23.0 — 2026-07-01
 
 feat: **dedicated Colors tab + per-part colours.** The configuration card gains a **Colors** tab between Parameters and Saved (order: AI Assistant → Parameters → Colors → Saved). `type: "color"` params are split out of the Parameters list and rendered as swatches in the Colors tab, one per printable part; the Parameters tab keeps everything else. Empty/idle states handled (no model → prompt; model without colours → notice). i18n en+pt (`cfg.tabColors`, `cfg.colorsIntro`, …).
