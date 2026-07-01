@@ -171,13 +171,13 @@
         },
         {
           "name": "pad_color",
-          "type": "string",
+          "type": "color",
           "initial": "#e8c8a0",
-          "caption": "Silicone grip pad preview color",
+          "caption": "Silicone grip pad colour (preview + 3MF)",
           "label_pt": "Cor das Almofadas",
-          "caption_pt": "Cor de pré-visualização das almofadas de silicone",
-          "help": "Objective: pick the colour used to draw the grip pads in the preview (CSS name or hex). Outcome: purely cosmetic — it helps you tell the pads apart from the finger body on screen and has no effect on the printed STL.",
-          "help_pt": "Objetivo: escolher a cor usada para desenhar as almofadas de aderência na pré-visualização (nome CSS ou hexadecimal). Resultado: puramente estético — ajuda a distinguir as almofadas do corpo do dedo no ecrã e não tem efeito no STL impresso.",
+          "caption_pt": "Cor das almofadas de silicone (pré-visualização + 3MF)",
+          "help": "Objective: pick the colour used to draw the grip pads. Outcome: shows in the on-screen preview and is baked into a 3MF export (so a multi-material printer can print the pads in this colour); it has no effect on a plain STL export.",
+          "help_pt": "Objetivo: escolher a cor usada para desenhar as almofadas de aderência. Resultado: aparece na pré-visualização no ecrã e é gravada na exportação 3MF (para uma impressora multi-material imprimir as almofadas nesta cor); não tem efeito numa exportação STL simples.",
           "group": "Options"
         },
         {
@@ -1080,63 +1080,63 @@
         },
         {
           "name": "color_palm",
-          "type": "string",
+          "type": "color",
           "initial": "#d4a574",
-          "caption": "Palm preview color",
+          "caption": "Palm colour (preview + 3MF)",
           "label_pt": "Cor da Palma",
           "caption_pt": "Cor de pré-visualização da palma",
           "group": "Colors"
         },
         {
           "name": "color_index",
-          "type": "string",
+          "type": "color",
           "initial": "#4a9eff",
-          "caption": "Index finger preview color",
+          "caption": "Index finger colour (preview + 3MF)",
           "label_pt": "Cor do Indicador",
           "caption_pt": "Cor de pré-visualização do indicador",
           "group": "Colors"
         },
         {
           "name": "color_middle",
-          "type": "string",
+          "type": "color",
           "initial": "#ff6b6b",
-          "caption": "Middle finger preview color",
+          "caption": "Middle finger colour (preview + 3MF)",
           "label_pt": "Cor do Médio",
           "caption_pt": "Cor de pré-visualização do médio",
           "group": "Colors"
         },
         {
           "name": "color_ring",
-          "type": "string",
+          "type": "color",
           "initial": "#51cf66",
-          "caption": "Ring finger preview color",
+          "caption": "Ring finger colour (preview + 3MF)",
           "label_pt": "Cor do Anelar",
           "caption_pt": "Cor de pré-visualização do anelar",
           "group": "Colors"
         },
         {
           "name": "color_pinky",
-          "type": "string",
+          "type": "color",
           "initial": "#ffd43b",
-          "caption": "Pinky finger preview color",
+          "caption": "Pinky finger colour (preview + 3MF)",
           "label_pt": "Cor do Mindinho",
           "caption_pt": "Cor de pré-visualização do mindinho",
           "group": "Colors"
         },
         {
           "name": "color_thumb",
-          "type": "string",
+          "type": "color",
           "initial": "#cc5de8",
-          "caption": "Thumb preview color",
+          "caption": "Thumb colour (preview + 3MF)",
           "label_pt": "Cor do Polegar",
           "caption_pt": "Cor de pré-visualização do polegar",
           "group": "Colors"
         },
         {
           "name": "color_pins",
-          "type": "string",
+          "type": "color",
           "initial": "#aaaaaa",
-          "caption": "Pivot pins preview color",
+          "caption": "Pivot pins colour (preview + 3MF)",
           "label_pt": "Cor dos Pinos",
           "caption_pt": "Cor de pré-visualização dos pinos",
           "group": "Colors"

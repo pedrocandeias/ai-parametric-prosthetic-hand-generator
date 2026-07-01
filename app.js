@@ -560,6 +560,27 @@ class ParameterEditor {
                     <select id="param-${param.name}" class="param-control">${options}</select>
                 </div>
             `;
+        } else if (param.type === 'color') {
+            // Native colour swatch. Reuses the generic change/input wiring: the value
+            // is a "#rrggbb" string that flows through updateEditor as a quoted SCAD
+            // colour, so the preview repaints and the choice is baked into 3MF export.
+            const hex = /^#[0-9a-fA-F]{6}$/.test(String(value)) ? String(value) : '#cccccc';
+            controlHtml = `
+                <div class="param-item">
+                    <div class="param-label">
+                        <span class="param-name">${label}${linkIndicator}${helpIcon}</span>
+                        <span class="param-value" id="value-${param.name}">${value}</span>
+                    </div>
+                    <div class="param-caption">${caption}</div>
+                    <div class="color-control">
+                        <input type="color"
+                               id="param-${param.name}"
+                               class="param-color"
+                               value="${hex}">
+                        <span class="color-swatch-hex">${hex}</span>
+                    </div>
+                </div>
+            `;
         } else if (param.type === 'string') {
             controlHtml = `
                 <div class="param-item">
@@ -602,6 +623,11 @@ class ParameterEditor {
                 input.checked = value;
             } else {
                 input.value = value;
+            }
+
+            if (input.type === 'color') {
+                const hexLabel = input.parentElement?.querySelector('.color-swatch-hex');
+                if (hexLabel) hexLabel.textContent = value;
             }
 
             if (input.type === 'range') {
@@ -746,7 +772,7 @@ class ParameterEditor {
             );
 
             if (code.match(pattern)) {
-                const needsQuotes = param.type === 'string' ||
+                const needsQuotes = param.type === 'string' || param.type === 'color' ||
                     (param.type === 'enum' && typeof paramValue === 'string');
                 const scadValue = needsQuotes ? `"${paramValue}"` : paramValue;
                 code = code.replace(pattern, `$1${scadValue};`);
@@ -1313,18 +1339,15 @@ class ParameterEditor {
         return data;
     }
 
-    // Entry point for the Export STL button. Models that declare printable `parts`
-    // open a selection modal; others export the whole model as a single file.
+    // Entry point for the Export button. Opens the selection modal so the user can
+    // pick part(s) to export and the output format (STL or 3MF). Models without
+    // declared `parts` show a single "Whole model" row, pre-checked.
     exportSTL() {
         if (!this.currentModel) {
             this.updateStatus('No model selected', 'error');
             return;
         }
-        if (Array.isArray(this.currentModel.parts) && this.currentModel.parts.length) {
-            this.openExportModal();
-        } else {
-            this.runExport([{ id: 'combined', name: 'Whole model', combined: true }]);
-        }
+        this.openExportModal();
     }
 
     openExportModal() {
@@ -1337,14 +1360,17 @@ class ParameterEditor {
         }
         status.textContent = '';
 
-        // A "combined" option plus one row per declared printable part.
+        // A "combined" option plus one row per declared printable part. When the
+        // model declares no parts, the combined row is the only choice and starts
+        // checked; otherwise combined is unchecked and each part is checked.
+        const parts = Array.isArray(this.currentModel.parts) ? this.currentModel.parts : [];
         const items = [
-            { id: 'combined', name: 'Whole model (single file)', combined: true },
-            ...this.currentModel.parts.map(p => ({ id: p.id, name: p.name })),
+            { id: 'combined', name: 'Whole model (single file)', combined: true, checked: parts.length === 0 },
+            ...parts.map(p => ({ id: p.id, name: p.name, checked: true })),
         ];
         list.innerHTML = items.map(it => `
             <label class="export-row">
-                <input type="checkbox" class="export-item" value="${it.id}" ${it.combined ? '' : 'checked'}>
+                <input type="checkbox" class="export-item" value="${it.id}" ${it.checked ? 'checked' : ''}>
                 ${it.name}
             </label>`).join('');
 
@@ -1362,11 +1388,14 @@ class ParameterEditor {
         document.getElementById('export-confirm-btn').onclick = () => {
             const selected = checkboxes().filter(c => c.checked).map(c => c.value);
             if (!selected.length) { status.textContent = 'Select at least one item.'; return; }
+            const modelParts = Array.isArray(this.currentModel.parts) ? this.currentModel.parts : [];
             const selections = selected.map(id => id === 'combined'
                 ? { id: 'combined', name: 'Whole model', combined: true }
-                : this.currentModel.parts.find(p => p.id === id));
+                : modelParts.find(p => p.id === id));
+            const fmtEl = document.querySelector('input[name="export-format-opt"]:checked');
+            const format = (fmtEl && fmtEl.value === '3mf') ? '3mf' : 'stl';
             this.closeExportModal();
-            this.runExport(selections);
+            this.runExport(selections, format);
         };
 
         modal.classList.add('active');
@@ -1379,32 +1408,47 @@ class ParameterEditor {
 
     // Render and download one STL per selection. A single selection downloads
     // directly; multiple selections are bundled into a ZIP.
-    async runExport(selections) {
+    async runExport(selections, format = 'stl') {
         if (!this.currentModel) return;
         const baseCode = document.getElementById('editor').value;
         this.showLoading(true);
 
         // Switch assembled-view models into their flat print-bed layout so every
-        // exported STL sits flat for slicing instead of floating in assembled pose.
+        // exported part sits flat for slicing instead of floating in assembled pose.
         const exportCode = this._applyExportLayout(baseCode);
+
+        // The render/bed-seat/merge pipeline always produces binary STL internally;
+        // for 3MF we convert that positioned mesh at the packaging step. 3MF embeds
+        // explicit millimetre units, so slicers import at the correct scale.
+        const is3mf = format === '3mf';
+        const ext = is3mf ? '3mf' : 'stl';
+        const mime = is3mf ? 'model/3mf' : 'model/stl';
 
         try {
             const files = [];
             for (let i = 0; i < selections.length; i++) {
                 const sel = selections[i];
                 this.updateStatus(`Exporting ${sel.name}… (${i + 1}/${selections.length})`, '');
-                const data = await this._renderSelection(sel, exportCode);
-                files.push({ name: `${this.currentModel.id}_${sel.id}.stl`, data });
+                let data;
+                if (is3mf) {
+                    // 3MF renders in colored OFF so the model's color() choices carry
+                    // through as 3MF materials (multi-material print-ready).
+                    const mesh = await this._renderColoredSelection(sel, exportCode);
+                    data = this._coloredMeshToThreeMF(mesh);
+                } else {
+                    data = await this._renderSelection(sel, exportCode);
+                }
+                files.push({ name: `${this.currentModel.id}_${sel.id}.${ext}`, data });
             }
 
             if (files.length === 1) {
-                this._downloadBlob(new Blob([files[0].data], { type: 'model/stl' }), files[0].name);
+                this._downloadBlob(new Blob([files[0].data], { type: mime }), files[0].name);
             } else {
                 const zip = this._zipStore(files);
                 this._downloadBlob(new Blob([zip], { type: 'application/zip' }),
                     `${this.currentModel.id}_parts_${Date.now()}.zip`);
             }
-            this.updateStatus(`Exported ${files.length} STL file${files.length > 1 ? 's' : ''}`, 'success');
+            this.updateStatus(`Exported ${files.length} ${ext.toUpperCase()} file${files.length > 1 ? 's' : ''}`, 'success');
         } catch (error) {
             this.updateStatus('Export error: ' + error.message, 'error');
             console.error('Export error:', error);
@@ -1503,8 +1547,10 @@ class ParameterEditor {
         return data;
     }
 
-    // Render SCAD source to a binary-STL Uint8Array via a one-shot worker.
-    _renderStlFromCode(code) {
+    // Render SCAD source through a one-shot worker to `outPath` in the given export
+    // format, resolving the raw output Uint8Array. Shared by the STL and colored-OFF
+    // export renderers.
+    _runExportWorker(code, outPath, format) {
         return new Promise((resolve, reject) => {
             const worker = new Worker('openscad-worker.js');
             const timeout = setTimeout(() => { worker.terminate(); reject(new Error('Export timeout')); }, 120000);
@@ -1532,11 +1578,22 @@ class ParameterEditor {
 
             worker.postMessage({
                 inputs: [{ path: '/input.scad', content: code }, ...(this.dependencyFiles || [])],
-                args: ['/input.scad', '-o', '/output.stl', '--export-format', 'binstl', ...backendArgs],
-                outputPaths: ['/output.stl'],
+                args: ['/input.scad', '-o', outPath, '--export-format', format, ...backendArgs],
+                outputPaths: [outPath],
                 mountArchives: useArchiveLibraries,
             });
         });
+    }
+
+    // Render SCAD source to a binary-STL Uint8Array.
+    _renderStlFromCode(code) {
+        return this._runExportWorker(code, '/output.stl', 'binstl');
+    }
+
+    // Render SCAD source to colored OFF (COFF) text, preserving per-face color() data.
+    async _renderOffFromCode(code) {
+        const bytes = await this._runExportWorker(code, '/output.off', 'off');
+        return new TextDecoder().decode(bytes);
     }
 
     _downloadBlob(blob, filename) {
@@ -1548,6 +1605,135 @@ class ParameterEditor {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+    }
+
+    // Render one export selection to a seated, colored mesh: shared vertices plus
+    // triangles bucketed by color. Mirrors _renderSelection but in colored OFF, so the
+    // per-face colors from the model's color() calls survive into 3MF. For a whole-
+    // model selection with printable parts, each part is rendered, seated on the bed,
+    // and merged — matching the STL path so every part sits coplanar on Z=0.
+    async _renderColoredSelection(sel, exportCode) {
+        const parts = (this.currentModel && this.currentModel.parts) || [];
+        const acc = { verts: [], groups: new Map() }; // groups: "#RRGGBB" → [i,j,k,...]
+        const addMesh = (mesh) => {
+            const base = acc.verts.length / 3;
+            for (const c of mesh.verts) acc.verts.push(c);
+            for (const [hex, tris] of mesh.groups) {
+                let g = acc.groups.get(hex);
+                if (!g) { g = []; acc.groups.set(hex, g); }
+                for (const idx of tris) g.push(idx + base);
+            }
+        };
+        if (sel.combined && parts.length) {
+            for (const p of parts) {
+                const off = await this._renderOffFromCode(this._buildPartCode(exportCode, p));
+                addMesh(this._seatColoredMesh(this._parseColoredOff(off)));
+            }
+        } else {
+            const code = sel.combined ? exportCode : this._buildPartCode(exportCode, sel);
+            addMesh(this._seatColoredMesh(this._parseColoredOff(await this._renderOffFromCode(code))));
+        }
+        return acc;
+    }
+
+    // Parse colored OFF (COFF): shared vertices, then faces whose trailing R G B[ A]
+    // integers (0–255) give the color. Returns flat vertex coords plus triangles
+    // bucketed by "#RRGGBB"; faces with no color fall back to a neutral grey.
+    _parseColoredOff(offText) {
+        const lines = offText.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
+        let cur = 0, counts;
+        if (lines[0] && lines[0].match(/^C?OFF(\s|$)/)) { counts = lines[0].replace(/^C?OFF\s*/, '').trim(); cur = 1; }
+        if (!counts) counts = lines[cur++];
+        const [numV, numF] = counts.split(/\s+/).map(Number);
+
+        const verts = [];
+        for (let i = 0; i < numV; i++) {
+            const p = lines[cur + i].split(/\s+/).map(Number);
+            verts.push(p[0], p[1], p[2]);
+        }
+        cur += numV;
+
+        const groups = new Map();
+        for (let i = 0; i < numF; i++) {
+            const p = lines[cur + i].split(/\s+/).map(Number);
+            const n = p[0];
+            const fv = p.slice(1, n + 1);
+            const hex = (p.length > n + 3) ? this._rgbToHex(p[n + 1], p[n + 2], p[n + 3]) : '#CCCCCC';
+            let bucket = groups.get(hex);
+            if (!bucket) { bucket = []; groups.set(hex, bucket); }
+            for (let j = 1; j < fv.length - 1; j++) bucket.push(fv[0], fv[j], fv[j + 1]); // fan-triangulate
+        }
+        return { verts, groups };
+    }
+
+    // Translate a parsed mesh so its lowest vertex rests on Z=0 (the print bed), the
+    // colored-path counterpart of _dropStlToBed.
+    _seatColoredMesh(mesh) {
+        let minZ = Infinity;
+        for (let i = 2; i < mesh.verts.length; i += 3) if (mesh.verts[i] < minZ) minZ = mesh.verts[i];
+        if (isFinite(minZ) && Math.abs(minZ) > 1e-6) {
+            for (let i = 2; i < mesh.verts.length; i += 3) mesh.verts[i] -= minZ;
+        }
+        return mesh;
+    }
+
+    _rgbToHex(r, g, b) {
+        const h = (n) => Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2, '0');
+        return ('#' + h(r) + h(g) + h(b)).toUpperCase();
+    }
+
+    // Serialize a seated colored mesh to a 3MF (OPC ZIP) package. Distinct colors form
+    // a <basematerials> palette and every triangle carries a p1 index into it — the
+    // core-spec mechanism a multi-material slicer reads to assign a filament per color.
+    // 3MF also records explicit millimetre units, so slicers import at the right scale.
+    // (This is the same shape the app's own convert3MFtoGLB reader round-trips.)
+    _coloredMeshToThreeMF(acc) {
+        const colors = [...acc.groups.keys()];
+        if (!colors.length || !acc.verts.length) throw new Error('Nothing to export (empty mesh)');
+
+        const vXml = [];
+        for (let i = 0; i < acc.verts.length; i += 3) {
+            vXml.push(`<vertex x="${this._fmtCoord(acc.verts[i])}" y="${this._fmtCoord(acc.verts[i + 1])}" z="${this._fmtCoord(acc.verts[i + 2])}"/>`);
+        }
+        const tXml = [];
+        colors.forEach((hex, ci) => {
+            const tris = acc.groups.get(hex);
+            for (let i = 0; i < tris.length; i += 3) {
+                tXml.push(`<triangle v1="${tris[i]}" v2="${tris[i + 1]}" v3="${tris[i + 2]}" p1="${ci}"/>`);
+            }
+        });
+        const bases = colors.map((hex, ci) => `<base name="c${ci}" displaycolor="${hex}FF"/>`).join('');
+
+        const model = `<?xml version="1.0" encoding="UTF-8"?>\n`
+            + `<model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02">`
+            + `<metadata name="Application">Hand Fab</metadata>`
+            + `<resources><basematerials id="1">${bases}</basematerials>`
+            + `<object id="2" type="model" pid="1" pindex="0"><mesh>`
+            + `<vertices>${vXml.join('')}</vertices><triangles>${tXml.join('')}</triangles>`
+            + `</mesh></object></resources>`
+            + `<build><item objectid="2"/></build></model>`;
+        const contentTypes = `<?xml version="1.0" encoding="UTF-8"?>\n`
+            + `<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">`
+            + `<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>`
+            + `<Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml"/>`
+            + `</Types>`;
+        const rels = `<?xml version="1.0" encoding="UTF-8"?>\n`
+            + `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">`
+            + `<Relationship Target="/3D/3dmodel.model" Id="rel0" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"/>`
+            + `</Relationships>`;
+
+        const enc = new TextEncoder();
+        return this._zipStore([
+            { name: '[Content_Types].xml', data: enc.encode(contentTypes) },
+            { name: '_rels/.rels', data: enc.encode(rels) },
+            { name: '3D/3dmodel.model', data: enc.encode(model) },
+        ]);
+    }
+
+    // Format a coordinate for 3MF XML: fixed 4-decimal (0.1 µm) precision, trailing
+    // zeros stripped. Ample for mm-scale printing and keeps the file compact.
+    _fmtCoord(n) {
+        return String(+n.toFixed(4));
     }
 
     // Minimal store-only (uncompressed) ZIP writer — bundles STLs without a
@@ -1681,8 +1867,9 @@ class ParameterEditor {
             // Exclude role:"laterality" params from what the AI may set, and state the
             // side the user already picked so the output stays consistent. Generic by
             // design: applies to any paired limb (hand, arm, foot, leg), not just hands.
+            // Colour params are cosmetic and user-owned, so keep them out of the AI list too.
             const lateralityParams = this.currentModel.parameters.filter(p => p.role === 'laterality');
-            const aiParams = this.currentModel.parameters.filter(p => p.role !== 'laterality');
+            const aiParams = this.currentModel.parameters.filter(p => p.role !== 'laterality' && p.type !== 'color');
             const sideLabel = (p) => {
                 const v = this.parameters[p.name];
                 if (typeof v === 'boolean') return v ? 'right' : 'left';
