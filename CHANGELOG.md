@@ -10,6 +10,12 @@ Version format: `MAJOR.MINOR.PATCH`
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
+## v14.23.0 — 2026-07-01
+
+feat: **dedicated Colors tab + per-part colours.** The configuration card gains a **Colors** tab between Parameters and Saved (order: AI Assistant → Parameters → Colors → Saved). `type: "color"` params are split out of the Parameters list and rendered as swatches in the Colors tab, one per printable part; the Parameters tab keeps everything else. Empty/idle states handled (no model → prompt; model without colours → notice). i18n en+pt (`cfg.tabColors`, `cfg.colorsIntro`, …).
+
+feat: **Flexy Beast is now colourable per printable part**, including per finger *segment* (proximal/base and distal/tip separately) — palm, forearm gauntlet, and base+tip of every finger and the thumb (12 colours). Each part's geometry is wrapped in `color()` in both the assembled and print-bed layouts (`fingerlayout` gains `baseCol`/`tipCol`; `handlayout`/`printlayout` pass per-part colours), so the choice shows in the preview and is baked into the 3MF export as a distinct material per part. The silicone grip pad keeps its own `pad_color` overlay (nested `color()` overrides the tip colour on the pad region only). Paraglider was already per-part (7 colours); Phoenix has no printable parts. Verified with the OpenSCAD CLI (both layouts compile manifold with 12 distinct COFF colour groups) and a Playwright end-to-end test (Colors-tab order + 13 swatches + a distal-segment colour baked into the exported 3MF).
+
 ## v14.22.0 — 2026-07-01
 
 feat: **colour customiser** — the per-part colour parameters (Paraglider: palm + 5 digits + pins; Flexy Beast: grip pads) now render as native colour **swatches** instead of raw hex text fields, with a live hex readout. Picking a colour flows through the existing parameter pipeline, so the 3D preview repaints immediately and the choice persists in saved configs. Introduces a `type: "color"` parameter kind (`generateParameterControl` renders `<input type="color">`; `updateEditor` quotes it as a SCAD string). Colour params are excluded from the AI sizing list (cosmetic + user-owned), mirroring the laterality exclusion. Captions updated (`preview color` → `colour (preview + 3MF)`), including the Flexy Beast pad help that previously claimed "no effect on the printed STL".

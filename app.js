@@ -302,6 +302,10 @@ class ParameterEditor {
                 Select a model to edit its parameters
             </p>
         `;
+        const colorContainer = document.getElementById('color-parameters');
+        if (colorContainer) {
+            colorContainer.innerHTML = `<p class="empty-state">${t('cfg.colorsSelect')}</p>`;
+        }
         document.getElementById('editor').value = '';
         this.updateStatus(t('cfg.ready'), '');
     }
@@ -325,17 +329,22 @@ class ParameterEditor {
 
     generateParameterControls(parameters) {
         const container = document.getElementById('parameters');
+        const colorContainer = document.getElementById('color-parameters');
 
-        // Group parameters
+        // Colour params live in their own "Colors" tab; everything else in Parameters.
+        const colorParams = parameters.filter(p => p.type === 'color');
+        const mainParams = parameters.filter(p => p.type !== 'color');
+
+        // Group the main parameters by their declared group.
         const groups = {};
-        parameters.forEach(param => {
+        mainParams.forEach(param => {
             if (!groups[param.group]) {
                 groups[param.group] = [];
             }
             groups[param.group].push(param);
         });
 
-        // Generate HTML
+        // Generate HTML for the Parameters tab
         let html = '';
         for (const [groupName, params] of Object.entries(groups)) {
             html += `<div class="param-group">`;
@@ -366,6 +375,18 @@ class ParameterEditor {
         html += '<div id="param-warnings"></div>';
 
         container.innerHTML = html;
+
+        // Colors tab: one swatch per colourable part (flat — labels distinguish them).
+        if (colorContainer) {
+            if (colorParams.length) {
+                let chtml = `<div class="param-group"><p class="param-caption" style="margin-bottom:12px">${t('cfg.colorsIntro')}</p>`;
+                colorParams.forEach(param => { chtml += this.generateParameterControl(param); });
+                chtml += '</div>';
+                colorContainer.innerHTML = chtml;
+            } else {
+                colorContainer.innerHTML = `<p class="empty-state">${t('cfg.colorsNone')}</p>`;
+            }
+        }
 
         // Wire auto-link toggle
         const autoLinkCheckbox = document.getElementById('auto-link');

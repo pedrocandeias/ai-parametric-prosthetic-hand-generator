@@ -48,8 +48,25 @@ finger_pads = true;
 // Show installed silicone grip pads in the preview
 show_pads = true;
 
-// Silicone pad color
+// Silicone pad color (overlay drawn on top of each fingertip's own colour)
 pad_color = "#e8c8a0";
+
+// ── Per-part colours ────────────────────────────────────────────────────────
+// One colour per printable part. These show in the preview and are baked into
+// the 3MF export (one 3MF material per colour) for multi-material printing.
+// base = proximal segment, tip = distal segment.
+color_palm        = "#cbd5e1"; // palm body
+color_gauntlet    = "#94a3b8"; // forearm cuff
+color_index_base  = "#4a9eff"; // index — proximal
+color_index_tip   = "#7cc0ff"; // index — distal
+color_middle_base = "#ff6b6b"; // middle — proximal
+color_middle_tip  = "#ffa0a0"; // middle — distal
+color_ring_base   = "#51cf66"; // ring — proximal
+color_ring_tip    = "#8ce89b"; // ring — distal
+color_pinky_base  = "#ffd43b"; // pinky — proximal
+color_pinky_tip   = "#ffe680"; // pinky — distal
+color_thumb_base  = "#cc5de8"; // thumb — proximal
+color_thumb_tip   = "#e0a0f0"; // thumb — distal
 
 // Show thermoformable mesh on palm interior (for heat-forming to patient)
 show_thermoform = true;
@@ -209,21 +226,21 @@ mirror([mirrored ? 1 : 0, 0, 0])
 // ── Assembly ──────────────────────────────────────────────────────────────────
 
 module handlayout(sp = 14) {
-    if (show_palm) cyborgbeastpalm();
+    if (show_palm) color(color_palm) cyborgbeastpalm();
     translate([20.5*xScaleFactor, 33*yScaleFactor, 7*zScaleFactor])
         rotate([0, 180, 0]) {
-        if (show_index)  translate([0*xScaleFactor,    7.5*yScaleFactor, 0]) fingerlayout(indexProp  * fingerLength, base = show_index_base,  tip = show_index_tip);
-        if (show_middle) translate([sp*xScaleFactor,   7.5*yScaleFactor, 0]) fingerlayout(middleProp * fingerLength, base = show_middle_base, tip = show_middle_tip);
-        if (show_ring)   translate([sp*2*xScaleFactor, 7.5*yScaleFactor, 0]) fingerlayout(ringProp   * fingerLength, base = show_ring_base,   tip = show_ring_tip);
-        if (show_pinky)  translate([sp*3*xScaleFactor, 7.5*yScaleFactor, 0]) fingerlayout(pinkyProp  * fingerLength, base = show_pinky_base,  tip = show_pinky_tip);
+        if (show_index)  translate([0*xScaleFactor,    7.5*yScaleFactor, 0]) fingerlayout(indexProp  * fingerLength, base = show_index_base,  tip = show_index_tip,  baseCol = color_index_base,  tipCol = color_index_tip);
+        if (show_middle) translate([sp*xScaleFactor,   7.5*yScaleFactor, 0]) fingerlayout(middleProp * fingerLength, base = show_middle_base, tip = show_middle_tip, baseCol = color_middle_base, tipCol = color_middle_tip);
+        if (show_ring)   translate([sp*2*xScaleFactor, 7.5*yScaleFactor, 0]) fingerlayout(ringProp   * fingerLength, base = show_ring_base,   tip = show_ring_tip,   baseCol = color_ring_base,   tipCol = color_ring_tip);
+        if (show_pinky)  translate([sp*3*xScaleFactor, 7.5*yScaleFactor, 0]) fingerlayout(pinkyProp  * fingerLength, base = show_pinky_base,  tip = show_pinky_tip,  baseCol = color_pinky_base,  tipCol = color_pinky_tip);
     }
     if (show_thumb)
     translate([36*xScaleFactor, -15.5*yScaleFactor, 0.5*zScaleFactor])
         rotate([50, -20, 90]) {
-        if (show_thumb_base) thumbmid();
-        if (show_thumb_tip) translate([0, -22*yScaleFactor, 0*zScaleFactor]) rotate([0, 0, -90]) thumbtip();
+        if (show_thumb_base) color(color_thumb_base) thumbmid();
+        if (show_thumb_tip) color(color_thumb_tip) translate([0, -22*yScaleFactor, 0*zScaleFactor]) rotate([0, 0, -90]) thumbtip();
     }
-    if (show_gauntlet) gauntlet_part();
+    if (show_gauntlet) color(color_gauntlet) gauntlet_part();
 }
 
 // ── Print-bed layout ──────────────────────────────────────────────────────────
@@ -239,30 +256,30 @@ module printlayout() {
     _tip_x  = 96 * xScaleFactor;   // X of the fingertip column
 
     // Palm in its native orientation.
-    if (show_palm) cyborgbeastpalm();
+    if (show_palm) color(color_palm) cyborgbeastpalm();
 
-    // Four fingers stacked index→pinky; each piece gated like handlayout.
+    // Four fingers stacked index→pinky; each piece gated + coloured like handlayout.
     _fingers = [
-        [show_index,  show_index_base,  show_index_tip,  indexProp],
-        [show_middle, show_middle_base, show_middle_tip, middleProp],
-        [show_ring,   show_ring_base,   show_ring_tip,   ringProp],
-        [show_pinky,  show_pinky_base,  show_pinky_tip,  pinkyProp],
+        [show_index,  show_index_base,  show_index_tip,  indexProp,  color_index_base,  color_index_tip],
+        [show_middle, show_middle_base, show_middle_tip, middleProp, color_middle_base, color_middle_tip],
+        [show_ring,   show_ring_base,   show_ring_tip,   ringProp,   color_ring_base,   color_ring_tip],
+        [show_pinky,  show_pinky_base,  show_pinky_tip,  pinkyProp,  color_pinky_base,  color_pinky_tip],
     ];
     for (i = [0:len(_fingers)-1]) let(f = _fingers[i], _y = (1.5 - i) * _row)
         if (f[0]) {
-            if (f[1]) translate([_base_x, _y, 0]) fingerbase(length = 20 * f[3] * fingerLength);
-            if (f[2]) translate([_tip_x,  _y, 0]) fingertip_curved_solid(length = 17 * f[3] * fingerLength, pad = finger_pads);
+            if (f[1]) color(f[4]) translate([_base_x, _y, 0]) fingerbase(length = 20 * f[3] * fingerLength);
+            if (f[2]) color(f[5]) translate([_tip_x,  _y, 0]) fingertip_curved_solid(length = 17 * f[3] * fingerLength, pad = finger_pads);
         }
 
     // Thumb base + tip on a row below the fingers.
     if (show_thumb) let(_yt = -2.7 * _row) {
-        if (show_thumb_base) translate([_base_x, _yt, 0]) fingerbase(length = 20 * thumbProp * fingerLength);
-        if (show_thumb_tip)  translate([_tip_x,  _yt, 0]) thumbtip();
+        if (show_thumb_base) color(color_thumb_base) translate([_base_x, _yt, 0]) fingerbase(length = 20 * thumbProp * fingerLength);
+        if (show_thumb_tip)  color(color_thumb_tip)  translate([_tip_x,  _yt, 0]) thumbtip();
     }
 
     // Gauntlet (forearm cuff) below the palm, in its native cuff orientation.
     if (show_gauntlet)
-        translate([0, -72 * yScaleFactor, 0]) scale([g_sx, g_sy, g_sx]) gauntlet();
+        color(color_gauntlet) translate([0, -72 * yScaleFactor, 0]) scale([g_sx, g_sy, g_sx]) gauntlet();
 }
 
 // ── Gauntlet (forearm cuff) ───────────────────────────────────────────────────
@@ -283,12 +300,14 @@ module gauntlet_part() {
 
 // lengthMult: positional arg — fixes the original Flexy Beast parameter-name mismatch.
 // base/tip select which of the finger's two printable pieces to emit.
-module fingerlayout(lengthMult = 1, base = true, tip = true) {
+module fingerlayout(lengthMult = 1, base = true, tip = true, baseCol = "#cccccc", tipCol = "#cccccc") {
     if (tip)
+    color(tipCol)
     rotate([180, -10, 90])
         translate([15*lengthMult, -8, -10])
             fingertip_curved_solid(length = 17*lengthMult, pad = finger_pads);
     if (base)
+    color(baseCol)
     rotate([180, -5, 90])
         translate([-20, -8, -12])
             fingerbase(length = 20*lengthMult);

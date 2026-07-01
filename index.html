@@ -2121,6 +2121,7 @@ button { font-family: var(--font); cursor: pointer; transition: all 0.15s; borde
                         <div class="hf-tab-list">
                             <button class="hf-tab-btn active" data-tab="ai" data-i18n="cfg.tabAi">AI Assistant</button>
                             <button class="hf-tab-btn" data-tab="params" data-i18n="cfg.tabParams">Parameters</button>
+                            <button class="hf-tab-btn" data-tab="colors" data-i18n="cfg.tabColors">Colors</button>
                             <button class="hf-tab-btn" data-tab="saved" data-i18n="cfg.tabSaved">Saved</button>
                         </div>
 
@@ -2166,6 +2167,13 @@ button { font-family: var(--font); cursor: pointer; transition: all 0.15s; borde
                         <div class="hf-tab-pane" id="tab-params">
                             <div id="parameters">
                                 <p class="empty-state" data-i18n="cfg.paramsEmpty">Select a model to edit its parameters</p>
+                            </div>
+                        </div>
+
+                        <!-- Colors Tab -->
+                        <div class="hf-tab-pane" id="tab-colors">
+                            <div id="color-parameters">
+                                <p class="empty-state" data-i18n="cfg.colorsSelect">Select a model to customise its colours</p>
                             </div>
                         </div>
 

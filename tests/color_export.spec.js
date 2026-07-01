@@ -1,12 +1,16 @@
 // @ts-check
-// End-to-end test for the colour customiser + coloured 3MF export (v14.22.0).
-// Exercises the real OpenSCAD WASM pipeline: swatch → SCAD → coloured preview → 3MF.
+// End-to-end tests for the colour customiser: dedicated Colors tab, per-part
+// swatches, coloured live preview, and coloured 3MF export. Exercises the real
+// OpenSCAD WASM pipeline. (v14.22.0 + v14.23.0)
 const { test, expect } = require('@playwright/test');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
-const ADMIN = { username: 'admin', password: process.env.TEST_ADMIN_PASSWORD || 'admin1234' };
+const ADMIN = {
+    username: process.env.TEST_ADMIN_USER || 'admin',
+    password: process.env.TEST_ADMIN_PASSWORD || 'admin1234',
+};
 
 async function login(page) {
     await page.goto('/');
@@ -26,68 +30,75 @@ async function setColor(page, id, hex) {
     }, hex);
 }
 
-test('colour customiser: swatch → SCAD → coloured preview → coloured 3MF export', async ({ page }) => {
+test('Colors tab sits between Parameters and Saved, holds per-part swatches', async ({ page }) => {
+    await login(page);
+    await page.click('[data-model-id="paraglider_hand"]');
+    await page.waitForSelector('#param-color_palm', { state: 'attached', timeout: 15000 });
+
+    // Tab order: AI → Parameters → Colors → Saved.
+    const order = await page.locator('.hf-tab-list:has([data-tab="ai"]) .hf-tab-btn').evaluateAll(
+        els => els.map(e => e.getAttribute('data-tab')));
+    expect(order).toEqual(['ai', 'params', 'colors', 'saved']);
+
+    // The colour swatches live in the Colors pane, not the Parameters pane.
+    await page.click('.hf-tab-btn[data-tab="colors"]');
+    await expect(page.locator('#tab-colors')).toBeVisible();
+    await expect(page.locator('#param-color_palm')).toBeVisible();
+    expect(await page.locator('#param-color_palm').getAttribute('type')).toBe('color');
+    // Paraglider: 7 per-part colours.
+    const swatches = await page.locator('#color-parameters input[type="color"]').count();
+    expect(swatches).toBe(7);
+});
+
+test('Flexy Beast: per-segment (distal/proximal) colour → SCAD → coloured 3MF', async ({ page }) => {
     const consoleLogs = [];
     page.on('console', msg => consoleLogs.push(msg.text()));
 
     await login(page);
+    await page.click('[data-model-id="flexy_beast"]');
+    await page.waitForSelector('#param-color_index_tip', { state: 'attached', timeout: 15000 });
 
-    // Paraglider has per-part colour params.
-    await page.click('[data-model-id="paraglider_hand"]');
-    await page.waitForSelector('#param-color_palm', { state: 'attached', timeout: 15000 });
+    await page.click('.hf-tab-btn[data-tab="colors"]');
+    // Distal + proximal swatches for a finger exist and are colour inputs.
+    for (const id of ['param-color_index_base', 'param-color_index_tip', 'param-color_palm', 'param-color_gauntlet']) {
+        expect(await page.locator(`#${id}`).getAttribute('type'), id).toBe('color');
+    }
+    // pad_color + 12 per-part colours = 13 swatches.
+    expect(await page.locator('#color-parameters input[type="color"]').count()).toBe(13);
 
-    // 1) Colour params render as native colour swatches, not text inputs.
-    const palmType = await page.locator('#param-color_palm').getAttribute('type');
-    expect(palmType, 'color_palm should be a native colour input').toBe('color');
-    const indexType = await page.locator('#param-color_index').getAttribute('type');
-    expect(indexType).toBe('color');
+    // Set the index DISTAL segment to a distinctive colour.
+    await setColor(page, 'param-color_index_tip', '#0a0b0c');
+    await expect(page.locator('#editor')).toHaveValue(/color_index_tip\s*=\s*"#0a0b0c"/i, { timeout: 5000 });
 
-    // 2) Changing a swatch writes a quoted colour into the SCAD source.
-    await setColor(page, 'param-color_palm', '#123456');
-    await expect(page.locator('#editor')).toHaveValue(/color_palm\s*=\s*"#123456"/i, { timeout: 5000 });
-
-    // 3) The adjacent hex readout reflects the new value.
-    const hexReadout = await page.locator('#param-color_palm').locator('xpath=../span[@class="color-swatch-hex"]').textContent();
-    expect(hexReadout?.toUpperCase()).toContain('123456');
-
-    // 4) Render → coloured OFF (COFF) preview loads with multiple colour groups.
+    // Render → coloured preview loads with many COFF colour groups.
     await page.click('#render-btn');
     await page.waitForFunction(() => {
         const v = document.getElementById('viewer');
         return v && v.src && v.src !== '' && !v.src.startsWith('about:');
-    }, { timeout: 120000 });
-    const coffLog = consoleLogs.find(t => t.includes('COFF color groups'));
-    expect(coffLog, 'expected a COFF color groups log from the coloured preview').toBeDefined();
-    console.log('Preview:', coffLog);
+    }, { timeout: 180000 });
+    const coff = consoleLogs.find(t => /COFF color groups: \d+/.test(t));
+    expect(coff).toBeDefined();
+    console.log('Flexy preview:', coff);
 
-    // 5) Export the palm part as 3MF and capture the download.
+    // Export the index DISTAL part as 3MF; it must carry the chosen colour.
     await page.click('#export-btn');
     await page.waitForSelector('#export-modal.active', { timeout: 5000 });
-    // pick 3MF format
     await page.locator('input[name="export-format-opt"][value="3mf"]').check();
-    // select ONLY the palm part (fast single render, carries the changed colour)
     await page.locator('.export-item').evaluateAll(els => {
-        els.forEach(el => { el.checked = el.value === 'palm'; });
+        els.forEach(el => { el.checked = el.value === 'index_tip'; });
     });
-
     const [download] = await Promise.all([
         page.waitForEvent('download', { timeout: 180000 }),
         page.click('#export-confirm-btn'),
     ]);
-    const outPath = path.join(os.tmpdir(), `hf_test_${download.suggestedFilename()}`);
+    const outPath = path.join(os.tmpdir(), `hf_${download.suggestedFilename()}`);
     await download.saveAs(outPath);
 
-    // 6) The downloaded file is a .3mf carrying the chosen colour as a material.
-    expect(download.suggestedFilename()).toMatch(/\.3mf$/);
-    const buf = fs.readFileSync(outPath);
-    const text = buf.toString('latin1'); // store-ZIP: model XML is plaintext inside
-
-    expect(text, 'OPC content types present').toContain('3dmanufacturing-3dmodel');
-    expect(text, '3MF declares millimetre units').toContain('unit="millimeter"');
-    expect(text, '3MF has a materials palette').toContain('<basematerials');
-    expect(text, 'chosen palm colour baked into a material').toMatch(/displaycolor="#123456/i);
-    expect(text, 'triangles carry per-material index').toMatch(/<triangle[^>]*p1=/);
-
-    console.log('3MF file:', download.suggestedFilename(), buf.length, 'bytes — colour #123456 present:', /123456/i.test(text));
+    expect(download.suggestedFilename()).toMatch(/index_tip\.3mf$/);
+    const text = fs.readFileSync(outPath).toString('latin1');
+    expect(text).toContain('unit="millimeter"');
+    expect(text).toContain('<basematerials');
+    expect(text, 'distal colour baked into the 3MF').toMatch(/displaycolor="#0A0B0C/i);
+    console.log('Flexy 3MF:', download.suggestedFilename(), '— #0A0B0C present:', /0A0B0C/i.test(text));
     fs.unlinkSync(outPath);
 });

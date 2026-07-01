@@ -181,6 +181,126 @@
           "group": "Options"
         },
         {
+          "name": "color_palm",
+          "type": "color",
+          "initial": "#cbd5e1",
+          "label": "Palm",
+          "label_pt": "Palma",
+          "caption": "Palm body",
+          "caption_pt": "Corpo da palma",
+          "group": "Colors"
+        },
+        {
+          "name": "color_gauntlet",
+          "type": "color",
+          "initial": "#94a3b8",
+          "label": "Gauntlet (cuff)",
+          "label_pt": "Gauntlet (punho)",
+          "caption": "Forearm cuff",
+          "caption_pt": "Punho do antebraço",
+          "group": "Colors"
+        },
+        {
+          "name": "color_index_base",
+          "type": "color",
+          "initial": "#4a9eff",
+          "label": "Index — proximal",
+          "label_pt": "Indicador — proximal",
+          "caption": "Index proximal segment (base)",
+          "caption_pt": "Segmento proximal do indicador (base)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_index_tip",
+          "type": "color",
+          "initial": "#7cc0ff",
+          "label": "Index — distal",
+          "label_pt": "Indicador — distal",
+          "caption": "Index distal segment (tip)",
+          "caption_pt": "Segmento distal do indicador (ponta)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_middle_base",
+          "type": "color",
+          "initial": "#ff6b6b",
+          "label": "Middle — proximal",
+          "label_pt": "Médio — proximal",
+          "caption": "Middle proximal segment (base)",
+          "caption_pt": "Segmento proximal do médio (base)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_middle_tip",
+          "type": "color",
+          "initial": "#ffa0a0",
+          "label": "Middle — distal",
+          "label_pt": "Médio — distal",
+          "caption": "Middle distal segment (tip)",
+          "caption_pt": "Segmento distal do médio (ponta)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_ring_base",
+          "type": "color",
+          "initial": "#51cf66",
+          "label": "Ring — proximal",
+          "label_pt": "Anelar — proximal",
+          "caption": "Ring proximal segment (base)",
+          "caption_pt": "Segmento proximal do anelar (base)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_ring_tip",
+          "type": "color",
+          "initial": "#8ce89b",
+          "label": "Ring — distal",
+          "label_pt": "Anelar — distal",
+          "caption": "Ring distal segment (tip)",
+          "caption_pt": "Segmento distal do anelar (ponta)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_pinky_base",
+          "type": "color",
+          "initial": "#ffd43b",
+          "label": "Pinky — proximal",
+          "label_pt": "Mindinho — proximal",
+          "caption": "Pinky proximal segment (base)",
+          "caption_pt": "Segmento proximal do mindinho (base)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_pinky_tip",
+          "type": "color",
+          "initial": "#ffe680",
+          "label": "Pinky — distal",
+          "label_pt": "Mindinho — distal",
+          "caption": "Pinky distal segment (tip)",
+          "caption_pt": "Segmento distal do mindinho (ponta)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_thumb_base",
+          "type": "color",
+          "initial": "#cc5de8",
+          "label": "Thumb — proximal",
+          "label_pt": "Polegar — proximal",
+          "caption": "Thumb proximal segment (base)",
+          "caption_pt": "Segmento proximal do polegar (base)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_thumb_tip",
+          "type": "color",
+          "initial": "#e0a0f0",
+          "label": "Thumb — distal",
+          "label_pt": "Polegar — distal",
+          "caption": "Thumb distal segment (tip)",
+          "caption_pt": "Segmento distal do polegar (ponta)",
+          "group": "Colors"
+        },
+        {
           "name": "show_thermoform",
           "type": "boolean",
           "initial": true,
