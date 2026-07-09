@@ -132,7 +132,8 @@ class ParameterEditor {
 
     async loadConfiguration() {
         try {
-            const response = await fetch('models/models-config.json');
+            // no-cache: revalidate so model edits aren't masked by a stale cache.
+            const response = await fetch('models/models-config.json', { cache: 'no-cache' });
             this.config = await response.json();
             this.updateStatus('Configuration loaded successfully', 'success');
         } catch (error) {

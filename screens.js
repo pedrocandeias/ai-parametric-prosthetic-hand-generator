@@ -91,7 +91,9 @@ const Screens = (() => {
         const grid = document.getElementById('selection-models-grid');
         if (!grid) return;
         try {
-            const res = await fetch('/models/models-config.json');
+            // no-cache: force revalidation so a newly-added/edited model shows up
+            // for returning browsers instead of a stale cached model list.
+            const res = await fetch('/models/models-config.json', { cache: 'no-cache' });
             const data = await res.json();
             const models = data.models || [];
             if (!models.length) {

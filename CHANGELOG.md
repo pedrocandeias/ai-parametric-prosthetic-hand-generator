@@ -10,6 +10,10 @@ Version format: `MAJOR.MINOR.PATCH`
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
+## v14.33.0 — 2026-07-09
+
+fix: **Newly-added/edited models now appear for returning browsers.** The model-selection grid (`screens.js`) and the editor config load (`app.js`) fetched `models/models-config.json` with default caching and no `?v=` cache-buster, so a browser holding a cached copy kept showing the old model list — the freshly-deployed Cyborg Beast card was invisible until a hard refresh. Both fetches now use `{ cache: 'no-cache' }` to revalidate against the server (cheap 304 when unchanged, fresh JSON when models change). Bump `index.html` JS cache-buster to 14.33.0.
+
 ## v14.32.0 — 2026-07-09
 
 feat: **Integrate the original Cyborg Beast hand** (MakerBlock / e-NABLE — Chicago-screw + elastic-cord mechanical build, distinct from the flexible-joint Flexy Beast). The original palm, two-segment fingers and thumb geometry (`cyborgpalm001` / `cyborgfingermid002` / `cyborgfingertip002`) are wrapped in a new anthropometric parameter layer in `models/active/cyborg-beast/cyborg_beast.scad` and registered as model `cyborg_beast`.
