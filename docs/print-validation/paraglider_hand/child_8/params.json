@@ -1,0 +1,19 @@
+{
+  "model": "paraglider_hand",
+  "profile": {
+    "key": "child_8",
+    "label": "Boy 8",
+    "text": "boy, 8 years old, 26kg, 128cm height, Brazil, small hands"
+  },
+  "grounded": true,
+  "suggestions": {
+    "palm_breadth_mm": 63,
+    "palm_length_mm": 78,
+    "palm_thickness_mm": 20,
+    "index_finger_length_mm": 55,
+    "middle_finger_length_mm": 60,
+    "ring_finger_length_mm": 55,
+    "pinky_finger_length_mm": 43,
+    "thumb_length_mm": 48
+  }
+}

@@ -1,0 +1,256 @@
+PATIENT: man, 70 years old, 78kg, 172cm height, Brazil, arm length 68cm
+GROUNDED: true
+
+You are sizing a 3D-printed parametric prosthetic hand model ("Paraglider · Hand") for a patient.
+
+Patient anthropometric data:
+man, 70 years old, 78kg, 172cm height, Brazil, arm length 68cm
+
+These are the model's adjustable parameters. Each has a name, a caption describing what it controls, an allowed range (min/max where applicable), and the current value:
+[
+  {
+    "name": "component",
+    "caption": "Which piece of the Paraglider system to render and export",
+    "type": "enum",
+    "current": "Hand"
+  },
+  {
+    "name": "palm_style",
+    "caption": "Palm style for the Hand component — Reborn (v2-derived) or Unlimbited v3 (higher-res mesh)",
+    "type": "enum",
+    "current": "Reborn"
+  },
+  {
+    "name": "palm_breadth_mm",
+    "caption": "Knuckle-to-knuckle metacarpal breadth — drives the uniform palm scale (mm)",
+    "type": "number",
+    "min": 55,
+    "max": 110,
+    "current": 83
+  },
+  {
+    "name": "palm_length_mm",
+    "caption": "Wrist base to middle MCP crease — stored for AI/profile alignment; palm uses uniform scale from palm_breadth_mm (mm)",
+    "type": "number",
+    "min": 60,
+    "max": 140,
+    "current": 95
+  },
+  {
+    "name": "palm_thickness_mm",
+    "caption": "Palmar to dorsal surface thickness — stored for AI/profile alignment; palm uses uniform scale from palm_breadth_mm (mm)",
+    "type": "number",
+    "min": 18,
+    "max": 50,
+    "current": 32
+  },
+  {
+    "name": "index_finger_length_mm",
+    "caption": "Index finger MCP crease to tip — drives the index finger part scale (mm)",
+    "type": "number",
+    "min": 40,
+    "max": 120,
+    "current": 68
+  },
+  {
+    "name": "middle_finger_length_mm",
+    "caption": "Middle finger MCP crease to tip — drives the middle finger scale and the base finger scale (mm)",
+    "type": "number",
+    "min": 40,
+    "max": 120,
+    "current": 72
+  },
+  {
+    "name": "ring_finger_length_mm",
+    "caption": "Ring finger MCP crease to tip — drives the ring finger part scale (mm)",
+    "type": "number",
+    "min": 40,
+    "max": 120,
+    "current": 68
+  },
+  {
+    "name": "pinky_finger_length_mm",
+    "caption": "Pinky finger MCP crease to tip — drives the pinky finger part scale (mm)",
+    "type": "number",
+    "min": 30,
+    "max": 100,
+    "current": 55
+  },
+  {
+    "name": "thumb_length_mm",
+    "caption": "Thumb MCP crease to tip — stored for AI/profile alignment; the thumb scales with the finger base scale (mm)",
+    "type": "number",
+    "min": 35,
+    "max": 100,
+    "current": 65
+  },
+  {
+    "name": "pin_index",
+    "caption": "Pivot pin style — sets the hole diameters in the palm and phalanges to match commercial hardware",
+    "type": "enum",
+    "current": 1
+  },
+  {
+    "name": "string_channel_scale",
+    "caption": "String channel diameter relative to hand scale (×)",
+    "type": "number",
+    "min": 0.5,
+    "max": 1,
+    "current": 0.9
+  },
+  {
+    "name": "elastic_channel_scale",
+    "caption": "Elastic channel diameter relative to hand scale (×)",
+    "type": "number",
+    "min": 0.5,
+    "max": 1.5,
+    "current": 0.9
+  },
+  {
+    "name": "old_style_wrist",
+    "caption": "Use old-style plastic wrist pins instead of M3 wrist screws",
+    "type": "boolean",
+    "current": false
+  },
+  {
+    "name": "show_palm",
+    "caption": "Show the palm body",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_palm_mesh",
+    "caption": "Show the fused palm mesh overlay (reduces assembly screws)",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_knuckle_covers",
+    "caption": "Show smooth covers over the knuckle joints",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_index",
+    "caption": "Show the index finger (tip + phalanx)",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_middle",
+    "caption": "Show the middle finger (tip + phalanx)",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_ring",
+    "caption": "Show the ring finger (tip + phalanx)",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_pinky",
+    "caption": "Show the pinky finger (tip + phalanx)",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_thumb",
+    "caption": "Show the thumb (tip + phalanx)",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_pins",
+    "caption": "Show the pivot pins at the wrist and knuckle positions",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_channels",
+    "caption": "Enable string/elastic channel routing in the palm — slow CSG; keep off for fast preview, on for a print-ready export",
+    "type": "boolean",
+    "current": false
+  },
+  {
+    "name": "show_assembled",
+    "caption": "Assembled view (fingers positioned at the knuckle pins) — turn off for a flat print layout",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "GAU_bearing_only",
+    "caption": "Gauntlet: print only the wrist bearing tab (a thermoforming jig for the bearing plastic)",
+    "type": "boolean",
+    "current": false
+  },
+  {
+    "name": "GAU_slide_only",
+    "caption": "Gauntlet: print only the dovetail track (to test the tensioner-box fit)",
+    "type": "boolean",
+    "current": false
+  },
+  {
+    "name": "ARM_part",
+    "caption": "Arm: which printable piece of the elbow-powered arm to render",
+    "type": "enum",
+    "current": "Cuff"
+  },
+  {
+    "name": "ARM_LeftRight",
+    "caption": "Arm: which side to generate (Right mirrors along X)",
+    "type": "enum",
+    "current": "Left"
+  },
+  {
+    "name": "ARM_HandLen",
+    "caption": "Arm: total hand length, wrist crease to fingertip — sets wrist width and overall arm scale (mm)",
+    "type": "number",
+    "min": 135,
+    "max": 230,
+    "current": 135
+  },
+  {
+    "name": "ARM_ForearmLen",
+    "caption": "Arm: forearm length from wrist to elbow (mm)",
+    "type": "number",
+    "min": 120,
+    "max": 315,
+    "current": 140
+  },
+  {
+    "name": "ARM_BicepCircum",
+    "caption": "Arm: bicep circumference for sizing the upper-arm cuff (mm)",
+    "type": "number",
+    "min": 110,
+    "max": 350,
+    "current": 160
+  },
+  {
+    "name": "ARM_CuffLength",
+    "caption": "Arm: length of the upper-arm cuff (mm)",
+    "type": "number",
+    "min": 65,
+    "max": 90,
+    "current": 65
+  },
+  {
+    "name": "ARM_PinHoleDia",
+    "caption": "Arm: joint pin / screw hole diameter for the arm hinges (mm)",
+    "type": "number",
+    "min": 3,
+    "max": 6,
+    "current": 3
+  }
+]
+
+Guidance:
+- Anthropometric parameters are anatomical measurements in millimetres; use the patient's data to set them directly, guided by each parameter's caption above.
+- If the data is qualitative (e.g. "woman, 172cm, slim build"), estimate plausible measurements from population norms; women typically run smaller than men, and children smaller than adults.
+- Canonical fields when present: palm_breadth_mm (knuckle-to-knuckle, ~70-100mm adult), palm_length_mm (wrist to MCP, ~90-120mm), palm_thickness_mm (~22-38mm), index/middle/ring/pinky_finger_length_mm (MCP crease to tip), thumb_length_mm, gauntlet_width_mm (approx. wrist circumference / PI + ~5mm clearance). Keep finger proportions realistic: middle finger longest, pinky shortest.
+- Keep proportions anatomically realistic relative to each other.
+- Only suggest values for parameters listed above, by their exact name, and stay within each parameter's min/max.
+- Leave hardware/visibility/color parameters at their current values unless the patient data clearly implies a change.
+- Limb side (left/right) has already been chosen by the user in the UI: left side. Treat it as fixed — do NOT include mirrored in your output, and do not change the side.
+
+Respond with ONLY a valid JSON object mapping parameter names to suggested values. No prose, no markdown.

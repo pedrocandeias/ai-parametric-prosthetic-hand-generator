@@ -1,0 +1,21 @@
+{
+  "model": "flexy_beast",
+  "profile": {
+    "key": "adult_28",
+    "label": "Man 28",
+    "text": "man, 28 years old, 82kg, 180cm height, Brazil, arm length 70cm"
+  },
+  "grounded": true,
+  "suggestions": {
+    "palm_breadth_mm": 90,
+    "middle_finger_length_mm": 84,
+    "index_finger_length_mm": 76,
+    "ring_finger_length_mm": 80,
+    "pinky_finger_length_mm": 65,
+    "thumb_length_mm": 71,
+    "joint_dia": 7,
+    "joint_thick": 4,
+    "gauntlet_width_mm": 62,
+    "gauntlet_length_mm": 115
+  }
+}

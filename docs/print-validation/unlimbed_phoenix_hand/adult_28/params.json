@@ -1,0 +1,13 @@
+{
+  "model": "unlimbed_phoenix_hand",
+  "profile": {
+    "key": "adult_28",
+    "label": "Man 28",
+    "text": "man, 28 years old, 82kg, 180cm height, Brazil, arm length 70cm"
+  },
+  "grounded": true,
+  "suggestions": {
+    "palm_breadth_mm": 90,
+    "HandPerc_override": 0
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "model": "flexy_beast",
+  "profile": {
+    "key": "child_8",
+    "label": "Boy 8",
+    "text": "boy, 8 years old, 26kg, 128cm height, Brazil, small hands"
+  },
+  "grounded": true,
+  "suggestions": {
+    "palm_breadth_mm": 64,
+    "middle_finger_length_mm": 60,
+    "index_finger_length_mm": 57,
+    "ring_finger_length_mm": 57,
+    "pinky_finger_length_mm": 46,
+    "thumb_length_mm": 50,
+    "joint_dia": 5,
+    "joint_thick": 2,
+    "gauntlet_width_mm": 47,
+    "gauntlet_length_mm": 80,
+    "gauntlet_wall_mm": 2,
+    "wrist_pin_dia": 5
+  }
+}

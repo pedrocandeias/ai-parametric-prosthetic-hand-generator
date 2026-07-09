@@ -82,6 +82,10 @@ EXCLUDES=(
     "models/reconstruction/"            # STL→SCAD reconstruction sources (dev-only)
     "config.example.json"
     "TODO.MD"
+    # --- scratch / in-progress build artifacts (dev-only, never ship) ---
+    "_assembly.*"                       # merged-assembly render scratch (.scad/.stl/.3mf/.png/.json)
+    "*_preview.png"                     # per-model preview renders
+    "assemblage-*.jpg"                  # reference exploded-view photos
     # --- the deploy machinery itself ---
     "deploy/"
     "deploy.sh"

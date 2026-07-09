@@ -1,0 +1,19 @@
+{
+  "model": "paraglider_hand",
+  "profile": {
+    "key": "teen_15",
+    "label": "Teen 15",
+    "text": "teenage boy, 15 years old, 60kg, 170cm height, Brazil, slim build, arm length 62cm"
+  },
+  "grounded": true,
+  "suggestions": {
+    "palm_breadth_mm": 78,
+    "palm_length_mm": 105,
+    "palm_thickness_mm": 25,
+    "index_finger_length_mm": 69,
+    "middle_finger_length_mm": 74,
+    "ring_finger_length_mm": 69,
+    "pinky_finger_length_mm": 56,
+    "thumb_length_mm": 67
+  }
+}

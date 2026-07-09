@@ -1,0 +1,21 @@
+{
+  "model": "flexy_beast",
+  "profile": {
+    "key": "teen_15",
+    "label": "Teen 15",
+    "text": "teenage boy, 15 years old, 60kg, 170cm height, Brazil, slim build, arm length 62cm"
+  },
+  "grounded": true,
+  "suggestions": {
+    "palm_breadth_mm": 78,
+    "middle_finger_length_mm": 74,
+    "index_finger_length_mm": 70,
+    "ring_finger_length_mm": 71,
+    "pinky_finger_length_mm": 57,
+    "thumb_length_mm": 62,
+    "joint_dia": 7,
+    "joint_thick": 4,
+    "gauntlet_width_mm": 57,
+    "gauntlet_length_mm": 115
+  }
+}

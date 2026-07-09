@@ -1,0 +1,13 @@
+{
+  "model": "unlimbed_phoenix_hand",
+  "profile": {
+    "key": "child_8",
+    "label": "Boy 8",
+    "text": "boy, 8 years old, 26kg, 128cm height, Brazil, small hands"
+  },
+  "grounded": true,
+  "suggestions": {
+    "palm_breadth_mm": 82,
+    "HandPerc_override": 0
+  }
+}

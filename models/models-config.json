@@ -1467,6 +1467,539 @@
       ],
       "name_pt": "Paraglider · Mão",
       "description_pt": "Sistema protésico Paraglider (Flexible Flyer) completo num só modelo. O componente Mão constrói a palma (estilo Phoenix Reborn ou Unlimbited v3) e os cinco dedos, dimensionada a partir de medições antropométricas canónicas com escala independente por dedo e alternância de peças imprimíveis. O seletor de Componente também renderiza a Caixa Tensora e a Braçadeira Termoformada acionadas pelo pulso, e o Braço UnLimbited acionado pelo cotovelo. De Marcus Mendenhall, remix paramétrico das Phoenix v2 / Unlimbited v3 / Phoenix Reborn com juntas de pino metálico comerciais. Reborn Hand por enablesierraleone, CC BY 3.0."
+    },
+    {
+      "id": "cyborg_beast",
+      "renderBackend": "manifold",
+      "exportLayout": {
+        "print_layout": true
+      },
+      "name": "Cyborg Beast",
+      "name_pt": "Cyborg Beast",
+      "description": "The original mechanical Cyborg Beast prosthetic hand (MakerBlock / e-NABLE) — a wrist-powered device assembled with Chicago screws and elastic tension cords, rather than the printed flexible joints of the Flexy Beast. Palm, two-segment fingers and thumb are the original geometry, wrapped in an anthropometric parameter layer: the whole hand scales uniformly by the Cyborg Beast sizing formula xScaleFactor = (palm_breadth_mm + 5) / 55, while each finger is independently driven to its absolute MCP-to-tip length. Per-part colours are baked into the 3MF export for multi-material printing.",
+      "description_pt": "A mão protésica Cyborg Beast mecânica original (MakerBlock / e-NABLE) — um dispositivo acionado pelo pulso, montado com parafusos Chicago e cordas elásticas de tensão, em vez das juntas flexíveis impressas da Flexy Beast. A palma, os dedos de dois segmentos e o polegar são a geometria original, envolvidos numa camada de parâmetros antropométricos: toda a mão escala uniformemente pela fórmula Cyborg Beast xScaleFactor = (largura_palma_mm + 5) / 55, enquanto cada dedo é ajustado de forma independente ao seu comprimento MCP-à-ponta absoluto. As cores por peça são integradas na exportação 3MF para impressão multi-material.",
+      "file": "active/cyborg-beast/cyborg_beast.scad",
+      "limb": "hand",
+      "aiGuidance": "Canonical fields: palm_breadth_mm (knuckle-to-knuckle, ~70-100mm adult, drives whole-hand scale via (breadth+5)/55), and index/middle/ring/pinky_finger_length_mm + thumb_length_mm (absolute MCP crease-to-tip, each finger driven independently). Keep finger proportions realistic: middle longest, pinky shortest, index≈ring. Extreme short-finger-on-wide-palm combinations are clamped to keep the printed finger valid. Leave colour and show_* visibility parameters at defaults unless the patient data clearly implies a change.",
+      "dependencies": [
+        {
+          "url": "active/cyborg-beast/cyborgpalm001.scad",
+          "path": "cyborgpalm001.scad"
+        },
+        {
+          "url": "active/cyborg-beast/cyborgfingertip002.scad",
+          "path": "cyborgfingertip002.scad"
+        },
+        {
+          "url": "active/cyborg-beast/cyborgfingermid002.scad",
+          "path": "cyborgfingermid002.scad"
+        }
+      ],
+      "parts": [
+        {
+          "id": "palm",
+          "name": "Palm",
+          "name_pt": "Palma",
+          "toggles": [
+            "show_palm"
+          ]
+        },
+        {
+          "id": "index_base",
+          "name": "Index finger — base",
+          "name_pt": "Indicador — base",
+          "toggles": [
+            "show_index",
+            "show_index_base"
+          ]
+        },
+        {
+          "id": "index_tip",
+          "name": "Index finger — tip",
+          "name_pt": "Indicador — ponta",
+          "toggles": [
+            "show_index",
+            "show_index_tip"
+          ]
+        },
+        {
+          "id": "middle_base",
+          "name": "Middle finger — base",
+          "name_pt": "Médio — base",
+          "toggles": [
+            "show_middle",
+            "show_middle_base"
+          ]
+        },
+        {
+          "id": "middle_tip",
+          "name": "Middle finger — tip",
+          "name_pt": "Médio — ponta",
+          "toggles": [
+            "show_middle",
+            "show_middle_tip"
+          ]
+        },
+        {
+          "id": "ring_base",
+          "name": "Ring finger — base",
+          "name_pt": "Anelar — base",
+          "toggles": [
+            "show_ring",
+            "show_ring_base"
+          ]
+        },
+        {
+          "id": "ring_tip",
+          "name": "Ring finger — tip",
+          "name_pt": "Anelar — ponta",
+          "toggles": [
+            "show_ring",
+            "show_ring_tip"
+          ]
+        },
+        {
+          "id": "pinky_base",
+          "name": "Pinky finger — base",
+          "name_pt": "Mindinho — base",
+          "toggles": [
+            "show_pinky",
+            "show_pinky_base"
+          ]
+        },
+        {
+          "id": "pinky_tip",
+          "name": "Pinky finger — tip",
+          "name_pt": "Mindinho — ponta",
+          "toggles": [
+            "show_pinky",
+            "show_pinky_tip"
+          ]
+        },
+        {
+          "id": "thumb_base",
+          "name": "Thumb — base",
+          "name_pt": "Polegar — base",
+          "toggles": [
+            "show_thumb",
+            "show_thumb_base"
+          ]
+        },
+        {
+          "id": "thumb_tip",
+          "name": "Thumb — tip",
+          "name_pt": "Polegar — ponta",
+          "toggles": [
+            "show_thumb",
+            "show_thumb_tip"
+          ]
+        }
+      ],
+      "parameters": [
+        {
+          "name": "palm_breadth_mm",
+          "type": "number",
+          "initial": 83,
+          "min": 55,
+          "max": 110,
+          "step": 1,
+          "caption": "Knuckle-to-knuckle metacarpal breadth — drives uniform palm and hand scale via Cyborg Beast formula: scale = (breadth + 5) / 55 (mm)",
+          "label_pt": "Largura da Palma (em mm)",
+          "caption_pt": "Largura metacarpal entre nós dos dedos — define a escala uniforme da palma e da mão pela fórmula Cyborg Beast: escala = (largura + 5) / 55 (mm)",
+          "help": "Objective: anchor the overall size of the whole hand to the patient's anatomy — measure straight across the back of the hand, index knuckle to pinky knuckle, with the fingers held together. Outcome: every part (palm, all fingers, thumb and the flexible joints) scales uniformly by (breadth + 5) / 55, so a larger value yields a proportionally bigger, stronger hand and a smaller value suits a child. This is the single most important fit dimension — set it first, then fine-tune the rest.",
+          "help_pt": "Objetivo: ancorar o tamanho global de toda a mão à anatomia do paciente — meça em linha reta nas costas da mão, do nó do indicador ao do mindinho, com os dedos juntos. Resultado: cada peça (palma, todos os dedos, polegar e juntas flexíveis) é escalada uniformemente por (largura + 5) / 55, pelo que um valor maior produz uma mão proporcionalmente maior e mais forte e um valor menor serve uma criança. É a medida de ajuste mais importante — defina-a primeiro e depois afine o resto.",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "middle_finger_length_mm",
+          "type": "number",
+          "initial": 72,
+          "min": 40,
+          "max": 120,
+          "step": 1,
+          "caption": "Middle finger MCP crease to tip — the longest digit; driven to its absolute anatomical length via the finger's own length lever while the whole hand scales by (palm_breadth + 5) / 55 (mm)",
+          "label_pt": "Comprimento do Dedo Médio (em mm)",
+          "caption_pt": "Dobra MCP à ponta do dedo médio — o dedo mais longo; ajustado ao seu comprimento anatómico absoluto pela alavanca de comprimento do próprio dedo, enquanto toda a mão escala por (largura_palma + 5) / 55 (mm)",
+          "help": "Objective: set the reach of the longest finger — measure from the middle-finger knuckle crease to the fingertip. Outcome: each finger is driven independently to its absolute length in millimetres, so this value sets the middle finger alone; increase it for a longer grasp, decrease it for a more compact, faster-closing hand. Palm and finger thickness follow the palm-breadth scale separately.",
+          "help_pt": "Objetivo: definir o alcance do dedo mais longo — meça da dobra do nó do dedo médio à ponta. Resultado: cada dedo é ajustado de forma independente ao seu comprimento absoluto em milímetros, pelo que este valor define apenas o dedo médio; aumente-o para uma preensão mais longa, diminua-o para uma mão mais compacta e de fecho mais rápido. A espessura da palma e dos dedos segue a escala da largura da palma em separado.",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "index_finger_length_mm",
+          "type": "number",
+          "initial": 68,
+          "min": 40,
+          "max": 120,
+          "step": 1,
+          "caption": "Index finger MCP crease to tip — absolute MCP-to-tip length, driven independently (mm)",
+          "label_pt": "Comprimento do Dedo Indicador (em mm)",
+          "caption_pt": "Dobra MCP à ponta do indicador — comprimento MCP-à-ponta absoluto, ajustado de forma independente (mm)",
+          "help": "Objective: tune the index finger's length relative to the middle finger so the hand matches the patient's own finger proportions. Outcome: a value close to the middle-finger length makes the index reach almost as far; a smaller value steps it back. This shapes the grip and decides which fingers contact an object first.",
+          "help_pt": "Objetivo: afinar o comprimento do indicador em relação ao dedo médio para que a mão corresponda às proporções dos dedos do paciente. Resultado: um valor próximo do comprimento do dedo médio faz o indicador alcançar quase tão longe; um valor menor recua-o. Isto molda a preensão e decide que dedos tocam primeiro num objeto.",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "ring_finger_length_mm",
+          "type": "number",
+          "initial": 68,
+          "min": 40,
+          "max": 120,
+          "step": 1,
+          "caption": "Ring finger MCP crease to tip — absolute MCP-to-tip length, driven independently (mm)",
+          "label_pt": "Comprimento do Dedo Anelar (em mm)",
+          "caption_pt": "Dobra MCP à ponta do anelar — comprimento MCP-à-ponta absoluto, ajustado de forma independente (mm)",
+          "help": "Objective: tune the ring finger's length relative to the middle finger to match the patient's natural proportions. Outcome: raising it lengthens the ring finger toward the middle finger's reach; lowering it draws it back. Affects how evenly the fingers wrap around an object.",
+          "help_pt": "Objetivo: afinar o comprimento do anelar em relação ao dedo médio para corresponder às proporções naturais do paciente. Resultado: aumentá-lo alonga o anelar em direção ao alcance do dedo médio; diminuí-lo recua-o. Afeta a uniformidade com que os dedos envolvem um objeto.",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "pinky_finger_length_mm",
+          "type": "number",
+          "initial": 55,
+          "min": 30,
+          "max": 100,
+          "step": 1,
+          "caption": "Pinky finger MCP crease to tip — absolute MCP-to-tip length, driven independently (mm)",
+          "label_pt": "Comprimento do Dedo Mindinho (em mm)",
+          "caption_pt": "Dobra MCP à ponta do mindinho — comprimento MCP-à-ponta absoluto, ajustado de forma independente (mm)",
+          "help": "Objective: set the pinky's length relative to the middle finger; the pinky is normally the shortest digit. Outcome: a larger value extends the little finger for a fuller wrap on large objects, a smaller value keeps it clear for finer grips. Keep it proportionate to avoid an unnatural-looking hand.",
+          "help_pt": "Objetivo: definir o comprimento do mindinho em relação ao dedo médio; o mindinho é normalmente o dedo mais curto. Resultado: um valor maior estende o mindinho para envolver melhor objetos grandes, um valor menor mantém-no afastado para preensões mais finas. Mantenha-o proporcional para evitar uma mão de aspeto pouco natural.",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "thumb_length_mm",
+          "type": "number",
+          "initial": 65,
+          "min": 35,
+          "max": 100,
+          "step": 1,
+          "caption": "Thumb MCP crease to tip — absolute MCP-to-tip length, driven independently (mm)",
+          "label_pt": "Comprimento do Polegar (em mm)",
+          "caption_pt": "Dobra MCP à ponta do polegar — comprimento MCP-à-ponta absoluto, ajustado de forma independente (mm)",
+          "help": "Objective: set the thumb's length relative to the middle finger, which controls where the thumb meets the fingers as the hand closes (opposition). Outcome: a longer thumb closes further across the palm for pinch-style grips, while a shorter thumb opens the span. Good opposition is essential to a usable grasp, so adjust this alongside the finger lengths.",
+          "help_pt": "Objetivo: definir o comprimento do polegar em relação ao dedo médio, o que controla onde o polegar encontra os dedos quando a mão fecha (oposição). Resultado: um polegar mais longo fecha mais sobre a palma para preensões de pinça, enquanto um polegar mais curto abre o vão. Uma boa oposição é essencial a uma preensão útil, por isso ajuste isto em conjunto com os comprimentos dos dedos.",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "mirrored",
+          "role": "laterality",
+          "type": "enum",
+          "initial": false,
+          "options": [
+            {
+              "label": "Left hand",
+              "value": false
+            },
+            {
+              "label": "Right hand",
+              "value": true
+            }
+          ],
+          "caption": "Which hand to generate — Right hand mirrors the geometry along X",
+          "label_pt": "Espelhado",
+          "caption_pt": "Que mão gerar — a mão direita espelha a geometria ao longo de X",
+          "help": "Objective: choose whether to build a left or a right hand. Outcome: selecting 'Right hand' mirrors the entire model across the X axis. Match this to the patient's affected side — printing the wrong hand produces a part that simply will not fit.",
+          "help_pt": "Objetivo: escolher se constrói uma mão esquerda ou direita. Resultado: selecionar 'Mão direita' espelha todo o modelo no eixo X. Faça corresponder ao lado afetado do paciente — imprimir a mão errada produz uma peça que simplesmente não encaixa.",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "print_layout",
+          "type": "boolean",
+          "initial": false,
+          "caption": "Spread every part flat side-by-side for 3D printing instead of the assembled hand",
+          "label_pt": "Layout de Impressão",
+          "caption_pt": "Dispor todas as peças planas lado a lado para impressão 3D em vez da mão montada",
+          "help": "Objective: switch the preview and export between the assembled hand and a flat print-bed arrangement. Outcome: turn on to lay the palm, every finger segment and the thumb out side-by-side in their print orientation, ready to slice; leave off to see the hand assembled. STL/3MF export seats each part on the bed automatically.",
+          "help_pt": "Objetivo: alternar a pré-visualização e a exportação entre a mão montada e uma disposição plana para a base de impressão. Resultado: ligue para dispor a palma, cada segmento dos dedos e o polegar lado a lado na orientação de impressão, prontos a fatiar; deixe desligado para ver a mão montada. A exportação STL/3MF assenta cada peça na base automaticamente.",
+          "group": "Options"
+        },
+        {
+          "name": "color_palm",
+          "type": "color",
+          "initial": "#cbd5e1",
+          "label": "Palm",
+          "label_pt": "Palma",
+          "caption": "Palm body",
+          "caption_pt": "Corpo da palma",
+          "group": "Colors"
+        },
+        {
+          "name": "color_index_base",
+          "type": "color",
+          "initial": "#4a9eff",
+          "label": "Index — proximal",
+          "label_pt": "Indicador — proximal",
+          "caption": "Index proximal segment (base)",
+          "caption_pt": "Segmento proximal do indicador (base)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_index_tip",
+          "type": "color",
+          "initial": "#7cc0ff",
+          "label": "Index — distal",
+          "label_pt": "Indicador — distal",
+          "caption": "Index distal segment (tip)",
+          "caption_pt": "Segmento distal do indicador (ponta)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_middle_base",
+          "type": "color",
+          "initial": "#ff6b6b",
+          "label": "Middle — proximal",
+          "label_pt": "Médio — proximal",
+          "caption": "Middle proximal segment (base)",
+          "caption_pt": "Segmento proximal do médio (base)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_middle_tip",
+          "type": "color",
+          "initial": "#ffa0a0",
+          "label": "Middle — distal",
+          "label_pt": "Médio — distal",
+          "caption": "Middle distal segment (tip)",
+          "caption_pt": "Segmento distal do médio (ponta)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_ring_base",
+          "type": "color",
+          "initial": "#51cf66",
+          "label": "Ring — proximal",
+          "label_pt": "Anelar — proximal",
+          "caption": "Ring proximal segment (base)",
+          "caption_pt": "Segmento proximal do anelar (base)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_ring_tip",
+          "type": "color",
+          "initial": "#8ce89b",
+          "label": "Ring — distal",
+          "label_pt": "Anelar — distal",
+          "caption": "Ring distal segment (tip)",
+          "caption_pt": "Segmento distal do anelar (ponta)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_pinky_base",
+          "type": "color",
+          "initial": "#ffd43b",
+          "label": "Pinky — proximal",
+          "label_pt": "Mindinho — proximal",
+          "caption": "Pinky proximal segment (base)",
+          "caption_pt": "Segmento proximal do mindinho (base)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_pinky_tip",
+          "type": "color",
+          "initial": "#ffe680",
+          "label": "Pinky — distal",
+          "label_pt": "Mindinho — distal",
+          "caption": "Pinky distal segment (tip)",
+          "caption_pt": "Segmento distal do mindinho (ponta)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_thumb_base",
+          "type": "color",
+          "initial": "#cc5de8",
+          "label": "Thumb — proximal",
+          "label_pt": "Polegar — proximal",
+          "caption": "Thumb proximal segment (base)",
+          "caption_pt": "Segmento proximal do polegar (base)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_thumb_tip",
+          "type": "color",
+          "initial": "#e0a0f0",
+          "label": "Thumb — distal",
+          "label_pt": "Polegar — distal",
+          "caption": "Thumb distal segment (tip)",
+          "caption_pt": "Segmento distal do polegar (ponta)",
+          "group": "Colors"
+        },
+        {
+          "name": "show_palm",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show palm body",
+          "label_pt": "Mostrar Palma",
+          "caption_pt": "Mostrar o corpo da palma",
+          "help": "Objective: include or hide the palm body — the central structure the fingers, thumb and gauntlet attach to. Outcome: turn it off to isolate and export just the fingers, or to declutter the preview. Keep it on for a complete, assemblable hand.",
+          "help_pt": "Objetivo: incluir ou ocultar o corpo da palma — a estrutura central a que os dedos e o polegar se fixam. Resultado: desligue para isolar e exportar apenas os dedos, ou para simplificar a pré-visualização. Mantenha-o ligado para uma mão completa e montável.",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_index",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show index finger",
+          "label_pt": "Mostrar Indicador",
+          "caption_pt": "Mostrar o dedo indicador",
+          "help": "Objective: include or hide the entire index finger (both its base and tip segments) in the model and the export. Outcome: switch off to omit the digit — handy for exporting one finger at a time, reprinting a single damaged finger, or simplifying the preview. Turning this off overrides the matching base/tip toggles below.",
+          "help_pt": "Objetivo: incluir ou ocultar todo o indicador (segmentos base e ponta) no modelo e na exportação. Resultado: desligue para omitir o dedo — útil para exportar um dedo de cada vez, reimprimir um único dedo danificado ou simplificar a pré-visualização. Desligar isto sobrepõe-se aos seletores de base/ponta correspondentes abaixo.",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_middle",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show middle finger",
+          "label_pt": "Mostrar Médio",
+          "caption_pt": "Mostrar o dedo médio",
+          "help": "Objective: include or hide the entire middle finger (both its base and tip segments) in the model and the export. Outcome: switch off to omit the digit — handy for exporting one finger at a time, reprinting a single damaged finger, or simplifying the preview. Turning this off overrides the matching base/tip toggles below.",
+          "help_pt": "Objetivo: incluir ou ocultar todo o dedo médio (segmentos base e ponta) no modelo e na exportação. Resultado: desligue para omitir o dedo — útil para exportar um dedo de cada vez, reimprimir um único dedo danificado ou simplificar a pré-visualização. Desligar isto sobrepõe-se aos seletores de base/ponta correspondentes abaixo.",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_ring",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show ring finger",
+          "label_pt": "Mostrar Anelar",
+          "caption_pt": "Mostrar o dedo anelar",
+          "help": "Objective: include or hide the entire ring finger (both its base and tip segments) in the model and the export. Outcome: switch off to omit the digit — handy for exporting one finger at a time, reprinting a single damaged finger, or simplifying the preview. Turning this off overrides the matching base/tip toggles below.",
+          "help_pt": "Objetivo: incluir ou ocultar todo o anelar (segmentos base e ponta) no modelo e na exportação. Resultado: desligue para omitir o dedo — útil para exportar um dedo de cada vez, reimprimir um único dedo danificado ou simplificar a pré-visualização. Desligar isto sobrepõe-se aos seletores de base/ponta correspondentes abaixo.",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_pinky",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show pinky finger",
+          "label_pt": "Mostrar Mindinho",
+          "caption_pt": "Mostrar o dedo mindinho",
+          "help": "Objective: include or hide the entire pinky finger (both its base and tip segments) in the model and the export. Outcome: switch off to omit the digit — handy for exporting one finger at a time, reprinting a single damaged finger, or simplifying the preview. Turning this off overrides the matching base/tip toggles below.",
+          "help_pt": "Objetivo: incluir ou ocultar todo o mindinho (segmentos base e ponta) no modelo e na exportação. Resultado: desligue para omitir o dedo — útil para exportar um dedo de cada vez, reimprimir um único dedo danificado ou simplificar a pré-visualização. Desligar isto sobrepõe-se aos seletores de base/ponta correspondentes abaixo.",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_thumb",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show thumb",
+          "label_pt": "Mostrar Polegar",
+          "caption_pt": "Mostrar o polegar",
+          "help": "Objective: include or hide the entire thumb (both its base and tip segments) in the model and the export. Outcome: switch off to omit the digit — handy for exporting one finger at a time, reprinting a single damaged finger, or simplifying the preview. Turning this off overrides the matching base/tip toggles below.",
+          "help_pt": "Objetivo: incluir ou ocultar todo o polegar (segmentos base e ponta) no modelo e na exportação. Resultado: desligue para omitir o dedo — útil para exportar um dedo de cada vez, reimprimir um único dedo danificado ou simplificar a pré-visualização. Desligar isto sobrepõe-se aos seletores de base/ponta correspondentes abaixo.",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_index_base",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show index finger base (proximal segment) — print separately from the tip",
+          "label_pt": "Mostrar Base do Indicador",
+          "caption_pt": "Mostrar a base do indicador (segmento proximal) — imprimir separadamente da ponta",
+          "help": "Objective: show the proximal (base) segment of the index finger, which prints as its own piece. Outcome: enable to lay this part out for printing or to reprint just the base after wear or breakage; disable to leave it out. Each finger is split into a base and a tip so they hinge on a Chicago screw / pin and are joined by the elastic tension cord.",
+          "help_pt": "Objetivo: mostrar o segmento proximal (base) do indicador, que é impresso como peça própria. Resultado: ative para dispor esta peça para impressão ou para reimprimir apenas a base após desgaste ou rotura; desative para a deixar de fora. Cada dedo é dividido em base e ponta para que articulam num parafuso Chicago / pino e são unidos pela corda elástica de tensão.",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_index_tip",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show index fingertip (distal segment) — print separately from the base",
+          "label_pt": "Mostrar Ponta do Indicador",
+          "caption_pt": "Mostrar a ponta do indicador (segmento distal) — imprimir separadamente da base",
+          "help": "Objective: show the distal (tip) segment of the index finger, printed separately from the base. Outcome: enable to include the fingertip in the print layout or to reprint only the tip; disable to omit it. Pair it with the base toggle to output or replace the whole finger.",
+          "help_pt": "Objetivo: mostrar o segmento distal (ponta) do indicador, impresso separadamente da base. Resultado: ative para incluir a ponta no layout de impressão ou para reimprimir apenas a ponta; desative para a omitir. Combine-o com o seletor de base para produzir ou substituir o dedo inteiro.",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_middle_base",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show middle finger base (proximal segment) — print separately from the tip",
+          "label_pt": "Mostrar Base do Médio",
+          "caption_pt": "Mostrar a base do dedo médio (segmento proximal) — imprimir separadamente da ponta",
+          "help": "Objective: show the proximal (base) segment of the middle finger, which prints as its own piece. Outcome: enable to lay this part out for printing or to reprint just the base after wear or breakage; disable to leave it out. Each finger is split into a base and a tip so they hinge on a Chicago screw / pin and are joined by the elastic tension cord.",
+          "help_pt": "Objetivo: mostrar o segmento proximal (base) do dedo médio, que é impresso como peça própria. Resultado: ative para dispor esta peça para impressão ou para reimprimir apenas a base após desgaste ou rotura; desative para a deixar de fora. Cada dedo é dividido em base e ponta para que articulam num parafuso Chicago / pino e são unidos pela corda elástica de tensão.",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_middle_tip",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show middle fingertip (distal segment) — print separately from the base",
+          "label_pt": "Mostrar Ponta do Médio",
+          "caption_pt": "Mostrar a ponta do dedo médio (segmento distal) — imprimir separadamente da base",
+          "help": "Objective: show the distal (tip) segment of the middle finger, printed separately from the base. Outcome: enable to include the fingertip in the print layout or to reprint only the tip; disable to omit it. Pair it with the base toggle to output or replace the whole finger.",
+          "help_pt": "Objetivo: mostrar o segmento distal (ponta) do dedo médio, impresso separadamente da base. Resultado: ative para incluir a ponta no layout de impressão ou para reimprimir apenas a ponta; desative para a omitir. Combine-o com o seletor de base para produzir ou substituir o dedo inteiro.",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_ring_base",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show ring finger base (proximal segment) — print separately from the tip",
+          "label_pt": "Mostrar Base do Anelar",
+          "caption_pt": "Mostrar a base do anelar (segmento proximal) — imprimir separadamente da ponta",
+          "help": "Objective: show the proximal (base) segment of the ring finger, which prints as its own piece. Outcome: enable to lay this part out for printing or to reprint just the base after wear or breakage; disable to leave it out. Each finger is split into a base and a tip so they hinge on a Chicago screw / pin and are joined by the elastic tension cord.",
+          "help_pt": "Objetivo: mostrar o segmento proximal (base) do anelar, que é impresso como peça própria. Resultado: ative para dispor esta peça para impressão ou para reimprimir apenas a base após desgaste ou rotura; desative para a deixar de fora. Cada dedo é dividido em base e ponta para que articulam num parafuso Chicago / pino e são unidos pela corda elástica de tensão.",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_ring_tip",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show ring fingertip (distal segment) — print separately from the base",
+          "label_pt": "Mostrar Ponta do Anelar",
+          "caption_pt": "Mostrar a ponta do anelar (segmento distal) — imprimir separadamente da base",
+          "help": "Objective: show the distal (tip) segment of the ring finger, printed separately from the base. Outcome: enable to include the fingertip in the print layout or to reprint only the tip; disable to omit it. Pair it with the base toggle to output or replace the whole finger.",
+          "help_pt": "Objetivo: mostrar o segmento distal (ponta) do anelar, impresso separadamente da base. Resultado: ative para incluir a ponta no layout de impressão ou para reimprimir apenas a ponta; desative para a omitir. Combine-o com o seletor de base para produzir ou substituir o dedo inteiro.",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_pinky_base",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show pinky finger base (proximal segment) — print separately from the tip",
+          "label_pt": "Mostrar Base do Mindinho",
+          "caption_pt": "Mostrar a base do mindinho (segmento proximal) — imprimir separadamente da ponta",
+          "help": "Objective: show the proximal (base) segment of the pinky finger, which prints as its own piece. Outcome: enable to lay this part out for printing or to reprint just the base after wear or breakage; disable to leave it out. Each finger is split into a base and a tip so they hinge on a Chicago screw / pin and are joined by the elastic tension cord.",
+          "help_pt": "Objetivo: mostrar o segmento proximal (base) do mindinho, que é impresso como peça própria. Resultado: ative para dispor esta peça para impressão ou para reimprimir apenas a base após desgaste ou rotura; desative para a deixar de fora. Cada dedo é dividido em base e ponta para que articulam num parafuso Chicago / pino e são unidos pela corda elástica de tensão.",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_pinky_tip",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show pinky fingertip (distal segment) — print separately from the base",
+          "label_pt": "Mostrar Ponta do Mindinho",
+          "caption_pt": "Mostrar a ponta do mindinho (segmento distal) — imprimir separadamente da base",
+          "help": "Objective: show the distal (tip) segment of the pinky finger, printed separately from the base. Outcome: enable to include the fingertip in the print layout or to reprint only the tip; disable to omit it. Pair it with the base toggle to output or replace the whole finger.",
+          "help_pt": "Objetivo: mostrar o segmento distal (ponta) do mindinho, impresso separadamente da base. Resultado: ative para incluir a ponta no layout de impressão ou para reimprimir apenas a ponta; desative para a omitir. Combine-o com o seletor de base para produzir ou substituir o dedo inteiro.",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_thumb_base",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show thumb base (proximal segment) — print separately from the tip",
+          "label_pt": "Mostrar Base do Polegar",
+          "caption_pt": "Mostrar a base do polegar (segmento proximal) — imprimir separadamente da ponta",
+          "help": "Objective: show the proximal (base) segment of the thumb, which prints as its own piece. Outcome: enable to lay this part out for printing or to reprint just the base after wear or breakage; disable to leave it out. Each finger is split into a base and a tip so they hinge on a Chicago screw / pin and are joined by the elastic tension cord.",
+          "help_pt": "Objetivo: mostrar o segmento proximal (base) do polegar, que é impresso como peça própria. Resultado: ative para dispor esta peça para impressão ou para reimprimir apenas a base após desgaste ou rotura; desative para a deixar de fora. Cada dedo é dividido em base e ponta para que articulam num parafuso Chicago / pino e são unidos pela corda elástica de tensão.",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_thumb_tip",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show thumb tip (distal segment) — print separately from the base",
+          "label_pt": "Mostrar Ponta do Polegar",
+          "caption_pt": "Mostrar a ponta do polegar (segmento distal) — imprimir separadamente da base",
+          "help": "Objective: show the distal (tip) segment of the thumb, printed separately from the base. Outcome: enable to include the fingertip in the print layout or to reprint only the tip; disable to omit it. Pair it with the base toggle to output or replace the whole finger.",
+          "help_pt": "Objetivo: mostrar o segmento distal (ponta) do polegar, impresso separadamente da base. Resultado: ative para incluir a ponta no layout de impressão ou para reimprimir apenas a ponta; desative para a omitir. Combine-o com o seletor de base para produzir ou substituir o dedo inteiro.",
+          "group": "Visibility"
+        }
+      ]
     }
   ]
 }

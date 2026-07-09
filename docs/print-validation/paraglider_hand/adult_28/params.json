@@ -1,0 +1,19 @@
+{
+  "model": "paraglider_hand",
+  "profile": {
+    "key": "adult_28",
+    "label": "Man 28",
+    "text": "man, 28 years old, 82kg, 180cm height, Brazil, arm length 70cm"
+  },
+  "grounded": true,
+  "suggestions": {
+    "palm_breadth_mm": 90,
+    "palm_length_mm": 114,
+    "palm_thickness_mm": 33,
+    "index_finger_length_mm": 76,
+    "middle_finger_length_mm": 84,
+    "ring_finger_length_mm": 80,
+    "pinky_finger_length_mm": 65,
+    "thumb_length_mm": 71
+  }
+}

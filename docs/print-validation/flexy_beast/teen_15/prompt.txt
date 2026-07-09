@@ -1,0 +1,262 @@
+PATIENT: teenage boy, 15 years old, 60kg, 170cm height, Brazil, slim build, arm length 62cm
+GROUNDED: true
+
+You are sizing a 3D-printed parametric prosthetic hand model ("Flexy Beast") for a patient.
+
+Patient anthropometric data:
+teenage boy, 15 years old, 60kg, 170cm height, Brazil, slim build, arm length 62cm
+
+These are the model's adjustable parameters. Each has a name, a caption describing what it controls, an allowed range (min/max where applicable), and the current value:
+[
+  {
+    "name": "palm_breadth_mm",
+    "caption": "Knuckle-to-knuckle metacarpal breadth — drives uniform palm and hand scale via Cyborg Beast formula: scale = (breadth + 5) / 55 (mm)",
+    "type": "number",
+    "min": 55,
+    "max": 110,
+    "current": 83
+  },
+  {
+    "name": "middle_finger_length_mm",
+    "caption": "Middle finger MCP crease to tip — drives global finger length multiplier; reference reach at scale = REF_FINGER × xScaleFactor = 37 × ((palm_breadth + 5) / 55) mm (mm)",
+    "type": "number",
+    "min": 40,
+    "max": 120,
+    "current": 72
+  },
+  {
+    "name": "index_finger_length_mm",
+    "caption": "Index finger MCP crease to tip — sets index finger proportion relative to middle finger (mm)",
+    "type": "number",
+    "min": 40,
+    "max": 120,
+    "current": 68
+  },
+  {
+    "name": "ring_finger_length_mm",
+    "caption": "Ring finger MCP crease to tip — sets ring finger proportion relative to middle finger (mm)",
+    "type": "number",
+    "min": 40,
+    "max": 120,
+    "current": 68
+  },
+  {
+    "name": "pinky_finger_length_mm",
+    "caption": "Pinky finger MCP crease to tip — sets pinky proportion relative to middle finger (mm)",
+    "type": "number",
+    "min": 30,
+    "max": 100,
+    "current": 55
+  },
+  {
+    "name": "thumb_length_mm",
+    "caption": "Thumb MCP crease to tip — sets thumb proportion relative to middle finger (mm)",
+    "type": "number",
+    "min": 35,
+    "max": 100,
+    "current": 65
+  },
+  {
+    "name": "joint_dia",
+    "caption": "Flexy joint hole diameter — reduce to 5 mm for small children's hands (mm)",
+    "type": "number",
+    "min": 4,
+    "max": 10,
+    "current": 7
+  },
+  {
+    "name": "joint_thick",
+    "caption": "Flexy joint slot thickness — reduce to 2 mm for small children's hands (mm)",
+    "type": "number",
+    "min": 1,
+    "max": 6,
+    "current": 4
+  },
+  {
+    "name": "finger_pads",
+    "caption": "Hollow fingertips for casting or inserting silicone grip pads",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_pads",
+    "caption": "Show installed silicone grip pads in the preview (requires finger_pads enabled)",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_thermoform",
+    "caption": "Show thermoformable mesh on palm interior (print in PLA, heat-form to patient)",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_gauntlet",
+    "caption": "Show the forearm gauntlet — a separate printed cuff that pins to the wrist hinge",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "gauntlet_width_mm",
+    "caption": "Forearm socket width — derive as wrist_circumference_mm / PI + ~6 mm clearance (mm)",
+    "type": "number",
+    "min": 40,
+    "max": 90,
+    "current": 60
+  },
+  {
+    "name": "gauntlet_length_mm",
+    "caption": "Gauntlet length along the forearm (mm)",
+    "type": "number",
+    "min": 70,
+    "max": 150,
+    "current": 108
+  },
+  {
+    "name": "gauntlet_wall_mm",
+    "caption": "Cuff wall thickness (mm)",
+    "type": "number",
+    "min": 2,
+    "max": 5,
+    "current": 3
+  },
+  {
+    "name": "gauntlet_pos_adjust",
+    "caption": "Slide the gauntlet along the forearm axis to fine-tune the wrist-pin fit (mm)",
+    "type": "number",
+    "min": -25,
+    "max": 25,
+    "current": 0
+  },
+  {
+    "name": "wrist_pin_dia",
+    "caption": "Wrist hinge pin diameter — defaults to the finger joint pin size (mm)",
+    "type": "number",
+    "min": 3,
+    "max": 8,
+    "current": 7
+  },
+  {
+    "name": "wrist_pin_clearance",
+    "caption": "Clearance around the pin so the gauntlet straps rotate freely (mm)",
+    "type": "number",
+    "min": 0.1,
+    "max": 0.8,
+    "current": 0.35
+  },
+  {
+    "name": "strap_splay_adjust",
+    "caption": "Nudge the strap-tip splay so the flaps sit just inside the palm wrist fins (mm)",
+    "type": "number",
+    "min": -8,
+    "max": 8,
+    "current": 0
+  },
+  {
+    "name": "show_palm",
+    "caption": "Show palm body",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_index",
+    "caption": "Show index finger",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_middle",
+    "caption": "Show middle finger",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_ring",
+    "caption": "Show ring finger",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_pinky",
+    "caption": "Show pinky finger",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_thumb",
+    "caption": "Show thumb",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_index_base",
+    "caption": "Show index finger base (proximal segment) — print separately from the tip",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_index_tip",
+    "caption": "Show index fingertip (distal segment) — print separately from the base",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_middle_base",
+    "caption": "Show middle finger base (proximal segment) — print separately from the tip",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_middle_tip",
+    "caption": "Show middle fingertip (distal segment) — print separately from the base",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_ring_base",
+    "caption": "Show ring finger base (proximal segment) — print separately from the tip",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_ring_tip",
+    "caption": "Show ring fingertip (distal segment) — print separately from the base",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_pinky_base",
+    "caption": "Show pinky finger base (proximal segment) — print separately from the tip",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_pinky_tip",
+    "caption": "Show pinky fingertip (distal segment) — print separately from the base",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_thumb_base",
+    "caption": "Show thumb base (proximal segment) — print separately from the tip",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_thumb_tip",
+    "caption": "Show thumb tip (distal segment) — print separately from the base",
+    "type": "boolean",
+    "current": true
+  }
+]
+
+Guidance:
+- Anthropometric parameters are anatomical measurements in millimetres; use the patient's data to set them directly, guided by each parameter's caption above.
+- If the data is qualitative (e.g. "woman, 172cm, slim build"), estimate plausible measurements from population norms; women typically run smaller than men, and children smaller than adults.
+- Canonical fields when present: palm_breadth_mm (knuckle-to-knuckle, ~70-100mm adult), palm_length_mm (wrist to MCP, ~90-120mm), palm_thickness_mm (~22-38mm), index/middle/ring/pinky_finger_length_mm (MCP crease to tip), thumb_length_mm, gauntlet_width_mm (approx. wrist circumference / PI + ~5mm clearance). Keep finger proportions realistic: middle finger longest, pinky shortest.
+- Keep proportions anatomically realistic relative to each other.
+- Only suggest values for parameters listed above, by their exact name, and stay within each parameter's min/max.
+- Leave hardware/visibility/color parameters at their current values unless the patient data clearly implies a change.
+- Limb side (left/right) has already been chosen by the user in the UI: left side. Treat it as fixed — do NOT include mirrored in your output, and do not change the side.
+
+Respond with ONLY a valid JSON object mapping parameter names to suggested values. No prose, no markdown.

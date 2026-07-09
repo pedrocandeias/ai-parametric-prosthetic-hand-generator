@@ -30,3 +30,8 @@ npm-debug.log*
 # Deployment staging output (produced by ./deploy.sh collect)
 deploy/
 deploy.tar.gz
+
+# Scratch / in-progress model build artifacts (never commit or deploy)
+**/_assembly.*
+**/*_preview.png
+**/assemblage-*.jpg

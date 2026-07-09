@@ -1,0 +1,21 @@
+{
+  "model": "flexy_beast",
+  "profile": {
+    "key": "elderly_70",
+    "label": "Man 70",
+    "text": "man, 70 years old, 78kg, 172cm height, Brazil, arm length 68cm"
+  },
+  "grounded": true,
+  "suggestions": {
+    "palm_breadth_mm": 84,
+    "middle_finger_length_mm": 69,
+    "index_finger_length_mm": 65,
+    "ring_finger_length_mm": 65,
+    "pinky_finger_length_mm": 52,
+    "thumb_length_mm": 62,
+    "joint_dia": 7,
+    "joint_thick": 4,
+    "gauntlet_width_mm": 62,
+    "gauntlet_length_mm": 110
+  }
+}

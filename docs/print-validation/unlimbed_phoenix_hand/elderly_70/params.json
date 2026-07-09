@@ -1,0 +1,12 @@
+{
+  "model": "unlimbed_phoenix_hand",
+  "profile": {
+    "key": "elderly_70",
+    "label": "Man 70",
+    "text": "man, 70 years old, 78kg, 172cm height, Brazil, arm length 68cm"
+  },
+  "grounded": true,
+  "suggestions": {
+    "palm_breadth_mm": 84
+  }
+}
