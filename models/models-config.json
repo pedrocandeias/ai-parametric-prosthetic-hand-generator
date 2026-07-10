@@ -1644,6 +1644,14 @@
           "toggles": [
             "show_gauntlet"
           ]
+        },
+        {
+          "id": "thermoform",
+          "name": "Palm liner (thermoform mesh)",
+          "name_pt": "Revestimento da palma (malha termoformável)",
+          "toggles": [
+            "show_thermoform"
+          ]
         }
       ],
       "parameters": [
@@ -1790,7 +1798,7 @@
         {
           "name": "thumb_base_length_mm",
           "type": "number",
-          "initial": 22,
+          "initial": 27,
           "min": 12,
           "max": 45,
           "step": 1,
@@ -1819,17 +1827,17 @@
           "min": 110,
           "max": 260,
           "step": 1,
-          "caption": "Forearm circumference at the wrist — sizes the gauntlet cuff girth to the wearer (cuff width ≈ circumference/π + clearance), independently of hand scale (mm)",
+          "caption": "Forearm circumference at the wrist — sizes the gauntlet cuff depth/girth to the wearer (∝ circumference/π + clearance). The cuff width is fixed to the palm so its wings always meet the palm wings (mm)",
           "label_pt": "Circunferência do Pulso (em mm)",
-          "caption_pt": "Circunferência do antebraço no pulso — dimensiona a largura do punho ao utilizador (largura ≈ circunferência/π + folga), independentemente da escala da mão (mm)",
-          "help": "Objective: fit the gauntlet cuff to the patient's forearm — measure the circumference around the wrist with a tape. Outcome: the cuff girth scales to circumference/π plus clearance, so it wraps comfortably regardless of hand size; too tight is uncomfortable, too loose loses wrist drive. This is the gauntlet's main fit dimension.",
-          "help_pt": "Objetivo: ajustar o punho ao antebraço do paciente — meça a circunferência à volta do pulso com uma fita. Resultado: a largura do punho escala para circunferência/π mais folga, envolvendo confortavelmente independentemente do tamanho da mão; demasiado apertado é desconfortável, demasiado largo perde o acionamento do pulso. É a medida de ajuste principal do punho.",
+          "caption_pt": "Circunferência do antebraço no pulso — dimensiona a profundidade/perímetro do punho ao utilizador (∝ circunferência/π + folga). A largura é fixa à palma para as asas encontrarem sempre as asas da palma (mm)",
+          "help": "Objective: fit the gauntlet cuff to the patient's forearm — measure the circumference around the wrist with a tape. Outcome: the cuff depth (girth) scales to circumference/π plus clearance, so it wraps comfortably regardless of hand size; too tight is uncomfortable, too loose loses wrist drive. The cuff width stays locked to the palm so the hinge wings always align. This is the gauntlet's main fit dimension.",
+          "help_pt": "Objetivo: ajustar o punho ao antebraço do paciente — meça a circunferência à volta do pulso com uma fita. Resultado: a profundidade (perímetro) do punho escala para circunferência/π mais folga, envolvendo confortavelmente independentemente do tamanho da mão; demasiado apertado é desconfortável, demasiado largo perde o acionamento do pulso. A largura fica fixa à palma para as asas da charneira alinharem sempre. É a medida de ajuste principal do punho.",
           "group": "Anthropometric"
         },
         {
           "name": "gauntlet_tilt",
           "type": "number",
-          "initial": 12,
+          "initial": 0,
           "min": -10,
           "max": 40,
           "step": 1,
@@ -1843,7 +1851,7 @@
         {
           "name": "gauntlet_length_scale",
           "type": "number",
-          "initial": 1.0,
+          "initial": 0.7,
           "min": 0.7,
           "max": 1.5,
           "step": 0.05,
@@ -1895,6 +1903,17 @@
           "help": "Objective: size the holes along the gauntlet rim that the retention straps thread through. Outcome: set them to your strap or lacing width so the straps pass cleanly. Leave at the default unless your straps need larger openings.",
           "help_pt": "Objetivo: dimensionar os furos ao longo do rebordo do punho por onde passam as correias de retenção. Resultado: defina-os à largura da sua correia ou atacador para passarem sem prender. Deixe no valor por omissão a menos que as suas correias precisem de aberturas maiores.",
           "group": "Gauntlet"
+        },
+        {
+          "name": "show_thermoform",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Line the palm interior with a thermoformable perforated mesh — heat and press it to the patient's palm for a custom fit",
+          "label_pt": "Malha Termoformável na Palma",
+          "caption_pt": "Revestir o interior da palma com uma malha perfurada termoformável — aquecer e moldar à palma do paciente para um ajuste personalizado",
+          "help": "Objective: add the perforated liner that lines the inside of the palm, so the fitter can warm it and press it onto the patient's own palm for a snug, personalised interface. Outcome: turn it on for the custom-fit liner (ported from the Flexy Beast), off for a bare palm cavity. The perforations save plastic and let the mesh conform when heated.",
+          "help_pt": "Objetivo: adicionar o revestimento perfurado que forra o interior da palma, para o técnico o aquecer e moldar à própria palma do paciente para uma interface justa e personalizada. Resultado: ligue para o revestimento de ajuste personalizado (portado do Flexy Beast), desligue para a cavidade da palma nua. As perfurações poupam plástico e deixam a malha conformar-se quando aquecida.",
+          "group": "Palm liner"
         },
         {
           "name": "mirrored",
@@ -2047,6 +2066,16 @@
           "label_pt": "Punho de antebraço",
           "caption": "Forearm gauntlet cuff",
           "caption_pt": "Punho de antebraço",
+          "group": "Colors"
+        },
+        {
+          "name": "color_thermoform",
+          "type": "color",
+          "initial": "#d9a066",
+          "label": "Palm liner",
+          "label_pt": "Revestimento da palma",
+          "caption": "Thermoformable palm liner mesh",
+          "caption_pt": "Malha termoformável de revestimento da palma",
           "group": "Colors"
         },
         {

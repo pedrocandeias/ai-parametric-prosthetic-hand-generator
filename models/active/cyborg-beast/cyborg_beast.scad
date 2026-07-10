@@ -62,7 +62,7 @@ ring_base_length_mm = 22; // [12:1:60]
 pinky_base_length_mm = 16; // [10:1:55]
 
 // Thumb — proximal (base) segment length, MCP to IP (mm)
-thumb_base_length_mm = 22; // [12:1:45]
+thumb_base_length_mm = 27; // [12:1:45]
 
 // Build the mirror-image (left vs right) hand — set by the UI laterality control
 mirrored = false;
@@ -95,6 +95,12 @@ gauntlet_rim_hole_d = 2.5; // [1.5:0.5:6]
 // Manual fine-tune on top of the automatic wrist-pin seating (local mm)
 gauntlet_nudge = [0, 0, 0];
 
+/* [Palm liner] */
+
+// Thermoformable perforated mesh lining the palm interior — heat it and press to
+// the patient's palm for a custom fit. Ported from the Flexy Beast.
+show_thermoform = true;
+
 /* [Options] */
 
 // Print-bed layout: spread every part flat side-by-side for 3D printing instead of the assembled hand (false).
@@ -115,6 +121,7 @@ color_pinky_tip   = "#ffe680"; // pinky — distal
 color_thumb_base  = "#cc5de8"; // thumb — proximal
 color_thumb_tip   = "#e0a0f0"; // thumb — distal
 color_gauntlet    = "#94a3b8"; // forearm gauntlet cuff
+color_thermoform  = "#d9a066"; // thermoformable palm liner
 
 /* [Visibility] */
 
@@ -155,23 +162,36 @@ include <gauntlet.scad>
 overall_scale = (palm_breadth_mm + 5) / 55;
 
 // ── Gauntlet sizing & auto-seating ──────────────────────────────────────────
-// Girth (X,Z cross-section) is scaled to the wrist circumference; length (Y) by
-// gauntlet_length_scale. The pin runs along X, so scaling girth keeps the hinge
-// valid — the prong pin-holes just move in/out along the pin. We then solve the
-// seat so those holes land exactly on the palm wrist-pin axis (local y=1.4,
-// z=3.3) for ANY girth/length/tilt. Measured native gauntlet: width 49.88 mm,
-// prong pin-hole at (±22.6, -58.3, -9.8).
+// The gauntlet is scaled anisotropically so its two prongs always nest against
+// the palm's wrist fins (the "wings") while the forearm girth still follows the
+// patient:
+//   X (width / prong span) — FIXED to the palm: the fins sit at local x=±26.6,
+//       so the prong pin-holes (native ±22.6) are scaled to land just inside
+//       them. This is independent of the wrist measurement, so the wings always
+//       meet the palm wings.
+//   Z (cuff depth / girth)  — scaled to wrist_circumference_mm.
+//   Y (forearm length)      — scaled by gauntlet_length_scale.
+// The seat then solves so the prong pin-holes land on the palm wrist-pin axis
+// (local y=-27, z=5.5 — the hardwarecutouts wrist hinge / wrist-fin pin) for ANY
+// depth/length/tilt. Measured native gauntlet: width 49.88 mm, prong pin-hole at
+// (±22.6, -58.3, -9.8).
 G_NATIVE_W = 49.88;                 // native cuff width (X extent), mm
+G_PRONG_X  = 22.6;                  // native prong pin-hole |X|
 G_PRONG_Y  = -58.3;                 // native prong pin-hole Y
 G_PRONG_Z  = -9.8;                  // native prong pin-hole Z
+G_FIN_X    = 26.6;                  // palm wrist-fin |X| (prongs nest just inside)
 G_PIN_Y    = -27;                   // palm wrist-pin axis, local Y (hardwarecutouts wrist hinge + wrist-fin pin holes at y=-27)
 G_PIN_Z    = 5.5;                   // palm wrist-pin axis, local Z (wrist hinge bore z=5.5)
 
-g_girth = (wrist_circumference_mm / PI + 6) / (G_NATIVE_W * overall_scale);
+// X-scale so the prong pin-holes sit ~2.6 mm inside the palm fins (nest, no clash).
+g_hinge = (G_FIN_X - 2.6) / G_PRONG_X;
+// Z-scale (cuff depth) from the wrist circumference (half-cuff girth), independent
+// of hand scale — so a wide cuff can still be shallow for a slim forearm.
+g_depth = (wrist_circumference_mm / PI + 6) / (G_NATIVE_W * overall_scale);
 g_len   = gauntlet_length_scale;
-// prong pin-hole after scale([g_girth,g_len,g_girth]) then rotate([tilt,0,180]):
-g_prong_y = -G_PRONG_Y * g_len * cos(gauntlet_tilt) - G_PRONG_Z * g_girth * sin(gauntlet_tilt);
-g_prong_z = -G_PRONG_Y * g_len * sin(gauntlet_tilt) + G_PRONG_Z * g_girth * cos(gauntlet_tilt);
+// prong pin-hole after scale([g_hinge,g_len,g_depth]) then rotate([tilt,0,180]):
+g_prong_y = -G_PRONG_Y * g_len * cos(gauntlet_tilt) - G_PRONG_Z * g_depth * sin(gauntlet_tilt);
+g_prong_z = -G_PRONG_Y * g_len * sin(gauntlet_tilt) + G_PRONG_Z * g_depth * cos(gauntlet_tilt);
 g_seat    = [0, G_PIN_Y - g_prong_y, G_PIN_Z - g_prong_z];
 g_pin_bore = wrist_pin_dia + 2 * wrist_pin_clearance;
 
@@ -179,7 +199,7 @@ g_pin_bore = wrist_pin_dia + 2 * wrist_pin_clearance;
 module seat_gauntlet() {
     translate(g_seat + gauntlet_nudge)
         rotate([gauntlet_tilt, 0, 180])
-            scale([g_girth, g_len, g_girth])
+            scale([g_hinge, g_len, g_depth])
                 gauntlet(pin_hole_d = g_pin_bore, rim_hole_d = gauntlet_rim_hole_d);
 }
 
@@ -230,7 +250,7 @@ function tip_ld(total_mm, base_mm) =
 // The PIP hinge stays coaxial when the tip is placed at
 //   y = -(THUMB_JOIN0 + lp/3 + ld/3)       (render-calibrated; 23.667 → -18 at
 //                                            the native -12/-5 split)
-THUMB_BASE_REACH = 44.93;   // reference straight MCP→tip reach at scale 1
+THUMB_BASE_REACH = 51.3;    // reference straight MCP→tip reach at scale 1 (sized so the native base ≈ Thumb_Phal 31.2 mm and tip ≈ Thumb_Finger 36.5 mm; total thumb length stays = thumb_length_mm via thumb_scale)
 THUMB_JOIN0      = 23.667;  // PIP join-offset constant
 THUMB_REACH_A    = 55.84;   // reach_local intercept
 THUMB_REACH_B    = 0.6185;  // d(reach_local)/dlp
@@ -259,6 +279,7 @@ mirror([mirrored ? 1 : 0, 0, 0])
 // Assembled hand (original pose), per-finger length + per-part colour/visibility
 module handlayout(sp = 14.4) {
     if (show_palm) color(color_palm) cyborgbeastpalm();
+    if (show_thermoform) color(color_thermoform) palm_thermoform();
     translate([22, 29, 10]) rotate([0, 180, 0]) {
         if (show_index)  place_finger(0,
                 base_lp(index_base_length_mm),  tip_ld(index_finger_length_mm,  index_base_length_mm),
@@ -325,6 +346,8 @@ module printlayout() {
         [show_pinky,  show_pinky_base,  show_pinky_tip,  pinky_finger_length_mm,  color_pinky_base,  color_pinky_tip,  pinky_base_length_mm],
     ];
     if (show_palm) color(color_palm) cyborgbeastpalm();
+    // Thermoform liner prints fused inside the palm, so it stays in the palm's frame.
+    if (show_thermoform) color(color_thermoform) palm_thermoform();
     for (i = [0:len(_fingers)-1]) let(f = _fingers[i], lp = base_lp(f[6]), ld = tip_ld(f[3], f[6]), y = -i*row) {
         if (f[0] && f[1]) color(f[4]) translate([58, y, 0]) fingermid(len = lp);
         if (f[0] && f[2]) color(f[5]) translate([88, y, 0]) fingertip(len = ld, grip = 1);
@@ -333,14 +356,40 @@ module printlayout() {
         if (show_thumb_base) color(color_thumb_base) translate([58/thumb_scale(), yt/thumb_scale(), 0]) thumbmid();
         if (show_thumb_tip)  color(color_thumb_tip)  translate([88/thumb_scale(), yt/thumb_scale(), 0]) thumbtip();
     }
-    // Gauntlet as its own printable part: opening up, seated on the bed (min z = -17.66).
     // Gauntlet as its own printable part: sized to the wrist, opening up, seated
-    // on the bed (native min z = -17.66, scaled by the girth factor).
+    // on the bed (native min z = -17.66, scaled by the cuff-depth factor g_depth).
     if (show_gauntlet)
-        color(color_gauntlet) translate([-70, -60, 17.66 * g_girth])
-            scale([g_girth, g_len, g_girth])
+        color(color_gauntlet) translate([-70, -60, 17.66 * g_depth])
+            scale([g_hinge, g_len, g_depth])
                 gauntlet(pin_hole_d = g_pin_bore, rim_hole_d = gauntlet_rim_hole_d);
 }
 
 module thumbmid() { fingermid(len = thumb_lp()); }
 module thumbtip() { fingertip(len = thumb_ld(), grip = 1); }
+
+// ── Thermoform mesh ─────────────────────────────────────────────────────────
+// A perforated slab (offset grid of elongated holes) intersected with the palm
+// interior space so it lines the inside of the palm. Ported from the Flexy Beast.
+module thermoform_mesh(size = [50, 50], thickness = 5, hole_spacing = 1.5) {
+    hole_size = [1.75, 5.5];
+    difference() {
+        cube([size[0], size[1], thickness/2], center=false);
+        translate([hole_size[0]/2 + hole_spacing, hole_size[1]/2 + hole_spacing, -thickness])
+            for (x = [-1 : size[0] / (hole_size[0]+hole_spacing)],
+                 y = [-1 : size[1] / (hole_size[1]+hole_spacing)]) {
+                translate([x * (hole_size[0] + hole_spacing),
+                           y * (hole_size[1] + hole_spacing) + (x % 2) * (hole_size[1]/2),
+                           0])
+                    resize([hole_size[0], hole_size[1], thickness*2]) cylinder(d=1, h=thickness, $fn=8);
+            }
+    }
+}
+
+// The palm-interior liner: the perforated mesh clipped to the palm inside space,
+// in the palm's own frame (scale 1; overall_scale is applied by the top level).
+module palm_thermoform() {
+    intersection() {
+        cyborgbeast07palminsidespace();
+        translate([-35, -22, 0]) thermoform_mesh(size = [70, 50]);
+    }
+}

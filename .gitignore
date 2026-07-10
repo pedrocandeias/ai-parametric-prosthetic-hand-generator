@@ -37,3 +37,4 @@ deploy.tar.gz
 **/assemblage-*.jpg
 models/**/output/
 models/**/previews/
+models/**/stls/
