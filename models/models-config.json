@@ -738,8 +738,7 @@
         { "url": "active/unlimbed_phoenix_hand/phoenix_snap_pins.scad",       "path": "phoenix_snap_pins.scad" },
         { "url": "active/unlimbed_phoenix_hand/phoenix_tensioner_block.scad", "path": "phoenix_tensioner_block.scad" },
         { "url": "active/unlimbed_phoenix_hand/phoenix_tensioner_pins.scad",  "path": "phoenix_tensioner_pins.scad" },
-        { "url": "active/unlimbed_phoenix_hand/phoenix_palm_manifold.stl",    "path": "phoenix_palm_manifold.stl" },
-        { "url": "active/unlimbed_phoenix_hand/phoenix_fingers_manifold.stl", "path": "phoenix_fingers_manifold.stl" }
+        { "url": "active/unlimbed_phoenix_hand/phoenix_preview_meshes.scad",  "path": "phoenix_preview_meshes.scad" }
       ],
       "parameters": [
         {
