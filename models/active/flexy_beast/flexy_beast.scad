@@ -67,9 +67,18 @@ color_pinky_base  = "#ffd43b"; // pinky — proximal
 color_pinky_tip   = "#ffe680"; // pinky — distal
 color_thumb_base  = "#cc5de8"; // thumb — proximal
 color_thumb_tip   = "#e0a0f0"; // thumb — distal
+color_hinge       = "#2f4b7c"; // flexy joints (flexible filament connectors)
 
 // Show thermoformable mesh on palm interior (for heat-forming to patient)
 show_thermoform = true;
+
+// Show the flexy joints — the flexible connector pieces that sit in the gap at
+// each finger/thumb joint and act as the living hinge. In the assembled view they
+// fill the joint holes between the segments; in print_layout they lay out flat on
+// a plate to print in flexible filament (Filaflex/TPU). They are sized from the
+// joint hole/slot (joint_dia, joint_thick) and the hand scale, so they track every
+// finger and hardware parameter change.
+show_hinges = true;
 
 // Mirror geometry for right hand (default produces left hand)
 mirrored = false;
@@ -183,6 +192,19 @@ fn             = 32;
 jointDia       = joint_dia;
 jointThick     = joint_thick;
 
+// ── Flexy joint (hinge) geometry (derived) ────────────────────────────────────
+// Each joint hole in the hand is a pin bore (jointDia) crossed by a thin slot
+// (jointThick). The flexy joint is the flexible connector that lives in that slot
+// and bridges two adjacent knuckle blocks — a "dogbone": two lobes wrapping the
+// pin axes joined by a thin flexing web. Every dimension is derived from the joint
+// hardware and the hand scale, so the connector resizes with the fingers.
+h_wall   = 1.2;                          // material around each pin bore (mm, native)
+h_lobe_r = jointDia/2 + h_wall;          // lobe radius (wraps the pin)
+h_web_t  = jointThick;                   // flexing web thickness = slot thickness
+h_len    = knuckleW * xScaleFactor;      // length along the pin axis (fills slot width)
+h_span   = 8 * xScaleFactor;             // lobe centre-to-centre (knuckle-gap bridge)
+h_bore   = jointDia;                     // pin clearance bore through each lobe
+
 // ── Gauntlet placement (derived) ──────────────────────────────────────────────
 // The gauntlet is authored in native mm (outer width ~50, length ~108) with its
 // own frame: +Y = wrist/proximal, -Y = hand/distal (straps), +Z = dorsal.
@@ -229,16 +251,17 @@ module handlayout(sp = 14) {
     if (show_palm) color(color_palm) cyborgbeastpalm();
     translate([20.5*xScaleFactor, 33*yScaleFactor, 7*zScaleFactor])
         rotate([0, 180, 0]) {
-        if (show_index)  translate([0*xScaleFactor,    7.5*yScaleFactor, 0]) fingerlayout(indexProp  * fingerLength, base = show_index_base,  tip = show_index_tip,  baseCol = color_index_base,  tipCol = color_index_tip);
-        if (show_middle) translate([sp*xScaleFactor,   7.5*yScaleFactor, 0]) fingerlayout(middleProp * fingerLength, base = show_middle_base, tip = show_middle_tip, baseCol = color_middle_base, tipCol = color_middle_tip);
-        if (show_ring)   translate([sp*2*xScaleFactor, 7.5*yScaleFactor, 0]) fingerlayout(ringProp   * fingerLength, base = show_ring_base,   tip = show_ring_tip,   baseCol = color_ring_base,   tipCol = color_ring_tip);
-        if (show_pinky)  translate([sp*3*xScaleFactor, 7.5*yScaleFactor, 0]) fingerlayout(pinkyProp  * fingerLength, base = show_pinky_base,  tip = show_pinky_tip,  baseCol = color_pinky_base,  tipCol = color_pinky_tip);
+        if (show_index)  translate([0*xScaleFactor,    7.5*yScaleFactor, 0]) fingerlayout(indexProp  * fingerLength, base = show_index_base,  tip = show_index_tip,  baseCol = color_index_base,  tipCol = color_index_tip,  hinge = true);
+        if (show_middle) translate([sp*xScaleFactor,   7.5*yScaleFactor, 0]) fingerlayout(middleProp * fingerLength, base = show_middle_base, tip = show_middle_tip, baseCol = color_middle_base, tipCol = color_middle_tip, hinge = true);
+        if (show_ring)   translate([sp*2*xScaleFactor, 7.5*yScaleFactor, 0]) fingerlayout(ringProp   * fingerLength, base = show_ring_base,   tip = show_ring_tip,   baseCol = color_ring_base,   tipCol = color_ring_tip,   hinge = true);
+        if (show_pinky)  translate([sp*3*xScaleFactor, 7.5*yScaleFactor, 0]) fingerlayout(pinkyProp  * fingerLength, base = show_pinky_base,  tip = show_pinky_tip,  baseCol = color_pinky_base,  tipCol = color_pinky_tip,  hinge = true);
     }
     if (show_thumb)
     translate([36*xScaleFactor, -15.5*yScaleFactor, 0.5*zScaleFactor])
         rotate([50, -20, 90]) {
         if (show_thumb_base) color(color_thumb_base) thumbmid();
         if (show_thumb_tip) color(color_thumb_tip) translate([0, -22*yScaleFactor, 0*zScaleFactor]) rotate([0, 0, -90]) thumbtip();
+        if (show_hinges) color(color_hinge) thumb_hinges();
     }
     if (show_gauntlet) color(color_gauntlet) gauntlet_part();
 }
@@ -280,6 +303,10 @@ module printlayout() {
     // Gauntlet (forearm cuff) below the palm, in its native cuff orientation.
     if (show_gauntlet)
         color(color_gauntlet) translate([0, -72 * yScaleFactor, 0]) scale([g_sx, g_sy, g_sx]) gauntlet();
+
+    // Flexy joints laid flat on a plate, off to the side of the palm.
+    if (show_hinges)
+        color(color_hinge) translate([-70 * xScaleFactor, 10 * yScaleFactor, 0]) hinge_plate();
 }
 
 // ── Gauntlet (forearm cuff) ───────────────────────────────────────────────────
@@ -299,8 +326,10 @@ module gauntlet_part() {
 }
 
 // lengthMult: positional arg — fixes the original Flexy Beast parameter-name mismatch.
-// base/tip select which of the finger's two printable pieces to emit.
-module fingerlayout(lengthMult = 1, base = true, tip = true, baseCol = "#cccccc", tipCol = "#cccccc") {
+// base/tip select which of the finger's two printable pieces to emit. hinge adds
+// the two flexy joints (MCP + PIP) in the finger's own frame so they inherit the
+// finger pose and length scaling; handlayout passes it, printlayout does not.
+module fingerlayout(lengthMult = 1, base = true, tip = true, baseCol = "#cccccc", tipCol = "#cccccc", hinge = false) {
     if (tip)
     color(tipCol)
     rotate([180, -10, 90])
@@ -311,6 +340,21 @@ module fingerlayout(lengthMult = 1, base = true, tip = true, baseCol = "#cccccc"
     rotate([180, -5, 90])
         translate([-20, -8, -12])
             fingerbase(length = 20*lengthMult);
+    // Flexy joints: placed in fingerbase's output frame, at the proximal (MCP) and
+    // distal (PIP) pin bores — exactly where fingerhardwarecutouts drills them.
+    if (hinge && show_hinges)
+    color(color_hinge)
+    rotate([180, -5, 90])
+        translate([-20, -8, -12]) {
+            _bx = 7 - 15/jointDia;                       // pin bore along length (proximal)
+            _by = knuckleW*xScaleFactor/2;               // pin bore across width
+            _bz = 6*zScaleFactor - 1.8/jointThick;       // pin bore height
+            _dx = 20*lengthMult*yScaleFactor - _bx;      // pin bore along length (distal)
+            // One lobe sits on this segment's pin; the other reaches into the
+            // neighbour (MCP → toward palm/-X; PIP → toward tip/+X).
+            translate([_bx - h_span/2, _by, _bz]) rotate([90, 90, 0]) flexy_joint();
+            translate([_dx + h_span/2, _by, _bz]) rotate([90, 90, 0]) flexy_joint();
+        }
 }
 
 module thumbmid() {
@@ -640,6 +684,56 @@ module thermoform_mesh(size = [50, 50], thickness = 5, hole_spacing = 1.5) {
                     resize([hole_size[0], hole_size[1], thickness*2]) cylinder(d=1, h=thickness, $fn=8);
             }
     }
+}
+
+// ── Flexy joints (living-hinge connectors) ────────────────────────────────────
+// A parametric generalisation of the measured Finger_Hinge_Plate dogbone. The
+// profile lies in XY (span along Y, web along X); linear_extrude along Z fills the
+// joint slot along the pin axis. Placement modules below rotate Z onto each joint's
+// physical pin axis. All dimensions come from h_* (derived from joint_dia/thick and
+// scale), so the connector tracks the fingers during parameter manipulation.
+module flexy_joint(span = h_span, lobe_r = h_lobe_r, web_t = h_web_t,
+                   len = h_len, bore = h_bore) {
+    linear_extrude(height = len, center = true)
+        difference() {
+            union() {
+                translate([0, -span/2]) circle(r = lobe_r, $fn = fn*2);
+                translate([0,  span/2]) circle(r = lobe_r, $fn = fn*2);
+                square([web_t, span], center = true);
+            }
+            if (bore > 0) {
+                translate([0, -span/2]) circle(d = bore, $fn = fn);
+                translate([0,  span/2]) circle(d = bore, $fn = fn);
+            }
+        }
+}
+
+// Thumb flexy joints. Called inside the thumb group frame, so — like the fingers —
+// the two connectors ride the thumb pose. thumbmid = rotate([0,0,-90]) fingerbase,
+// so the same bore offsets used for the fingers land on the thumb MCP and tip pins.
+module thumb_hinges() {
+    _len = 20 * thumbProp * fingerLength;
+    _bx = 7 - 15/jointDia;
+    _by = knuckleW*xScaleFactor/2;
+    _bz = 6*zScaleFactor - 1.8/jointThick;
+    rotate([0, 0, -90]) {
+        translate([_bx - h_span/2, _by, _bz]) rotate([90, 90, 0]) flexy_joint();
+        translate([_len*yScaleFactor - _bx + h_span/2, _by, _bz]) rotate([90, 90, 0]) flexy_joint();
+    }
+}
+
+// Print-bed plate: all ten connectors laid flat in a grid, like the original
+// Finger_Hinge_Plate. One column per digit (index→pinky, thumb) × two joints
+// (MCP, PIP). This is a single printable unit gated by show_hinges at the call
+// site, so a per-part export of the hinges yields the whole set regardless of
+// which finger toggles are on. Every connector is identical (hinge size depends
+// on the joint hardware + scale, not on finger length), so it is a plain grid.
+module hinge_plate(cols = 5, rows = 2) {
+    _pitch  = h_lobe_r*2 + 2.5;              // Y pitch between stacked connectors
+    _colgap = h_span + h_lobe_r*2 + 3;       // X pitch between digit columns
+    for (c = [0:cols-1], r = [0:rows-1])
+        translate([c * _colgap, r * _pitch, h_len/2])
+            rotate([0, 0, 90]) flexy_joint();
 }
 
 // ── Gauntlet modules (primitive forearm cuff) ─────────────────────────────────

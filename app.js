@@ -242,7 +242,10 @@ class ParameterEditor {
 
         // Load OpenSCAD file
         try {
-            const response = await fetch(`models/${model.file}`);
+            // no-cache: revalidate the model source so edits to a .scad reach
+            // returning browsers instead of a stale cached copy (same reason as
+            // the models-config.json fetch).
+            const response = await fetch(`models/${model.file}`, { cache: 'no-cache' });
             this.originalCode = await response.text();
 
             // Load dependency files.
@@ -260,7 +263,7 @@ class ParameterEditor {
                     // Pass URL so the worker fetches it directly as ArrayBuffer.
                     return { path: `/${wasmPath}`, url: `models/${serverPath}` };
                 }
-                const r = await fetch(`models/${serverPath}`);
+                const r = await fetch(`models/${serverPath}`, { cache: 'no-cache' });
                 return { path: `/${wasmPath}`, content: await r.text() };
             }));
 

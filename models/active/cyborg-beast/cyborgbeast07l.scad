@@ -13,9 +13,9 @@ fn = 32;
 
 translate([0,0,0.02/2]) cube(0.02, center=true);
 
-include <parts/cyborgpalm001.scad>
-include <parts/cyborgfingertip002.scad>
-include <parts/cyborgfingermid002.scad>
+include <cyborgpalm001.scad>
+include <cyborgfingertip002.scad>
+include <cyborgfingermid002.scad>
 
 //	translate([30,0,0]) fingertipexamples(1);
 

@@ -10,6 +10,17 @@ Version format: `MAJOR.MINOR.PATCH`
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
+## v14.35.0 — 2026-07-10
+
+fix: **Cyborg Beast fingers now seat on the palm knuckle hinge line.** Each finger's proximal (first) `fingermid` hinge hole was floating 4.6–7.1 mm past the palm's knuckle hinge holes, so the assembly pin couldn't pass through both. The cause: the original per-finger y-offsets were hand-tuned for the design's small native `len` values, but the anthropometric layer drives `len` over a much wider range, and the fingermid's hole spacing (`11.5 + len/3`) moves with `len`. Fingers are now seated by a new `place_finger()` module with `yoff = 9.5 + len/3`, which lands the proximal hole on the knuckle hinge line (y = 27) for every finger regardless of length. Verified numerically (pin threads through the base and clears the hole) and visually.
+fix: `.scad` model source and text dependencies are now fetched with `{ cache: 'no-cache' }` (like models-config.json in v14.33.0), so edits to a model's geometry reach returning browsers instead of a stale cached copy. Bump `index.html` JS cache-buster to 14.35.0.
+
+## v14.34.0 — 2026-07-09
+
+feat: **Integrate the Flexy Beast finger hinges into the parametric model.** The `Finger_Hinge_Plate.scad` connector plate is now generated inside `flexy_beast.scad` as a parametric flexy joint rather than a fixed STL-measured plate. A new `flexy_joint()` module builds the "dogbone" living-hinge connector (two lobes with pin bores joined by a thin flexing web) entirely from the joint hardware and hand scale — `lobe_r = joint_dia/2 + wall`, `web = joint_thick`, length `= knuckleW × scale`, span `= 8 × scale` — so every connector resizes and repositions when the fingers or `joint_dia`/`joint_thick` change.
+feat: In the assembled preview each finger carries its two flexy joints (MCP + PIP) in its own frame via `fingerlayout(hinge=true)`, and the thumb carries its two in the thumb frame — so all ten connectors sit in the joint gaps between the segments and follow the finger pose and length automatically. Each connector is oriented (`rotate([90,90,0])`) so its pin bore runs **across the finger width** (coaxial with the knuckle pin), with one lobe seated on the segment's own pin bore and the other reaching into the neighbouring segment (MCP → palm knuckle, PIP → fingertip), bridging the gap. In `print_layout` the ten connectors lay out flat on a plate (`hinge_plate()`) for printing in flexible filament (Filaflex/TPU).
+feat: New `show_hinges` toggle + `color_hinge` colour, a dedicated **Flexy joints (plate)** printable part (`show_hinges` toggle) for isolated STL export, and full EN/PT captions + help. Verified end-to-end: default, small-child (60 mm palm / 5 mm joints / short fingers) and isolated-part exports all render the connectors correctly sized and placed.
+
 ## v14.33.0 — 2026-07-09
 
 fix: **Newly-added/edited models now appear for returning browsers.** The model-selection grid (`screens.js`) and the editor config load (`app.js`) fetched `models/models-config.json` with default caching and no `?v=` cache-buster, so a browser holding a cached copy kept showing the old model list — the freshly-deployed Cyborg Beast card was invisible until a hard refresh. Both fetches now use `{ cache: 'no-cache' }` to revalidate against the server (cheap 304 when unchanged, fresh JSON when models change). Bump `index.html` JS cache-buster to 14.33.0.

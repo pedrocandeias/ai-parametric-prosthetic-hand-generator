@@ -256,7 +256,56 @@ For patients with sensitive skin or where a thermoformed fit is not needed, disa
 
 ---
 
-## 9. Attribution
+## 9. Flexy Joints (Finger Hinges)
+
+The Flexy Beast's defining feature is that flexible connector pieces — the **flexy
+joints** — replace the Cyborg Beast's Chicago screws and elastics. The upstream BOM
+lists **10× Flexy Joint** (two per finger and two for the thumb: one at each MCP
+knuckle and one at each base↔tip joint). A separate reconstruction,
+`Finger_Hinge_Plate.scad`, held those connectors as a fixed print plate whose
+dogbone/eyelet outlines were traced from an STL — geometry that could not follow the
+hand's parameters.
+
+That plate is now **generated parametrically inside `flexy_beast.scad`** instead of
+imported. A single `flexy_joint()` module builds the dogbone-form living hinge — two
+lobes (each with a pin bore) joined by a thin flexing web — with every dimension
+derived from the joint hardware and hand scale:
+
+```openscad
+h_wall   = 1.2;                      // material around each pin bore
+h_lobe_r = jointDia/2 + h_wall;      // lobe radius (wraps the pin)
+h_web_t  = jointThick;               // flexing web thickness = slot thickness
+h_len    = knuckleW * xScaleFactor;  // length along the pin (fills the slot width)
+h_span   = 8 * xScaleFactor;         // lobe centre-to-centre (knuckle-gap bridge)
+h_bore   = jointDia;                 // pin clearance bore through each lobe
+```
+
+These map onto the original measured dogbone (extrude height 12 mm ≈ `knuckleW × 1.26`,
+lobe span 10 mm ≈ `8 × 1.26`), so the recognisable connector form is preserved while
+it now tracks `joint_dia`, `joint_thick` and the hand scale.
+
+**Placement.** The connectors are positioned at the exact pin bores drilled by
+`fingerhardwarecutouts`, in the finger's own frame:
+
+- Each finger emits its two joints from inside `fingerlayout(hinge=true)`, so they
+  inherit the finger's assembled pose and length scaling (the PIP joint slides along
+  the finger as `*_finger_length_mm` changes).
+- The thumb emits its two from `thumb_hinges()` inside the thumb group frame.
+- Each connector is oriented (`rotate([90,90,0])`) so its **pin bore runs across the
+  finger width** — coaxial with the pin the palm/finger knuckles are drilled for —
+  its span runs along the finger length and its thin flexing web faces dorsally. One
+  lobe is seated on the segment's own pin bore and the other reaches into the
+  neighbouring segment (MCP → toward the palm knuckle, PIP → toward the fingertip),
+  so the dogbone bridges the joint gap the way the printed flexible part does.
+- In `print_layout`, `hinge_plate()` lays all ten connectors flat in a grid — a
+  single printable unit for flexible filament (Filaflex/TPU).
+
+**Controls.** `show_hinges` (default on) toggles the connectors; `color_hinge` sets
+their preview/3MF colour. A dedicated **Flexy joints (plate)** part (`show_hinges`
+toggle) exports the whole plate on its own; because it is one printable unit it emits
+all ten connectors regardless of which finger toggles are set.
+
+## 10. Attribution
 
 Original design: **Flexy Beast** by daprice, https://github.com/daprice/Flexy-Beast, licensed CC BY-SA 4.0.
 

@@ -301,6 +301,27 @@
           "group": "Colors"
         },
         {
+          "name": "color_hinge",
+          "type": "color",
+          "initial": "#2f4b7c",
+          "label": "Flexy joints",
+          "label_pt": "Juntas flexíveis",
+          "caption": "Flexy joint connectors (print in flexible filament)",
+          "caption_pt": "Conectores das juntas flexíveis (imprimir em filamento flexível)",
+          "group": "Colors"
+        },
+        {
+          "name": "show_hinges",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show the flexy joints — flexible connector pieces that fill each finger/thumb joint gap",
+          "label_pt": "Mostrar Juntas Flexíveis",
+          "caption_pt": "Mostrar as juntas flexíveis — peças conectoras flexíveis que preenchem a folga de cada junta dos dedos/polegar",
+          "help": "Objective: include the flexy joints — the flexible connector pieces that sit in the gap at each finger and thumb joint and act as the living hinge. Outcome: in the assembled preview they fill the joint holes between the segments; when you export they lay out flat on a plate to print in flexible filament (Filaflex/TPU). They are sized automatically from the joint hole and slot (Joint hole diameter / slot thickness) and the hand scale, so they track every finger and hardware change. Turn off only if you are gluing or pinning the joints another way.",
+          "help_pt": "Objetivo: incluir as juntas flexíveis — as peças conectoras flexíveis que ficam na folga de cada junta dos dedos e do polegar e funcionam como dobradiça viva. Resultado: na pré-visualização montada preenchem os furos das juntas entre os segmentos; ao exportar, dispõem-se planas numa placa para imprimir em filamento flexível (Filaflex/TPU). São dimensionadas automaticamente a partir do furo e da ranhura da junta (diâmetro do furo / espessura da ranhura) e da escala da mão, pelo que acompanham cada alteração dos dedos e do hardware. Desative apenas se fixar as juntas de outra forma (cola ou pino).",
+          "group": "Options"
+        },
+        {
           "name": "show_thermoform",
           "type": "boolean",
           "initial": true,
@@ -690,6 +711,14 @@
           "toggles": [
             "show_thumb",
             "show_thumb_tip"
+          ]
+        },
+        {
+          "id": "hinges",
+          "name": "Flexy joints (plate)",
+          "name_pt": "Juntas flexíveis (placa)",
+          "toggles": [
+            "show_hinges"
           ]
         }
       ],

@@ -129,17 +129,13 @@ mirror([mirrored ? 1 : 0, 0, 0])
 module handlayout(sp = 14.4) {
     if (show_palm) color(color_palm) cyborgbeastpalm();
     translate([22, 29, 10]) rotate([0, 180, 0]) {
-        if (show_index)
-            translate([0,    10,   0]) fingerlayout(finger_len(index_finger_length_mm),
+        if (show_index)  place_finger(0,    finger_len(index_finger_length_mm),
                 show_index_base,  show_index_tip,  color_index_base,  color_index_tip);
-        if (show_middle)
-            translate([sp,   12.5, 0]) fingerlayout(finger_len(middle_finger_length_mm),
+        if (show_middle) place_finger(sp,   finger_len(middle_finger_length_mm),
                 show_middle_base, show_middle_tip, color_middle_base, color_middle_tip);
-        if (show_ring)
-            translate([sp*2, 12,   0]) fingerlayout(finger_len(ring_finger_length_mm),
+        if (show_ring)   place_finger(sp*2, finger_len(ring_finger_length_mm),
                 show_ring_base,   show_ring_tip,   color_ring_base,   color_ring_tip);
-        if (show_pinky)
-            translate([sp*3, 7.5,  0]) fingerlayout(finger_len(pinky_finger_length_mm),
+        if (show_pinky)  place_finger(sp*3, finger_len(pinky_finger_length_mm),
                 show_pinky_base,  show_pinky_tip,  color_pinky_base,  color_pinky_tip);
     }
     if (show_thumb)
@@ -148,6 +144,20 @@ module handlayout(sp = 14.4) {
             if (show_thumb_tip)  color(color_thumb_tip)
                 translate([0, -18, 5]) rotate([30, 180, 180]) thumbtip();
         }
+}
+
+// Seat a finger so its proximal (first) hinge hole lands on the palm knuckle
+// hinge line. The palm knuckle hinge hole is at y = 27 (in the pre-rotation
+// palm frame); the fingermid's proximal hole ends up at
+//   29 + yoff - (11.5 + len/3)
+// after the handlayout translate/rotate, so yoff = 9.5 + len/3 aligns it to 27
+// for every finger regardless of its length — the pin then passes cleanly
+// through the knuckle block and the finger. (len changes the fingermid hole
+// spacing, so the offset must track len, otherwise the finger floats off the
+// knuckles when driven to a non-default length.)
+module place_finger(x, len, base = true, tip = true, baseCol = "#cccccc", tipCol = "#dddddd") {
+    translate([x, 9.5 + len/3, 0])
+        fingerlayout(len, base, tip, baseCol, tipCol);
 }
 
 // One finger: distal (tip) + proximal (base) segments, each colourable/toggleable
