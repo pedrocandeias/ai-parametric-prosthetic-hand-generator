@@ -10,6 +10,11 @@ Version format: `MAJOR.MINOR.PATCH`
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
+## v14.36.0 — 2026-07-10
+
+feat: **UnLimbited Phoenix Hand now opens on a fully assembled preview** instead of a single bare part. Added an `Assembly (seated hand)` option to the model's `part` selector and made it the default — it renders the palm, four fingers, thumb, finger/wrist pins, gauntlet, tensioner block/pins and washers all seated together, driven by the same `palm_breadth_mm`/`HandPerc` sizing (the whole assembly is wrapped in one uniform `scale()`, so it stays seated at any size and mirrors correctly for a right hand). The existing per-part options (Palm, Fingers, Phalanx, Pins, Box, TPins, Gauntlet, Jig) are unchanged and remain the way to export each printable piece.
+refactor: extracted the seated-hand recipe into a shared `phoenix_assembly.scad` module (single source of truth) that is `include`d by both the served `UnLimbitedPhoenix.scad` (for the `Assembly` part) and the `_assembly.scad` dev harness — no recipe duplication. Registered `phoenix_assembly.scad` + the reconstructed `phoenix_snap_pins.scad` / `phoenix_tensioner_block.scad` / `phoenix_tensioner_pins.scad` as model `dependencies` so the in-browser WASM loader mounts them. Verified: headless render (left/right, 100–146% scale), flat-FS include/use resolution matching the WASM virtual filesystem, and a watertight manifold STL export. Bump `index.html` JS cache-buster to 14.36.0.
+
 ## v14.35.0 — 2026-07-10
 
 fix: **Cyborg Beast fingers now seat on the palm knuckle hinge line.** Each finger's proximal (first) `fingermid` hinge hole was floating 4.6–7.1 mm past the palm's knuckle hinge holes, so the assembly pin couldn't pass through both. The cause: the original per-finger y-offsets were hand-tuned for the design's small native `len` values, but the anthropometric layer drives `len` over a much wider range, and the fingermid's hole spacing (`11.5 + len/3`) moves with `len`. Fingers are now seated by a new `place_finger()` module with `yoff = 9.5 + len/3`, which lands the proximal hole on the knuckle hinge line (y = 27) for every finger regardless of length. Verified numerically (pin threads through the base and clears the hole) and visually.

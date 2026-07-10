@@ -22,7 +22,7 @@
 //vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 // - Preview Each Part
-part = "Palm"; // [Palm:Palm, Box: Tension Box, TPins:Tension Pins, Fingers:Fingers, Phalanx:Phalanx, Pins:Pins, Gauntlet:Gauntlet, Jig:Jig]
+part = "Assembly"; // [Assembly:Assembly (seated hand), Palm:Palm, Box: Tension Box, TPins:Tension Pins, Fingers:Fingers, Phalanx:Phalanx, Pins:Pins, Gauntlet:Gauntlet, Jig:Jig]
 // - Choose Left or Right Hand
 LeftRight = "Left"; // [Left,Right]
 
@@ -50,6 +50,13 @@ REF_PALM_BREADTH = 82;
 HandPerc = HandPerc_override > 0
     ? max(100, min(160, HandPerc_override))
     : max(100, min(160, palm_breadth_mm / REF_PALM_BREADTH * 100));
+
+// Seated-hand recipe (module phoenix_assembly) for part == "Assembly". Shared,
+// single source of truth — also rendered standalone by the _assembly.scad dev
+// harness. INCLUDE (textual): its part-module calls resolve against this file's
+// Phoenix_*/Gauntlet_V4 modules; it pulls in the reconstructed pins/tensioner/
+// washers itself. Registered as model dependencies so the WASM loader has them.
+include <phoenix_assembly.scad>
 
 
 
@@ -216,7 +223,9 @@ function Phoenix_Thermo_Palm_2_points() = [
 //**************************************************
 //**************************************************
 module print_part() {
-	if (part == "Palm") {
+	if (part == "Assembly") {
+		if (LeftRight == "Left") {scale ([HandPerc/100,HandPerc/100,HandPerc/100]) phoenix_assembly();} else {mirror ([1,0,0]) scale ([HandPerc/100,HandPerc/100,HandPerc/100]) phoenix_assembly();}
+	} else if (part == "Palm") {
 		if (LeftRight == "Left") {scale ([HandPerc/100,HandPerc/100,HandPerc/100]) Phoenix_Thermo_Palm_2();} else {mirror ([1,0,0]) scale ([HandPerc/100,HandPerc/100,HandPerc/100]) Phoenix_Thermo_Palm_2();}
 	} else if (part == "Box") {
 		if (LeftRight == "Left") {scale ([HandPerc/100,HandPerc/100,HandPerc/100]) 3Pin_Tensioner_Box();} else {mirror ([1,0,0]) scale ([HandPerc/100,HandPerc/100,HandPerc/100]) 3Pin_Tensioner_Box();}

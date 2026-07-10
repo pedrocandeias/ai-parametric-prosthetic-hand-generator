@@ -729,11 +729,16 @@
       "id": "unlimbed_phoenix_hand",
       "renderBackend": "manifold",
       "name": "UnLimbited Phoenix Hand",
-      "description": "Team UnLimbited Phoenix Hand V1.0 by Stephen Robert Davies & Drew Murray (original Phoenix Hand by Jason Bryant). A wrist-powered prosthetic hand with a thermoformable palm and a reverse-dovetail tensioner gauntlet. The design is distributed as fixed printable meshes, so fit is controlled by a single uniform print scale. Here that scale is derived anthropometrically from knuckle-to-knuckle palm breadth — the unscaled mesh spans REF_PALM_BREADTH = 82 mm at 100% — and is clamped to the model's printable 100–160% range. Choose one part at a time to preview or export. Licensed CC BY-NC-SA 4.0 — teamunlimbited.org.",
+      "description": "Team UnLimbited Phoenix Hand V1.0 by Stephen Robert Davies & Drew Murray (original Phoenix Hand by Jason Bryant). A wrist-powered prosthetic hand with a thermoformable palm and a reverse-dovetail tensioner gauntlet. The design is distributed as fixed printable meshes, so fit is controlled by a single uniform print scale. Here that scale is derived anthropometrically from knuckle-to-knuckle palm breadth — the unscaled mesh spans REF_PALM_BREADTH = 82 mm at 100% — and is clamped to the model's printable 100–160% range. Opens on an assembled preview of the whole seated hand; switch the part selector to export each printable piece one at a time. Licensed CC BY-NC-SA 4.0 — teamunlimbited.org.",
       "file": "active/unlimbed_phoenix_hand/UnLimbitedPhoenix.scad",
       "limb": "hand",
       "aiGuidance": "Canonical fields when present: palm_breadth_mm (knuckle-to-knuckle, ~70-100mm adult), palm_length_mm (wrist to MCP, ~90-120mm), palm_thickness_mm (~22-38mm), index/middle/ring/pinky_finger_length_mm (MCP crease to tip), thumb_length_mm, gauntlet_width_mm (approx. wrist circumference / PI + ~5mm clearance). Keep finger proportions realistic: middle finger longest, pinky shortest.",
-      "dependencies": [],
+      "dependencies": [
+        { "url": "active/unlimbed_phoenix_hand/phoenix_assembly.scad",        "path": "phoenix_assembly.scad" },
+        { "url": "active/unlimbed_phoenix_hand/phoenix_snap_pins.scad",       "path": "phoenix_snap_pins.scad" },
+        { "url": "active/unlimbed_phoenix_hand/phoenix_tensioner_block.scad", "path": "phoenix_tensioner_block.scad" },
+        { "url": "active/unlimbed_phoenix_hand/phoenix_tensioner_pins.scad",  "path": "phoenix_tensioner_pins.scad" }
+      ],
       "parameters": [
         {
           "name": "palm_breadth_mm",
@@ -785,8 +790,12 @@
         {
           "name": "part",
           "type": "enum",
-          "initial": "Palm",
+          "initial": "Assembly",
           "options": [
+            {
+              "label": "Assembly (seated hand)",
+              "value": "Assembly"
+            },
             {
               "label": "Palm (thermoform)",
               "value": "Palm"
@@ -820,15 +829,15 @@
               "value": "Jig"
             }
           ],
-          "caption": "Which printable part to preview and export — the Phoenix is printed one part at a time",
+          "caption": "What to show — 'Assembly (seated hand)' previews the whole hand assembled; the other options are the individual printable parts, one at a time",
           "label_pt": "Peça",
-          "caption_pt": "Que peça imprimível pré-visualizar e exportar — a Phoenix é impressa uma peça de cada vez",
-          "help": "Objective: select a single printable piece of the Phoenix hand to view and export, since this design ships as separate fixed meshes rather than one combined model. Outcome: the preview and STL export show only the chosen part — print each part in turn (palm, fingers, phalanx, pins, tension box and pins, gauntlet) and use the jig to help align the parts during assembly.",
+          "caption_pt": "O que mostrar — 'Assembly (seated hand)' pré-visualiza a mão inteira montada; as outras opções são as peças imprimíveis individuais, uma de cada vez",
+          "help": "Objective: either preview the whole Phoenix hand seated together (palm, fingers, thumb, pins, gauntlet, tensioner and washers) or pick a single printable piece to export. Outcome: 'Assembly (seated hand)' is a fit/visualisation view of the complete hand at the chosen size and is not meant for a single print; every other option shows only that part's mesh for STL export. To print, select each part in turn (palm, fingers, phalanx, pins, tension box and pins, gauntlet) and use the jig to align the parts during assembly.",
           "group": "Visibility"
         }
       ],
       "name_pt": "Mão Phoenix UnLimbited",
-      "description_pt": "Team UnLimbited Phoenix Hand V1.0 por Stephen Robert Davies e Drew Murray (Phoenix Hand original por Jason Bryant). Mão protésica acionada pelo pulso, com palma termoformável e braçadeira tensora com encaixe de cauda de andorinha invertida. O design é distribuído como malhas imprimíveis fixas, pelo que o ajuste é controlado por uma única escala de impressão uniforme. Aqui essa escala deriva antropometricamente da largura metacarpal entre nós dos dedos — a malha sem escala mede REF_PALM_BREADTH = 82 mm a 100% — e é limitada ao intervalo imprimível de 100–160% do modelo. Escolha uma peça de cada vez para pré-visualizar ou exportar. Licenciado CC BY-NC-SA 4.0 — teamunlimbited.org."
+      "description_pt": "Team UnLimbited Phoenix Hand V1.0 por Stephen Robert Davies e Drew Murray (Phoenix Hand original por Jason Bryant). Mão protésica acionada pelo pulso, com palma termoformável e braçadeira tensora com encaixe de cauda de andorinha invertida. O design é distribuído como malhas imprimíveis fixas, pelo que o ajuste é controlado por uma única escala de impressão uniforme. Aqui essa escala deriva antropometricamente da largura metacarpal entre nós dos dedos — a malha sem escala mede REF_PALM_BREADTH = 82 mm a 100% — e é limitada ao intervalo imprimível de 100–160% do modelo. Abre numa pré-visualização da mão inteira montada; mude o seletor de peça para exportar cada peça imprimível de cada vez. Licenciado CC BY-NC-SA 4.0 — teamunlimbited.org."
     },
     {
       "id": "paraglider_hand",
