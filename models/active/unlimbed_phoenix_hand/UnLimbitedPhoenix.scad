@@ -79,6 +79,9 @@ index_finger_length_mm  = 72; index_base_length_mm  = 31;
 middle_finger_length_mm = 72; middle_base_length_mm = 31;
 ring_finger_length_mm   = 72; ring_base_length_mm   = 31;
 pinky_finger_length_mm  = 72; pinky_base_length_mm  = 31;
+// The Phoenix thumb reuses the finger part, so its native reference is the same
+// 72/31; set thumb_length_mm shorter (e.g. 62) for an anatomical thumb.
+thumb_length_mm         = 72; thumb_base_length_mm  = 31;
 
 // Seated-hand recipe (module phoenix_assembly) for part == "Assembly". Shared,
 // single source of truth — also rendered standalone by the _assembly.scad dev

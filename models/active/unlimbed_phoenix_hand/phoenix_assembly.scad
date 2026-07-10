@@ -140,8 +140,9 @@ module fn_col(i){ intersection(){ fingers_preview(); translate([lo(FN_CUT,i),-20
 // FLEN/FBASE come from the injectable *_finger_length_mm / *_base_length_mm params
 // (defined by the includer); REF_* are the native mesh lengths at which d = 0.
 REF_PROX = 31;  REF_DIST = 41;     // native proximal (MCP->PIP) / distal (PIP->tip), mm
-FLEN  = [index_finger_length_mm, middle_finger_length_mm, ring_finger_length_mm, pinky_finger_length_mm];  // index..pinky
-FBASE = [index_base_length_mm,   middle_base_length_mm,   ring_base_length_mm,   pinky_base_length_mm];
+// index..pinky + thumb (col 4 shares the finger part geometry, so the same REF applies)
+FLEN  = [index_finger_length_mm, middle_finger_length_mm, ring_finger_length_mm, pinky_finger_length_mm, thumb_length_mm];
+FBASE = [index_base_length_mm,   middle_base_length_mm,   ring_base_length_mm,   pinky_base_length_mm,   thumb_base_length_mm];
 function bd_of(i) = FBASE[i] - REF_PROX;                 // proximal (base) extra length, mm
 function td_of(i) = (FLEN[i] - FBASE[i]) - REF_DIST;     // distal (tip)   extra length, mm
 
@@ -191,7 +192,7 @@ module phoenix_assembly(){
         translate([KX[f]+DX,KY[f]+DY,KZ[f]]) rotate([0,0,SPLAY[f]]) rotate([CURL,0,0])
           finger_unit(COLMAP[f], FCOL[f], DIST[f], DROT[f], bd_of(f), td_of(f));
 
-    if(show_thumb) translate(TH_POS) rotate(TH_ROT) finger_unit(4, TH_COL, TH_DIST, TH_DROT);  // thumb
+    if(show_thumb) translate(TH_POS) rotate(TH_ROT) finger_unit(4, TH_COL, TH_DIST, TH_DROT, bd_of(4), td_of(4));  // thumb
 
     if(show_pins){
       for(f=[0:3])                                                        // finger pins
@@ -200,7 +201,7 @@ module phoenix_assembly(){
           if(PIN_SHOW_PIP[f]) translate([0,PIP_HOLE_Y+bd_of(f),PROX_PIN_Z]+PIN_OFF_PIP[f]) pin(PIN_FLIP_PIP[f]); }
       translate(TH_POS) rotate(TH_ROT){                                  // thumb pins
           if(PIN_SHOW_THUMB[0]) translate([0,MCP_HOLE_Y,PROX_PIN_Z]+PIN_OFF_THUMB[0]) pin(PIN_FLIP_THUMB[0]);
-          if(PIN_SHOW_THUMB[1]) translate([0,PIP_HOLE_Y,PROX_PIN_Z]+PIN_OFF_THUMB[1]) pin(PIN_FLIP_THUMB[1]); }
+          if(PIN_SHOW_THUMB[1]) translate([0,PIP_HOLE_Y+bd_of(4),PROX_PIN_Z]+PIN_OFF_THUMB[1]) pin(PIN_FLIP_THUMB[1]); }
       if(PIN_SHOW_WRIST[0]) translate(WRIST_PIN_A+PIN_OFF_WRIST[0]) wpin(PIN_FLIP_WRIST[0]);   // wrist pins
       if(PIN_SHOW_WRIST[1]) translate(WRIST_PIN_B+PIN_OFF_WRIST[1]) wpin(PIN_FLIP_WRIST[1]);
     }
@@ -229,6 +230,10 @@ module phoenix_printlayout(){
         color(FCOL[f]) translate([120+f*24,  0, 0]) translate([-PH_XC[f],0,0]) ph_col_s(f, bd_of(f));
         color(FCOL[f]) translate([120+f*24, 70, 0]) translate([-FN_XC[f],0,0]) fn_col_s(f, td_of(f));
       }
+    if(show_thumb){
+        color(TH_COL) translate([120+4*24,  0, 0]) translate([-PH_XC[4],0,0]) ph_col_s(4, bd_of(4));
+        color(TH_COL) translate([120+4*24, 70, 0]) translate([-FN_XC[4],0,0]) fn_col_s(4, td_of(4));
+    }
     if(show_pins)     color(PIN_COL)    translate([215, -40, 0]) Phoenix_Pins();
     if(show_gauntlet) color(GAUNT_COL)  translate([-10, 60, 0]) rotate([90,0,0]) Gauntlet_V4();
     if(show_tensioner){ color(TBLOCK_COL) translate([230, -40, 0]) tensioner_block_centered();

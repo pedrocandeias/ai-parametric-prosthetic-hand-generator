@@ -898,6 +898,34 @@
           "group": "Segment split"
         },
         {
+          "name": "thumb_length_mm",
+          "type": "number",
+          "initial": 72,
+          "min": 45,
+          "max": 80,
+          "step": 1,
+          "caption": "Thumb total length, MCP crease to tip (mm) — stretches the thumb shaft; pin holes stay round. The Phoenix thumb reuses the finger part (native 72 mm); set ~62 for an anatomical thumb",
+          "label_pt": "Comprimento do Polegar (mm)",
+          "caption_pt": "Comprimento total do polegar, da prega MCP à ponta (mm) — estica o corpo do polegar; os furos mantêm-se redondos. O polegar Phoenix reutiliza a peça do dedo (nativo 72 mm); use ~62 para um polegar anatómico",
+          "help": "Objective: size the thumb to the patient (anatomical MCP-to-tip). Outcome: only the hole-free shaft stretches, so the thumb reaches the target length with round, printable hinge holes. The Phoenix thumb is the same part as a finger, so its native length is 72 mm — most adult thumbs are shorter (~55–65 mm).",
+          "help_pt": "Objetivo: dimensionar o polegar ao paciente (MCP à ponta). Resultado: só o corpo sem furos estica, atingindo o comprimento pretendido com furos redondos e imprimíveis. O polegar Phoenix é a mesma peça de um dedo, por isso o nativo é 72 mm — a maioria dos polegares adultos é mais curta (~55–65 mm).",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "thumb_base_length_mm",
+          "type": "number",
+          "initial": 31,
+          "min": 18,
+          "max": 50,
+          "step": 1,
+          "caption": "Thumb proximal (base) segment length, MCP to IP (mm) — the tip fills the remaining length",
+          "label_pt": "Base do Polegar (mm)",
+          "caption_pt": "Comprimento do segmento proximal (base) do polegar, MCP a IP (mm) — a ponta preenche o resto",
+          "help": "Objective: set how the thumb's total length splits between the proximal segment (MCP→IP) and the tip. Outcome: raising the base lengthens the proximal and shortens the tip for the same total; the pin follows automatically. Native reference is 31 mm.",
+          "help_pt": "Objetivo: definir a divisão do comprimento do polegar entre o segmento proximal (MCP→IP) e a ponta. Resultado: aumentar a base alonga o proximal e encurta a ponta para o mesmo total; o pino acompanha. Referência nativa 31 mm.",
+          "group": "Segment split"
+        },
+        {
           "name": "LeftRight",
           "role": "laterality",
           "type": "enum",
