@@ -71,6 +71,15 @@ HandPerc = HandPerc_override > 0
     ? max(100, min(160, HandPerc_override))
     : max(100, min(160, palm_breadth_mm / REF_PALM_BREADTH * 100));
 
+// --- Per-finger length (anatomical MCP->tip total, with MCP->PIP base split) ---
+// The Phoenix fingers are fixed meshes, but each finger is lengthened by stretching
+// only its hole-free shaft (pin holes stay round). Native reference = 72 mm total /
+// 31 mm proximal base, so the defaults below render identically to the stock finger.
+index_finger_length_mm  = 72; index_base_length_mm  = 31;
+middle_finger_length_mm = 72; middle_base_length_mm = 31;
+ring_finger_length_mm   = 72; ring_base_length_mm   = 31;
+pinky_finger_length_mm  = 72; pinky_base_length_mm  = 31;
+
 // Seated-hand recipe (module phoenix_assembly) for part == "Assembly". Shared,
 // single source of truth — also rendered standalone by the _assembly.scad dev
 // harness. INCLUDE (textual): its part-module calls resolve against this file's

@@ -132,17 +132,46 @@ function lo(c,i) = i==0 ? -14 : c[i-1];
 module ph_col(i){ intersection(){ Phoenix_Phalanx_Left(); translate([lo(PH_CUT,i),-200,-12]) cube([PH_CUT[i]-lo(PH_CUT,i),400,44]); } }
 module fn_col(i){ intersection(){ fingers_preview(); translate([lo(FN_CUT,i),-200,-12]) cube([FN_CUT[i]-lo(FN_CUT,i),400,44]); } }
 
+// ── PER-FINGER LENGTH ───────────────────────────────────────────────────────
+// The Phoenix meshes are fixed, but we can lengthen a finger WITHOUT distorting
+// its pin holes: split the column at Y=[ylo,yhi], keep the yhi (hinge) end put,
+// stretch only the hole-free shaft band, and shift the far end out by d mm. The
+// pin-hole zones never scale, so the holes stay perfectly round and printable.
+// FLEN/FBASE come from the injectable *_finger_length_mm / *_base_length_mm params
+// (defined by the includer); REF_* are the native mesh lengths at which d = 0.
+REF_PROX = 31;  REF_DIST = 41;     // native proximal (MCP->PIP) / distal (PIP->tip), mm
+FLEN  = [index_finger_length_mm, middle_finger_length_mm, ring_finger_length_mm, pinky_finger_length_mm];  // index..pinky
+FBASE = [index_base_length_mm,   middle_base_length_mm,   ring_base_length_mm,   pinky_base_length_mm];
+function bd_of(i) = FBASE[i] - REF_PROX;                 // proximal (base) extra length, mm
+function td_of(i) = (FLEN[i] - FBASE[i]) - REF_DIST;     // distal (tip)   extra length, mm
+
+// keep everything at/above yhi fixed; grow the shaft band [ylo,yhi]; push the
+// sub-ylo part out by d (toward -Y). d may be negative (shorter).
+module stretch_shaft(ylo, yhi, d){
+    intersection(){ children(); translate([-60,yhi,-30]) cube([160,400,60]); }               // hinge end (fixed)
+    translate([0,yhi,0]) scale([1,(yhi-ylo+d)/(yhi-ylo),1]) translate([0,-yhi,0])             // shaft band (grown)
+      intersection(){ children(); translate([-60,ylo,-30]) cube([160,yhi-ylo,60]); }
+    translate([0,-d,0]) intersection(){ children(); translate([-60,ylo-400,-30]) cube([160,400,60]); }  // far end (shifted)
+}
+// proximal column: MCP end (native Y~48) fixed, PIP end (native Y~17) pushed out by bd
+module ph_col_s(i, bd){ stretch_shaft(20, 42, bd) ph_col(i); }
+// distal column: fork/PIP end (native Y~-9) fixed, tip end (native Y~-52) pushed out by td
+module fn_col_s(i, td){ stretch_shaft(-48, -14, td) fn_col(i); }
+
 // canonical finger: MCP pin at origin, extends +Y, palmar/curl down (-Z), dorsal up (+Z).
-module finger_unit(i, fcol, doff=[0,-3.9,0.7], drot=[0,0,0]){
+module finger_unit(i, fcol, doff=[0,-3.9,0.7], drot=[0,0,0], bd=0, td=0){
     color(fcol){
       // proximal — flipped 180° about its long axis at the pin line so the fork fins point UP,
       // keeping both pin holes on the axis and the tall knuckle at the MCP/palm end.
+      // MCP stays seated; ph_col_s adds bd mm toward the PIP so the finger grows outward.
       translate([0,0,PROX_PIN_Z]) rotate([0,180,0]) translate([0,0,-PROX_PIN_Z])
-        rotate([180,0,0]) translate([-PH_XC[i], -PH_KNUCKLE_Y, -PH_KNUCKLE_Z]) ph_col(i);
-      // fingertip — offset by doff, then rotated by drot about the PIP joint
-      translate([0,PIP_HOLE_Y,PROX_PIN_Z]) rotate(drot) translate([0,-PIP_HOLE_Y,-PROX_PIN_Z])
-        translate(doff)
-          rotate([180,0,0]) translate([-FN_XC[i], PH_DISTAL_Y-PH_KNUCKLE_Y-FN_FORK_Y, PH_DISTAL_Z-PH_KNUCKLE_Z-FN_FORK_Z]) fn_col(i);
+        rotate([180,0,0]) translate([-PH_XC[i], -PH_KNUCKLE_Y, -PH_KNUCKLE_Z]) ph_col_s(i, bd);
+      // fingertip — shifted out by bd (follows the lengthened proximal's PIP), then offset by
+      // doff, rotated by drot about the PIP joint; fn_col_s adds td mm toward the tip.
+      translate([0,bd,0])
+        translate([0,PIP_HOLE_Y,PROX_PIN_Z]) rotate(drot) translate([0,-PIP_HOLE_Y,-PROX_PIN_Z])
+          translate(doff)
+            rotate([180,0,0]) translate([-FN_XC[i], PH_DISTAL_Y-PH_KNUCKLE_Y-FN_FORK_Y, PH_DISTAL_Z-PH_KNUCKLE_Z-FN_FORK_Z]) fn_col_s(i, td);
     }
 }
 
@@ -160,7 +189,7 @@ module phoenix_assembly(){
     if(show_fingers)
       for(f=[0:3])                                                        // fingers
         translate([KX[f]+DX,KY[f]+DY,KZ[f]]) rotate([0,0,SPLAY[f]]) rotate([CURL,0,0])
-          finger_unit(COLMAP[f], FCOL[f], DIST[f], DROT[f]);
+          finger_unit(COLMAP[f], FCOL[f], DIST[f], DROT[f], bd_of(f), td_of(f));
 
     if(show_thumb) translate(TH_POS) rotate(TH_ROT) finger_unit(4, TH_COL, TH_DIST, TH_DROT);  // thumb
 
@@ -168,7 +197,7 @@ module phoenix_assembly(){
       for(f=[0:3])                                                        // finger pins
         translate([KX[f]+DX,KY[f]+DY,KZ[f]]) rotate([0,0,SPLAY[f]]) rotate([CURL,0,0]){
           if(PIN_SHOW_MCP[f]) translate([0,MCP_HOLE_Y,PROX_PIN_Z]+PIN_OFF_MCP[f]) pin(PIN_FLIP_MCP[f]);
-          if(PIN_SHOW_PIP[f]) translate([0,PIP_HOLE_Y,PROX_PIN_Z]+PIN_OFF_PIP[f]) pin(PIN_FLIP_PIP[f]); }
+          if(PIN_SHOW_PIP[f]) translate([0,PIP_HOLE_Y+bd_of(f),PROX_PIN_Z]+PIN_OFF_PIP[f]) pin(PIN_FLIP_PIP[f]); }
       translate(TH_POS) rotate(TH_ROT){                                  // thumb pins
           if(PIN_SHOW_THUMB[0]) translate([0,MCP_HOLE_Y,PROX_PIN_Z]+PIN_OFF_THUMB[0]) pin(PIN_FLIP_THUMB[0]);
           if(PIN_SHOW_THUMB[1]) translate([0,PIP_HOLE_Y,PROX_PIN_Z]+PIN_OFF_THUMB[1]) pin(PIN_FLIP_THUMB[1]); }
@@ -193,12 +222,17 @@ module phoenix_assembly(){
 // ============================================================================
 module phoenix_printlayout(){
     if(show_palm)     color(PALM_COL)   translate([0,   0,  0]) palm_preview();
-    if(show_fingers){ color(FCOL[0])    translate([115, 0,  0]) Phoenix_Phalanx_Left();   // proximals plate
-                      color(FCOL[2])    translate([115, 60, 0]) fingers_preview(); }      // distals plate
-    if(show_pins)     color(PIN_COL)    translate([210, 0,  0]) Phoenix_Pins();
+    // fingers laid out per-column at their CUSTOM lengths (stretched shafts, holes intact),
+    // so the exported STL matches the assembled preview. Proximals row + distals row.
+    if(show_fingers)
+      for(f=[0:3]){
+        color(FCOL[f]) translate([120+f*24,  0, 0]) translate([-PH_XC[f],0,0]) ph_col_s(f, bd_of(f));
+        color(FCOL[f]) translate([120+f*24, 70, 0]) translate([-FN_XC[f],0,0]) fn_col_s(f, td_of(f));
+      }
+    if(show_pins)     color(PIN_COL)    translate([215, -40, 0]) Phoenix_Pins();
     if(show_gauntlet) color(GAUNT_COL)  translate([-10, 60, 0]) rotate([90,0,0]) Gauntlet_V4();
-    if(show_tensioner){ color(TBLOCK_COL) translate([210, 70, 0]) tensioner_block_centered();
-                        color(TPINS_COL)  translate([250, 70, 0]) tensioner_pins_centered(); }
+    if(show_tensioner){ color(TBLOCK_COL) translate([230, -40, 0]) tensioner_block_centered();
+                        color(TPINS_COL)  translate([270, -40, 0]) tensioner_pins_centered(); }
 }
 
 // Dispatcher: assembled seated preview or the flat print-bed layout.
