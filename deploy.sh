@@ -77,6 +77,7 @@ EXCLUDES=(
     "playwright.config.js"
     "public/"                           # old/scratch frontend sources
     # --- reference / deprecated material ---
+    "archive/"                          # archived non-platform reference material
     "Hand Fab prosthetic configurator/"
     "models/old_models/"
     "models/reconstruction/"            # STL→SCAD reconstruction sources (dev-only)
