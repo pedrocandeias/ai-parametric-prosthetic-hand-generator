@@ -3,7 +3,7 @@ const { test, expect } = require('@playwright/test');
 const path = require('path');
 
 const ADMIN = { username: 'admin', password: process.env.TEST_ADMIN_PASSWORD || 'admin1234' };
-const SCREENSHOT_DIR = path.join(__dirname, '..', 'test-renders');
+const SCREENSHOT_DIR = path.join(__dirname, '..', '..', 'test-renders');
 
 async function login(page) {
     await page.goto('/');
