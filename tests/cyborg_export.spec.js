@@ -42,8 +42,8 @@ test('Cyborg Beast: per-segment colour → SCAD → coloured 3MF export', async 
     for (const id of ['param-color_palm', 'param-color_middle_base', 'param-color_middle_tip', 'param-color_thumb_tip']) {
         expect(await page.locator(`#${id}`).getAttribute('type'), id).toBe('color');
     }
-    // Cyborg Beast: palm + 5 digits × (base + tip) = 11 per-part colours (no pad/gauntlet).
-    expect(await page.locator('#color-parameters input[type="color"]').count()).toBe(11);
+    // Cyborg Beast: palm + gauntlet + 5 digits × (base + tip) = 12 per-part colours (no pad).
+    expect(await page.locator('#color-parameters input[type="color"]').count()).toBe(12);
 
     // Set the middle DISTAL segment to a distinctive colour.
     await setColor(page, 'param-color_middle_tip', '#0a0b0c');

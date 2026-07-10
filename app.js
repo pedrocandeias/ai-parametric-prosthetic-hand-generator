@@ -143,6 +143,83 @@ class ParameterEditor {
     }
 
 
+    // Viewer toolbar: zoom, pan mode, fullscreen, grid — all drive <model-viewer>.
+    setupViewerControls() {
+        const viewer = document.getElementById('viewer');
+
+        const zoomBy = (factor) => {
+            const orbit = viewer.getCameraOrbit();
+            orbit.radius *= factor;
+            viewer.cameraOrbit = orbit.toString();
+        };
+        document.getElementById('zoom-in-btn').addEventListener('click', () => zoomBy(0.8));
+        document.getElementById('zoom-out-btn').addEventListener('click', () => zoomBy(1.25));
+
+        const fsTarget = viewer.closest('.hf-viewer-card') || viewer;
+        document.getElementById('fullscreen-btn').addEventListener('click', () => {
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            } else if (fsTarget.requestFullscreen) {
+                fsTarget.requestFullscreen();
+            }
+        });
+
+        // Pan mode: while active, left-drag moves the camera target instead of orbiting.
+        const panBtn = document.getElementById('pan-btn');
+        this.panMode = false;
+        let panLast = null;
+
+        panBtn.addEventListener('click', () => {
+            this.panMode = !this.panMode;
+            panBtn.classList.toggle('active', this.panMode);
+            viewer.style.cursor = this.panMode ? 'grab' : '';
+            viewer.style.touchAction = this.panMode ? 'none' : '';
+        });
+
+        // Capture-phase listeners run before model-viewer's internal canvas
+        // handlers, so stopPropagation() suppresses its orbit behaviour.
+        viewer.addEventListener('pointerdown', (e) => {
+            if (!this.panMode || e.button !== 0) return;
+            e.stopPropagation();
+            panLast = { x: e.clientX, y: e.clientY };
+            viewer.setPointerCapture(e.pointerId);
+            viewer.style.cursor = 'grabbing';
+        }, true);
+
+        viewer.addEventListener('pointermove', (e) => {
+            if (!panLast) return;
+            e.stopPropagation();
+            const dx = e.clientX - panLast.x;
+            const dy = e.clientY - panLast.y;
+            panLast = { x: e.clientX, y: e.clientY };
+
+            const orbit = viewer.getCameraOrbit();
+            const target = viewer.getCameraTarget();
+            const fovRad = viewer.getFieldOfView() * Math.PI / 180;
+            const perPx = 2 * orbit.radius * Math.tan(fovRad / 2) / viewer.clientHeight;
+
+            const sinT = Math.sin(orbit.theta), cosT = Math.cos(orbit.theta);
+            const sinP = Math.sin(orbit.phi), cosP = Math.cos(orbit.phi);
+            const right = { x: cosT, y: 0, z: -sinT };
+            const up = { x: -cosP * sinT, y: sinP, z: -cosP * cosT };
+
+            const x = target.x - (dx * right.x - dy * up.x) * perPx;
+            const y = target.y - (dx * right.y - dy * up.y) * perPx;
+            const z = target.z - (dx * right.z - dy * up.z) * perPx;
+            viewer.cameraTarget = `${x}m ${y}m ${z}m`;
+            viewer.jumpCameraToGoal();
+        }, true);
+
+        const endPan = (e) => {
+            if (!panLast) return;
+            e.stopPropagation();
+            panLast = null;
+            viewer.style.cursor = this.panMode ? 'grab' : '';
+        };
+        viewer.addEventListener('pointerup', endPan, true);
+        viewer.addEventListener('pointercancel', endPan, true);
+    }
+
     populateModelSelector() {
         const select = document.getElementById('model-select');
         select.innerHTML = '<option value="">-- Select a model --</option>';
@@ -165,6 +242,8 @@ class ParameterEditor {
         document.getElementById('reset-btn').addEventListener('click', () => {
             this.resetParameters();
         });
+
+        this.setupViewerControls();
 
         document.getElementById('render-btn').addEventListener('click', () => {
             this.renderPreview();

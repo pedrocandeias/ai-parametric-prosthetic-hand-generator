@@ -35,3 +35,5 @@ deploy.tar.gz
 **/_assembly.*
 **/*_preview.png
 **/assemblage-*.jpg
+models/**/output/
+models/**/previews/

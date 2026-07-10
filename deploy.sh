@@ -86,6 +86,8 @@ EXCLUDES=(
     "_assembly.*"                       # merged-assembly render scratch (.scad/.stl/.3mf/.png/.json)
     "*_preview.png"                     # per-model preview renders
     "assemblage-*.jpg"                  # reference exploded-view photos
+    "models/*/*/output/"                # openscad-skill render output (STL/PNG scratch)
+    "models/*/*/previews/"              # openscad-skill preview PNGs
     # --- the deploy machinery itself ---
     "deploy/"
     "deploy.sh"

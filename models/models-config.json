@@ -1518,7 +1518,7 @@
       "description_pt": "A mão protésica Cyborg Beast mecânica original (MakerBlock / e-NABLE) — um dispositivo acionado pelo pulso, montado com parafusos Chicago e cordas elásticas de tensão, em vez das juntas flexíveis impressas da Flexy Beast. A palma, os dedos de dois segmentos e o polegar são a geometria original, envolvidos numa camada de parâmetros antropométricos: toda a mão escala uniformemente pela fórmula Cyborg Beast xScaleFactor = (largura_palma_mm + 5) / 55, enquanto cada dedo é ajustado de forma independente ao seu comprimento MCP-à-ponta absoluto. As cores por peça são integradas na exportação 3MF para impressão multi-material.",
       "file": "active/cyborg-beast/cyborg_beast.scad",
       "limb": "hand",
-      "aiGuidance": "Canonical fields: palm_breadth_mm (knuckle-to-knuckle, ~70-100mm adult, drives whole-hand scale via (breadth+5)/55), and index/middle/ring/pinky_finger_length_mm + thumb_length_mm (absolute MCP crease-to-tip, each finger driven independently). Keep finger proportions realistic: middle longest, pinky shortest, index≈ring. Extreme short-finger-on-wide-palm combinations are clamped to keep the printed finger valid. Leave colour and show_* visibility parameters at defaults unless the patient data clearly implies a change.",
+      "aiGuidance": "Canonical fields: palm_breadth_mm (knuckle-to-knuckle, ~70-100mm adult, drives whole-hand scale via (breadth+5)/55), and index/middle/ring/pinky_finger_length_mm + thumb_length_mm (absolute MCP crease-to-tip, each finger driven independently). Optional per-digit proximal-phalanx split: index/middle/ring/pinky/thumb_base_length_mm is the proximal (base) segment length, MCP crease to PIP (thumb: to IP) — the printed base piece; the distal (tip) piece fills the remainder of that digit's total length, which stays fixed. Set base_length only when the patient's proximal phalanx length is known (maps to digits.<finger>.proximal_length_mm); a proximal phalanx is normally ~40-48% of the total finger, so a good rule is base ≈ 0.45 × the finger length. It must be less than the total; extreme splits are clamped to keep both printed pieces valid. Keep finger proportions realistic: middle longest, pinky shortest, index≈ring. The forearm gauntlet has its own fit dimension wrist_circumference_mm (maps to wrist.circumference_mm; sizes the cuff girth to circumference/PI + clearance) — set it from the patient's wrist circumference when known, independently of hand scale. Leave colour, show_* visibility and gauntlet hardware (tilt/pin/clearance) parameters at defaults unless the patient data clearly implies a change.",
       "dependencies": [
         {
           "url": "active/cyborg-beast/cyborgpalm001.scad",
@@ -1531,6 +1531,10 @@
         {
           "url": "active/cyborg-beast/cyborgfingermid002.scad",
           "path": "cyborgfingermid002.scad"
+        },
+        {
+          "url": "active/cyborg-beast/gauntlet.scad",
+          "path": "gauntlet.scad"
         }
       ],
       "parts": [
@@ -1631,6 +1635,14 @@
             "show_thumb",
             "show_thumb_tip"
           ]
+        },
+        {
+          "id": "gauntlet",
+          "name": "Forearm gauntlet",
+          "name_pt": "Punho de antebraço",
+          "toggles": [
+            "show_gauntlet"
+          ]
         }
       ],
       "parameters": [
@@ -1717,6 +1729,171 @@
           "help": "Objective: set the thumb's length relative to the middle finger, which controls where the thumb meets the fingers as the hand closes (opposition). Outcome: a longer thumb closes further across the palm for pinch-style grips, while a shorter thumb opens the span. Good opposition is essential to a usable grasp, so adjust this alongside the finger lengths.",
           "help_pt": "Objetivo: definir o comprimento do polegar em relação ao dedo médio, o que controla onde o polegar encontra os dedos quando a mão fecha (oposição). Resultado: um polegar mais longo fecha mais sobre a palma para preensões de pinça, enquanto um polegar mais curto abre o vão. Uma boa oposição é essencial a uma preensão útil, por isso ajuste isto em conjunto com os comprimentos dos dedos.",
           "group": "Anthropometric"
+        },
+        {
+          "name": "index_base_length_mm",
+          "type": "number",
+          "initial": 22,
+          "min": 12,
+          "max": 60,
+          "step": 1,
+          "caption": "Index proximal (base) phalanx — MCP crease to PIP joint; the printed base segment. The distal (tip) segment fills the rest of the finger length (mm)",
+          "label_pt": "Falange Proximal do Indicador (em mm)",
+          "caption_pt": "Falange proximal do indicador — da dobra MCP à articulação PIP; é o segmento base impresso. O segmento distal (ponta) preenche o resto do comprimento do dedo (mm)",
+          "help": "Objective: split the index finger into its two printed pieces at the correct joint — this sets how long the base (proximal) segment is, from the knuckle to the first joint. Outcome: a longer base moves the bending joint further out and shortens the fingertip piece; the total finger length stays fixed. Match the patient's proximal phalanx (knuckle-to-first-joint) when known; the default reproduces the native Cyborg Beast proportion.",
+          "help_pt": "Objetivo: dividir o indicador nas suas duas peças impressas na articulação correta — define o comprimento do segmento base (proximal), do nó do dedo à primeira articulação. Resultado: uma base mais longa afasta a articulação de flexão e encurta a peça da ponta; o comprimento total do dedo mantém-se fixo. Iguale à falange proximal do paciente (do nó à primeira articulação) quando conhecida; o valor por omissão reproduz a proporção nativa do Cyborg Beast.",
+          "group": "Segment split"
+        },
+        {
+          "name": "middle_base_length_mm",
+          "type": "number",
+          "initial": 24,
+          "min": 12,
+          "max": 60,
+          "step": 1,
+          "caption": "Middle proximal (base) phalanx — MCP crease to PIP joint; the printed base segment. The distal (tip) segment fills the rest of the finger length (mm)",
+          "label_pt": "Falange Proximal do Dedo Médio (em mm)",
+          "caption_pt": "Falange proximal do dedo médio — da dobra MCP à articulação PIP; é o segmento base impresso. O segmento distal (ponta) preenche o resto do comprimento do dedo (mm)",
+          "help": "Objective: split the middle finger into its two printed pieces at the correct joint — this sets how long the base (proximal) segment is, from the knuckle to the first joint. Outcome: a longer base moves the bending joint further out and shortens the fingertip piece; the total finger length stays fixed. Match the patient's proximal phalanx (knuckle-to-first-joint) when known; the default reproduces the native Cyborg Beast proportion.",
+          "help_pt": "Objetivo: dividir o dedo médio nas suas duas peças impressas na articulação correta — define o comprimento do segmento base (proximal), do nó do dedo à primeira articulação. Resultado: uma base mais longa afasta a articulação de flexão e encurta a peça da ponta; o comprimento total do dedo mantém-se fixo. Iguale à falange proximal do paciente (do nó à primeira articulação) quando conhecida; o valor por omissão reproduz a proporção nativa do Cyborg Beast.",
+          "group": "Segment split"
+        },
+        {
+          "name": "ring_base_length_mm",
+          "type": "number",
+          "initial": 22,
+          "min": 12,
+          "max": 60,
+          "step": 1,
+          "caption": "Ring proximal (base) phalanx — MCP crease to PIP joint; the printed base segment. The distal (tip) segment fills the rest of the finger length (mm)",
+          "label_pt": "Falange Proximal do Dedo Anelar (em mm)",
+          "caption_pt": "Falange proximal do dedo anelar — da dobra MCP à articulação PIP; é o segmento base impresso. O segmento distal (ponta) preenche o resto do comprimento do dedo (mm)",
+          "help": "Objective: split the ring finger into its two printed pieces at the correct joint — this sets how long the base (proximal) segment is, from the knuckle to the first joint. Outcome: a longer base moves the bending joint further out and shortens the fingertip piece; the total finger length stays fixed. Match the patient's proximal phalanx (knuckle-to-first-joint) when known; the default reproduces the native Cyborg Beast proportion.",
+          "help_pt": "Objetivo: dividir o dedo anelar nas suas duas peças impressas na articulação correta — define o comprimento do segmento base (proximal), do nó do dedo à primeira articulação. Resultado: uma base mais longa afasta a articulação de flexão e encurta a peça da ponta; o comprimento total do dedo mantém-se fixo. Iguale à falange proximal do paciente (do nó à primeira articulação) quando conhecida; o valor por omissão reproduz a proporção nativa do Cyborg Beast.",
+          "group": "Segment split"
+        },
+        {
+          "name": "pinky_base_length_mm",
+          "type": "number",
+          "initial": 16,
+          "min": 10,
+          "max": 55,
+          "step": 1,
+          "caption": "Pinky proximal (base) phalanx — MCP crease to PIP joint; the printed base segment. The distal (tip) segment fills the rest of the finger length (mm)",
+          "label_pt": "Falange Proximal do Dedo Mindinho (em mm)",
+          "caption_pt": "Falange proximal do mindinho — da dobra MCP à articulação PIP; é o segmento base impresso. O segmento distal (ponta) preenche o resto do comprimento do dedo (mm)",
+          "help": "Objective: split the little finger into its two printed pieces at the correct joint — this sets how long the base (proximal) segment is, from the knuckle to the first joint. Outcome: a longer base moves the bending joint further out and shortens the fingertip piece; the total finger length stays fixed. Match the patient's proximal phalanx (knuckle-to-first-joint) when known; the default reproduces the native Cyborg Beast proportion.",
+          "help_pt": "Objetivo: dividir o mindinho nas suas duas peças impressas na articulação correta — define o comprimento do segmento base (proximal), do nó do dedo à primeira articulação. Resultado: uma base mais longa afasta a articulação de flexão e encurta a peça da ponta; o comprimento total do dedo mantém-se fixo. Iguale à falange proximal do paciente (do nó à primeira articulação) quando conhecida; o valor por omissão reproduz a proporção nativa do Cyborg Beast.",
+          "group": "Segment split"
+        },
+        {
+          "name": "thumb_base_length_mm",
+          "type": "number",
+          "initial": 22,
+          "min": 12,
+          "max": 45,
+          "step": 1,
+          "caption": "Thumb proximal (base) phalanx — MCP crease to IP joint; the printed base segment. The distal (tip) segment fills the rest of the thumb length (mm)",
+          "label_pt": "Falange Proximal do Polegar (em mm)",
+          "caption_pt": "Falange proximal do polegar — da dobra MCP à articulação IP; é o segmento base impresso. O segmento distal (ponta) preenche o resto do comprimento do polegar (mm)",
+          "help": "Objective: split the thumb into its two printed pieces at the correct joint — this sets how long the base (proximal) segment is, from the base of the thumb to its single joint. Outcome: a longer base moves the bending joint further out and shortens the tip piece; the total thumb length stays fixed. Match the patient's thumb proximal phalanx when known; the default reproduces the native Cyborg Beast proportion.",
+          "help_pt": "Objetivo: dividir o polegar nas suas duas peças impressas na articulação correta — define o comprimento do segmento base (proximal), da base do polegar até à sua única articulação. Resultado: uma base mais longa afasta a articulação de flexão e encurta a peça da ponta; o comprimento total do polegar mantém-se fixo. Iguale à falange proximal do polegar do paciente quando conhecida; o valor por omissão reproduz a proporção nativa do Cyborg Beast.",
+          "group": "Segment split"
+        },
+        {
+          "name": "show_gauntlet",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show the forearm gauntlet cuff, seated at the wrist (assembled view) and as its own printable part (print layout)",
+          "label_pt": "Mostrar o Punho de Antebraço",
+          "caption_pt": "Mostrar o punho de antebraço, assente no pulso (vista montada) e como peça imprimível própria (layout de impressão)",
+          "help": "Objective: include or hide the forearm gauntlet — the wrist-powered cuff the hand pivots on. Outcome: turn it off to preview or export just the hand, or on for the complete wrist-driven device. The gauntlet is sized to the wrist circumference and seats automatically on the palm wrist pin.",
+          "help_pt": "Objetivo: incluir ou ocultar o punho de antebraço — a braçadeira acionada pelo pulso sobre a qual a mão pivota. Resultado: desligue para pré-visualizar ou exportar só a mão, ligue para o dispositivo completo acionado pelo pulso. O punho é dimensionado à circunferência do pulso e assenta automaticamente no pino de pulso da palma.",
+          "group": "Gauntlet"
+        },
+        {
+          "name": "wrist_circumference_mm",
+          "type": "number",
+          "initial": 160,
+          "min": 110,
+          "max": 260,
+          "step": 1,
+          "caption": "Forearm circumference at the wrist — sizes the gauntlet cuff girth to the wearer (cuff width ≈ circumference/π + clearance), independently of hand scale (mm)",
+          "label_pt": "Circunferência do Pulso (em mm)",
+          "caption_pt": "Circunferência do antebraço no pulso — dimensiona a largura do punho ao utilizador (largura ≈ circunferência/π + folga), independentemente da escala da mão (mm)",
+          "help": "Objective: fit the gauntlet cuff to the patient's forearm — measure the circumference around the wrist with a tape. Outcome: the cuff girth scales to circumference/π plus clearance, so it wraps comfortably regardless of hand size; too tight is uncomfortable, too loose loses wrist drive. This is the gauntlet's main fit dimension.",
+          "help_pt": "Objetivo: ajustar o punho ao antebraço do paciente — meça a circunferência à volta do pulso com uma fita. Resultado: a largura do punho escala para circunferência/π mais folga, envolvendo confortavelmente independentemente do tamanho da mão; demasiado apertado é desconfortável, demasiado largo perde o acionamento do pulso. É a medida de ajuste principal do punho.",
+          "group": "Anthropometric"
+        },
+        {
+          "name": "gauntlet_tilt",
+          "type": "number",
+          "initial": 12,
+          "min": -10,
+          "max": 40,
+          "step": 1,
+          "caption": "Forearm droop angle — how far the gauntlet pivots about the wrist pin (deg)",
+          "label_pt": "Ângulo do Antebraço (graus)",
+          "caption_pt": "Ângulo de inclinação do antebraço — quanto o punho pivota em torno do pino de pulso (graus)",
+          "help": "Objective: set the resting angle between the gauntlet and the hand at the wrist hinge. Outcome: a larger angle droops the forearm further down from the fingers (a more relaxed wrist pose); the hinge still pivots in use. Adjust for a natural, comfortable resting posture.",
+          "help_pt": "Objetivo: definir o ângulo de repouso entre o punho e a mão na charneira do pulso. Resultado: um ângulo maior faz o antebraço descair mais em relação aos dedos (postura de pulso mais relaxada); a charneira continua a pivotar em uso. Ajuste para uma postura de repouso natural e confortável.",
+          "group": "Gauntlet"
+        },
+        {
+          "name": "gauntlet_length_scale",
+          "type": "number",
+          "initial": 1.0,
+          "min": 0.7,
+          "max": 1.5,
+          "step": 0.05,
+          "caption": "Forearm length multiplier (1 = native reconstructed length)",
+          "label_pt": "Comprimento do Antebraço (multiplicador)",
+          "caption_pt": "Multiplicador do comprimento do antebraço (1 = comprimento reconstruído nativo)",
+          "help": "Objective: lengthen or shorten the forearm portion of the gauntlet to match the patient's residual limb. Outcome: values above 1 extend the cuff up the forearm for more leverage and support; below 1 shorten it for a smaller arm. Girth is set separately by the wrist circumference.",
+          "help_pt": "Objetivo: alongar ou encurtar a parte do antebraço do punho para corresponder ao membro residual do paciente. Resultado: valores acima de 1 estendem a braçadeira pelo antebraço para mais alavanca e apoio; abaixo de 1 encurtam-na para um braço menor. A largura é definida separadamente pela circunferência do pulso.",
+          "group": "Gauntlet"
+        },
+        {
+          "name": "wrist_pin_dia",
+          "type": "number",
+          "initial": 7,
+          "min": 4,
+          "max": 10,
+          "step": 0.5,
+          "caption": "Wrist hinge pin diameter — the pin runs fin-prong-prong-fin through the palm wrist fins and gauntlet prongs (mm)",
+          "label_pt": "Diâmetro do Pino de Pulso (em mm)",
+          "caption_pt": "Diâmetro do pino da charneira do pulso — o pino atravessa aba-prong-prong-aba pelas abas de pulso da palma e os prongs do punho (mm)",
+          "help": "Objective: match the wrist hinge bore to the pin or bolt you will assemble it with. Outcome: the prong pin-holes open to this diameter plus clearance so the pin slides through and the wrist pivots. Set it to your actual hardware (a common e-NABLE choice is a filament stub or a small bolt).",
+          "help_pt": "Objetivo: fazer corresponder o furo da charneira do pulso ao pino ou parafuso com que vai montar. Resultado: os furos dos prongs abrem para este diâmetro mais folga, para o pino deslizar e o pulso pivotar. Defina-o para o seu material real (uma escolha e-NABLE comum é um pedaço de filamento ou um parafuso pequeno).",
+          "group": "Gauntlet"
+        },
+        {
+          "name": "wrist_pin_clearance",
+          "type": "number",
+          "initial": 0.35,
+          "min": 0.1,
+          "max": 0.8,
+          "step": 0.05,
+          "caption": "Clearance added around the wrist pin so the gauntlet pivots freely (mm)",
+          "label_pt": "Folga do Pino de Pulso (em mm)",
+          "caption_pt": "Folga adicionada em torno do pino de pulso para o punho pivotar livremente (mm)",
+          "help": "Objective: give the wrist hinge enough play to rotate smoothly after printing. Outcome: a larger clearance loosens the joint (easier to assemble, but sloppier); a smaller one tightens it. Tune to your printer's tolerance — 0.3–0.4 mm suits most FDM machines.",
+          "help_pt": "Objetivo: dar à charneira do pulso folga suficiente para rodar suavemente após a impressão. Resultado: uma folga maior solta a articulação (mais fácil de montar, mas mais frouxa); uma menor aperta-a. Ajuste à tolerância da sua impressora — 0,3–0,4 mm serve a maioria das máquinas FDM.",
+          "group": "Gauntlet"
+        },
+        {
+          "name": "gauntlet_rim_hole_d",
+          "type": "number",
+          "initial": 2.5,
+          "min": 1.5,
+          "max": 6,
+          "step": 0.5,
+          "caption": "Strap-hole diameters on the gauntlet rim (mm)",
+          "label_pt": "Diâmetro dos Furos de Correia (em mm)",
+          "caption_pt": "Diâmetros dos furos de correia no rebordo do punho (mm)",
+          "help": "Objective: size the holes along the gauntlet rim that the retention straps thread through. Outcome: set them to your strap or lacing width so the straps pass cleanly. Leave at the default unless your straps need larger openings.",
+          "help_pt": "Objetivo: dimensionar os furos ao longo do rebordo do punho por onde passam as correias de retenção. Resultado: defina-os à largura da sua correia ou atacador para passarem sem prender. Deixe no valor por omissão a menos que as suas correias precisem de aberturas maiores.",
+          "group": "Gauntlet"
         },
         {
           "name": "mirrored",
@@ -1859,6 +2036,16 @@
           "label_pt": "Polegar — distal",
           "caption": "Thumb distal segment (tip)",
           "caption_pt": "Segmento distal do polegar (ponta)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_gauntlet",
+          "type": "color",
+          "initial": "#94a3b8",
+          "label": "Forearm gauntlet",
+          "label_pt": "Punho de antebraço",
+          "caption": "Forearm gauntlet cuff",
+          "caption_pt": "Punho de antebraço",
           "group": "Colors"
         },
         {

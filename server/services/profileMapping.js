@@ -26,6 +26,17 @@ const PARAM_TO_MEASUREMENT_PATH = {
     ring_finger_length_mm:   'digits.ring.total_length_mm',
     pinky_finger_length_mm:  'digits.pinky.total_length_mm',
     thumb_length_mm:         'digits.thumb.total_length_mm',
+    // Proximal (base) phalanx split — printed base segment, MCP→PIP (thumb: →IP).
+    // Only models that expose a *_base_length_mm parameter pick these up; the
+    // distal (tip) segment fills the remainder of the total digit length.
+    index_base_length_mm:    'digits.index.proximal_length_mm',
+    middle_base_length_mm:   'digits.middle.proximal_length_mm',
+    ring_base_length_mm:     'digits.ring.proximal_length_mm',
+    pinky_base_length_mm:    'digits.pinky.proximal_length_mm',
+    thumb_base_length_mm:    'digits.thumb.proximal_length_mm',
+    // Forearm gauntlet cuff girth (models that expose a wrist_circumference_mm
+    // parameter size the cuff to circumference/PI + clearance).
+    wrist_circumference_mm:  'wrist.circumference_mm',
 };
 
 function getDeep(obj, dottedPath) {
