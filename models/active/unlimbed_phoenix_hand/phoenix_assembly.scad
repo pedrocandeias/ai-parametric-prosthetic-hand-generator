@@ -26,6 +26,17 @@ use <phoenix_snap_pins.scad>       // real Phoenix pins + wrist washers (STEP re
 use <phoenix_tensioner_block.scad> // tensioner housing (STEP reconstruction)
 use <phoenix_tensioner_pins.scad>  // three flat tensioner pins (STEP reconstruction)
 
+// PREVIEW-ONLY manifold remeshes of the two non-manifold Phoenix meshes.
+// The original Phoenix_Thermo_Palm_2 (palm) and Phoenix_Fingers_Left (distals)
+// are non-manifold (self-intersections / edges shared by >2 faces). They render
+// fine as a single printable part, but the assembled view UNIONs many parts, and
+// the manifold backend (used by the browser preview) silently DROPS any mesh that
+// fails PolySet->Manifold conversion — so palm + fingertips vanished. These are
+// voxel-remeshed, watertight, decimated copies used ONLY for the assembled
+// preview; the printable part options still use the exact original meshes.
+PALM_MESH    = "phoenix_palm_manifold.stl";
+FINGERS_MESH = "phoenix_fingers_manifold.stl";
+
 // ============================================================================
 //  TUNABLES  — everything you adjust lives here
 // ============================================================================
@@ -117,7 +128,7 @@ MCP_HOLE_Y = 3.2;  PIP_HOLE_Y = 26.1;       // MCP & PIP hole Y in the finger fr
 // ============================================================================
 function lo(c,i) = i==0 ? -14 : c[i-1];
 module ph_col(i){ intersection(){ Phoenix_Phalanx_Left(); translate([lo(PH_CUT,i),-200,-12]) cube([PH_CUT[i]-lo(PH_CUT,i),400,44]); } }
-module fn_col(i){ intersection(){ Phoenix_Fingers_Left(); translate([lo(FN_CUT,i),-200,-12]) cube([FN_CUT[i]-lo(FN_CUT,i),400,44]); } }
+module fn_col(i){ intersection(){ import(FINGERS_MESH); translate([lo(FN_CUT,i),-200,-12]) cube([FN_CUT[i]-lo(FN_CUT,i),400,44]); } }
 
 // canonical finger: MCP pin at origin, extends +Y, palmar/curl down (-Z), dorsal up (+Z).
 module finger_unit(i, fcol, doff=[0,-3.9,0.7], drot=[0,0,0]){
@@ -142,7 +153,7 @@ module wpin(flip=0){ color(PIN_COL) rotate([0, flip?-90:90, 0]) wrist_pin_center
 //  ASSEMBLY  — the whole seated hand as one module
 // ============================================================================
 module phoenix_assembly(){
-    color(PALM_COL) Phoenix_Thermo_Palm_2();                              // palm
+    color(PALM_COL) import(PALM_MESH);                                    // palm (manifold preview mesh)
 
     for(f=[0:3])                                                          // fingers
       translate([KX[f]+DX,KY[f]+DY,KZ[f]]) rotate([0,0,SPLAY[f]]) rotate([CURL,0,0])

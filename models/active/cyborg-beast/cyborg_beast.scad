@@ -84,10 +84,10 @@ wrist_pin_dia = 7; // [4:0.5:10]
 wrist_pin_clearance = 0.35; // [0.1:0.05:0.8]
 
 // Forearm droop angle — the gauntlet pivots this far about the wrist pin (deg)
-gauntlet_tilt = 12; // [-10:1:40]
+gauntlet_tilt = 0; // [-10:1:40]
 
 // Forearm length multiplier (1 = native reconstructed length)
-gauntlet_length_scale = 1.0; // [0.7:0.05:1.5]
+gauntlet_length_scale = 0.7; // [0.7:0.05:1.5]
 
 // Strap-hole diameters on the gauntlet rim (mm)
 gauntlet_rim_hole_d = 2.5; // [1.5:0.5:6]
@@ -164,8 +164,8 @@ overall_scale = (palm_breadth_mm + 5) / 55;
 G_NATIVE_W = 49.88;                 // native cuff width (X extent), mm
 G_PRONG_Y  = -58.3;                 // native prong pin-hole Y
 G_PRONG_Z  = -9.8;                  // native prong pin-hole Z
-G_PIN_Y    = 1.4;                   // palm wrist-pin axis, local Y
-G_PIN_Z    = 3.3;                   // palm wrist-pin axis, local Z
+G_PIN_Y    = -27;                   // palm wrist-pin axis, local Y (hardwarecutouts wrist hinge + wrist-fin pin holes at y=-27)
+G_PIN_Z    = 5.5;                   // palm wrist-pin axis, local Z (wrist hinge bore z=5.5)
 
 g_girth = (wrist_circumference_mm / PI + 6) / (G_NATIVE_W * overall_scale);
 g_len   = gauntlet_length_scale;
