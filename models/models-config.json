@@ -737,11 +737,26 @@
       "limb": "hand",
       "aiGuidance": "Canonical fields when present: palm_breadth_mm (knuckle-to-knuckle, ~70-100mm adult), palm_length_mm (wrist to MCP, ~90-120mm), palm_thickness_mm (~22-38mm), index/middle/ring/pinky_finger_length_mm (MCP crease to tip), thumb_length_mm, gauntlet_width_mm (approx. wrist circumference / PI + ~5mm clearance). Keep finger proportions realistic: middle finger longest, pinky shortest.",
       "dependencies": [
-        { "url": "active/unlimbed_phoenix_hand/phoenix_assembly.scad",        "path": "phoenix_assembly.scad" },
-        { "url": "active/unlimbed_phoenix_hand/phoenix_snap_pins.scad",       "path": "phoenix_snap_pins.scad" },
-        { "url": "active/unlimbed_phoenix_hand/phoenix_tensioner_block.scad", "path": "phoenix_tensioner_block.scad" },
-        { "url": "active/unlimbed_phoenix_hand/phoenix_tensioner_pins.scad",  "path": "phoenix_tensioner_pins.scad" },
-        { "url": "active/unlimbed_phoenix_hand/phoenix_preview_meshes.scad",  "path": "phoenix_preview_meshes.scad" }
+        {
+          "url": "active/unlimbed_phoenix_hand/phoenix_assembly.scad",
+          "path": "phoenix_assembly.scad"
+        },
+        {
+          "url": "active/unlimbed_phoenix_hand/phoenix_snap_pins.scad",
+          "path": "phoenix_snap_pins.scad"
+        },
+        {
+          "url": "active/unlimbed_phoenix_hand/phoenix_tensioner_block.scad",
+          "path": "phoenix_tensioner_block.scad"
+        },
+        {
+          "url": "active/unlimbed_phoenix_hand/phoenix_tensioner_pins.scad",
+          "path": "phoenix_tensioner_pins.scad"
+        },
+        {
+          "url": "active/unlimbed_phoenix_hand/phoenix_preview_meshes.scad",
+          "path": "phoenix_preview_meshes.scad"
+        }
       ],
       "parameters": [
         {
@@ -867,6 +882,116 @@
           "help": "Objective: include or hide the tensioner block, its pins and the wrist washers. Outcome: turn off to preview or export without the tensioning hardware seated at the wrist.",
           "help_pt": "Objetivo: incluir ou ocultar o bloco tensor, os seus pinos e as anilhas do pulso. Resultado: desligue para pré-visualizar ou exportar sem a ferragem de tensão assente no pulso.",
           "group": "Visibility"
+        },
+        {
+          "name": "color_palm",
+          "type": "color",
+          "initial": "#d2b48c",
+          "label": "Palm",
+          "label_pt": "Palma",
+          "caption": "Palm body",
+          "caption_pt": "Corpo da palma",
+          "group": "Colors"
+        },
+        {
+          "name": "color_index",
+          "type": "color",
+          "initial": "#4a9eff",
+          "label": "Index finger",
+          "label_pt": "Indicador",
+          "caption": "Index finger (proximal + tip)",
+          "caption_pt": "Dedo indicador (proximal + ponta)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_middle",
+          "type": "color",
+          "initial": "#ff6b6b",
+          "label": "Middle finger",
+          "label_pt": "Médio",
+          "caption": "Middle finger (proximal + tip)",
+          "caption_pt": "Dedo médio (proximal + ponta)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_ring",
+          "type": "color",
+          "initial": "#51cf66",
+          "label": "Ring finger",
+          "label_pt": "Anelar",
+          "caption": "Ring finger (proximal + tip)",
+          "caption_pt": "Dedo anelar (proximal + ponta)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_pinky",
+          "type": "color",
+          "initial": "#ffd43b",
+          "label": "Pinky finger",
+          "label_pt": "Mindinho",
+          "caption": "Pinky finger (proximal + tip)",
+          "caption_pt": "Dedo mindinho (proximal + ponta)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_thumb",
+          "type": "color",
+          "initial": "#cc5de8",
+          "label": "Thumb",
+          "label_pt": "Polegar",
+          "caption": "Thumb (proximal + tip)",
+          "caption_pt": "Polegar (proximal + ponta)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_pins",
+          "type": "color",
+          "initial": "#3b3b6d",
+          "label": "Pins",
+          "label_pt": "Pinos",
+          "caption": "Finger, thumb and wrist hinge pins",
+          "caption_pt": "Pinos das dobradiças dos dedos, polegar e pulso",
+          "group": "Colors"
+        },
+        {
+          "name": "color_gauntlet",
+          "type": "color",
+          "initial": "#c0c0c8",
+          "label": "Gauntlet",
+          "label_pt": "Punho",
+          "caption": "Forearm gauntlet cuff",
+          "caption_pt": "Braçadeira de antebraço",
+          "group": "Colors"
+        },
+        {
+          "name": "color_washers",
+          "type": "color",
+          "initial": "#51cf66",
+          "label": "Washers",
+          "label_pt": "Anilhas",
+          "caption": "Wrist-pin washers",
+          "caption_pt": "Anilhas dos pinos do pulso",
+          "group": "Colors"
+        },
+        {
+          "name": "color_tensioner_block",
+          "type": "color",
+          "initial": "#e8894a",
+          "label": "Tensioner block",
+          "label_pt": "Bloco tensor",
+          "caption": "Tensioner housing block",
+          "caption_pt": "Bloco do mecanismo tensor",
+          "group": "Colors"
+        },
+        {
+          "name": "color_tensioner_pins",
+          "type": "color",
+          "initial": "#ffd43b",
+          "label": "Tensioner pins",
+          "label_pt": "Pinos do tensor",
+          "caption": "Three flat tensioner pins",
+          "caption_pt": "Os três pinos planos do tensor",
+          "group": "Colors"
         }
       ],
       "name_pt": "Mão Phoenix UnLimbited",

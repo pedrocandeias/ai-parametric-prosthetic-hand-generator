@@ -1,3 +1,7 @@
+## v14.46.0 — 2026-07-10
+
+feat: **UnLimbited Phoenix — per-part colours (Colors tab).** Exposed the assembled hand's colours as model parameters, matching Cyborg Beast / Flexy Beast: `color_palm`, `color_index`/`middle`/`ring`/`pinky`, `color_thumb`, `color_pins`, `color_gauntlet`, `color_washers`, `color_tensioner_block`, `color_tensioner_pins`. `phoenix_assembly.scad`'s previously-hardcoded colours now read from these injectable params (via forward-referenced assignments in the includer), so every part is recolourable from the UI. Verified: colour injection re-colours the matching faces headlessly (red palm → 11858 faces) and the Playwright E2E passes. Bump `index.html` JS cache-buster to 14.46.0.
+
 # Changelog
 
 All notable changes are recorded here.

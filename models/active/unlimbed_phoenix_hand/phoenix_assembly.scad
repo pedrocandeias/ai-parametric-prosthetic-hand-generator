@@ -101,14 +101,16 @@ TPINS_POS      = [55, -150, 12];     // world seat near the wrist
 TPINS_ROT      = [0, 0, 0];          // flat, long axis along the forearm (Y)
 
 // ── COLOURS ────────────────────────────────────────────────────────────────
-FCOL     = ["#4a9eff", "#ff6b6b", "#51cf66", "#ffd43b"];  // index, middle, ring, pinky
-TH_COL   = "#cc5de8";               // thumb
-PALM_COL = "Tan";
-GAUNT_COL= "#c0c0c8";
-PIN_COL  = "#3b3b6d";
-TBLOCK_COL = "#e8894a";             // tensioner block (orange, matches the reference build)
-TPINS_COL  = "#ffd43b";             // tensioner pins (yellow)
-WASHER_COL = "#51cf66";             // washers (green)
+// Colours come from the injectable color_* model parameters (defined by the
+// includer: UnLimbitedPhoenix.scad / _assembly.scad), so the Colors tab drives them.
+FCOL     = [color_index, color_middle, color_ring, color_pinky];  // index, middle, ring, pinky
+TH_COL   = color_thumb;             // thumb
+PALM_COL = color_palm;
+GAUNT_COL= color_gauntlet;
+PIN_COL  = color_pins;
+TBLOCK_COL = color_tensioner_block; // tensioner block
+TPINS_COL  = color_tensioner_pins;  // tensioner pins
+WASHER_COL = color_washers;         // washers
 COLMAP   = [0, 1, 2, 3];            // which block column feeds index..pinky
 
 // ============================================================================

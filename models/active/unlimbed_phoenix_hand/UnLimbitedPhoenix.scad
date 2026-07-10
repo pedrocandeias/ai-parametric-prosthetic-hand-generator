@@ -31,6 +31,18 @@ show_thumb     = true;
 show_pins      = true;
 show_gauntlet  = true;
 show_tensioner = true;
+// - Per-part colours (assembled view / Colors tab)
+color_palm            = "#d2b48c";
+color_index           = "#4a9eff";
+color_middle          = "#ff6b6b";
+color_ring            = "#51cf66";
+color_pinky           = "#ffd43b";
+color_thumb           = "#cc5de8";
+color_pins            = "#3b3b6d";
+color_gauntlet        = "#c0c0c8";
+color_washers         = "#51cf66";
+color_tensioner_block = "#e8894a";
+color_tensioner_pins  = "#ffd43b";
 // - Choose Left or Right Hand
 LeftRight = "Left"; // [Left,Right]
 
