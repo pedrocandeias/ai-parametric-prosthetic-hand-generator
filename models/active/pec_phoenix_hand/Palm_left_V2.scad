@@ -33,8 +33,8 @@ section = "off";        // [off, longitudinal, transverse, horizontal]
 section_at = 0;         // [-50:0.5:50]
 
 /* [Features] */
-show_shell    = true;
-show_fins     = true;
+show_shell    = false;
+show_fins     = false;
 show_knuckles = true;
 show_thumb    = true;
 show_wrist    = true;
@@ -67,6 +67,9 @@ EAR_R      = 7.75;   // ear disc radius
 EAR_W      = 5.00;   // ear disc thickness (along X, the pin axis)
 EAR_Y      = -38.0;  // ear / hinge centre Y
 EAR_Z      = 8.0;    // ear / hinge centre Z
+// Ear stations: [centre X, inner-face sign]. Shared by wrist() AND wrist_back()
+// (which re-cuts the same bores through its ghost-clip) — keep them in lockstep.
+EARS       = [[20.5, -1], [-36.0, +1]];
 
 // One wrist ear: a disc on the X pin-axis, minus the through-bore, minus an inner
 // counterbore. inner_sign = which side (+1 / -1) the disc's inner face is toward.
@@ -97,7 +100,7 @@ module wrist_walls() {
         translate([wall[0]-1, -38, 8]) rotate([0,90,0]) cylinder(h = wall[1]+2, r = 2.5);   // hinge window
     }
 }
-module wrist() { wrist_ear(20.5, -1); wrist_ear(-36.0, +1); wrist_walls(); }
+module wrist() { for (e = EARS) wrist_ear(e[0], e[1]); wrist_walls(); }
 
 // =============================================================================
 // FEATURE 4 — perforated palmar floor + basket-weave vent grid (z 0..2)

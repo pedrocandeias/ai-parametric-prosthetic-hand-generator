@@ -30,10 +30,11 @@ module wrist_back() {
             translate([-45, WB_Y0, 0]) cube([90, WB_Y1 - WB_Y0, WB_Z1]);
         }
         // --- keep the 2 hinge bores + counterbores + windows OPEN ---
-        // one clean r=EAR_BORE_R tunnel per ear along X (y-38,z8) clears the
-        // lug bore AND the wall hinge window (same axis), wider than the r2.5
-        // window so both stay open.
-        for (ear = [[20.5, -1], [-36.0, +1]]) {
+        // one clean r=EAR_BORE_R tunnel per ear along X (EAR_Y,EAR_Z) clears the
+        // lug bore AND the wall hinge window (same axis). The tunnel is wider
+        // than the r2.5 wall window, but the union with the parametric wall
+        // (solid in the r2.5..r3 annulus) restores the measured r2.5 window.
+        for (ear = EARS) {
             cx = ear[0]; inner_sign = ear[1];
             translate([cx, EAR_Y, EAR_Z]) rotate([0,90,0])
                 cylinder(h = 40, r = EAR_BORE_R, center = true);                  // through bore
