@@ -21,8 +21,16 @@
 //vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 //vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-// - Preview Each Part
-part = "Assembly"; // [Assembly:Assembly (seated hand), Palm:Palm, Box: Tension Box, TPins:Tension Pins, Fingers:Fingers, Phalanx:Phalanx, Pins:Pins, Gauntlet:Gauntlet, Jig:Jig]
+// - Assembled seated preview (false) vs flat print-bed layout for export (true)
+print_layout = false;
+// - Per-part visibility (replaces the old single-part selector: every part's
+//   control is available at once; toggle parts on/off in either view)
+show_palm      = true;
+show_fingers   = true;
+show_thumb     = true;
+show_pins      = true;
+show_gauntlet  = true;
+show_tensioner = true;
 // - Choose Left or Right Hand
 LeftRight = "Left"; // [Left,Right]
 
@@ -222,27 +230,10 @@ function Phoenix_Thermo_Palm_2_points() = [
 //OK LETS GENERATE PARTS
 //**************************************************
 //**************************************************
-module print_part() {
-	if (part == "Assembly") {
-		if (LeftRight == "Left") {scale ([HandPerc/100,HandPerc/100,HandPerc/100]) phoenix_assembly();} else {mirror ([1,0,0]) scale ([HandPerc/100,HandPerc/100,HandPerc/100]) phoenix_assembly();}
-	} else if (part == "Palm") {
-		if (LeftRight == "Left") {scale ([HandPerc/100,HandPerc/100,HandPerc/100]) Phoenix_Thermo_Palm_2();} else {mirror ([1,0,0]) scale ([HandPerc/100,HandPerc/100,HandPerc/100]) Phoenix_Thermo_Palm_2();}
-	} else if (part == "Box") {
-		if (LeftRight == "Left") {scale ([HandPerc/100,HandPerc/100,HandPerc/100]) 3Pin_Tensioner_Box();} else {mirror ([1,0,0]) scale ([HandPerc/100,HandPerc/100,HandPerc/100]) 3Pin_Tensioner_Box();}
-	} else if (part == "TPins") {
-		if (LeftRight == "Left") {scale ([HandPerc/100,HandPerc/100,HandPerc/100]) 3Tensionpins();} else {mirror ([1,0,0]) scale ([HandPerc/100,HandPerc/100,HandPerc/100]) 3Tensionpins();}
-	} else if (part == "Fingers") {
-		if (LeftRight == "Left") {scale ([HandPerc/100,HandPerc/100,HandPerc/100]) Phoenix_Fingers_Left();} else {mirror ([1,0,0]) scale ([HandPerc/100,HandPerc/100,HandPerc/100]) Phoenix_Fingers_Left();}
-	} else if (part == "Phalanx") {
-		if (LeftRight == "Left") {scale ([HandPerc/100,HandPerc/100,HandPerc/100]) Phoenix_Phalanx_Left();} else {mirror ([1,0,0]) scale ([HandPerc/100,HandPerc/100,HandPerc/100]) Phoenix_Phalanx_Left();}
-	} else if (part == "Pins") {
-		if (LeftRight == "Left") {scale ([HandPerc/100,HandPerc/100,HandPerc/100]) Phoenix_Pins();} else {mirror ([1,0,0]) scale ([HandPerc/100,HandPerc/100,HandPerc/100]) Phoenix_Pins();}
-	} else if (part == "Gauntlet") {
-		if (LeftRight == "Left") {rotate ([90,0,0]) scale ([HandPerc/100,HandPerc/100,HandPerc/100]) Gauntlet_V4();} else {mirror ([1,0,0]) rotate ([90,0,0]) scale ([HandPerc/100,HandPerc/100,HandPerc/100]) Gauntlet_V4();}
-	} else if (part == "Jig") {
-		if (LeftRight == "Left") {rotate ([90,0,0]) scale ([HandPerc/100,HandPerc/100,HandPerc/100]) Jig();} else {mirror ([1,0,0]) rotate ([90,0,0]) scale ([HandPerc/100,HandPerc/100,HandPerc/100]) Jig();}
-	}
-}
-
-print_part();
+// Render the assembled seated hand (print_layout=false) or a flat print-bed layout
+// for export (print_layout=true). Both are driven by the per-part show_* toggles,
+// scaled uniformly by HandPerc and mirrored for a right hand. phoenix_render(),
+// phoenix_assembly() and phoenix_printlayout() live in phoenix_assembly.scad.
+if (LeftRight == "Left") scale([HandPerc/100,HandPerc/100,HandPerc/100]) phoenix_render();
+else mirror([1,0,0]) scale([HandPerc/100,HandPerc/100,HandPerc/100]) phoenix_render();
 

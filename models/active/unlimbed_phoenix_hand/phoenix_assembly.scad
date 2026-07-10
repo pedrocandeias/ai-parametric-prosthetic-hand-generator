@@ -153,31 +153,51 @@ module wpin(flip=0){ color(PIN_COL) rotate([0, flip?-90:90, 0]) wrist_pin_center
 //  ASSEMBLY  — the whole seated hand as one module
 // ============================================================================
 module phoenix_assembly(){
-    color(PALM_COL) palm_preview();                                       // palm (manifold preview mesh)
+    if(show_palm) color(PALM_COL) palm_preview();                         // palm (manifold preview mesh)
 
-    for(f=[0:3])                                                          // fingers
-      translate([KX[f]+DX,KY[f]+DY,KZ[f]]) rotate([0,0,SPLAY[f]]) rotate([CURL,0,0])
-        finger_unit(COLMAP[f], FCOL[f], DIST[f], DROT[f]);
+    if(show_fingers)
+      for(f=[0:3])                                                        // fingers
+        translate([KX[f]+DX,KY[f]+DY,KZ[f]]) rotate([0,0,SPLAY[f]]) rotate([CURL,0,0])
+          finger_unit(COLMAP[f], FCOL[f], DIST[f], DROT[f]);
 
-    translate(TH_POS) rotate(TH_ROT) finger_unit(4, TH_COL, TH_DIST, TH_DROT);  // thumb
+    if(show_thumb) translate(TH_POS) rotate(TH_ROT) finger_unit(4, TH_COL, TH_DIST, TH_DROT);  // thumb
 
-    for(f=[0:3])                                                          // finger pins
-      translate([KX[f]+DX,KY[f]+DY,KZ[f]]) rotate([0,0,SPLAY[f]]) rotate([CURL,0,0]){
-        if(PIN_SHOW_MCP[f]) translate([0,MCP_HOLE_Y,PROX_PIN_Z]+PIN_OFF_MCP[f]) pin(PIN_FLIP_MCP[f]);
-        if(PIN_SHOW_PIP[f]) translate([0,PIP_HOLE_Y,PROX_PIN_Z]+PIN_OFF_PIP[f]) pin(PIN_FLIP_PIP[f]); }
+    if(show_pins){
+      for(f=[0:3])                                                        // finger pins
+        translate([KX[f]+DX,KY[f]+DY,KZ[f]]) rotate([0,0,SPLAY[f]]) rotate([CURL,0,0]){
+          if(PIN_SHOW_MCP[f]) translate([0,MCP_HOLE_Y,PROX_PIN_Z]+PIN_OFF_MCP[f]) pin(PIN_FLIP_MCP[f]);
+          if(PIN_SHOW_PIP[f]) translate([0,PIP_HOLE_Y,PROX_PIN_Z]+PIN_OFF_PIP[f]) pin(PIN_FLIP_PIP[f]); }
+      translate(TH_POS) rotate(TH_ROT){                                  // thumb pins
+          if(PIN_SHOW_THUMB[0]) translate([0,MCP_HOLE_Y,PROX_PIN_Z]+PIN_OFF_THUMB[0]) pin(PIN_FLIP_THUMB[0]);
+          if(PIN_SHOW_THUMB[1]) translate([0,PIP_HOLE_Y,PROX_PIN_Z]+PIN_OFF_THUMB[1]) pin(PIN_FLIP_THUMB[1]); }
+      if(PIN_SHOW_WRIST[0]) translate(WRIST_PIN_A+PIN_OFF_WRIST[0]) wpin(PIN_FLIP_WRIST[0]);   // wrist pins
+      if(PIN_SHOW_WRIST[1]) translate(WRIST_PIN_B+PIN_OFF_WRIST[1]) wpin(PIN_FLIP_WRIST[1]);
+    }
 
-    translate(TH_POS) rotate(TH_ROT){                                    // thumb pins
-        if(PIN_SHOW_THUMB[0]) translate([0,MCP_HOLE_Y,PROX_PIN_Z]+PIN_OFF_THUMB[0]) pin(PIN_FLIP_THUMB[0]);
-        if(PIN_SHOW_THUMB[1]) translate([0,PIP_HOLE_Y,PROX_PIN_Z]+PIN_OFF_THUMB[1]) pin(PIN_FLIP_THUMB[1]); }
+    if(show_gauntlet) color(GAUNT_COL) translate(GAUNT_POS) rotate(GAUNT_ROT) Gauntlet_V4();  // arm guard
 
-    if(PIN_SHOW_WRIST[0]) translate(WRIST_PIN_A+PIN_OFF_WRIST[0]) wpin(PIN_FLIP_WRIST[0]);   // wrist pins
-    if(PIN_SHOW_WRIST[1]) translate(WRIST_PIN_B+PIN_OFF_WRIST[1]) wpin(PIN_FLIP_WRIST[1]);
-
-    color(GAUNT_COL) translate(GAUNT_POS) rotate(GAUNT_ROT) Gauntlet_V4();  // arm guard
-
-    // ── TENSIONER MECHANISM & WASHERS ───────────────────────────────────────
-    if(WASHER_SHOW[0]) color(WASHER_COL) translate(WASHER_POS[0]) rotate(WASHER_ROT) washer_centered();
-    if(WASHER_SHOW[1]) color(WASHER_COL) translate(WASHER_POS[1]) rotate(WASHER_ROT) washer_centered();
-    if(TBLOCK_SHOW)    color(TBLOCK_COL) translate(TBLOCK_POS) rotate(TBLOCK_ROT) tensioner_block_centered();
-    if(TPINS_SHOW)     color(TPINS_COL)  translate(TPINS_POS)  rotate(TPINS_ROT)  tensioner_pins_centered();
+    if(show_tensioner){                                                   // tensioner mechanism & washers
+      if(WASHER_SHOW[0]) color(WASHER_COL) translate(WASHER_POS[0]) rotate(WASHER_ROT) washer_centered();
+      if(WASHER_SHOW[1]) color(WASHER_COL) translate(WASHER_POS[1]) rotate(WASHER_ROT) washer_centered();
+      if(TBLOCK_SHOW)    color(TBLOCK_COL) translate(TBLOCK_POS) rotate(TBLOCK_ROT) tensioner_block_centered();
+      if(TPINS_SHOW)     color(TPINS_COL)  translate(TPINS_POS)  rotate(TPINS_ROT)  tensioner_pins_centered();
+    }
 }
+
+// ============================================================================
+//  PRINT-BED LAYOUT  — every visible part laid flat, side by side, for export
+//  Uses the manifold-safe meshes (palm/distals repaired) so the whole plate
+//  survives the manifold backend; each part keeps its own print orientation.
+// ============================================================================
+module phoenix_printlayout(){
+    if(show_palm)     color(PALM_COL)   translate([0,   0,  0]) palm_preview();
+    if(show_fingers){ color(FCOL[0])    translate([115, 0,  0]) Phoenix_Phalanx_Left();   // proximals plate
+                      color(FCOL[2])    translate([115, 60, 0]) fingers_preview(); }      // distals plate
+    if(show_pins)     color(PIN_COL)    translate([210, 0,  0]) Phoenix_Pins();
+    if(show_gauntlet) color(GAUNT_COL)  translate([-10, 60, 0]) rotate([90,0,0]) Gauntlet_V4();
+    if(show_tensioner){ color(TBLOCK_COL) translate([210, 70, 0]) tensioner_block_centered();
+                        color(TPINS_COL)  translate([250, 70, 0]) tensioner_pins_centered(); }
+}
+
+// Dispatcher: assembled seated preview or the flat print-bed layout.
+module phoenix_render(){ if(print_layout) phoenix_printlayout(); else phoenix_assembly(); }
