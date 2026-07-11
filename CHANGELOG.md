@@ -1,15 +1,3 @@
-## v14.48.0 — 2026-07-11
-
-feat: **UnLimbited Phoenix — per-finger parametric length (all five digits).** Each finger and the thumb can now be sized to the patient without distorting the pin holes. The Phoenix meshes are fixed, so a finger is lengthened by splitting its column at the hole-free shaft, keeping the hinge (hole) zones unscaled, stretching only the shaft, and shifting the far end out — the pin holes stay perfectly round and printable. New params `index/middle/ring/pinky/thumb_finger_length_mm` (total MCP→tip, Anthropometric) + `_base_length_mm` (proximal MCP→PIP, Segment split), matching the canonical CLAUDE.md fields so imported profiles populate them. Native reference 72/31, so defaults render identically to the stock finger; the PIP pin and fingertip follow the lengthened proximal, and the flat print layout exports each digit at its custom length (export matches preview). Verified: length change is 1:1 (middle 72→100 → tip reach +27.6 mm), base split redistributes proximal/distal with total held constant, holes stay round, and the whole hand renders manifold with no regression at defaults. Bump `index.html` JS cache-buster to 14.48.0.
-
-## v14.47.0 — 2026-07-10
-
-refactor: **pec Phoenix palm — shared ear-station table for wrist_back.** The hinge-ear positions `[[20.5,-1],[-36.0,+1]]` were duplicated between `wrist()` (Palm_left_V2.scad) and the bore re-cuts in `wrist_back()` (Palm_left_V2_wrist_back.scad) — moving an ear would silently desync the re-cut tunnels. Lifted to a shared `EARS` constant next to the other `EAR_*` params; both call sites now iterate it. Also corrected the re-cut comment: the r3 tunnel does not widen the wall's r2.5 hinge window because the union with the parametric wall (solid in the r2.5–r3 annulus) restores it. Verified zero geometry change (ghost-band boolean-diff volumes bit-identical before/after: missing 81.011 mm³, extra 273.316 mm³).
-
-## v14.46.0 — 2026-07-10
-
-feat: **UnLimbited Phoenix — per-part colours (Colors tab).** Exposed the assembled hand's colours as model parameters, matching Cyborg Beast / Flexy Beast: `color_palm`, `color_index`/`middle`/`ring`/`pinky`, `color_thumb`, `color_pins`, `color_gauntlet`, `color_washers`, `color_tensioner_block`, `color_tensioner_pins`. `phoenix_assembly.scad`'s previously-hardcoded colours now read from these injectable params (via forward-referenced assignments in the includer), so every part is recolourable from the UI. Verified: colour injection re-colours the matching faces headlessly (red palm → 11858 faces) and the Playwright E2E passes. Bump `index.html` JS cache-buster to 14.46.0.
-
 # Changelog
 
 All notable changes are recorded here.
@@ -21,6 +9,22 @@ Version format: `MAJOR.MINOR.PATCH`
 
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
+
+## v14.49.0 — 2026-07-11
+
+chore: **repo cleanup — consolidated non-platform material under `archive/`.** Moved the Cyborg Beast reference PDFs and the unused `cyborgbeast07l.scad` into `archive/cyborg-beast/`, and relocated the whole Playwright suite (`tests/` → `archive/tests/`) with its output (`test-results/` → `archive/test-results/`) — kept runnable by pointing `playwright.config.js` `testDir`/`outputDir` at the new paths and fixing `compare_renders.spec.js`'s `test-renders` path (`playwright test --list` finds all 24 tests). Added `archive/` to the `deploy.sh` rsync excludes so none of it ships to production, and dropped the 19 MB reference-STL `stls/` folder (gitignored via `models/**/stls/`). The large untracked reference dumps (`Proximals.stl`, `UnLimbited_Arm_V2.2.scad`, `flexible-flyer-master/`, `flexy-beast-original/`) moved along but stay untracked. Dev-only reorganisation — no app/runtime code changed. Also restored this `# Changelog` header to the top of the file (recent entries had been prepended above it). Bump `index.html` JS cache-buster to 14.49.0.
+
+## v14.48.0 — 2026-07-11
+
+feat: **UnLimbited Phoenix — per-finger parametric length (all five digits).** Each finger and the thumb can now be sized to the patient without distorting the pin holes. The Phoenix meshes are fixed, so a finger is lengthened by splitting its column at the hole-free shaft, keeping the hinge (hole) zones unscaled, stretching only the shaft, and shifting the far end out — the pin holes stay perfectly round and printable. New params `index/middle/ring/pinky/thumb_finger_length_mm` (total MCP→tip, Anthropometric) + `_base_length_mm` (proximal MCP→PIP, Segment split), matching the canonical CLAUDE.md fields so imported profiles populate them. Native reference 72/31, so defaults render identically to the stock finger; the PIP pin and fingertip follow the lengthened proximal, and the flat print layout exports each digit at its custom length (export matches preview). Verified: length change is 1:1 (middle 72→100 → tip reach +27.6 mm), base split redistributes proximal/distal with total held constant, holes stay round, and the whole hand renders manifold with no regression at defaults. Bump `index.html` JS cache-buster to 14.48.0.
+
+## v14.47.0 — 2026-07-10
+
+refactor: **pec Phoenix palm — shared ear-station table for wrist_back.** The hinge-ear positions `[[20.5,-1],[-36.0,+1]]` were duplicated between `wrist()` (Palm_left_V2.scad) and the bore re-cuts in `wrist_back()` (Palm_left_V2_wrist_back.scad) — moving an ear would silently desync the re-cut tunnels. Lifted to a shared `EARS` constant next to the other `EAR_*` params; both call sites now iterate it. Also corrected the re-cut comment: the r3 tunnel does not widen the wall's r2.5 hinge window because the union with the parametric wall (solid in the r2.5–r3 annulus) restores it. Verified zero geometry change (ghost-band boolean-diff volumes bit-identical before/after: missing 81.011 mm³, extra 273.316 mm³).
+
+## v14.46.0 — 2026-07-10
+
+feat: **UnLimbited Phoenix — per-part colours (Colors tab).** Exposed the assembled hand's colours as model parameters, matching Cyborg Beast / Flexy Beast: `color_palm`, `color_index`/`middle`/`ring`/`pinky`, `color_thumb`, `color_pins`, `color_gauntlet`, `color_washers`, `color_tensioner_block`, `color_tensioner_pins`. `phoenix_assembly.scad`'s previously-hardcoded colours now read from these injectable params (via forward-referenced assignments in the includer), so every part is recolourable from the UI. Verified: colour injection re-colours the matching faces headlessly (red palm → 11858 faces) and the Playwright E2E passes. Bump `index.html` JS cache-buster to 14.46.0.
 
 ## v14.45.0 — 2026-07-10
 
