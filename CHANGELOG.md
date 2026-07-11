@@ -10,6 +10,15 @@ Version format: `MAJOR.MINOR.PATCH`
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
+## v14.51.0 — 2026-07-11
+
+refactor: **pec Phoenix palm — single-file `Palm_left_V2.scad` with per-part checkboxes.** Fused the five part includes (`Palm_left_V2_shell.scad`, `Palm_left_V2_thumb.scad`, `Palm_left_V2_rings.scad`, `Palm_left_V2_fins.scad`, `Palm_left_V2_wrist_back.scad`) inline into `Palm_left_V2.scad` as marked PART sections and deleted the part files. Every integrated part now has its own Customizer checkbox in `[Features]` (`show_shell`, `show_knuckles`, `show_fins`, `show_thumb`, `show_wrist`, `show_wrist_back` — new, previously bundled with `show_wrist` — and `show_grid`), all on by default (shell + fins previously defaulted off). The rings' hardcoded ghost path now reuses the shared `ghost_stl`; `_assembly.scad` verified unchanged.
+
+## v14.50.0 — 2026-07-11
+
+feat: **pec Phoenix hand — adopt the STEP-measured tensioner + snap-pin parts.** Replaced the hand-fitted reconstructions (`Tensioner_Block.scad`, `Tensioner_Pins.scad`, `Snap_Pins_without_Labels.scad`) in `models/active/pec_phoenix_hand/` with the step2scad B-rep reconstructions shared with the UnLimbited Phoenix model (`phoenix_tensioner_block.scad`, `phoenix_tensioner_pins.scad`, `phoenix_snap_pins.scad` — every dimension measured from the STEP faces).
+refactor: pec `_assembly.scad` now seats the REAL Phoenix pins via the `*_centered()` helpers — small snap pins (body_1) at the finger/thumb joints, the larger clip pin (body_0) + countersunk cup washer (body_9) at the wrist ears — replacing the cylinder/washer stand-ins. The pins are fixed-size measured parts, so the `PIN_LEN_*`/`PIN_DIA_*` knobs were removed in favour of per-pin head-side `PIN_FLIP_*` switches. Regenerated `_assembly_preview.png`.
+
 ## v14.49.0 — 2026-07-11
 
 chore: **repo cleanup — consolidated non-platform material under `archive/`.** Moved the Cyborg Beast reference PDFs and the unused `cyborgbeast07l.scad` into `archive/cyborg-beast/`, and relocated the whole Playwright suite (`tests/` → `archive/tests/`) with its output (`test-results/` → `archive/test-results/`) — kept runnable by pointing `playwright.config.js` `testDir`/`outputDir` at the new paths and fixing `compare_renders.spec.js`'s `test-renders` path (`playwright test --list` finds all 24 tests). Added `archive/` to the `deploy.sh` rsync excludes so none of it ships to production, and dropped the 19 MB reference-STL `stls/` folder (gitignored via `models/**/stls/`). The large untracked reference dumps (`Proximals.stl`, `UnLimbited_Arm_V2.2.scad`, `flexible-flyer-master/`, `flexy-beast-original/`) moved along but stay untracked. Dev-only reorganisation — no app/runtime code changed. Also restored this `# Changelog` header to the top of the file (recent entries had been prepended above it). Bump `index.html` JS cache-buster to 14.49.0.
