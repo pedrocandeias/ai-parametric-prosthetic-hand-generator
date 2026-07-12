@@ -1,0 +1,40 @@
+{
+    "parameterSets": {
+        "igus no pocket 1.6": {
+            "bearing_pocket_depth": "0.4",
+            "bearing_pocket_diameter": "0",
+            "global_scale": "1.25",
+            "nominal_clearance": "1.6",
+            "nut_size": "5.5",
+            "pin_diameter_clearance": "0.1",
+            "pin_index": "1",
+            "print_finger_phalanx": "true",
+            "print_long_fingers": "true",
+            "print_short_fingers": "true",
+            "print_thumb": "true",
+            "print_thumb_phalanx": "true"
+        },
+        "obc test": {
+            "bearing_pocket_depth": "0.4",
+            "bearing_pocket_diameter": "0",
+            "global_scale": "1.25",
+            "nominal_clearance": "0.3",
+            "nut_size": "5.5",
+            "pin_diameter_clearance": "0",
+            "pin_index": "3",
+            "pins_for_string": "false",
+            "print_finger_phalanx": "true",
+            "print_long_fingers": "true",
+            "print_short_fingers": "true",
+            "print_thumb": "true",
+            "print_thumb_phalanx": "true"
+        }
+    },
+    "fileFormatVersion": "1",
+    "parameterSets": "",
+    "parameterSets": "",
+    "parameterSets": "",
+    "parameterSets": "",
+    "parameterSets": "",
+    "parameterSets": ""
+}

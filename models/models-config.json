@@ -14,6 +14,28 @@
       "dependencies": [],
       "parameters": [
         {
+          "name": "mirrored",
+          "role": "laterality",
+          "type": "enum",
+          "initial": false,
+          "options": [
+            {
+              "label": "Left hand",
+              "value": false
+            },
+            {
+              "label": "Right hand",
+              "value": true
+            }
+          ],
+          "caption": "Which hand to generate — Right hand mirrors the geometry along X",
+          "label_pt": "Espelhado",
+          "caption_pt": "Que mão gerar — a mão direita espelha a geometria ao longo de X",
+          "help": "Objective: choose whether to build a left or a right hand. Outcome: selecting 'Right hand' mirrors the entire model across the X axis. Match this to the patient's affected side — printing the wrong hand produces a part that simply will not fit.",
+          "help_pt": "Objetivo: escolher se constrói uma mão esquerda ou direita. Resultado: selecionar 'Mão direita' espelha todo o modelo no eixo X. Faça corresponder ao lado afetado do paciente — imprimir a mão errada produz uma peça que simplesmente não encaixa.",
+          "group": "Anthropometric"
+        },
+        {
           "name": "palm_breadth_mm",
           "type": "number",
           "initial": 83,
@@ -95,28 +117,6 @@
           "caption_pt": "Dobra MCP à ponta do polegar — define a proporção do polegar em relação ao dedo médio (mm)",
           "help": "Objective: set the thumb's length relative to the middle finger, which controls where the thumb meets the fingers as the hand closes (opposition). Outcome: a longer thumb closes further across the palm for pinch-style grips, while a shorter thumb opens the span. Good opposition is essential to a usable grasp, so adjust this alongside the finger lengths.",
           "help_pt": "Objetivo: definir o comprimento do polegar em relação ao dedo médio, o que controla onde o polegar encontra os dedos quando a mão fecha (oposição). Resultado: um polegar mais longo fecha mais sobre a palma para preensões de pinça, enquanto um polegar mais curto abre o vão. Uma boa oposição é essencial a uma preensão útil, por isso ajuste isto em conjunto com os comprimentos dos dedos.",
-          "group": "Anthropometric"
-        },
-        {
-          "name": "mirrored",
-          "role": "laterality",
-          "type": "enum",
-          "initial": false,
-          "options": [
-            {
-              "label": "Left hand",
-              "value": false
-            },
-            {
-              "label": "Right hand",
-              "value": true
-            }
-          ],
-          "caption": "Which hand to generate — Right hand mirrors the geometry along X",
-          "label_pt": "Espelhado",
-          "caption_pt": "Que mão gerar — a mão direita espelha a geometria ao longo de X",
-          "help": "Objective: choose whether to build a left or a right hand. Outcome: selecting 'Right hand' mirrors the entire model across the X axis. Match this to the patient's affected side — printing the wrong hand produces a part that simply will not fit.",
-          "help_pt": "Objetivo: escolher se constrói uma mão esquerda ou direita. Resultado: selecionar 'Mão direita' espelha todo o modelo no eixo X. Faça corresponder ao lado afetado do paciente — imprimir a mão errada produz uma peça que simplesmente não encaixa.",
           "group": "Anthropometric"
         },
         {
@@ -760,6 +760,27 @@
       ],
       "parameters": [
         {
+          "name": "LeftRight",
+          "role": "laterality",
+          "type": "enum",
+          "initial": "Left",
+          "options": [
+            {
+              "label": "Left hand",
+              "value": "Left"
+            },
+            {
+              "label": "Right hand",
+              "value": "Right"
+            }
+          ],
+          "caption": "Which hand to generate — Right hand mirrors the geometry along X",
+          "label_pt": "Mão Esquerda/Direita",
+          "caption_pt": "Que mão gerar — a mão direita espelha a geometria ao longo de X",
+          "help": "Objective: choose whether to build a left or a right hand. Outcome: selecting 'Right hand' mirrors the entire model across the X axis. Match this to the patient's affected side — printing the wrong hand produces a part that simply will not fit.",
+          "group": "Anthropometric"
+        },
+        {
           "name": "palm_breadth_mm",
           "type": "number",
           "initial": 82,
@@ -924,27 +945,6 @@
           "help": "Objective: set how the thumb's total length splits between the proximal segment (MCP→IP) and the tip. Outcome: raising the base lengthens the proximal and shortens the tip for the same total; the pin follows automatically. Native reference is 31 mm.",
           "help_pt": "Objetivo: definir a divisão do comprimento do polegar entre o segmento proximal (MCP→IP) e a ponta. Resultado: aumentar a base alonga o proximal e encurta a ponta para o mesmo total; o pino acompanha. Referência nativa 31 mm.",
           "group": "Segment split"
-        },
-        {
-          "name": "LeftRight",
-          "role": "laterality",
-          "type": "enum",
-          "initial": "Left",
-          "options": [
-            {
-              "label": "Left hand",
-              "value": "Left"
-            },
-            {
-              "label": "Right hand",
-              "value": "Right"
-            }
-          ],
-          "caption": "Which hand to generate — Right hand mirrors the geometry along X",
-          "label_pt": "Mão Esquerda/Direita",
-          "caption_pt": "Que mão gerar — a mão direita espelha a geometria ao longo de X",
-          "help": "Objective: choose whether to build a left or a right hand. Outcome: selecting 'Right hand' mirrors the entire model across the X axis. Match this to the patient's affected side — printing the wrong hand produces a part that simply will not fit.",
-          "group": "Anthropometric"
         },
         {
           "name": "print_layout",
@@ -1188,6 +1188,27 @@
       ],
       "parameters": [
         {
+          "name": "mirrored",
+          "role": "laterality",
+          "type": "enum",
+          "initial": false,
+          "options": [
+            {
+              "label": "Left hand",
+              "value": false
+            },
+            {
+              "label": "Right hand",
+              "value": true
+            }
+          ],
+          "caption": "Which hand to generate — Right hand mirrors the geometry along X",
+          "label_pt": "Espelhado",
+          "caption_pt": "Que mão gerar — a mão direita espelha a geometria ao longo de X",
+          "help": "Objective: choose a left or right hand. Outcome: 'Right hand' mirrors the model across X. Match the patient's affected side — the wrong hand will not fit.",
+          "group": "Component"
+        },
+        {
           "name": "component",
           "type": "enum",
           "initial": "Hand",
@@ -1337,27 +1358,6 @@
           "label_pt": "Comprimento do Polegar (em mm)",
           "caption_pt": "Dobra MCP à ponta do polegar — guardado para alinhamento IA/perfil; o polegar escala com a escala base dos dedos (mm)",
           "help": "Objective: record thumb length for profile/AI alignment. Outcome: stored; the thumb scales with the finger base scale rather than independently.",
-          "group": "Anthropometric"
-        },
-        {
-          "name": "mirrored",
-          "role": "laterality",
-          "type": "enum",
-          "initial": false,
-          "options": [
-            {
-              "label": "Left hand",
-              "value": false
-            },
-            {
-              "label": "Right hand",
-              "value": true
-            }
-          ],
-          "caption": "Which hand to generate — Right hand mirrors the geometry along X",
-          "label_pt": "Espelhado",
-          "caption_pt": "Que mão gerar — a mão direita espelha a geometria ao longo de X",
-          "help": "Objective: choose a left or right hand. Outcome: 'Right hand' mirrors the model across X. Match the patient's affected side — the wrong hand will not fit.",
           "group": "Anthropometric"
         },
         {
@@ -1953,6 +1953,28 @@
       ],
       "parameters": [
         {
+          "name": "mirrored",
+          "role": "laterality",
+          "type": "enum",
+          "initial": false,
+          "options": [
+            {
+              "label": "Left hand",
+              "value": false
+            },
+            {
+              "label": "Right hand",
+              "value": true
+            }
+          ],
+          "caption": "Which hand to generate — Right hand mirrors the geometry along X",
+          "label_pt": "Espelhado",
+          "caption_pt": "Que mão gerar — a mão direita espelha a geometria ao longo de X",
+          "help": "Objective: choose whether to build a left or a right hand. Outcome: selecting 'Right hand' mirrors the entire model across the X axis. Match this to the patient's affected side — printing the wrong hand produces a part that simply will not fit.",
+          "help_pt": "Objetivo: escolher se constrói uma mão esquerda ou direita. Resultado: selecionar 'Mão direita' espelha todo o modelo no eixo X. Faça corresponder ao lado afetado do paciente — imprimir a mão errada produz uma peça que simplesmente não encaixa.",
+          "group": "Anthropometric"
+        },
+        {
           "name": "palm_breadth_mm",
           "type": "number",
           "initial": 83,
@@ -2211,28 +2233,6 @@
           "help": "Objective: add the perforated liner that lines the inside of the palm, so the fitter can warm it and press it onto the patient's own palm for a snug, personalised interface. Outcome: turn it on for the custom-fit liner (ported from the Flexy Beast), off for a bare palm cavity. The perforations save plastic and let the mesh conform when heated.",
           "help_pt": "Objetivo: adicionar o revestimento perfurado que forra o interior da palma, para o técnico o aquecer e moldar à própria palma do paciente para uma interface justa e personalizada. Resultado: ligue para o revestimento de ajuste personalizado (portado do Flexy Beast), desligue para a cavidade da palma nua. As perfurações poupam plástico e deixam a malha conformar-se quando aquecida.",
           "group": "Palm liner"
-        },
-        {
-          "name": "mirrored",
-          "role": "laterality",
-          "type": "enum",
-          "initial": false,
-          "options": [
-            {
-              "label": "Left hand",
-              "value": false
-            },
-            {
-              "label": "Right hand",
-              "value": true
-            }
-          ],
-          "caption": "Which hand to generate — Right hand mirrors the geometry along X",
-          "label_pt": "Espelhado",
-          "caption_pt": "Que mão gerar — a mão direita espelha a geometria ao longo de X",
-          "help": "Objective: choose whether to build a left or a right hand. Outcome: selecting 'Right hand' mirrors the entire model across the X axis. Match this to the patient's affected side — printing the wrong hand produces a part that simply will not fit.",
-          "help_pt": "Objetivo: escolher se constrói uma mão esquerda ou direita. Resultado: selecionar 'Mão direita' espelha todo o modelo no eixo X. Faça corresponder ao lado afetado do paciente — imprimir a mão errada produz uma peça que simplesmente não encaixa.",
-          "group": "Anthropometric"
         },
         {
           "name": "print_layout",
