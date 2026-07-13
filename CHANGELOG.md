@@ -10,6 +10,10 @@ Version format: `MAJOR.MINOR.PATCH`
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
+## v14.67.0 — 2026-07-13
+
+chore: **track anthropometric datasets & generator scripts under `data/`.** The blanket `data/` ignore was excluding source data along with the SQLite DB. Narrowed the rule to DB-only (`app.db`, `app.db-*`, `app.db.bak-*`, `*.db`, `.~lock.*`) so `ansur_1988_complete.csv`, `ansur_1988_hand_arm.csv`, `multi_population_hand.csv`, and the `generate_ansur_csv.py` / `generate_multi_population_hand_csv.py` generators are now version-controlled. Live DB, backups, WAL/SHM sidecars, and LibreOffice lock files stay ignored.
+
 ## v14.61.0 — 2026-07-12
 
 feat: **pec Phoenix palm — floor tucked under the wrist-ear curves too.** Same flush-seat treatment as the knuckles/thumb (v14.59.0), now at the wrist: new `floor_wrist_cutter()` removes everything a wrist tab grows beyond the ear centre plane except a protect cylinder coaxial with the hinge-ear disc (r = EAR_R − `floor_seat_inset`), so the tab tip's underside continues the ear's circular silhouette down to the plate — no teal past the curve, no 90° step; the covered run under the side wall keeps the full-height weld. `floor_tab_back_y` −41.9 → −43.0 (nominal reach; the coaxial cut owns the exposed tip). Numeric probe: ≤ −0.082 mm inside the curve at both ears; manifold NoError; `_assembly_v2.scad` clean, arm-guard hinge/washers unaffected.

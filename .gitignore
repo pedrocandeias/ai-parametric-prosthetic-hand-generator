@@ -4,8 +4,12 @@ config.json
 # Environment variables (contain API keys and secrets)
 .env
 
-# SQLite database
-data/
+# SQLite database (keep datasets & generator scripts under data/ tracked)
+data/app.db
+data/app.db-*
+data/app.db.bak-*
+data/*.db
+data/.~lock.*
 
 # Node modules
 node_modules/
