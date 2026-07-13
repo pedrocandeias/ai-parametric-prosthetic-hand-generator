@@ -216,10 +216,42 @@ module dorsal_shell() {
 // =============================================================================
 // PART 2 — THUMB PIVOT MOUNT (+X)                              [show_thumb]
 // -----------------------------------------------------------------------------
-// Built from readable PRIMITIVES (dialed interactively in templates/
-// thumb_build.scad against the ghost). IoU 0.74.
-// thumb_mount() = union(2 side prongs + deck + back wall + base + fin + cap)
-//                 minus the 2 cable channels. Editable: change a number per piece.
+// FULLY PARAMETRIC rebuild — the last ghost-STL clips in the model are GONE
+// (thumb_fill / thumb_shell_junction / thumb_top_round were measured boxes
+// intersected with import(ghost_stl); every number below was MEASURED from
+// orig_aligned.stl — 0.5 mm voxel occupancy + ray probes in the prong frame,
+// scratchpad probe_thumb*.py — and is now an editable parameter).
+//
+// All thumb geometry lives in the PRONG FRAME (rotate Z by THUMB_YAW): axis
+// s = distance out along the prongs (toward the thumb), t = distance across
+// them (the pin-bore axis). A point (t, s) sits at world (x,y) =
+// rotate(THUMB_YAW) · [t, -s].  Structure (the PART 1 / PART 3 idioms):
+//
+//   * thumb_dome()  — the dorsal COWL as a clip volume (Cyborg-Beast hull-of-
+//     stations, like PART 1's shell_station): pairwise hulls of measured
+//     roofline polygons perpendicular to the thumb axis. The whole mount is
+//     intersected with it, so the crown reads as one 2-way curved dome
+//     (z20.5+ at the inner shell junction -> z~19 plateau over the prongs ->
+//     falling east tip) with the measured outer bevel above prong B's face.
+//   * thumb_body()  — solid mass: web (shell wall -> prongs), deck (roof over
+//     the clevis slot) and the south cornice, MINUS thumb_slot() — the
+//     paraglider plug-then-drill idiom: the clevis pocket is carved by one
+//     measured (s,z) profile cutter that stays 0.25 INSIDE both prong faces,
+//     so every body wall lands buried in prong material (>=0.2 overlap, no
+//     tangencies — this kills the old 2-non-manifold-edge defect at prong B's
+//     r7 rounding by construction).
+//   * thumb_fin()   — parametric blade + rounded crown + tail descent (2D
+//     profile on the UNCHANGED fin line, PART 4 _fin_extrude idiom).
+//   * thumb_junction() — direct inclined transition faces from the shell
+//     crown onto the cowl (the PART 3 KN_RAMPS / PART 6 WR_RAMPS idiom):
+//     sphere rows ON the probed shell skin -> landing rows tucked into the
+//     cowl top, so the shell wall/knee crease disappears under crisp ruled
+//     inclines and the boss grows out of the dome with no step or seam.
+//
+// UNCHANGED (functional invariants): the two clevis prongs (5.2/5.0 wide,
+// yaw 50, r7 BOT+FWD rounding — PART 7's floor pads derive from these), the
+// keyhole bore (thumb_bore), the 2 cable channels, the fin line
+// (34,-7.5,12.5)·tilt45·yaw-40 and the base-plate floor weld.
 // Needs BOSL2 (cuboid / edge constants) — included at the top of this file.
 // =============================================================================
 
@@ -262,83 +294,234 @@ module thumb_bore() {
         translate([11, 0, 0]) cube([8, 3.9, 5.9], center = true);                                  // rect slot
     }
 }
-// top tool: the dorsal crown is a 2-way curved dome (ghost top rises to z20.5 at the inner
-// x23 junction, ~19 over the prongs, ~18 at the +X tip) — a flat cut sheared the crown and
-// left the prongs proud. Clip the thumb top to the TRUE ghost dome (the box only bounds it).
-module thumb_top_round()
-    intersection() {
-        translate([24, -4, 11]) cube([60, 64, 46], center = true);   // thumb-region safety bound
-        import(ghost_stl);                                           // top follows the real ghost dome
-    }
+/* [Thumb] */
+THUMB_YAW    = 50;    // prong / bore-frame yaw (the two gbox3 calls + all thumb frames)
+THUMB_WELD_X = 21.8;  // west weld plane: body pieces reach this far INTO the shell east
+                      // wall (must stay > cavity face SHELL_MID_XR - SHELL_WALL = 19.3)
+THUMB_SLOT_R = 1.2;   // [0:0.1:2.5] clevis-pocket profile corner rounding
+THUMB_FIN_TH = 3.0;   // fin blade thickness (measured 2.6 at the emergence, 3.0 at the crown)
+THUMB_FIN_R  = 0.8;   // fin profile corner rounding (crown edges + tail tip)
 
-// body fill + shell-wall junction — measured boxes CLIPPED to the ghost (conforms to
-// the original surface; keeps the bore/channels open).
-// FACE GUARD: the ghost boss is locally FULLER than prong B's flat outer face, so a
-// bare ghost-clipped fill used to bulge through that face (triangular wedge facets at
-// the prong base) and the old fill-box edge at x38 crossed the prong nose, leaving a
-// diagonal seam/step on the flat face. The fill may therefore never pass the prong-B
-// outer face plane (normal u = [cos(yaw), sin(yaw)]); where the ghost shoulder crosses
-// that plane the clip simply extends the prong's flat face until it meets the dome, so
-// prong face -> dome reads as one continuous surface.
-THUMB_YAW    = 50;                              // prong yaw (the two gbox3 calls below)
-THUMB_FACE_U = 33.5*cos(THUMB_YAW) + 5.0/2;     // prong B outer face plane: c_B·u + thickness/2
-module thumb_face_clip()                        // half-space u <= THUMB_FACE_U
-    rotate([0, 0, THUMB_YAW]) translate([THUMB_FACE_U - 100, 0, 15]) cube([200, 250, 92], center = true);
-module thumb_fill() intersection() {
-    translate([30, -4, 10.5]) cube([16, 28, 21], center = true);
-    import(ghost_stl);
-    thumb_face_clip();
+/* [Hidden] */
+// ---- prong frame ------------------------------------------------------------
+// rotate(THUMB_YAW): local +X = t (across the prongs / pin axis), local -Y = s
+// (out along the prongs). Prong A spans t 8.05..13.25, prong B t 19.04..24.04;
+// the clevis gap between their faces is t 13.25..19.04. s: prong A runs
+// 17.2..36.2, prong B 17.2..34.2; the keyhole bore axis crosses at s 28.2.
+module thumb_frame() rotate([0, 0, THUMB_YAW]) children();
+
+/* ---- COWL (dorsal dome) roof grid -------------------------------------------
+   Measured roof of the original boss (0.5 mm occupancy grid) resampled onto a
+   regular (t,s) grid: broad z~19 plateau over the prongs, rising into the
+   shell crown on the inner side, the steep NE bevel over the back wall (t21+
+   at s<18), the shared east bevel above prong B's outer face (t22->24.3,
+   z17->12.6 — the face plane t24.04 stays flat below it), the south saddle
+   toward the cornice (s29..31.5, t0..6) and the falling east tip (s31.5 ->
+   37.2 gives the full-length parametric prong tips their sloped tops).
+   thumb_dome() is an INTERSECTION tool: an exact bilinear polyhedron loft of
+   this grid (solid z-3 .. roof). NOTE: pairwise station HULLS are the wrong
+   tool here — the saddle-shaped rooflines differ so much between stations
+   that the hulls bulge diagonally (Minkowski effect) 2..4 mm over the
+   measured skin; the loft is exact at every grid node.                       */
+// T thinned 21 -> 18 stations (dropped t=7,10,18): each was linearly
+// reconstructible from its kept neighbours to <=0.30 mm across all S rows
+// (scratchpad grid_fit.py greedy fit) — the crown, 2-way curvature and east
+// bevel are unchanged; only redundant plateau/knee samples were removed.
+THUMB_DOME_T = [-6,-2,0,2,4,6,8,9,12,14,16,19.5,21,22,23,24.3,25.2,26.8];
+THUMB_DOME_S = [9.5,13.5,17.5,22,26.5,29,31.5,33.5,37.2];
+// Interior nodes Laplacian-smoothed (3 passes, w0.6, |delta|<=1.6mm; east-bevel
+// columns t>=19.5 smoothed only along s to keep the crisp measured face fall) to
+// kill the saddle-triangulation "pregas"/pleats on the dorsal crown; boundary
+// silhouette rows/cols kept EXACT. Envelope tracks the ghost within +0.04mm mean
+// (p95/max unchanged vs the raw-measured grid). Paired with the valley-preferring
+// roof diagonal in thumb_dome() below, the back corner reads as one clean fall.
+THUMB_DOME_Z = [
+ [27,27,27,27,27,27,27,27,27,26.18,24.52,22.45,21.7,20.7,19.7,18.1,16.17,11.5],  // s=9.5
+ [26.5,26.62,26.61,26.47,26.09,25.42,24.71,24.18,23.7,22.97,21.87,20.64,19.63,18.33,16.6,14.43,12.1,6.5],  // s=13.5
+ [26.5,26.32,26.12,25.72,25.02,24.04,23.06,22.3,21.56,20.86,20.1,19.4,18.59,17.55,16.08,13.58,10.67,4.5],  // s=17.5
+ [26.5,25.59,24.99,24.23,23.28,22.26,21.42,20.78,20.17,19.67,19.24,18.82,18.11,17.11,15.59,12.82,9.6,4.5],  // s=22
+ [25,23.72,22.81,21.83,20.86,20.14,19.74,19.52,19.3,19.1,18.89,18.49,17.93,16.99,15.52,12.66,9.31,4.5],  // s=26.5
+ [22.5,20.58,19.51,18.55,17.85,17.67,17.95,18.3,18.5,18.54,18.4,17.89,17.49,16.67,15.35,12.62,9.36,4.5],  // s=29
+ [15.5,15.83,15.37,14.81,14.59,14.98,15.88,16.7,17.15,17.27,17.16,16.65,16.4,15.78,14.74,12.4,9.42,4.5],  // s=31.5
+ [11.5,12.08,11.99,11.81,11.87,12.38,13.51,14.45,14.97,15.09,15.01,14.7,14.56,14.18,13.51,11.79,9.21,4.5],  // s=33.5
+ [9.5,9.5,9.5,9.5,9.5,9.5,10.9,11.83,12.44,12.47,12.4,12.28,12.22,12.07,11.8,10.8,8.7,4.5],  // s=37.2
+];
+module thumb_dome() {
+    M = len(THUMB_DOME_T);  N = len(THUMB_DOME_S);  B = N*M;
+    pts = concat(
+        [for (i = [0:N-1], j = [0:M-1]) [THUMB_DOME_T[j], -THUMB_DOME_S[i], THUMB_DOME_Z[i][j]]],
+        [for (i = [0:N-1], j = [0:M-1]) [THUMB_DOME_T[j], -THUMB_DOME_S[i], -3]]);
+    fc = concat(
+        [for (i = [0:N-2], j = [0:M-2]) each                                  // roof: valley-
+            // preferring diagonal — split each quad along its LOWER pair so the
+            // shared edge reads as a soft groove, not a convex pleat/ridge. Zero
+            // envelope change (nodes untouched); this is what kills the crumpled
+            // triangular facets on the saddle-shaped south (cornice) fall.
+            (THUMB_DOME_Z[i][j] + THUMB_DOME_Z[i+1][j+1] <= THUMB_DOME_Z[i+1][j] + THUMB_DOME_Z[i][j+1])
+              ? [[i*M+j, (i+1)*M+j, (i+1)*M+j+1], [i*M+j, (i+1)*M+j+1, i*M+j+1]]
+              : [[i*M+j, (i+1)*M+j, i*M+j+1], [(i+1)*M+j, (i+1)*M+j+1, i*M+j+1]]],
+        [for (i = [0:N-2], j = [0:M-2]) each                                  // floor
+            [[B+i*M+j, B+(i+1)*M+j+1, B+(i+1)*M+j], [B+i*M+j, B+i*M+j+1, B+(i+1)*M+j+1]]],
+        [for (j = [0:M-2]) [j, j+1, B+j+1, B+j]],                             // north wall (s min)
+        [for (j = [0:M-2]) [(N-1)*M+j, B+(N-1)*M+j, B+(N-1)*M+j+1, (N-1)*M+j+1]],  // south wall
+        [for (i = [0:N-2]) [i*M, B+i*M, B+(i+1)*M, (i+1)*M]],                 // west wall (t min)
+        [for (i = [0:N-2]) [i*M+M-1, (i+1)*M+M-1, B+(i+1)*M+M-1, B+i*M+M-1]]); // east wall
+    faces = [for (f = fc) [for (k = [len(f)-1 : -1 : 0]) f[k]]];  // outward winding
+    thumb_frame() polyhedron(points = pts, faces = faces, convexity = 8);
 }
-module thumb_shell_junction() intersection() { translate([18, -4, 10.5]) cube([ 8, 28, 21], center = true); import(ghost_stl); }
 
-// fin blade + crown: ONE generous rounded envelope centred on the measured blade line
-// (34,-7.5,12.5 · tilt 45 · yaw -40 — UNCHANGED: the thumb proximal's clip fin
-// continues this line, see _assembly_v2.scad TH_ROT/TH_ROLL). The global ghost
-// intersection in thumb_mount() then keeps exactly the ORIGINAL fin surface (blade +
-// rounded crown + its base blend into the dome), so the fin grows out of the dome as
-// one continuous ridge instead of a boxy blade + separately poking cap rod (the old
-// 5x2.5 blade ∩ ghost-fin left the cap emerging through flat facets). Local z runs
-// -2 (buried in the dome mass, so the base fuses) .. +6.5 (clear of the crown).
-// (local +x is the blade's DESCENDING end — the original fin runs on, down the boss
-// face, before fusing into it; the envelope is stretched +4 that way so the ghost
-// keeps that whole run and the blade doesn't end in a chopped facet + orphan sliver.)
+/* ---- BODY mass (web + deck + cornice, minus the clevis pocket) --------------
+   web     : full-height block from inside the shell east wall out to the slot
+             sill; swallows prong A's root, crosses prong B (t..23, its east
+             face buried 1.0 inside B's outer face) and carries the measured
+             NE shoulder (x25..26.5, y5..10) between back wall and clevis.
+             Clipped east of THUMB_WELD_X so it never enters the shell cavity.
+   deck    : fat roof block over the clevis gap (t 13..21 buried 0.25 / 1.96
+             into the prong faces, s 20..34); thumb_slot() carves its soffit,
+             thumb_dome() its dorsal top, so it feathers out east like the
+             original (soffit z13.6 plateau falling both ways).
+   cornice : the measured hanging mass south of prong A (shell wall -> prong A
+             face, bottom z11.9, tapering diagonally to the tip at s33) — the
+             dome skin under-curl that welds the boss's south flank to the wall. */
+module thumb_wall_clip() translate([THUMB_WELD_X, -30, -2]) cube([40, 46, 34]);
+module thumb_web()  intersection() {
+    thumb_frame() translate([5.5, -26.5, 0]) cube([17.5, 16.5, 20]);
+    thumb_wall_clip();
+}
+module thumb_deck() thumb_frame() translate([13.0, -34.0, 8]) cube([8.0, 14.0, 12]);
+THUMB_CORNICE_Z = [11.9, 19.5];   // hanging soffit z .. raw top (dome-clipped)
+module thumb_cornice() intersection() {
+    thumb_frame() translate([0, 0, THUMB_CORNICE_Z[0]])
+        linear_extrude(THUMB_CORNICE_Z[1] - THUMB_CORNICE_Z[0])
+            polygon([[0.8,-24],[0.8,-30.2],[8.6,-33.2],[8.6,-24]]);  // (t,-s) footprint
+    thumb_wall_clip();
+}
+/* clevis pocket cutter — ONE measured (s,z) profile swept across t 13.0..19.3
+   (0.25 inside each prong face, so the carved walls land buried in prong
+   material and the prongs' own faces form the real slot). Floor keeps the
+   measured sill (solid z..2.8 at the inner end, feathering the base plate),
+   ceiling is the measured soffit: scoop rising 2.8->13.6, plateau s25.4..28.6,
+   falling east to 10.7 at s33.2, then opening to the sky past the deck end.  */
+THUMB_SLOT_PTS = [
+    [18.0,2.8],[20.9,2.05],[21.8,-1],[46,-1],[46,26],[34.55,26],   // sill + open east
+    [33.2,10.7],[32,11.5],[30,12.9],[28.6,13.6],[25.4,13.6],       // soffit east fall + plateau
+    [24,13.05],[23,12.55],[22,11.85],[21,10.85],[20,9.25],         // soffit scoop
+];
+module thumb_slot()
+    thumb_frame() translate([13.0, 0, 0]) rotate([90, 0, 90]) linear_extrude(6.3)
+        offset(r = THUMB_SLOT_R) offset(delta = -THUMB_SLOT_R)
+            polygon([for (p = THUMB_SLOT_PTS) [-p[0], p[1]]]);
+module thumb_body() difference() {
+    union() { thumb_web(); thumb_deck(); thumb_cornice(); }
+    thumb_slot();
+}
+
+/* ---- FIN: blade + rounded crown + tail descent ------------------------------
+   Parametric 2D profile on the UNCHANGED fin line (34,-7.5,12.5 · tilt 45 ·
+   yaw -40 — the thumb proximal's clip fin continues this line, see
+   _assembly_v2.scad TH_ROT/TH_ROLL), the PART 4 _fin_extrude idiom. Measured
+   in the fin's local frame: crown plateau at lz 4.30 spanning lx -3.6..2.7
+   (world: emerging from the dome at s~29.5 and descending at 45 deg to pinch
+   out on the deck's east fall at s~33.5, z~13.6); blade 3.0 thick; base line
+   rides 0.4 above the deck soffit so the blade welds into the deck without
+   hanging into the clevis pocket.                                            */
+THUMB_FIN_PTS = [[-3.7,-0.45],[-3.6,4.3],[2.7,4.3],[3.35,2.5],[3.2,0.75]];
+module thumb_fin_frame() translate([34.0, -7.5, 12.5]) rotate([0, 45, -40]) children();
 module thumb_fin()
-    translate([34.0, -7.5, 12.5]) rotate([0, 45, -40]) translate([2, 0, 2.25])
-        rcap(12, 4.5, 8.5, 1.5);
+    thumb_fin_frame() rotate([90, 0, 0])
+        linear_extrude(THUMB_FIN_TH, center = true)
+            offset(r = THUMB_FIN_R) offset(delta = -THUMB_FIN_R)
+                polygon(THUMB_FIN_PTS);
+/* elastic saddle: the measured groove the fin stands in — east of s~29.5 the
+   original deck top carries a 4.6 wide saddle along the fin line (the dorsal
+   elastic runs in the 0.8 grooves flanking the blade), floor 1.0 under the
+   crown plateau, deck rims standing ~2.5 above it and falling east. Cut in
+   the fin frame AFTER the dome clip, BEFORE the fin is unioned in, so the
+   blade stands free in the saddle and never touches the prong faces
+   (t 13.8..18.4 vs faces at 13.25/19.04).                                    */
+THUMB_SADDLE = [-2.0, 6.5, 2.3, 3.3];   // lx start/end, half-width, floor lz (crown 4.3 - 1.0)
+module thumb_trench()
+    thumb_fin_frame()
+        translate([(THUMB_SADDLE[0]+THUMB_SADDLE[1])/2, 0, THUMB_SADDLE[3]])
+            cuboid([THUMB_SADDLE[1]-THUMB_SADDLE[0], 2*THUMB_SADDLE[2], 9],
+                   rounding = 1.0, edges = [BOT+FWD, BOT+BACK, BOT+LEFT], anchor = BOTTOM);
+
+/* ---- SHELL JUNCTION: direct inclined transition faces -----------------------
+   The KN_RAMPS / WR_RAMPS idiom on the shell's east side over the boss span:
+   per station [y, z_rear, z_rim, [x_land, z_land], z_anchor] — a rear sphere
+   row ON the crown skin at x=THUMB_JR_XA and a rim row ON the knee arc at
+   x=THUMB_JR_XB (both PROBED from the current parametric shell_solid(),
+   scratchpad shell_probe.stl — re-probe if SHELL_MID/FRONT_XR, CROWN or
+   KNEE_R change), a landing row tucked 0.15 into the cowl top, and a dropped
+   anchor at x XB+1 that fills the wedge into the web/cornice below. Pairwise
+   hulls -> one C0 ruled skin: the wall face + knee crease vanish under crisp
+   inclines and the cowl grows straight out of the crown (transicao fluida).  */
+THUMB_JR_XA = 20.6;  THUMB_JR_XB = 23.2;  THUMB_JR_R = 0.6;
+THUMB_JR = [
+ [-17.2, 23.99, 22.40, [26.0, 13.45], 12.5],   // south feather: dies onto the cornice tail
+ [-15.5, 24.03, 22.48, [25.8, 16.35], 13.6],   // lands on the cornice top
+ [-11.0, 24.12, 22.54, [26.6, 18.85], 16.0],   // over the cornice / prong A root
+ [ -7.0, 24.13, 22.54, [26.8, 18.95], 16.5],   // cowl plateau (bore corridor); y=-2 station
+                                               // dropped — it duplicated this row, so one
+                                               // hull span -7->3 spans the flat plateau exactly
+ [  3.0, 24.11, 22.53, [26.4, 18.60], 16.5],   // toward the back-wall corner
+ [  7.0, 24.05, 22.47, [25.2, 17.10], 15.0],   // lands on the back wall top
+ [ 10.0, 24.00, 22.40, [24.6, 15.30], 13.0],   // north feather: dies onto the NE shoulder
+];
+// r0.6 control spheres: $fn 32 -> 12 (chord error ~0.02 mm on r0.6, negligible;
+// the visible weld skin is the ruled hull envelope between rows, not the sphere
+// tessellation) — cuts the junction from ~2.6k facets to ~0.6k.
+module thumb_jr_sph(x, y, z) translate([x, y, z]) sphere(r = THUMB_JR_R, $fn = 12);
+module thumb_junction()
+    for (i = [0 : len(THUMB_JR) - 2]) hull()
+        for (j = [i, i+1]) {
+            st = THUMB_JR[j];
+            thumb_jr_sph(THUMB_JR_XA,     st[0], st[1] - THUMB_JR_R - 0.08);  // on the crown
+            thumb_jr_sph(THUMB_JR_XB,     st[0], st[2] - THUMB_JR_R - 0.08);  // on the knee arc
+            thumb_jr_sph(st[3][0],        st[0], st[3][1] - THUMB_JR_R);      // cowl landing
+            thumb_jr_sph(THUMB_JR_XB + 1, st[0], st[4]);                      // dropped anchor
+        }
 
 // ---- the thumb mount --------------------------------------------------------
 module thumb_mount() {
-  intersection() {
     difference() {
         union() {
-            // two clevis side prongs (rounded -Y ends)
-            gbox3(27.3, -9.0, 0,  5.2, 19, 20,  50, 0,  0,0,1, 7, false,false,false,false, true,false,true,false); // prong A
-            gbox3(33.5,  0.0, 0,  5.0, 17, 20,  50, 0,  0,0,1, 7, false,false,false,false, true,false,true,false); // prong B
-            gbox (28.5, -7.5, 18, 10,  8,  1, -40, 50, 1,1,1, 0);   // top deck (bridges the prongs)
-            gbox (24.0,  6.0, 0,  2,  10, 19,  90, 0,  0,0,1, 0);   // back wall (+Y)
-            gbox (18.0, -4.0, 0,  15,  9,  2,  50, 0,  1,0,1, 0);   // base plate (-> palm)
-            thumb_fin();              // fin blade + crown envelope (ghost keeps the original fin)
-            thumb_fill();             // body mass (ghost-clipped, face-guarded)
-            thumb_shell_junction();   // fuse into the dome +X wall (ghost-clipped)
+            difference() {
+                intersection() {
+                    union() {
+                        // two clevis side prongs (rounded tips) — UNCHANGED dims
+                        gbox3(27.3, -9.0, 0,  5.2, 19, 20,  50, 0,  0,0,1, 7, false,false,false,false, true,false,true,false); // prong A
+                        gbox3(33.5,  0.0, 0,  5.0, 17, 20,  50, 0,  0,0,1, 7, false,false,false,false, true,false,true,false); // prong B
+                        thumb_body();                                    // web + deck + cornice − clevis pocket
+                        gbox (24.0,  6.0, 0,  2,  10, 19,  90, 0,  0,0,1, 0);   // back wall (+Y)
+                        gbox (18.0, -4.0, 0,  15,  9,  2,  50, 0,  1,0,1, 0);   // base plate (-> palm)
+                    }
+                    thumb_dome();      // parametric cowl clip (was: ghost dome)
+                }
+                thumb_trench();        // elastic saddle in the deck top (fin stands in it)
+            }
+            thumb_fin();               // rides the deck top, self-shaped
+            thumb_junction();          // shell -> cowl inclined skin, self-shaped
         }
         gcyl(22.5, 2.0, 0,  1, 23,    0,  0, 1);   // cable channel 1
         gcyl(25.0, 0.0, 6,  1, 15.5, 140, 25, 0);  // cable channel 2
         thumb_bore();                              // keyhole pin bore (round + rect)
     }
-    thumb_top_round();                             // round the dorsal top into a dome
-  }
 }
 
 // ---- coloured view (each part a distinct colour, for identification) --------
 module thumb_colored() {
-    color("Red")      gbox3(27.3, -9.0, 0,  5.2, 19, 20,  50, 0, 0,0,1, 7, false,false,false,false, true,false,true,false); // prong A
-    color("Blue")     gbox3(33.5,  0.0, 0,  5.0, 17, 20,  50, 0, 0,0,1, 7, false,false,false,false, true,false,true,false); // prong B
-    color("Orange")   gbox (28.5, -7.5, 18, 10,  8,  1, -40, 50, 1,1,1, 0);   // deck
-    color("Purple")   gbox (24.0,  6.0, 0,  2,  10, 19,  90, 0,  0,0,1, 0);    // back wall
-    color("Green")    gbox (18.0, -4.0, 0,  15,  9,  2,  50, 0,  1,0,1, 0);    // base plate
-    color("Indigo")   intersection() { thumb_fin(); import(ghost_stl); } // fin envelope (shown ghost-clipped, as rendered)
-    color("Cyan")     gcyl(22.5, 2.0, 0,  1, 23,    0,  0, 1);   // channel 1 (subtracted)
-    color("Magenta")  gcyl(25.0, 0.0, 6,  1, 15.5, 140, 25, 0);  // channel 2 (subtracted)
+    color("Red")     intersection() { gbox3(27.3, -9.0, 0, 5.2, 19, 20, 50, 0, 0,0,1, 7, false,false,false,false, true,false,true,false); thumb_dome(); } // prong A
+    color("Blue")    intersection() { gbox3(33.5,  0.0, 0, 5.0, 17, 20, 50, 0, 0,0,1, 7, false,false,false,false, true,false,true,false); thumb_dome(); } // prong B
+    color("Green")   intersection() { difference() { thumb_web();  thumb_slot(); } thumb_dome(); }  // web − pocket
+    color("Orange")  intersection() { difference() { thumb_deck(); thumb_slot(); thumb_trench(); } thumb_dome(); }  // deck − pocket − saddle
+    color("Gold")    intersection() { thumb_cornice(); thumb_dome(); }                                 // south cornice
+    color("Purple")  intersection() { gbox(24.0, 6.0, 0, 2, 10, 19, 90, 0, 0,0,1, 0); thumb_dome(); }  // back wall
+    color("SeaGreen") gbox(18.0, -4.0, 0, 15, 9, 2, 50, 0, 1,0,1, 0);   // base plate
+    color("Indigo")  thumb_fin();        // parametric fin (no ghost)
+    color("HotPink") thumb_junction();   // shell -> cowl inclines
+    color("Cyan")    gcyl(22.5, 2.0, 0,  1, 23,    0,  0, 1);   // channel 1 (subtracted)
+    color("Magenta") gcyl(25.0, 0.0, 6,  1, 15.5, 140, 25, 0);  // channel 2 (subtracted)
 }
 
 // =============================================================================
@@ -416,15 +599,22 @@ P2_FRONT = 33.7;   // pinky inner prong front face Y (measured flat truncation, 
              floor strip runs floor_y0 -> cy); KN_RIM_Y = solid all the way back
    y_front   front-face truncation Y (0 = none; only pinky inner is trimmed)
    tops      raised TOP-fill discs [dy_back_from_cy, z_centre, r] sized so the
-             hull top tracks the measured neck slope (all bottoms >= z0.4)     */
+             hull top tracks the measured neck slope (all bottoms >= z0.4)
+   mid       OPTIONAL 9th entry [y_mid, zL, zR]: measured mid-neck station.
+             The ghost's dome->neck fall is CONCAVE (steep off the crown,
+             flattening onto the hood/eye crests) — one convex hull cannot sag,
+             so a prong with a mid station is built as TWO chained hulls
+             (rim->mid, mid->eye) meeting C0 at the mid posts. z values = ghost
+             top at (post_x, y_mid) (probe_midrows.py); prongs 4/5/6 already
+             tracked the ghost within ~1 mm and stay single-hull.              */
 KN_PRONGS = [                       // (rim tops sampled at the POST-CENTRE x, i.e. x_edge -+ the clamped KN_EDGE_R)
- [-35.5,-31.8, 30, [ 0  ,23.75], [ 0 ,24.7 ], KN_RIM_Y,  0  , []                          ], // 1 pinky outer (slot): pure eye disc, wall-foot rim
- [-25.7,-21.2, 30, [ 0  ,25.5 ], [ 0 ,25.7 ], KN_RIM_Y, P2_FRONT, [[2,12.6,4.2],[4,14.0,4.3]] ], // 2 pinky inner (bore): hood z16.8@y28 + knee z18.3@y26 (fast fall off the rim), front cut y33.7
- [-21.5,-17.8, 36, [ 0  ,25.75], [ 0 ,25.9 ], KN_RIM_Y,  0  , [[2.5,10.4,3.5],[8,13.3,4.5]] ], // 3 ring outer (slot): hood z13.9@y33.5 + knee z17.8@y28
+ [-35.5,-31.8, 30, [ 0  ,23.75], [ 0 ,24.7 ], KN_RIM_Y,  0  , []                          , [26.0,13.6,15.0]], // 1 pinky outer (slot): pure eye disc, wall-foot rim; ghost falls to z~14@y26
+ [-25.7,-21.2, 30, [ 0  ,25.5 ], [ 0 ,25.7 ], KN_RIM_Y, P2_FRONT, [[2,12.6,4.2],[4,14.0,4.3]] , [24.5,18.2,19.2]], // 2 pinky inner (bore): hood z16.8@y28 + knee z18.3@y26, front cut y33.7; ghost z~18.7@y24.5
+ [-21.5,-17.8, 36, [ 0  ,25.75], [ 0 ,25.9 ], KN_RIM_Y,  0  , [[2.5,10.4,3.5],[8,13.3,4.5]] , [25.0,19.2,19.8]], // 3 ring outer (slot): hood z13.9@y33.5 + knee z17.8@y28; ghost z~19.5@y25
  [-11.7, -7.4, 36, [13.0,26.35], [15.2,26.45], 26.0  ,  0  , [[1.5,12.6,2.5],[4,17,2]]   ], // 4 ring inner (bore): hood z15.1@y34.5 + knee z19@y32
- [ -7.5, -3.8, 40, [15.3,26.45], [17.0,26.45], 27.0  ,  0  , [[2  ,10.8,2.7]]            ], // 5 middle outer (bore): hood z13.5@y38
+ [ -7.5, -3.8, 40, [15.3,26.45], [17.0,26.45], 27.0  ,  0  , [[2  ,10.8,2.7],[9,19.5,2.0]]], // 5 middle outer (bore): hood z13.5@y38 + measured mid bulge z21.5@y31 (ghost is fuller here)
  [  2.5, 10.3, 40, [17.7,26.0 ], [16.9,25.55], 28.0  ,  0  , [[3  ,8  ,6.5],[4,13.2,4.0]]], // 6 middle/index SHARED (bore): hood z14.5@y37 + knee z17.2@y36
- [ 16.5, 19.8, 40, [12.6,24.9 ], [ 0  ,24.35], 24.5   ,  0  , [[3  ,7.9,6.0]]             ], // 7 index outer (slot): hood z13.9@y37
+ [ 16.5, 19.8, 40, [12.6,24.9 ], [ 0  ,24.35], 24.5   ,  0  , [[3  ,7.9,6.0]]             , [27.5,18.9,17.0]], // 7 index outer (slot): hood z13.9@y37; ghost falls to z~18@y27.5 (east bevel)
 ];
 
 /* Gap-slab table — dome roof / wall material carried over the finger gaps and
@@ -495,6 +685,12 @@ module kn_p2_notch() translate([-22.95, 27.4, 1.9]) cube([1.85, 23, 6.9]);
 // up to y26.2 — flexible-flyer style.
 module kn_ch3_trench() translate([-2.9, 24.0, 21.2]) cube([2.6, 8.0, 8]);
 module kn_ch4_trench() translate([10.4, 24.2, 19.2]) cube([2.4, 3.2, 8]);
+// ch1 (pinky) mouth ((-29.4, 26.5, 14.8)) sits INSIDE the pinky spine bridge
+// (z13..15.6) AND under the pinky fin, so the bore dead-ends against solid.
+// This trench notches a slot forward from the mouth to the open gap (y>~28.5 is
+// free air at every z here), opening the mouth like kn_ch3/ch4 do for mid/index.
+// Cut in BOTH the spine (front_assembly) and the fin (finger_fins/_caps).
+module kn_ch1_trench() translate([-30.9, 25.9, 12.8]) cube([3.0, 3.7, 3.6]);
 
 module bore(x0,x1,cy) translate([x0-1,cy,CZ]) rotate([0,90,0]) cylinder(h=x1-x0+2,r=BR);
 module slot(x0,x1,cy) translate([x0-1,cy-SW/2,CZ-SH/2]) cube([x1-x0+2,SW,SH]);
@@ -582,28 +778,49 @@ KN_RAMP_Y1 = 22.9;   // rim row Y, just inside the SHELL_Y1=23 clip plane
 KN_RAMP_R  = 0.5;    // [0.2:0.05:1.5] ramp edge rounding (small = crisp chamfer)
 
 /* [y_start, rear row [[x, z_dome]..] @y_start, rim row [[x, z_dome]..] @KN_RAMP_Y1,
-   landing crests [[x, y, z]..] (on the prong hood/eye tops), z_lo rim fill]      */
+   landing crests [[x, y, z]..] (on the prong hood/eye tops), z_lo rim fill,
+   OPTIONAL 6th entry [y_mid, [[x, z]..]]: an intermediate control row on the
+   TARGET surface at y_mid. Our PART-1 shell rides ~2-5 mm ABOVE the ghost on the
+   ring/index side, so a single straight ruled face from that high rim to the
+   prong crests OVERSHOOTS the ghost's CONVEX fall (steep off the rim, flattening
+   onto the prongs) — measured +4.7 mm (ring) / +2.6 mm (index) in the mid-band,
+   read as a flat bulge/crease. With a mid row the ramp is built as TWO chained
+   hulls (rim->mid, mid->crests) meeting C0 at the mid row — the same idiom the
+   kn_prong mid-station uses to sag a concave neck. The mid z's track the ghost
+   (probe_ramp / ghost ray-cast) as far down as a printable, crease-free fall
+   allows given the fixed high rim. pinky/middle already tracked <~1 mm and stay
+   single-hull.                                                                  */
 KN_RAMPS = [
  [KN_RAMP_Y0, [[-36.0,23.48],[-34.4,24.25],[-32.3,25.0]], [[-36.0,23.3],[-34.4,24.05],[-32.3,24.75]],
               [[-36.4,24.9,6.3],[-35.4,29.8,11.9],[-31.9,29.8,11.9]],  6.0], // 0 pinky outer strip (sliver + prong 1 -> eye crest; west end inboard of the west knee bevel — x<=-36.4 pokes through it)
  [KN_RAMP_Y0, [[-25.2,25.85],[-21.7,26.1]], [[-25.2,25.5],[-21.7,25.7]],
               [[-25.3,28.0,16.8],[-21.6,28.0,16.8]],                  15.5], // 1 pinky inner strip (prong 2 -> hood crest z16.8@y28; knee disc buried under the chord)
  [KN_RAMP_Y0, [[-21.0,26.15],[-15.0,26.5],[-7.3,26.85]], [[-21.0,25.75],[-15.0,26.15],[-7.3,26.5]],
-              [[-21.1,33.5,13.9],[-17.9,33.5,13.9],[-11.6,32.0,19.0],[-7.4,32.0,19.0]], 13.0], // 2 ring band (prongs 3+4 + gap -> hood z13.9@y33.5 / knee z19@y32)
+              [[-21.1,33.5,13.9],[-17.9,33.5,13.9],[-11.6,32.0,19.0],[-7.4,32.0,19.0]], 13.0,
+              [26.0, [[-21.0,20.5],[-15.0,21.0],[-7.3,24.0]]]], // 2 ring band (prongs 3+4 + gap -> hood z13.9@y33.5 / knee z19@y32); mid row tracks ghost convex fall
  [KN_RAMP_Y0, [[-7.6,26.85],[-1.0,26.65],[9.8,25.95]], [[-7.6,26.45],[-1.0,26.3],[9.8,25.55]],
               [[-7.1,38.0,13.5],[-4.2,38.0,13.5],[2.9,36.0,17.2],[9.9,36.0,17.2]],      12.8], // 3 middle band (prongs 5+6 + gap -> hood z13.5@y38 / knee z17.2@y36)
  [KN_RAMP_Y0, [[3.0,26.4],[11.0,25.85],[15.0,25.55],[17.0,25.2],[19.3,24.5]], [[3.0,26.0],[11.0,25.5],[15.0,25.2],[17.0,25.0],[19.3,24.4]],
-              [[2.9,36.0,17.2],[9.9,36.0,17.2],[16.9,37.0,13.9],[19.4,37.0,13.9]],      13.0], // 4 index band (prongs 6+7 + gap; stops at the east wall band x19.8)
+              [[2.9,36.0,17.2],[9.9,36.0,17.2],[16.9,37.0,13.9],[19.4,37.0,13.9]],      13.0,
+              [26.5, [[3.0,23.6],[11.0,21.6],[15.0,20.0],[17.0,19.2],[19.3,18.3]]]], // 4 index band (prongs 6+7 + gap; stops at the east wall band x19.8); mid row tracks ghost convex fall
 ];
-module kn_ramp(r) hull() {
-    for (p = r[1]) translate([p[0], r[0],        p[1] - KN_RAMP_R - 0.08]) sphere(r = KN_RAMP_R, $fn = 32);
-    for (p = r[2]) translate([p[0], KN_RAMP_Y1,  p[1] - KN_RAMP_R - 0.08]) sphere(r = KN_RAMP_R, $fn = 32);
-    for (p = r[3]) translate([p[0], p[1],        p[2] - KN_RAMP_R])        sphere(r = KN_RAMP_R, $fn = 32);
-    // dropped rim anchors: solid wedge down to z_lo -> the SHELL_Y1 vertical
-    // rim face is covered and the crown-front valley is filled (the underside
-    // stays >= ~z13 over the finger gaps = the spine bridge band, swing-safe)
-    translate([r[2][0][0],           KN_RAMP_Y1, r[4]]) sphere(r = KN_RAMP_R, $fn = 32);
-    translate([r[2][len(r[2])-1][0], KN_RAMP_Y1, r[4]]) sphere(r = KN_RAMP_R, $fn = 32);
+// One ramp = ONE ruled incline (single hull). With an optional mid row it becomes
+// TWO chained hulls (rim->mid, mid->crests) sharing the mid row (C0) so the fall
+// curves crisply onto the prongs without rounding. Rear/rim rows sit on the shell
+// skin; the two dropped rim anchors (z_lo) fill the wedge over the SHELL_Y1 face.
+function _ramp_pts(row, y, dz) = [for (p = row) [p[0], y, p[1] - dz]];
+module kn_ramp_spheres(pts) hull() for (p = pts) translate(p) sphere(r = KN_RAMP_R, $fn = 32);
+module kn_ramp(r) {
+    rear = _ramp_pts(r[1], r[0],       KN_RAMP_R + 0.08);
+    rim  = _ramp_pts(r[2], KN_RAMP_Y1, KN_RAMP_R + 0.08);
+    land = [for (p = r[3]) [p[0], p[1], p[2] - KN_RAMP_R]];
+    anch = [[r[2][0][0], KN_RAMP_Y1, r[4]], [r[2][len(r[2])-1][0], KN_RAMP_Y1, r[4]]];
+    if (len(r) > 5) {
+        mid = _ramp_pts(r[5][1], r[5][0], KN_RAMP_R + 0.08);
+        kn_ramp_spheres(concat(rear, rim, mid, anch));  // back hull: shell skin -> mid, wedge filled
+        kn_ramp_spheres(concat(mid, land));             // front hull: mid -> prong crests
+    } else
+        kn_ramp_spheres(concat(rear, rim, land, anch));
 }
 
 // --- the four clevises --------------------------------------------------------
@@ -617,7 +834,7 @@ module link_pinky_ring() {
             kn_ramp(KN_RAMPS[0]);   kn_ramp(KN_RAMPS[1]);
         }
         slot(-35.5,-31.8,30); bore(-25.7,-18.0,30);
-        kn_p2_notch();
+        kn_p2_notch(); kn_ch1_trench();
     }
 }
 module link_ring_ring() {
@@ -672,7 +889,7 @@ module front_assembly() {
     }
     kn_p2_notch();
     for (w = KN_WINDOWS) kn_window(w);   // rounded per-finger window pockets
-    kn_ch3_trench(); kn_ch4_trench();
+    kn_ch1_trench(); kn_ch3_trench(); kn_ch4_trench();
     slot(-35.5,-31.8,30); bore(-25.7,-18.0,30);
     slot(-21.5,-17.8,36); bore(-11.7,-5.2,36);
     bore(-11.5,-3.8,40);  bore( 2.5,10.3,40);
@@ -689,12 +906,19 @@ module front_assembly() {
 // into finger_fin_caps() — NOT a wider thumb-style overhang). PINKY has no fin.
 // =============================================================================
 
-// [ name, xc, yf(front face Y), base_z, shoulder_z, peak_z, depth(Y), thk(X) ]
+// [ name, xc, yf(rear/root face Y), base_z, shoulder_z, peak_z, depth(Y), thk(X) ]
+// yf..yf+depth is the blade's Y footprint (root -> forward tip); the cap apex
+// leans back to ~yf (the measured crown sits over the pivot). Values REMEASURED
+// from the ghost (0.2 mm occupancy, scratchpad measure_fins.py/analyze_fins.py):
+// each thin blade (~2.6-2.9 thk) spans z~15..18.4 and Y roughly
+//   pinky 25..29  ring 31..35  middle 35..39  index 35..39
+// (the old table ran ~1 mm long at the tip and, on the pinky, sat too far back
+// and too low — base z13 dropped it onto the ch1 cable mouth at z14.8).
 finger_fins_tbl = [
-    [ "pinky",  -28.75, 24.40, 13.0, 16.00, 18.35, 5.50, 2.85 ],  // smaller, shifted back/down
-    [ "ring",   -14.80, 30.32, 13.0, 16.23, 18.51, 5.68, 2.85 ],
-    [ "middle",  -0.80, 34.32, 13.0, 16.23, 18.51, 5.68, 2.85 ],
-    [ "index",   13.20, 34.32, 13.0, 16.23, 18.51, 5.68, 2.85 ],
+    [ "pinky",  -28.75, 25.00, 14.5, 16.30, 18.35, 4.30, 2.85 ],  // small, over the pivot; base raised off the ch1 mouth
+    [ "ring",   -14.80, 30.85, 13.0, 16.23, 18.51, 4.35, 2.85 ],
+    [ "middle",  -0.80, 34.85, 13.0, 16.23, 18.51, 4.35, 2.85 ],
+    [ "index",   13.20, 34.85, 13.0, 16.23, 18.51, 4.35, 2.85 ],
 ];
 fin_round   = 0.7;   // 2D edge rounding (vertical edges + crown)
 fin_peak_dy = 0.38;  // crown apex offset in +Y from the front face
@@ -713,7 +937,15 @@ module fin_blade(xc, yf, base_z, shoulder_z, depth, thk) {
     shoulder_h = shoulder_z - base_z;
     _fin_extrude(xc, yf, base_z, thk, [[0,0], [depth,0], [depth,shoulder_h], [0,shoulder_h]]);
 }
-module finger_fins() { for (f = finger_fins_tbl) fin_blade(f[1],f[2],f[3],f[4],f[6],f[7]); }
+// The fins are the LAST solid over the cable-channel exits, so they must re-cut
+// the SAME channel bores (and the pinky mouth trench) or they re-seal a channel.
+// model() colours finger_fins()/finger_fin_caps() separately, so the cut has to
+// live INSIDE each — keep the module names/signature so model() is unchanged.
+module finger_fins() difference() {
+    union() { for (f = finger_fins_tbl) fin_blade(f[1],f[2],f[3],f[4],f[6],f[7]); }
+    cable_channels();     // shared cutter (same as dorsal_shell / front_assembly)
+    kn_ch1_trench();      // open the pinky cable mouth forward through the fin
+}
 
 // Crown cap: the teardrop top of the blade. Roots cap_overlap below the shoulder
 // (clean seam into the blade) and tapers to a peak pulled fin_peak_dy in +Y.
@@ -723,7 +955,11 @@ module fin_cap(xc, yf, base_z, shoulder_z, peak_z, depth, thk) {
     _fin_extrude(xc, yf, base_z, thk,
         [[0,root_h], [depth,root_h], [depth, shoulder_z-base_z], [fin_peak_dy, peak_h]]);
 }
-module finger_fin_caps() { for (f = finger_fins_tbl) fin_cap(f[1],f[2],f[3],f[4],f[5],f[6],f[7]); }
+module finger_fin_caps() difference() {
+    union() { for (f = finger_fins_tbl) fin_cap(f[1],f[2],f[3],f[4],f[5],f[6],f[7]); }
+    cable_channels();
+    kn_ch1_trench();
+}
 
 // =============================================================================
 // PART 5 — WRIST HINGE EARS (-Y) + SIDE WALLS (gauntlet)        [show_wrist]
@@ -1064,8 +1300,14 @@ module floor_thumb_cutter() {
     for (t = FLOOR_THUMB_PADS)
         translate([t[0], t[1], 0]) rotate([0, 0, FLOOR_THUMB_ANG]) {
             yc = -(t[3]/2 - t[4]);   // bottom-front arc centre plane (local Y)
+            // the cut box runs floor_seat_inset PAST the arc-centre plane so
+            // the pad's bottom edge lands strictly INSIDE the prong's bottom
+            // face — an exact edge-edge tangency at (yc, z0) leaves degenerate
+            // non-manifold edges (the prong's rounding has a real mesh edge
+            // exactly on that tangent line)
             difference() {
-                translate([-t[2]/2 - 1, yc - 12, -1]) cube([t[2] + 2, 12, plate_h + 2]);
+                translate([-t[2]/2 - 1, yc - 12, -1])
+                    cube([t[2] + 2, 12 + floor_seat_inset, plate_h + 2]);
                 translate([-t[2]/2, yc, t[4]]) rotate([0, 90, 0])
                     cylinder(h = t[2], r = t[4] - floor_seat_inset, $fn = 96);
             }
