@@ -1,0 +1,22 @@
+{
+  "model": "unlimbed_phoenix_hand",
+  "profile": {
+    "key": "age_18",
+    "label": "Jovem 18",
+    "text": "young man, 18 years old, 68kg, 177cm height, Brazil, slim build, arm length 65cm"
+  },
+  "grounded": true,
+  "suggestions": {
+    "palm_breadth_mm": 90,
+    "index_finger_length_mm": 76,
+    "index_base_length_mm": 33,
+    "middle_finger_length_mm": 84,
+    "middle_base_length_mm": 36,
+    "ring_finger_length_mm": 80,
+    "ring_base_length_mm": 34,
+    "pinky_finger_length_mm": 65,
+    "pinky_base_length_mm": 28,
+    "thumb_length_mm": 62,
+    "thumb_base_length_mm": 31
+  }
+}

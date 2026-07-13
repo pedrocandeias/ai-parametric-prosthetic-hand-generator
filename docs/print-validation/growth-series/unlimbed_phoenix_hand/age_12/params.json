@@ -1,0 +1,22 @@
+{
+  "model": "unlimbed_phoenix_hand",
+  "profile": {
+    "key": "age_12",
+    "label": "Rapaz 12",
+    "text": "boy, 12 years old, 40kg, 150cm height, Brazil, slim build, arm length 55cm"
+  },
+  "grounded": true,
+  "suggestions": {
+    "palm_breadth_mm": 82,
+    "index_finger_length_mm": 68,
+    "index_base_length_mm": 29,
+    "middle_finger_length_mm": 71,
+    "middle_base_length_mm": 31,
+    "ring_finger_length_mm": 68,
+    "ring_base_length_mm": 29,
+    "pinky_finger_length_mm": 58,
+    "pinky_base_length_mm": 24,
+    "thumb_length_mm": 62,
+    "thumb_base_length_mm": 28
+  }
+}

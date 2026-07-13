@@ -135,3 +135,83 @@ cada placa combinada e de cada peça Phoenix. Idades: `child_8`, `teen_15`, `adu
 
 _Data de execução: 2026-07-08 · provider `anthropic · claude-sonnet-4-6` · grounding
 ativo · OpenSCAD 2026.04.26._
+
+---
+
+# Série de crescimento — a mesma pessoa dos 8 aos 18 anos (só UnLimbited Phoenix)
+
+Segunda campanha (`growth-series/`): em vez de quatro arquétipos independentes, **um
+único indivíduo acompanhado ao longo do crescimento**. Partimos do texto do `teen_15`
+acima e declinámo-lo em quatro idades coerentes entre si — altura e peso seguem uma
+curva de crescimento ~P50 de rapaz brasileiro de constituição magra, e o comprimento
+do braço mantém a proporção do perfil original (62 cm / 170 cm ≈ 0,365 da altura).
+Só a idade (e as dimensões que dela decorrem) varia; nacionalidade, sexo e
+constituição ficam fixos.
+
+| Pasta | Etiqueta | Texto do paciente |
+|---|---|---|
+| `age_08` | Rapaz 8 | `boy, 8 years old, 26kg, 128cm height, Brazil, slim build, arm length 47cm` |
+| `age_12` | Rapaz 12 | `boy, 12 years old, 40kg, 150cm height, Brazil, slim build, arm length 55cm` |
+| `age_15` | Adolescente 15 | `teenage boy, 15 years old, 60kg, 170cm height, Brazil, slim build, arm length 62cm` |
+| `age_18` | Jovem 18 | `young man, 18 years old, 68kg, 177cm height, Brazil, slim build, arm length 65cm` |
+
+O `age_15` é **byte a byte o mesmo texto** do `teen_15` da campanha principal — serve
+de ponte entre as duas séries (e devolveu a mesma largura de palma: 88 mm).
+
+## Método (o que mudou desde 2026-07-08)
+
+Mesmo pipeline vivo (prompt do frontend → `POST /api/ai/suggest` autenticado →
+OpenSCAD com *overrides* `-D` → 3MF), mas o **modelo Phoenix evoluiu** entretanto:
+
+- **Comprimento por dedo** (v14.48–14.51): além de `palm_breadth_mm`, o schema expõe
+  agora `index/middle/ring/pinky_finger_length_mm`, `thumb_length_mm` e a divisão
+  proximal/distal (`*_base_length_mm`). A IA dimensiona os 11 parâmetros, não só 1.
+- **Seletor de peça → toggles**: o antigo enum `part` (8 peças, um ficheiro por peça)
+  deu lugar a `print_layout` + 6 `show_*`. A exportação da plataforma passou a ser
+  **uma placa única** com todas as peças planas na base — como o Flexy/Paraglider —
+  pelo que cada pasta traz a placa combinada **e** uma subpasta `parts/` com as 6
+  peças isoladas pelos toggles (`palm`, `fingers`, `thumb`, `pins`, `gauntlet`,
+  `tensioner`), centradas na base e assentes em Z=0.
+
+**As 4 execuções devolveram `grounded: true`.**
+
+## Parâmetros aplicados (execução representativa, mm)
+
+| Perfil | palm_breadth | HandPerc efetivo | índice | médio | anelar | mindinho | polegar |
+|---|--:|--:|--:|--:|--:|--:|--:|
+| age_08 | **82** | 100 % (piso) | 60 | 62 | 59 | 55 | 52 |
+| age_12 | **82** | 100 % (piso) | 68 | 71 | 68 | 58 | 62 |
+| age_15 | 88 | ~107 % | 74 | 78 | 74 | 62 | 62 |
+| age_18 | 90 | ~110 % | 76 | 84 | 80 | 65 | 62 |
+
+A progressão é monótona em todos os dedos e a ordenação anatómica mantém-se em todas
+as idades (médio mais longo, mindinho mais curto, polegar < médio).
+
+**O piso de escala e o comprimento por dedo são agora independentes** — a observação
+central desta série. Aos 8 e aos 12 anos a palma fica limitada ao piso de 82 mm
+(100 %), tal como o `child_8` da campanha principal; mas, com o comprimento por dedo
+paramétrico, **os dedos continuam a crescer entre os dois perfis presos ao piso**
+(bbox dos dedos: 42.1 mm → 46.1 mm em Y; polegar 37.0 → 43.0 mm), o que reduz na
+prática o impacto do piso em mãos pequenas.
+
+**Verificação de escala (bbox da palma exportada):** 82 → 82.2 mm; 88 → 88.2 mm;
+90 → 90.2 mm. Rácios 88.18/82.17 = exatamente 88/82 e 90.18/82.17 = 90/82 — a largura
+pedida chega à malha ao milímetro e a escala é uniforme. Todas as malhas renderizam
+sem erro (CSG `manifold NoError`; palma/pinos/gauntlet são malhas fixas importadas).
+
+## Manifesto
+
+```
+docs/print-validation/growth-series/
+├── render-report.json                 (bbox de cada placa e peça, por idade)
+└── unlimbed_phoenix_hand/<idade>/
+    ├── unlimbed_phoenix_hand_<idade>.3mf + .png   (placa combinada, cores por peça)
+    ├── params.json + prompt.txt
+    └── parts/<peça>.3mf + .png                    (6 peças isoladas, assentes em Z=0)
+```
+
+**28 ficheiros 3MF**: 4 placas combinadas + 24 peças individuais, cada uma com o seu
+PNG de pré-visualização. Idades: `age_08`, `age_12`, `age_15`, `age_18`.
+
+_Data de execução: 2026-07-12 · provider `anthropic · claude-sonnet-4-6` · grounding
+ativo · OpenSCAD 2026.04.26._

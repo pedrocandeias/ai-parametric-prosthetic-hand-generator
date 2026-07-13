@@ -1,0 +1,23 @@
+{
+  "model": "unlimbed_phoenix_hand",
+  "profile": {
+    "key": "age_15",
+    "label": "Adolescente 15",
+    "text": "teenage boy, 15 years old, 60kg, 170cm height, Brazil, slim build, arm length 62cm"
+  },
+  "grounded": true,
+  "suggestions": {
+    "palm_breadth_mm": 88,
+    "HandPerc_override": 0,
+    "index_finger_length_mm": 74,
+    "index_base_length_mm": 33,
+    "middle_finger_length_mm": 78,
+    "middle_base_length_mm": 34,
+    "ring_finger_length_mm": 74,
+    "ring_base_length_mm": 33,
+    "pinky_finger_length_mm": 62,
+    "pinky_base_length_mm": 27,
+    "thumb_length_mm": 62,
+    "thumb_base_length_mm": 31
+  }
+}

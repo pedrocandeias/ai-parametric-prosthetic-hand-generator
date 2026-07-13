@@ -1,0 +1,160 @@
+PATIENT: boy, 12 years old, 40kg, 150cm height, Brazil, slim build, arm length 55cm
+GROUNDED: true
+
+You are sizing a 3D-printed parametric prosthetic hand model ("UnLimbited Phoenix Hand") for a patient.
+
+Patient anthropometric data:
+boy, 12 years old, 40kg, 150cm height, Brazil, slim build, arm length 55cm
+
+These are the model's adjustable parameters. Each has a name, a caption describing what it controls, an allowed range (min/max where applicable), and the current value:
+[
+  {
+    "name": "palm_breadth_mm",
+    "caption": "Knuckle-to-knuckle metacarpal breadth — drives the uniform print scale: HandPerc = palm_breadth_mm / 82 × 100, clamped to 100–160% (mm)",
+    "type": "number",
+    "min": 82,
+    "max": 131,
+    "current": 82
+  },
+  {
+    "name": "HandPerc_override",
+    "caption": "Manual print-scale override (%) — 0 derives the scale from palm breadth; 100–160 sets it directly",
+    "type": "number",
+    "min": 0,
+    "max": 160,
+    "current": 0
+  },
+  {
+    "name": "index_finger_length_mm",
+    "caption": "Index finger total length, MCP crease to tip (mm) — lengthens the finger by stretching its shaft; pin holes stay round",
+    "type": "number",
+    "min": 55,
+    "max": 115,
+    "current": 72
+  },
+  {
+    "name": "index_base_length_mm",
+    "caption": "Index proximal (base) segment length, MCP to PIP (mm) — the fingertip fills the remaining length",
+    "type": "number",
+    "min": 18,
+    "max": 55,
+    "current": 31
+  },
+  {
+    "name": "middle_finger_length_mm",
+    "caption": "Middle finger total length, MCP crease to tip (mm) — lengthens the finger by stretching its shaft; pin holes stay round",
+    "type": "number",
+    "min": 55,
+    "max": 115,
+    "current": 72
+  },
+  {
+    "name": "middle_base_length_mm",
+    "caption": "Middle proximal (base) segment length, MCP to PIP (mm) — the fingertip fills the remaining length",
+    "type": "number",
+    "min": 18,
+    "max": 55,
+    "current": 31
+  },
+  {
+    "name": "ring_finger_length_mm",
+    "caption": "Ring finger total length, MCP crease to tip (mm) — lengthens the finger by stretching its shaft; pin holes stay round",
+    "type": "number",
+    "min": 55,
+    "max": 115,
+    "current": 72
+  },
+  {
+    "name": "ring_base_length_mm",
+    "caption": "Ring proximal (base) segment length, MCP to PIP (mm) — the fingertip fills the remaining length",
+    "type": "number",
+    "min": 18,
+    "max": 55,
+    "current": 31
+  },
+  {
+    "name": "pinky_finger_length_mm",
+    "caption": "Pinky finger total length, MCP crease to tip (mm) — lengthens the finger by stretching its shaft; pin holes stay round",
+    "type": "number",
+    "min": 55,
+    "max": 115,
+    "current": 72
+  },
+  {
+    "name": "pinky_base_length_mm",
+    "caption": "Pinky proximal (base) segment length, MCP to PIP (mm) — the fingertip fills the remaining length",
+    "type": "number",
+    "min": 18,
+    "max": 55,
+    "current": 31
+  },
+  {
+    "name": "thumb_length_mm",
+    "caption": "Thumb total length, MCP crease to tip (mm) — stretches the thumb shaft; pin holes stay round. The Phoenix thumb reuses the finger part (native 72 mm); set ~62 for an anatomical thumb",
+    "type": "number",
+    "min": 45,
+    "max": 80,
+    "current": 72
+  },
+  {
+    "name": "thumb_base_length_mm",
+    "caption": "Thumb proximal (base) segment length, MCP to IP (mm) — the tip fills the remaining length",
+    "type": "number",
+    "min": 18,
+    "max": 50,
+    "current": 31
+  },
+  {
+    "name": "print_layout",
+    "caption": "Print-bed layout — off shows the assembled seated hand; on lays every visible part flat, side by side, for STL export",
+    "type": "boolean",
+    "current": false
+  },
+  {
+    "name": "show_palm",
+    "caption": "Show the palm (thermoformable Phoenix palm)",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_fingers",
+    "caption": "Show the four fingers (proximal + fingertip segments)",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_thumb",
+    "caption": "Show the thumb",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_pins",
+    "caption": "Show the snap pins (finger, thumb and wrist hinge pins)",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_gauntlet",
+    "caption": "Show the forearm gauntlet (reverse-dovetail cuff)",
+    "type": "boolean",
+    "current": true
+  },
+  {
+    "name": "show_tensioner",
+    "caption": "Show the tensioner mechanism (block, pins and wrist washers)",
+    "type": "boolean",
+    "current": true
+  }
+]
+
+Guidance:
+- Anthropometric parameters are anatomical measurements in millimetres; use the patient's data to set them directly, guided by each parameter's caption above.
+- If the data is qualitative (e.g. "woman, 172cm, slim build"), estimate plausible measurements from population norms; women typically run smaller than men, and children smaller than adults.
+- Canonical fields when present: palm_breadth_mm (knuckle-to-knuckle, ~70-100mm adult), palm_length_mm (wrist to MCP, ~90-120mm), palm_thickness_mm (~22-38mm), index/middle/ring/pinky_finger_length_mm (MCP crease to tip), thumb_length_mm, gauntlet_width_mm (approx. wrist circumference / PI + ~5mm clearance). Keep finger proportions realistic: middle finger longest, pinky shortest.
+- Keep proportions anatomically realistic relative to each other.
+- Only suggest values for parameters listed above, by their exact name, and stay within each parameter's min/max.
+- Leave hardware/visibility/color parameters at their current values unless the patient data clearly implies a change.
+- Limb side (left/right) has already been chosen by the user in the UI: left side. Treat it as fixed — do NOT include LeftRight in your output, and do not change the side.
+
+Respond with ONLY a valid JSON object mapping parameter names to suggested values. No prose, no markdown.
