@@ -77,8 +77,8 @@ show_thumb          = true;  // thumb tip + phalanx
 show_pins           = true;  // pivot pins at wrist and knuckle positions
 // Enable string/elastic channel routing in palm (slow — complex CSG; keep off for preview)
 show_channels       = false;
-// Assembled view: position finger parts at palm knuckle pins (true) or flat print layout (false)
-show_assembled      = true;
+// Print-bed layout: lay parts flat side-by-side (true) instead of the assembled view (false)
+print_layout        = false;
 
 /* [Colors] */
 color_palm   = "#d4a574"; // palm body
@@ -330,7 +330,7 @@ if (show_palm)
         else scale(overall_scale / REBORN_PALM_BAKED_SCALE) scaled_palm(); // re-apply anthropometric scale frozen out by `use` (see Scale derivation)
     }
 
-if (!show_assembled) {
+if (print_layout) {
 // ════════════════════════════════════════════════════════════════════════════════
 // PRINT LAYOUT MODE — parts laid flat side-by-side, ready for slicing
 // ════════════════════════════════════════════════════════════════════════════════

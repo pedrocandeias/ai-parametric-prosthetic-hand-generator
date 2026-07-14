@@ -1601,9 +1601,9 @@ class ParameterEditor {
         return out;
     }
 
-    // Append the model's declared export-layout overrides (e.g. `show_assembled =
-    // false;` or `print_layout = true;`) so assembled-view models export their flat
-    // print-bed layout. Models without an `exportLayout` map are returned unchanged.
+    // Append the model's declared export-layout overrides (e.g. `print_layout =
+    // true;`) so assembled-view models export their flat print-bed layout. Models
+    // without an `exportLayout` map are returned unchanged.
     _applyExportLayout(baseCode) {
         const overrides = this.currentModel && this.currentModel.exportLayout;
         if (!overrides || typeof overrides !== 'object') return baseCode;

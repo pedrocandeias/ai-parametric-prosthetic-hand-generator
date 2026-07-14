@@ -43,8 +43,8 @@ color_gauntlet        = "#c0c0c8";
 color_washers         = "#51cf66";
 color_tensioner_block = "#e8894a";
 color_tensioner_pins  = "#ffd43b";
-// - Choose Left or Right Hand
-LeftRight = "Left"; // [Left,Right]
+// Mirror geometry for a right hand (default false = left hand)
+mirrored = false;
 
 // --- Anthropometric sizing (added for the parametric-prosthetic-hand-generator) ---
 // The Phoenix Hand is a fixed-geometry mesh, so the only fit control it offers is
@@ -258,6 +258,6 @@ function Phoenix_Thermo_Palm_2_points() = [
 // for export (print_layout=true). Both are driven by the per-part show_* toggles,
 // scaled uniformly by HandPerc and mirrored for a right hand. phoenix_render(),
 // phoenix_assembly() and phoenix_printlayout() live in phoenix_assembly.scad.
-if (LeftRight == "Left") scale([HandPerc/100,HandPerc/100,HandPerc/100]) phoenix_render();
+if (!mirrored) scale([HandPerc/100,HandPerc/100,HandPerc/100]) phoenix_render();
 else mirror([1,0,0]) scale([HandPerc/100,HandPerc/100,HandPerc/100]) phoenix_render();
 

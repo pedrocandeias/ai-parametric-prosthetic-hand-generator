@@ -125,6 +125,20 @@
           "group": "Anthropometric"
         },
         {
+          "name": "wrist_circumference_mm",
+          "type": "number",
+          "initial": 160,
+          "min": 110,
+          "max": 260,
+          "step": 1,
+          "caption": "Forearm circumference at the wrist — sizes the gauntlet cuff depth/girth to the wearer (∝ circumference/π + clearance). The cuff width is fixed to the palm so its wings always meet the palm wings (mm)",
+          "label_pt": "Circunferência do Pulso (em mm)",
+          "caption_pt": "Circunferência do antebraço no pulso — dimensiona a profundidade/perímetro do punho ao utilizador (∝ circunferência/π + folga). A largura é fixa à palma para as asas encontrarem sempre as asas da palma (mm)",
+          "help": "Objective: fit the gauntlet cuff to the patient's forearm — measure the circumference around the wrist with a tape. Outcome: the cuff depth (girth) scales to circumference/π plus clearance, so it wraps comfortably regardless of hand size; too tight is uncomfortable, too loose loses wrist drive. The cuff width stays locked to the palm so the hinge wings always align. This is the gauntlet's main fit dimension.",
+          "help_pt": "Objetivo: ajustar o punho ao antebraço do paciente — meça a circunferência à volta do pulso com uma fita. Resultado: a profundidade (perímetro) do punho escala para circunferência/π mais folga, envolvendo confortavelmente independentemente do tamanho da mão; demasiado apertado é desconfortável, demasiado largo perde o acionamento do pulso. A largura fica fixa à palma para as asas da charneira alinharem sempre. É a medida de ajuste principal do punho.",
+          "group": "Anthropometric"
+        },
+        {
           "name": "joint_dia",
           "type": "number",
           "initial": 7,
@@ -153,191 +167,6 @@
           "group": "Hardware"
         },
         {
-          "name": "finger_pads",
-          "type": "boolean",
-          "initial": true,
-          "caption": "Hollow fingertips for casting or inserting silicone grip pads",
-          "label_pt": "Almofadas dos Dedos",
-          "caption_pt": "Pontas dos dedos ocas para moldar ou inserir almofadas de aderência em silicone",
-          "help": "Objective: hollow out the fingertips so you can cast or insert soft silicone grip pads. Outcome: when on, the tips are left open/recessed ready to receive pads, greatly improving grip friction and comfort; when off, the fingertips print solid. Turn it on if you plan to add silicone, off for a one-piece rigid print.",
-          "help_pt": "Objetivo: tornar as pontas dos dedos ocas para poder moldar ou inserir almofadas de aderência em silicone macio. Resultado: quando ativado, as pontas ficam abertas/rebaixadas, prontas a receber almofadas, melhorando muito o atrito e o conforto da preensão; quando desativado, as pontas dos dedos são impressas sólidas. Ative se pretende adicionar silicone, desative para uma impressão rígida de peça única.",
-          "group": "Options"
-        },
-        {
-          "name": "show_pads",
-          "type": "boolean",
-          "initial": true,
-          "caption": "Show installed silicone grip pads in the preview (requires finger_pads enabled)",
-          "label_pt": "Mostrar Almofadas",
-          "caption_pt": "Mostrar as almofadas de silicone instaladas na pré-visualização (requer \"Almofadas dos Dedos\" ativado)",
-          "help": "Objective: preview-only toggle that draws the silicone grip pads in the 3D view. Outcome: lets you check where the pads sit and how they look — it does not change the exported parts. Requires 'Finger pads' to be enabled, since without the hollowed tips there is nowhere for the pads to seat.",
-          "help_pt": "Objetivo: seletor apenas de pré-visualização que desenha as almofadas de silicone na vista 3D. Resultado: permite verificar onde as almofadas assentam e que aspeto têm — não altera as peças exportadas. Requer 'Almofadas dos Dedos' ativado, pois sem as pontas ocas não há onde assentar as almofadas.",
-          "group": "Options"
-        },
-        {
-          "name": "pad_color",
-          "type": "color",
-          "initial": "#e8c8a0",
-          "caption": "Silicone grip pad colour (preview + 3MF)",
-          "label_pt": "Cor das Almofadas",
-          "caption_pt": "Cor das almofadas de silicone (pré-visualização + 3MF)",
-          "help": "Objective: pick the colour used to draw the grip pads. Outcome: shows in the on-screen preview and is baked into a 3MF export (so a multi-material printer can print the pads in this colour); it has no effect on a plain STL export.",
-          "help_pt": "Objetivo: escolher a cor usada para desenhar as almofadas de aderência. Resultado: aparece na pré-visualização no ecrã e é gravada na exportação 3MF (para uma impressora multi-material imprimir as almofadas nesta cor); não tem efeito numa exportação STL simples.",
-          "group": "Options"
-        },
-        {
-          "name": "color_palm",
-          "type": "color",
-          "initial": "#cbd5e1",
-          "label": "Palm",
-          "label_pt": "Palma",
-          "caption": "Palm body",
-          "caption_pt": "Corpo da palma",
-          "group": "Colors"
-        },
-        {
-          "name": "color_gauntlet",
-          "type": "color",
-          "initial": "#94a3b8",
-          "label": "Gauntlet (cuff)",
-          "label_pt": "Gauntlet (punho)",
-          "caption": "Forearm cuff",
-          "caption_pt": "Punho do antebraço",
-          "group": "Colors"
-        },
-        {
-          "name": "color_index_base",
-          "type": "color",
-          "initial": "#4a9eff",
-          "label": "Index — proximal",
-          "label_pt": "Indicador — proximal",
-          "caption": "Index proximal segment (base)",
-          "caption_pt": "Segmento proximal do indicador (base)",
-          "group": "Colors"
-        },
-        {
-          "name": "color_index_tip",
-          "type": "color",
-          "initial": "#7cc0ff",
-          "label": "Index — distal",
-          "label_pt": "Indicador — distal",
-          "caption": "Index distal segment (tip)",
-          "caption_pt": "Segmento distal do indicador (ponta)",
-          "group": "Colors"
-        },
-        {
-          "name": "color_middle_base",
-          "type": "color",
-          "initial": "#ff6b6b",
-          "label": "Middle — proximal",
-          "label_pt": "Médio — proximal",
-          "caption": "Middle proximal segment (base)",
-          "caption_pt": "Segmento proximal do médio (base)",
-          "group": "Colors"
-        },
-        {
-          "name": "color_middle_tip",
-          "type": "color",
-          "initial": "#ffa0a0",
-          "label": "Middle — distal",
-          "label_pt": "Médio — distal",
-          "caption": "Middle distal segment (tip)",
-          "caption_pt": "Segmento distal do médio (ponta)",
-          "group": "Colors"
-        },
-        {
-          "name": "color_ring_base",
-          "type": "color",
-          "initial": "#51cf66",
-          "label": "Ring — proximal",
-          "label_pt": "Anelar — proximal",
-          "caption": "Ring proximal segment (base)",
-          "caption_pt": "Segmento proximal do anelar (base)",
-          "group": "Colors"
-        },
-        {
-          "name": "color_ring_tip",
-          "type": "color",
-          "initial": "#8ce89b",
-          "label": "Ring — distal",
-          "label_pt": "Anelar — distal",
-          "caption": "Ring distal segment (tip)",
-          "caption_pt": "Segmento distal do anelar (ponta)",
-          "group": "Colors"
-        },
-        {
-          "name": "color_pinky_base",
-          "type": "color",
-          "initial": "#ffd43b",
-          "label": "Pinky — proximal",
-          "label_pt": "Mindinho — proximal",
-          "caption": "Pinky proximal segment (base)",
-          "caption_pt": "Segmento proximal do mindinho (base)",
-          "group": "Colors"
-        },
-        {
-          "name": "color_pinky_tip",
-          "type": "color",
-          "initial": "#ffe680",
-          "label": "Pinky — distal",
-          "label_pt": "Mindinho — distal",
-          "caption": "Pinky distal segment (tip)",
-          "caption_pt": "Segmento distal do mindinho (ponta)",
-          "group": "Colors"
-        },
-        {
-          "name": "color_thumb_base",
-          "type": "color",
-          "initial": "#cc5de8",
-          "label": "Thumb — proximal",
-          "label_pt": "Polegar — proximal",
-          "caption": "Thumb proximal segment (base)",
-          "caption_pt": "Segmento proximal do polegar (base)",
-          "group": "Colors"
-        },
-        {
-          "name": "color_thumb_tip",
-          "type": "color",
-          "initial": "#e0a0f0",
-          "label": "Thumb — distal",
-          "label_pt": "Polegar — distal",
-          "caption": "Thumb distal segment (tip)",
-          "caption_pt": "Segmento distal do polegar (ponta)",
-          "group": "Colors"
-        },
-        {
-          "name": "color_hinge",
-          "type": "color",
-          "initial": "#2f4b7c",
-          "label": "Flexy joints",
-          "label_pt": "Juntas flexíveis",
-          "caption": "Flexy joint connectors (print in flexible filament)",
-          "caption_pt": "Conectores das juntas flexíveis (imprimir em filamento flexível)",
-          "group": "Colors"
-        },
-        {
-          "name": "show_hinges",
-          "type": "boolean",
-          "initial": true,
-          "caption": "Show the flexy joints — flexible connector pieces that fill each finger/thumb joint gap",
-          "label_pt": "Mostrar Juntas Flexíveis",
-          "caption_pt": "Mostrar as juntas flexíveis — peças conectoras flexíveis que preenchem a folga de cada junta dos dedos/polegar",
-          "help": "Objective: include the flexy joints — the flexible connector pieces that sit in the gap at each finger and thumb joint and act as the living hinge. Outcome: in the assembled preview they fill the joint holes between the segments; when you export they lay out flat on a plate to print in flexible filament (Filaflex/TPU). They are sized automatically from the joint hole and slot (Joint hole diameter / slot thickness) and the hand scale, so they track every finger and hardware change. Turn off only if you are gluing or pinning the joints another way.",
-          "help_pt": "Objetivo: incluir as juntas flexíveis — as peças conectoras flexíveis que ficam na folga de cada junta dos dedos e do polegar e funcionam como dobradiça viva. Resultado: na pré-visualização montada preenchem os furos das juntas entre os segmentos; ao exportar, dispõem-se planas numa placa para imprimir em filamento flexível (Filaflex/TPU). São dimensionadas automaticamente a partir do furo e da ranhura da junta (diâmetro do furo / espessura da ranhura) e da escala da mão, pelo que acompanham cada alteração dos dedos e do hardware. Desative apenas se fixar as juntas de outra forma (cola ou pino).",
-          "group": "Options"
-        },
-        {
-          "name": "show_thermoform",
-          "type": "boolean",
-          "initial": true,
-          "caption": "Show thermoformable mesh on palm interior (print in PLA, heat-form to patient)",
-          "label_pt": "Mostrar Termoformável",
-          "caption_pt": "Mostrar a malha termoformável no interior da palma (imprimir em PLA, moldar a quente ao paciente)",
-          "help": "Objective: add a thin thermoformable mesh across the inside of the palm. Outcome: print this mesh in PLA, then gently heat it and press it onto the patient's residual limb for a custom-moulded, comfortable interface. Enable when you want a heat-formed liner; leave it off for a standard rigid palm.",
-          "help_pt": "Objetivo: adicionar uma fina malha termoformável no interior da palma. Resultado: imprima esta malha em PLA, depois aqueça-a suavemente e pressione-a sobre o membro residual do paciente para uma interface moldada à medida e confortável. Ative quando quiser um revestimento moldado a quente; deixe desativado para uma palma rígida padrão.",
-          "group": "Options"
-        },
-        {
           "name": "show_gauntlet",
           "type": "boolean",
           "initial": true,
@@ -347,20 +176,6 @@
           "help": "Objective: include the wrist-powered forearm gauntlet (tensioner cuff) in the layout. Outcome: when on, the cuff is positioned at the wrist and its straps line up with the palm's wrist hinge pin so it prints as a separate part that pins on; when off, only the hand is produced. Turn it on to build the complete wrist-driven device, off to print or reprint just the hand.",
           "help_pt": "Objetivo: incluir no layout a braçadeira de antebraço acionada pelo pulso (punho tensor). Resultado: quando ativado, o punho é posicionado no pulso e as suas tiras alinham com o pino da dobradiça do pulso da palma, sendo impresso como peça separada que se fixa por pino; quando desativado, só a mão é produzida. Ative para construir o dispositivo completo acionado pelo pulso, desative para imprimir ou reimprimir apenas a mão.",
           "group": "Gauntlet"
-        },
-        {
-          "name": "wrist_circumference_mm",
-          "type": "number",
-          "initial": 160,
-          "min": 110,
-          "max": 260,
-          "step": 1,
-          "caption": "Forearm circumference at the wrist — sizes the gauntlet cuff depth/girth to the wearer (∝ circumference/π + clearance). The cuff width is fixed to the palm so its wings always meet the palm wings (mm)",
-          "label_pt": "Circunferência do Pulso (em mm)",
-          "caption_pt": "Circunferência do antebraço no pulso — dimensiona a profundidade/perímetro do punho ao utilizador (∝ circunferência/π + folga). A largura é fixa à palma para as asas encontrarem sempre as asas da palma (mm)",
-          "help": "Objective: fit the gauntlet cuff to the patient's forearm — measure the circumference around the wrist with a tape. Outcome: the cuff depth (girth) scales to circumference/π plus clearance, so it wraps comfortably regardless of hand size; too tight is uncomfortable, too loose loses wrist drive. The cuff width stays locked to the palm so the hinge wings always align. This is the gauntlet's main fit dimension.",
-          "help_pt": "Objetivo: ajustar o punho ao antebraço do paciente — meça a circunferência à volta do pulso com uma fita. Resultado: a profundidade (perímetro) do punho escala para circunferência/π mais folga, envolvendo confortavelmente independentemente do tamanho da mão; demasiado apertado é desconfortável, demasiado largo perde o acionamento do pulso. A largura fica fixa à palma para as asas da charneira alinharem sempre. É a medida de ajuste principal do punho.",
-          "group": "Anthropometric"
         },
         {
           "name": "gauntlet_tilt",
@@ -431,6 +246,61 @@
           "help": "Objective: give the wrist hinge enough play to rotate smoothly after printing. Outcome: a larger clearance loosens the joint (easier to assemble, but sloppier); a smaller one tightens it. Tune to your printer's tolerance — 0.3–0.4 mm suits most FDM machines.",
           "help_pt": "Objetivo: dar à charneira do pulso folga suficiente para rodar suavemente após a impressão. Resultado: uma folga maior solta a articulação (mais fácil de montar, mas mais frouxa); uma menor aperta-a. Ajuste à tolerância da sua impressora — 0,3–0,4 mm serve a maioria das máquinas FDM.",
           "group": "Gauntlet"
+        },
+        {
+          "name": "finger_pads",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Hollow fingertips for casting or inserting silicone grip pads",
+          "label_pt": "Almofadas dos Dedos",
+          "caption_pt": "Pontas dos dedos ocas para moldar ou inserir almofadas de aderência em silicone",
+          "help": "Objective: hollow out the fingertips so you can cast or insert soft silicone grip pads. Outcome: when on, the tips are left open/recessed ready to receive pads, greatly improving grip friction and comfort; when off, the fingertips print solid. Turn it on if you plan to add silicone, off for a one-piece rigid print.",
+          "help_pt": "Objetivo: tornar as pontas dos dedos ocas para poder moldar ou inserir almofadas de aderência em silicone macio. Resultado: quando ativado, as pontas ficam abertas/rebaixadas, prontas a receber almofadas, melhorando muito o atrito e o conforto da preensão; quando desativado, as pontas dos dedos são impressas sólidas. Ative se pretende adicionar silicone, desative para uma impressão rígida de peça única.",
+          "group": "Options"
+        },
+        {
+          "name": "show_pads",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show installed silicone grip pads in the preview (requires finger_pads enabled)",
+          "label_pt": "Mostrar Almofadas",
+          "caption_pt": "Mostrar as almofadas de silicone instaladas na pré-visualização (requer \"Almofadas dos Dedos\" ativado)",
+          "help": "Objective: preview-only toggle that draws the silicone grip pads in the 3D view. Outcome: lets you check where the pads sit and how they look — it does not change the exported parts. Requires 'Finger pads' to be enabled, since without the hollowed tips there is nowhere for the pads to seat.",
+          "help_pt": "Objetivo: seletor apenas de pré-visualização que desenha as almofadas de silicone na vista 3D. Resultado: permite verificar onde as almofadas assentam e que aspeto têm — não altera as peças exportadas. Requer 'Almofadas dos Dedos' ativado, pois sem as pontas ocas não há onde assentar as almofadas.",
+          "group": "Options"
+        },
+        {
+          "name": "pad_color",
+          "type": "color",
+          "initial": "#e8c8a0",
+          "caption": "Silicone grip pad colour (preview + 3MF)",
+          "label_pt": "Cor das Almofadas",
+          "caption_pt": "Cor das almofadas de silicone (pré-visualização + 3MF)",
+          "help": "Objective: pick the colour used to draw the grip pads. Outcome: shows in the on-screen preview and is baked into a 3MF export (so a multi-material printer can print the pads in this colour); it has no effect on a plain STL export.",
+          "help_pt": "Objetivo: escolher a cor usada para desenhar as almofadas de aderência. Resultado: aparece na pré-visualização no ecrã e é gravada na exportação 3MF (para uma impressora multi-material imprimir as almofadas nesta cor); não tem efeito numa exportação STL simples.",
+          "group": "Options"
+        },
+        {
+          "name": "show_hinges",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show the flexy joints — flexible connector pieces that fill each finger/thumb joint gap",
+          "label_pt": "Mostrar Juntas Flexíveis",
+          "caption_pt": "Mostrar as juntas flexíveis — peças conectoras flexíveis que preenchem a folga de cada junta dos dedos/polegar",
+          "help": "Objective: include the flexy joints — the flexible connector pieces that sit in the gap at each finger and thumb joint and act as the living hinge. Outcome: in the assembled preview they fill the joint holes between the segments; when you export they lay out flat on a plate to print in flexible filament (Filaflex/TPU). They are sized automatically from the joint hole and slot (Joint hole diameter / slot thickness) and the hand scale, so they track every finger and hardware change. Turn off only if you are gluing or pinning the joints another way.",
+          "help_pt": "Objetivo: incluir as juntas flexíveis — as peças conectoras flexíveis que ficam na folga de cada junta dos dedos e do polegar e funcionam como dobradiça viva. Resultado: na pré-visualização montada preenchem os furos das juntas entre os segmentos; ao exportar, dispõem-se planas numa placa para imprimir em filamento flexível (Filaflex/TPU). São dimensionadas automaticamente a partir do furo e da ranhura da junta (diâmetro do furo / espessura da ranhura) e da escala da mão, pelo que acompanham cada alteração dos dedos e do hardware. Desative apenas se fixar as juntas de outra forma (cola ou pino).",
+          "group": "Options"
+        },
+        {
+          "name": "show_thermoform",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show thermoformable mesh on palm interior (print in PLA, heat-form to patient)",
+          "label_pt": "Mostrar Termoformável",
+          "caption_pt": "Mostrar a malha termoformável no interior da palma (imprimir em PLA, moldar a quente ao paciente)",
+          "help": "Objective: add a thin thermoformable mesh across the inside of the palm. Outcome: print this mesh in PLA, then gently heat it and press it onto the patient's residual limb for a custom-moulded, comfortable interface. Enable when you want a heat-formed liner; leave it off for a standard rigid palm.",
+          "help_pt": "Objetivo: adicionar uma fina malha termoformável no interior da palma. Resultado: imprima esta malha em PLA, depois aqueça-a suavemente e pressione-a sobre o membro residual do paciente para uma interface moldada à medida e confortável. Ative quando quiser um revestimento moldado a quente; deixe desativado para uma palma rígida padrão.",
+          "group": "Options"
         },
         {
           "name": "show_palm",
@@ -607,6 +477,136 @@
           "help": "Objective: show the distal (tip) segment of the thumb, printed separately from the base. Outcome: enable to include the fingertip in the print layout or to reprint only the tip; disable to omit it. Pair it with the base toggle to output or replace the whole finger.",
           "help_pt": "Objetivo: mostrar o segmento distal (ponta) do polegar, impresso separadamente da base. Resultado: ative para incluir a ponta no layout de impressão ou para reimprimir apenas a ponta; desative para a omitir. Combine-o com o seletor de base para produzir ou substituir o dedo inteiro.",
           "group": "Visibility"
+        },
+        {
+          "name": "color_palm",
+          "type": "color",
+          "initial": "#cbd5e1",
+          "label": "Palm",
+          "label_pt": "Palma",
+          "caption": "Palm body",
+          "caption_pt": "Corpo da palma",
+          "group": "Colors"
+        },
+        {
+          "name": "color_gauntlet",
+          "type": "color",
+          "initial": "#94a3b8",
+          "label": "Gauntlet (cuff)",
+          "label_pt": "Gauntlet (punho)",
+          "caption": "Forearm cuff",
+          "caption_pt": "Punho do antebraço",
+          "group": "Colors"
+        },
+        {
+          "name": "color_index_base",
+          "type": "color",
+          "initial": "#4a9eff",
+          "label": "Index — proximal",
+          "label_pt": "Indicador — proximal",
+          "caption": "Index proximal segment (base)",
+          "caption_pt": "Segmento proximal do indicador (base)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_index_tip",
+          "type": "color",
+          "initial": "#7cc0ff",
+          "label": "Index — distal",
+          "label_pt": "Indicador — distal",
+          "caption": "Index distal segment (tip)",
+          "caption_pt": "Segmento distal do indicador (ponta)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_middle_base",
+          "type": "color",
+          "initial": "#ff6b6b",
+          "label": "Middle — proximal",
+          "label_pt": "Médio — proximal",
+          "caption": "Middle proximal segment (base)",
+          "caption_pt": "Segmento proximal do médio (base)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_middle_tip",
+          "type": "color",
+          "initial": "#ffa0a0",
+          "label": "Middle — distal",
+          "label_pt": "Médio — distal",
+          "caption": "Middle distal segment (tip)",
+          "caption_pt": "Segmento distal do médio (ponta)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_ring_base",
+          "type": "color",
+          "initial": "#51cf66",
+          "label": "Ring — proximal",
+          "label_pt": "Anelar — proximal",
+          "caption": "Ring proximal segment (base)",
+          "caption_pt": "Segmento proximal do anelar (base)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_ring_tip",
+          "type": "color",
+          "initial": "#8ce89b",
+          "label": "Ring — distal",
+          "label_pt": "Anelar — distal",
+          "caption": "Ring distal segment (tip)",
+          "caption_pt": "Segmento distal do anelar (ponta)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_pinky_base",
+          "type": "color",
+          "initial": "#ffd43b",
+          "label": "Pinky — proximal",
+          "label_pt": "Mindinho — proximal",
+          "caption": "Pinky proximal segment (base)",
+          "caption_pt": "Segmento proximal do mindinho (base)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_pinky_tip",
+          "type": "color",
+          "initial": "#ffe680",
+          "label": "Pinky — distal",
+          "label_pt": "Mindinho — distal",
+          "caption": "Pinky distal segment (tip)",
+          "caption_pt": "Segmento distal do mindinho (ponta)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_thumb_base",
+          "type": "color",
+          "initial": "#cc5de8",
+          "label": "Thumb — proximal",
+          "label_pt": "Polegar — proximal",
+          "caption": "Thumb proximal segment (base)",
+          "caption_pt": "Segmento proximal do polegar (base)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_thumb_tip",
+          "type": "color",
+          "initial": "#e0a0f0",
+          "label": "Thumb — distal",
+          "label_pt": "Polegar — distal",
+          "caption": "Thumb distal segment (tip)",
+          "caption_pt": "Segmento distal do polegar (ponta)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_hinge",
+          "type": "color",
+          "initial": "#2f4b7c",
+          "label": "Flexy joints",
+          "label_pt": "Juntas flexíveis",
+          "caption": "Flexy joint connectors (print in flexible filament)",
+          "caption_pt": "Conectores das juntas flexíveis (imprimir em filamento flexível)",
+          "group": "Colors"
         }
       ],
       "parts": [
@@ -751,24 +751,25 @@
       ],
       "parameters": [
         {
-          "name": "LeftRight",
+          "name": "mirrored",
           "role": "laterality",
           "type": "enum",
-          "initial": "Left",
+          "initial": false,
           "options": [
             {
               "label": "Left hand",
-              "value": "Left"
+              "value": false
             },
             {
               "label": "Right hand",
-              "value": "Right"
+              "value": true
             }
           ],
           "caption": "Which hand to generate — Right hand mirrors the geometry along X",
-          "label_pt": "Mão Esquerda/Direita",
+          "label_pt": "Espelhado",
           "caption_pt": "Que mão gerar — a mão direita espelha a geometria ao longo de X",
           "help": "Objective: choose whether to build a left or a right hand. Outcome: selecting 'Right hand' mirrors the entire model across the X axis. Match this to the patient's affected side — printing the wrong hand produces a part that simply will not fit.",
+          "help_pt": "Objetivo: escolher se constrói uma mão esquerda ou direita. Resultado: selecionar 'Mão direita' espelha todo o modelo no eixo X. Faça corresponder ao lado afetado do paciente — imprimir a mão errada produz uma peça que simplesmente não encaixa.",
           "group": "Anthropometric"
         },
         {
@@ -812,20 +813,6 @@
           "group": "Anthropometric"
         },
         {
-          "name": "index_base_length_mm",
-          "type": "number",
-          "initial": 31,
-          "min": 18,
-          "max": 55,
-          "step": 1,
-          "caption": "Index proximal (base) segment length, MCP to PIP (mm) — the fingertip fills the remaining length",
-          "label_pt": "Base do Indicador (mm)",
-          "caption_pt": "Comprimento do segmento proximal (base) do indicador, MCP a PIP (mm) — a ponta preenche o resto",
-          "help": "Objective: set how the index finger's total length splits between the proximal phalanx (MCP→PIP) and the fingertip (PIP→tip). Outcome: raising the base makes the proximal longer and the fingertip shorter for the same total; the PIP pin follows automatically. Native reference is 31 mm.",
-          "help_pt": "Objetivo: definir como o comprimento total do dedo indicador se divide entre a falange proximal (MCP→PIP) e a ponta (PIP→ponta). Resultado: aumentar a base torna o proximal mais longo e a ponta mais curta para o mesmo total; o pino PIP acompanha automaticamente. Referência nativa 31 mm.",
-          "group": "Segment split"
-        },
-        {
           "name": "middle_finger_length_mm",
           "type": "number",
           "initial": 72,
@@ -838,20 +825,6 @@
           "help": "Objective: size the middle finger to the patient (anatomical MCP-to-tip). Outcome: only the hole-free shaft stretches, so the finger reaches the target length while its hinge holes stay round and printable. Native reference is 72 mm; combine with middle_base_length_mm to set how much is proximal vs fingertip.",
           "help_pt": "Objetivo: dimensionar o dedo médio ao paciente (MCP à ponta). Resultado: só o corpo sem furos estica, por isso o dedo atinge o comprimento pretendido mantendo os furos das dobradiças redondos e imprimíveis. Referência nativa 72 mm; combine com middle_base_length_mm para definir a divisão proximal/ponta.",
           "group": "Anthropometric"
-        },
-        {
-          "name": "middle_base_length_mm",
-          "type": "number",
-          "initial": 31,
-          "min": 18,
-          "max": 55,
-          "step": 1,
-          "caption": "Middle proximal (base) segment length, MCP to PIP (mm) — the fingertip fills the remaining length",
-          "label_pt": "Base do Médio (mm)",
-          "caption_pt": "Comprimento do segmento proximal (base) do médio, MCP a PIP (mm) — a ponta preenche o resto",
-          "help": "Objective: set how the middle finger's total length splits between the proximal phalanx (MCP→PIP) and the fingertip (PIP→tip). Outcome: raising the base makes the proximal longer and the fingertip shorter for the same total; the PIP pin follows automatically. Native reference is 31 mm.",
-          "help_pt": "Objetivo: definir como o comprimento total do dedo médio se divide entre a falange proximal (MCP→PIP) e a ponta (PIP→ponta). Resultado: aumentar a base torna o proximal mais longo e a ponta mais curta para o mesmo total; o pino PIP acompanha automaticamente. Referência nativa 31 mm.",
-          "group": "Segment split"
         },
         {
           "name": "ring_finger_length_mm",
@@ -868,20 +841,6 @@
           "group": "Anthropometric"
         },
         {
-          "name": "ring_base_length_mm",
-          "type": "number",
-          "initial": 31,
-          "min": 18,
-          "max": 55,
-          "step": 1,
-          "caption": "Ring proximal (base) segment length, MCP to PIP (mm) — the fingertip fills the remaining length",
-          "label_pt": "Base do Anelar (mm)",
-          "caption_pt": "Comprimento do segmento proximal (base) do anelar, MCP a PIP (mm) — a ponta preenche o resto",
-          "help": "Objective: set how the ring finger's total length splits between the proximal phalanx (MCP→PIP) and the fingertip (PIP→tip). Outcome: raising the base makes the proximal longer and the fingertip shorter for the same total; the PIP pin follows automatically. Native reference is 31 mm.",
-          "help_pt": "Objetivo: definir como o comprimento total do dedo anelar se divide entre a falange proximal (MCP→PIP) e a ponta (PIP→ponta). Resultado: aumentar a base torna o proximal mais longo e a ponta mais curta para o mesmo total; o pino PIP acompanha automaticamente. Referência nativa 31 mm.",
-          "group": "Segment split"
-        },
-        {
           "name": "pinky_finger_length_mm",
           "type": "number",
           "initial": 72,
@@ -896,20 +855,6 @@
           "group": "Anthropometric"
         },
         {
-          "name": "pinky_base_length_mm",
-          "type": "number",
-          "initial": 31,
-          "min": 18,
-          "max": 55,
-          "step": 1,
-          "caption": "Pinky proximal (base) segment length, MCP to PIP (mm) — the fingertip fills the remaining length",
-          "label_pt": "Base do Mindinho (mm)",
-          "caption_pt": "Comprimento do segmento proximal (base) do mindinho, MCP a PIP (mm) — a ponta preenche o resto",
-          "help": "Objective: set how the pinky finger's total length splits between the proximal phalanx (MCP→PIP) and the fingertip (PIP→tip). Outcome: raising the base makes the proximal longer and the fingertip shorter for the same total; the PIP pin follows automatically. Native reference is 31 mm.",
-          "help_pt": "Objetivo: definir como o comprimento total do dedo mindinho se divide entre a falange proximal (MCP→PIP) e a ponta (PIP→ponta). Resultado: aumentar a base torna o proximal mais longo e a ponta mais curta para o mesmo total; o pino PIP acompanha automaticamente. Referência nativa 31 mm.",
-          "group": "Segment split"
-        },
-        {
           "name": "thumb_length_mm",
           "type": "number",
           "initial": 72,
@@ -922,6 +867,62 @@
           "help": "Objective: size the thumb to the patient (anatomical MCP-to-tip). Outcome: only the hole-free shaft stretches, so the thumb reaches the target length with round, printable hinge holes. The Phoenix thumb is the same part as a finger, so its native length is 72 mm — most adult thumbs are shorter (~55–65 mm).",
           "help_pt": "Objetivo: dimensionar o polegar ao paciente (MCP à ponta). Resultado: só o corpo sem furos estica, atingindo o comprimento pretendido com furos redondos e imprimíveis. O polegar Phoenix é a mesma peça de um dedo, por isso o nativo é 72 mm — a maioria dos polegares adultos é mais curta (~55–65 mm).",
           "group": "Anthropometric"
+        },
+        {
+          "name": "index_base_length_mm",
+          "type": "number",
+          "initial": 31,
+          "min": 18,
+          "max": 55,
+          "step": 1,
+          "caption": "Index proximal (base) segment length, MCP to PIP (mm) — the fingertip fills the remaining length",
+          "label_pt": "Base do Indicador (mm)",
+          "caption_pt": "Comprimento do segmento proximal (base) do indicador, MCP a PIP (mm) — a ponta preenche o resto",
+          "help": "Objective: set how the index finger's total length splits between the proximal phalanx (MCP→PIP) and the fingertip (PIP→tip). Outcome: raising the base makes the proximal longer and the fingertip shorter for the same total; the PIP pin follows automatically. Native reference is 31 mm.",
+          "help_pt": "Objetivo: definir como o comprimento total do dedo indicador se divide entre a falange proximal (MCP→PIP) e a ponta (PIP→ponta). Resultado: aumentar a base torna o proximal mais longo e a ponta mais curta para o mesmo total; o pino PIP acompanha automaticamente. Referência nativa 31 mm.",
+          "group": "Segment split"
+        },
+        {
+          "name": "middle_base_length_mm",
+          "type": "number",
+          "initial": 31,
+          "min": 18,
+          "max": 55,
+          "step": 1,
+          "caption": "Middle proximal (base) segment length, MCP to PIP (mm) — the fingertip fills the remaining length",
+          "label_pt": "Base do Médio (mm)",
+          "caption_pt": "Comprimento do segmento proximal (base) do médio, MCP a PIP (mm) — a ponta preenche o resto",
+          "help": "Objective: set how the middle finger's total length splits between the proximal phalanx (MCP→PIP) and the fingertip (PIP→tip). Outcome: raising the base makes the proximal longer and the fingertip shorter for the same total; the PIP pin follows automatically. Native reference is 31 mm.",
+          "help_pt": "Objetivo: definir como o comprimento total do dedo médio se divide entre a falange proximal (MCP→PIP) e a ponta (PIP→ponta). Resultado: aumentar a base torna o proximal mais longo e a ponta mais curta para o mesmo total; o pino PIP acompanha automaticamente. Referência nativa 31 mm.",
+          "group": "Segment split"
+        },
+        {
+          "name": "ring_base_length_mm",
+          "type": "number",
+          "initial": 31,
+          "min": 18,
+          "max": 55,
+          "step": 1,
+          "caption": "Ring proximal (base) segment length, MCP to PIP (mm) — the fingertip fills the remaining length",
+          "label_pt": "Base do Anelar (mm)",
+          "caption_pt": "Comprimento do segmento proximal (base) do anelar, MCP a PIP (mm) — a ponta preenche o resto",
+          "help": "Objective: set how the ring finger's total length splits between the proximal phalanx (MCP→PIP) and the fingertip (PIP→tip). Outcome: raising the base makes the proximal longer and the fingertip shorter for the same total; the PIP pin follows automatically. Native reference is 31 mm.",
+          "help_pt": "Objetivo: definir como o comprimento total do dedo anelar se divide entre a falange proximal (MCP→PIP) e a ponta (PIP→ponta). Resultado: aumentar a base torna o proximal mais longo e a ponta mais curta para o mesmo total; o pino PIP acompanha automaticamente. Referência nativa 31 mm.",
+          "group": "Segment split"
+        },
+        {
+          "name": "pinky_base_length_mm",
+          "type": "number",
+          "initial": 31,
+          "min": 18,
+          "max": 55,
+          "step": 1,
+          "caption": "Pinky proximal (base) segment length, MCP to PIP (mm) — the fingertip fills the remaining length",
+          "label_pt": "Base do Mindinho (mm)",
+          "caption_pt": "Comprimento do segmento proximal (base) do mindinho, MCP a PIP (mm) — a ponta preenche o resto",
+          "help": "Objective: set how the pinky finger's total length splits between the proximal phalanx (MCP→PIP) and the fingertip (PIP→tip). Outcome: raising the base makes the proximal longer and the fingertip shorter for the same total; the PIP pin follows automatically. Native reference is 31 mm.",
+          "help_pt": "Objetivo: definir como o comprimento total do dedo mindinho se divide entre a falange proximal (MCP→PIP) e a ponta (PIP→ponta). Resultado: aumentar a base torna o proximal mais longo e a ponta mais curta para o mesmo total; o pino PIP acompanha automaticamente. Referência nativa 31 mm.",
+          "group": "Segment split"
         },
         {
           "name": "thumb_base_length_mm",
@@ -1132,7 +1133,7 @@
       "id": "paraglider_hand",
       "renderBackend": "manifold",
       "exportLayout": {
-        "show_assembled": false
+        "print_layout": true
       },
       "name": "Paraglider · Hand",
       "description": "Complete Paraglider (Flexible Flyer) prosthetic system in one model. The Hand component builds the palm (Phoenix Reborn or Unlimbited v3 style) plus all five fingers, sized from canonical anthropometric measurements with independent per-finger scaling and printable part toggles. The Component selector also renders the wrist-drive Tensioner Box and Thermo Gauntlet, and the separate elbow-powered UnLimbited Arm. By Marcus Mendenhall, parametric remix of Phoenix v2 / Unlimbited v3 / Phoenix Reborn using commercial metal-pin joints. Reborn Hand by enablesierraleone, CC BY 3.0.",
@@ -1416,6 +1417,37 @@
           "group": "Hardware"
         },
         {
+          "name": "GAU_bearing_only",
+          "type": "boolean",
+          "initial": false,
+          "caption": "Gauntlet: print only the wrist bearing tab (a thermoforming jig for the bearing plastic)",
+          "label_pt": "Apenas Chumaceira",
+          "caption_pt": "Braçadeira: imprimir apenas a aba da chumaceira do pulso (gabarito para termoformar o plástico)",
+          "help": "Objective (Gauntlet component): isolate the small wrist-bearing tab used as a forming jig for the 0.5 mm Igus bearing plastic. Outcome: on prints only that tab; off prints the whole gauntlet.",
+          "group": "Gauntlet"
+        },
+        {
+          "name": "GAU_slide_only",
+          "type": "boolean",
+          "initial": false,
+          "caption": "Gauntlet: print only the dovetail track (to test the tensioner-box fit)",
+          "label_pt": "Apenas Trilho",
+          "caption_pt": "Braçadeira: imprimir apenas o trilho de cauda de andorinha (para testar o ajuste da caixa tensora)",
+          "help": "Objective (Gauntlet component): isolate the dovetail track for a quick fit test against the tensioner box. Outcome: on prints just the track; off prints the whole gauntlet.",
+          "group": "Gauntlet"
+        },
+        {
+          "name": "print_layout",
+          "type": "boolean",
+          "initial": false,
+          "caption": "Print-bed layout — off shows the assembled seated hand; on lays every visible part flat, side by side, for STL export",
+          "label_pt": "Disposição de Impressão",
+          "caption_pt": "Disposição para impressão — desligado mostra a mão montada; ligado dispõe cada parte visível deitada, lado a lado, para exportar STL",
+          "help": "Objective: switch between viewing the assembled hand and preparing parts for printing. Outcome: leave it off to preview the whole seated hand; turn it on to spread every enabled part flat on the bed so you can export them for 3D printing. Combine with the part toggles to export only the pieces you need.",
+          "help_pt": "Objetivo: alternar entre ver a mão montada e preparar as peças para impressão. Resultado: deixe desligado para pré-visualizar a mão inteira; ligue para dispor cada parte ativa deitada na base, para exportar para impressão 3D. Combine com os interruptores das partes para exportar só as peças que precisa.",
+          "group": "Options"
+        },
+        {
           "name": "show_palm",
           "type": "boolean",
           "initial": true,
@@ -1516,16 +1548,6 @@
           "group": "Visibility"
         },
         {
-          "name": "show_assembled",
-          "type": "boolean",
-          "initial": true,
-          "caption": "Assembled view (fingers positioned at the knuckle pins) — turn off for a flat print layout",
-          "label_pt": "Vista Montada",
-          "caption_pt": "Vista montada (dedos posicionados nos pinos dos nós) — desligue para um layout plano de impressão",
-          "help": "Objective: choose how parts are arranged. Outcome: on shows the hand assembled at the knuckle pin positions; off lays every part flat side by side, ready for the slicer.",
-          "group": "Visibility"
-        },
-        {
           "name": "color_palm",
           "type": "color",
           "initial": "#d4a574",
@@ -1587,26 +1609,6 @@
           "label_pt": "Cor dos Pinos",
           "caption_pt": "Cor de pré-visualização dos pinos",
           "group": "Colors"
-        },
-        {
-          "name": "GAU_bearing_only",
-          "type": "boolean",
-          "initial": false,
-          "caption": "Gauntlet: print only the wrist bearing tab (a thermoforming jig for the bearing plastic)",
-          "label_pt": "Apenas Chumaceira",
-          "caption_pt": "Braçadeira: imprimir apenas a aba da chumaceira do pulso (gabarito para termoformar o plástico)",
-          "help": "Objective (Gauntlet component): isolate the small wrist-bearing tab used as a forming jig for the 0.5 mm Igus bearing plastic. Outcome: on prints only that tab; off prints the whole gauntlet.",
-          "group": "Gauntlet"
-        },
-        {
-          "name": "GAU_slide_only",
-          "type": "boolean",
-          "initial": false,
-          "caption": "Gauntlet: print only the dovetail track (to test the tensioner-box fit)",
-          "label_pt": "Apenas Trilho",
-          "caption_pt": "Braçadeira: imprimir apenas o trilho de cauda de andorinha (para testar o ajuste da caixa tensora)",
-          "help": "Objective (Gauntlet component): isolate the dovetail track for a quick fit test against the tensioner box. Outcome: on prints just the track; off prints the whole gauntlet.",
-          "group": "Gauntlet"
         },
         {
           "name": "ARM_part",
@@ -2050,6 +2052,20 @@
           "group": "Anthropometric"
         },
         {
+          "name": "wrist_circumference_mm",
+          "type": "number",
+          "initial": 160,
+          "min": 110,
+          "max": 260,
+          "step": 1,
+          "caption": "Forearm circumference at the wrist — sizes the gauntlet cuff depth/girth to the wearer (∝ circumference/π + clearance). The cuff width is fixed to the palm so its wings always meet the palm wings (mm)",
+          "label_pt": "Circunferência do Pulso (em mm)",
+          "caption_pt": "Circunferência do antebraço no pulso — dimensiona a profundidade/perímetro do punho ao utilizador (∝ circunferência/π + folga). A largura é fixa à palma para as asas encontrarem sempre as asas da palma (mm)",
+          "help": "Objective: fit the gauntlet cuff to the patient's forearm — measure the circumference around the wrist with a tape. Outcome: the cuff depth (girth) scales to circumference/π plus clearance, so it wraps comfortably regardless of hand size; too tight is uncomfortable, too loose loses wrist drive. The cuff width stays locked to the palm so the hinge wings always align. This is the gauntlet's main fit dimension.",
+          "help_pt": "Objetivo: ajustar o punho ao antebraço do paciente — meça a circunferência à volta do pulso com uma fita. Resultado: a profundidade (perímetro) do punho escala para circunferência/π mais folga, envolvendo confortavelmente independentemente do tamanho da mão; demasiado apertado é desconfortável, demasiado largo perde o acionamento do pulso. A largura fica fixa à palma para as asas da charneira alinharem sempre. É a medida de ajuste principal do punho.",
+          "group": "Anthropometric"
+        },
+        {
           "name": "index_base_length_mm",
           "type": "number",
           "initial": 22,
@@ -2131,20 +2147,6 @@
           "group": "Gauntlet"
         },
         {
-          "name": "wrist_circumference_mm",
-          "type": "number",
-          "initial": 160,
-          "min": 110,
-          "max": 260,
-          "step": 1,
-          "caption": "Forearm circumference at the wrist — sizes the gauntlet cuff depth/girth to the wearer (∝ circumference/π + clearance). The cuff width is fixed to the palm so its wings always meet the palm wings (mm)",
-          "label_pt": "Circunferência do Pulso (em mm)",
-          "caption_pt": "Circunferência do antebraço no pulso — dimensiona a profundidade/perímetro do punho ao utilizador (∝ circunferência/π + folga). A largura é fixa à palma para as asas encontrarem sempre as asas da palma (mm)",
-          "help": "Objective: fit the gauntlet cuff to the patient's forearm — measure the circumference around the wrist with a tape. Outcome: the cuff depth (girth) scales to circumference/π plus clearance, so it wraps comfortably regardless of hand size; too tight is uncomfortable, too loose loses wrist drive. The cuff width stays locked to the palm so the hinge wings always align. This is the gauntlet's main fit dimension.",
-          "help_pt": "Objetivo: ajustar o punho ao antebraço do paciente — meça a circunferência à volta do pulso com uma fita. Resultado: a profundidade (perímetro) do punho escala para circunferência/π mais folga, envolvendo confortavelmente independentemente do tamanho da mão; demasiado apertado é desconfortável, demasiado largo perde o acionamento do pulso. A largura fica fixa à palma para as asas da charneira alinharem sempre. É a medida de ajuste principal do punho.",
-          "group": "Anthropometric"
-        },
-        {
           "name": "gauntlet_tilt",
           "type": "number",
           "initial": 0,
@@ -2223,7 +2225,7 @@
           "caption_pt": "Revestir o interior da palma com uma malha perfurada termoformável — aquecer e moldar à palma do paciente para um ajuste personalizado",
           "help": "Objective: add the perforated liner that lines the inside of the palm, so the fitter can warm it and press it onto the patient's own palm for a snug, personalised interface. Outcome: turn it on for the custom-fit liner (ported from the Flexy Beast), off for a bare palm cavity. The perforations save plastic and let the mesh conform when heated.",
           "help_pt": "Objetivo: adicionar o revestimento perfurado que forra o interior da palma, para o técnico o aquecer e moldar à própria palma do paciente para uma interface justa e personalizada. Resultado: ligue para o revestimento de ajuste personalizado (portado do Flexy Beast), desligue para a cavidade da palma nua. As perfurações poupam plástico e deixam a malha conformar-se quando aquecida.",
-          "group": "Palm liner"
+          "group": "Options"
         },
         {
           "name": "print_layout",
@@ -2235,136 +2237,6 @@
           "help": "Objective: switch the preview and export between the assembled hand and a flat print-bed arrangement. Outcome: turn on to lay the palm, every finger segment and the thumb out side-by-side in their print orientation, ready to slice; leave off to see the hand assembled. STL/3MF export seats each part on the bed automatically.",
           "help_pt": "Objetivo: alternar a pré-visualização e a exportação entre a mão montada e uma disposição plana para a base de impressão. Resultado: ligue para dispor a palma, cada segmento dos dedos e o polegar lado a lado na orientação de impressão, prontos a fatiar; deixe desligado para ver a mão montada. A exportação STL/3MF assenta cada peça na base automaticamente.",
           "group": "Options"
-        },
-        {
-          "name": "color_palm",
-          "type": "color",
-          "initial": "#cbd5e1",
-          "label": "Palm",
-          "label_pt": "Palma",
-          "caption": "Palm body",
-          "caption_pt": "Corpo da palma",
-          "group": "Colors"
-        },
-        {
-          "name": "color_index_base",
-          "type": "color",
-          "initial": "#4a9eff",
-          "label": "Index — proximal",
-          "label_pt": "Indicador — proximal",
-          "caption": "Index proximal segment (base)",
-          "caption_pt": "Segmento proximal do indicador (base)",
-          "group": "Colors"
-        },
-        {
-          "name": "color_index_tip",
-          "type": "color",
-          "initial": "#7cc0ff",
-          "label": "Index — distal",
-          "label_pt": "Indicador — distal",
-          "caption": "Index distal segment (tip)",
-          "caption_pt": "Segmento distal do indicador (ponta)",
-          "group": "Colors"
-        },
-        {
-          "name": "color_middle_base",
-          "type": "color",
-          "initial": "#ff6b6b",
-          "label": "Middle — proximal",
-          "label_pt": "Médio — proximal",
-          "caption": "Middle proximal segment (base)",
-          "caption_pt": "Segmento proximal do médio (base)",
-          "group": "Colors"
-        },
-        {
-          "name": "color_middle_tip",
-          "type": "color",
-          "initial": "#ffa0a0",
-          "label": "Middle — distal",
-          "label_pt": "Médio — distal",
-          "caption": "Middle distal segment (tip)",
-          "caption_pt": "Segmento distal do médio (ponta)",
-          "group": "Colors"
-        },
-        {
-          "name": "color_ring_base",
-          "type": "color",
-          "initial": "#51cf66",
-          "label": "Ring — proximal",
-          "label_pt": "Anelar — proximal",
-          "caption": "Ring proximal segment (base)",
-          "caption_pt": "Segmento proximal do anelar (base)",
-          "group": "Colors"
-        },
-        {
-          "name": "color_ring_tip",
-          "type": "color",
-          "initial": "#8ce89b",
-          "label": "Ring — distal",
-          "label_pt": "Anelar — distal",
-          "caption": "Ring distal segment (tip)",
-          "caption_pt": "Segmento distal do anelar (ponta)",
-          "group": "Colors"
-        },
-        {
-          "name": "color_pinky_base",
-          "type": "color",
-          "initial": "#ffd43b",
-          "label": "Pinky — proximal",
-          "label_pt": "Mindinho — proximal",
-          "caption": "Pinky proximal segment (base)",
-          "caption_pt": "Segmento proximal do mindinho (base)",
-          "group": "Colors"
-        },
-        {
-          "name": "color_pinky_tip",
-          "type": "color",
-          "initial": "#ffe680",
-          "label": "Pinky — distal",
-          "label_pt": "Mindinho — distal",
-          "caption": "Pinky distal segment (tip)",
-          "caption_pt": "Segmento distal do mindinho (ponta)",
-          "group": "Colors"
-        },
-        {
-          "name": "color_thumb_base",
-          "type": "color",
-          "initial": "#cc5de8",
-          "label": "Thumb — proximal",
-          "label_pt": "Polegar — proximal",
-          "caption": "Thumb proximal segment (base)",
-          "caption_pt": "Segmento proximal do polegar (base)",
-          "group": "Colors"
-        },
-        {
-          "name": "color_thumb_tip",
-          "type": "color",
-          "initial": "#e0a0f0",
-          "label": "Thumb — distal",
-          "label_pt": "Polegar — distal",
-          "caption": "Thumb distal segment (tip)",
-          "caption_pt": "Segmento distal do polegar (ponta)",
-          "group": "Colors"
-        },
-        {
-          "name": "color_gauntlet",
-          "type": "color",
-          "initial": "#94a3b8",
-          "label": "Forearm gauntlet",
-          "label_pt": "Punho de antebraço",
-          "caption": "Forearm gauntlet cuff",
-          "caption_pt": "Punho de antebraço",
-          "group": "Colors"
-        },
-        {
-          "name": "color_thermoform",
-          "type": "color",
-          "initial": "#d9a066",
-          "label": "Palm liner",
-          "label_pt": "Revestimento da palma",
-          "caption": "Thermoformable palm liner mesh",
-          "caption_pt": "Malha termoformável de revestimento da palma",
-          "group": "Colors"
         },
         {
           "name": "show_palm",
@@ -2541,6 +2413,136 @@
           "help": "Objective: show the distal (tip) segment of the thumb, printed separately from the base. Outcome: enable to include the fingertip in the print layout or to reprint only the tip; disable to omit it. Pair it with the base toggle to output or replace the whole finger.",
           "help_pt": "Objetivo: mostrar o segmento distal (ponta) do polegar, impresso separadamente da base. Resultado: ative para incluir a ponta no layout de impressão ou para reimprimir apenas a ponta; desative para a omitir. Combine-o com o seletor de base para produzir ou substituir o dedo inteiro.",
           "group": "Visibility"
+        },
+        {
+          "name": "color_palm",
+          "type": "color",
+          "initial": "#cbd5e1",
+          "label": "Palm",
+          "label_pt": "Palma",
+          "caption": "Palm body",
+          "caption_pt": "Corpo da palma",
+          "group": "Colors"
+        },
+        {
+          "name": "color_index_base",
+          "type": "color",
+          "initial": "#4a9eff",
+          "label": "Index — proximal",
+          "label_pt": "Indicador — proximal",
+          "caption": "Index proximal segment (base)",
+          "caption_pt": "Segmento proximal do indicador (base)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_index_tip",
+          "type": "color",
+          "initial": "#7cc0ff",
+          "label": "Index — distal",
+          "label_pt": "Indicador — distal",
+          "caption": "Index distal segment (tip)",
+          "caption_pt": "Segmento distal do indicador (ponta)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_middle_base",
+          "type": "color",
+          "initial": "#ff6b6b",
+          "label": "Middle — proximal",
+          "label_pt": "Médio — proximal",
+          "caption": "Middle proximal segment (base)",
+          "caption_pt": "Segmento proximal do médio (base)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_middle_tip",
+          "type": "color",
+          "initial": "#ffa0a0",
+          "label": "Middle — distal",
+          "label_pt": "Médio — distal",
+          "caption": "Middle distal segment (tip)",
+          "caption_pt": "Segmento distal do médio (ponta)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_ring_base",
+          "type": "color",
+          "initial": "#51cf66",
+          "label": "Ring — proximal",
+          "label_pt": "Anelar — proximal",
+          "caption": "Ring proximal segment (base)",
+          "caption_pt": "Segmento proximal do anelar (base)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_ring_tip",
+          "type": "color",
+          "initial": "#8ce89b",
+          "label": "Ring — distal",
+          "label_pt": "Anelar — distal",
+          "caption": "Ring distal segment (tip)",
+          "caption_pt": "Segmento distal do anelar (ponta)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_pinky_base",
+          "type": "color",
+          "initial": "#ffd43b",
+          "label": "Pinky — proximal",
+          "label_pt": "Mindinho — proximal",
+          "caption": "Pinky proximal segment (base)",
+          "caption_pt": "Segmento proximal do mindinho (base)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_pinky_tip",
+          "type": "color",
+          "initial": "#ffe680",
+          "label": "Pinky — distal",
+          "label_pt": "Mindinho — distal",
+          "caption": "Pinky distal segment (tip)",
+          "caption_pt": "Segmento distal do mindinho (ponta)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_thumb_base",
+          "type": "color",
+          "initial": "#cc5de8",
+          "label": "Thumb — proximal",
+          "label_pt": "Polegar — proximal",
+          "caption": "Thumb proximal segment (base)",
+          "caption_pt": "Segmento proximal do polegar (base)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_thumb_tip",
+          "type": "color",
+          "initial": "#e0a0f0",
+          "label": "Thumb — distal",
+          "label_pt": "Polegar — distal",
+          "caption": "Thumb distal segment (tip)",
+          "caption_pt": "Segmento distal do polegar (ponta)",
+          "group": "Colors"
+        },
+        {
+          "name": "color_gauntlet",
+          "type": "color",
+          "initial": "#94a3b8",
+          "label": "Forearm gauntlet",
+          "label_pt": "Punho de antebraço",
+          "caption": "Forearm gauntlet cuff",
+          "caption_pt": "Punho de antebraço",
+          "group": "Colors"
+        },
+        {
+          "name": "color_thermoform",
+          "type": "color",
+          "initial": "#d9a066",
+          "label": "Palm liner",
+          "label_pt": "Revestimento da palma",
+          "caption": "Thermoformable palm liner mesh",
+          "caption_pt": "Malha termoformável de revestimento da palma",
+          "group": "Colors"
         }
       ]
     }

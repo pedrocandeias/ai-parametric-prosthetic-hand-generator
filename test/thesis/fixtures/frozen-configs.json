@@ -43,7 +43,7 @@
       "label": "UnLimbited Phoenix Hand — frozen adult reference",
       "export": "combined",
       "parameters": {
-        "LeftRight": "Left",
+        "mirrored": false,
         "palm_breadth_mm": 95,
         "index_finger_length_mm": 72,
         "index_base_length_mm": 31,
