@@ -91,35 +91,37 @@ print_layout = false;
 
 /* [Gauntlet] */
 
-// Show the forearm gauntlet — a separate printed part (wrist-powered tensioner
-// cuff) that pins to the palm's wrist hinge axis. Modelled from primitive shapes
-// (a tapered oval half-pipe tunnel) so it runs in OpenSCAD-WASM.
+// Show the forearm gauntlet — a separate printed part reconstructed from the
+// Normal Gauntlet with Tensioner. It is the SAME cuff used by the Cyborg Beast:
+// the two hands share the Cyborg Beast palm and wrist hinge, so one part fits
+// both. It pins to the palm's wrist hinge axis and is sized to the wearer's
+// forearm independently of hand scale.
 show_gauntlet = true;
 
-// Forearm socket width — no direct anthropometric import; derive as
-// wrist_circumference_mm / PI + ~6 mm clearance (mm)
-gauntlet_width_mm = 60; // [40:1:90]
+// Forearm circumference at the wrist (mm) — sizes the gauntlet cuff girth to the
+// wearer, independently of hand scale: cuff width = circumference/PI + clearance.
+wrist_circumference_mm = 160; // [110:1:260]
 
-// Gauntlet length along the forearm (mm)
-gauntlet_length_mm = 108; // [70:1:150]
+// Forearm droop angle — the gauntlet pivots this far about the wrist pin (deg)
+gauntlet_tilt = 0; // [-10:1:40]
 
-// Cuff wall thickness (mm)
-gauntlet_wall_mm = 3; // [2:0.5:5]
+// Forearm length multiplier (1 = native reconstructed length)
+gauntlet_length_scale = 0.7; // [0.7:0.05:1.5]
 
-// Slide the gauntlet along the forearm axis to fine-tune the wrist-pin fit (mm)
-gauntlet_pos_adjust = 0; // [-25:1:25]
+// Strap-hole diameters on the gauntlet rim (mm)
+gauntlet_rim_hole_d = 2.5; // [1.5:0.5:6]
+
+// Manual fine-tune on top of the automatic wrist-pin seating (local mm)
+gauntlet_nudge = [0, 0, 0];
 
 /* [Wrist Hinge] */
 
-// Wrist hinge pin diameter — sizes the pivot holes for a pin/bolt you supply
-// (defaults to the finger joint pin size) (mm)
-wrist_pin_dia = 7; // [3:0.5:8]
+// Wrist hinge pin diameter — the gauntlet prongs nest inside the palm wrist fins
+// and this pin runs fin-prong-prong-fin (defaults to the finger joint pin) (mm)
+wrist_pin_dia = 7; // [4:0.5:10]
 
-// Clearance around the pin so the gauntlet straps rotate freely (mm)
+// Clearance around the wrist pin so the gauntlet pivots freely (mm)
 wrist_pin_clearance = 0.35; // [0.1:0.05:0.8]
-
-// Nudge the strap-tip splay so the flaps sit just inside the palm wrist fins (mm)
-strap_splay_adjust = 0; // [-8:0.5:8]
 
 /* [Visibility] */
 
@@ -205,39 +207,37 @@ h_len    = knuckleW * xScaleFactor;      // length along the pin axis (fills slo
 h_span   = 8 * xScaleFactor;             // lobe centre-to-centre (knuckle-gap bridge)
 h_bore   = jointDia;                     // pin clearance bore through each lobe
 
+include <gauntlet.scad>
+
 // ── Gauntlet placement (derived) ──────────────────────────────────────────────
-// The gauntlet is authored in native mm (outer width ~50, length ~108) with its
-// own frame: +Y = wrist/proximal, -Y = hand/distal (straps), +Z = dorsal.
-// We rotate it 180° about Z so the straps face the hand (+Y of the palm), scale
-// it to the patient's forearm, and translate it so the strap-tip pivot holes
-// land on the palm's wrist hinge pin axis.
-G_REF_WIDTH  = 50;    // native gauntlet outer width (mm)
-G_REF_LENGTH = 108;   // native gauntlet length (mm)
-g_sx = gauntlet_width_mm  / G_REF_WIDTH;    // width / cross-section scale
-g_sy = gauntlet_length_mm / G_REF_LENGTH;   // forearm-axis length scale
-g_fn = 48;
+// The gauntlet (Normal Gauntlet with Tensioner) is the SAME reconstructed part
+// used by the Cyborg Beast — both hands share the Cyborg Beast palm and wrist
+// hinge, so one cuff fits both (this gauntlet.scad is a copy of the Cyborg Beast
+// file). It is scaled anisotropically so its two prongs always nest against the
+// palm wrist fins (fixed X), its girth tracks wrist_circumference_mm, and its
+// length tracks gauntlet_length_scale; then it is auto-seated on the palm
+// wrist-pin axis for any girth/length/tilt. Measured native gauntlet: width
+// 49.88 mm, prong pin-hole at (±22.6, -58.3, -9.8).
+G_NATIVE_W = 49.88;                 // native cuff width (X extent), mm
+G_PRONG_X  = 22.6;                  // native prong pin-hole |X|
+G_PRONG_Y  = -58.3;                 // native prong pin-hole Y
+G_PRONG_Z  = -9.8;                  // native prong pin-hole Z
+G_FIN_X    = 26.6;                  // palm wrist-fin |X| (prongs nest just inside)
+G_PIN_Y    = -27;                   // palm wrist-pin axis, local Y (hardwarecutouts wrist hinge)
+G_PIN_Z    = 5.5;                   // palm wrist-pin axis, local Z (wrist hinge bore z=5.5)
 
-// Palm wrist hinge pin axis (matches hardwarecutouts: Y=-27, Z=5.5 unscaled)
-g_pivot_y = -27 * yScaleFactor;
-g_pivot_z = 5.5 * zScaleFactor;
-
-// Native strap-tip hole sits at (X±22, Y-53, Z-10); after the 180° Z-rotation the
-// Y flips to +53. Solve the translation so that hole lands on the pin axis.
-g_pos_y = g_pivot_y - 53 * g_sy + gauntlet_pos_adjust;
-g_pos_z = g_pivot_z + 10 * g_sx;
-
-// ── Wrist hinge (derived) ─────────────────────────────────────────────────────
-// Palm wrist fins (cyborgbeast07palm): centre X=26.6, thickness th, both scaled.
-g_fin_cx    = 26.6 * xScaleFactor;            // fin centre X (scaled)
-g_fin_th    = th   * xScaleFactor;            // fin thickness in X (scaled)
-g_fin_inner = g_fin_cx - g_fin_th/2;          // fin inner face X (scaled)
-g_pin_span  = 2*g_fin_cx + g_fin_th;          // fin-outer to fin-outer (scaled)
-
-// Native strap-tip half-thickness ~1.85 mm; place each strap flap just inside its
-// fin (face-to-face with clearance). g_strap_splay is the native X the tip moves out.
-g_strap_halfw      = 1.85 * g_sx;
-g_strap_tip_target = g_fin_inner - wrist_pin_clearance - g_strap_halfw + strap_splay_adjust;
-g_strap_splay      = g_strap_tip_target / g_sx - 22.95;   // native (current tip centre ≈22.95)
+// X: prong pin-holes land 2.6 mm inside the wrist fins (fixed to the palm).
+g_hinge = (G_FIN_X - 2.6) / G_PRONG_X;
+// Z (cuff girth) sized to wrist_circumference_mm; the /xScaleFactor pre-division
+// cancels the outer scale([xScaleFactor…]) in gauntlet_part() so the PRINTED girth
+// is exactly circumference/PI + clearance regardless of hand scale.
+g_depth = (wrist_circumference_mm / PI + 6) / (G_NATIVE_W * xScaleFactor);
+g_len   = gauntlet_length_scale;
+// prong pin-hole position after scale([g_hinge,g_len,g_depth]) then rotate([tilt,0,180]):
+g_prong_y = -G_PRONG_Y * g_len * cos(gauntlet_tilt) - G_PRONG_Z * g_depth * sin(gauntlet_tilt);
+g_prong_z = -G_PRONG_Y * g_len * sin(gauntlet_tilt) + G_PRONG_Z * g_depth * cos(gauntlet_tilt);
+g_seat     = [0, G_PIN_Y - g_prong_y, G_PIN_Z - g_prong_z];
+g_pin_bore = wrist_pin_dia + 2 * wrist_pin_clearance;
 
 // ── Top-level assembly ────────────────────────────────────────────────────────
 
@@ -300,29 +300,33 @@ module printlayout() {
         if (show_thumb_tip)  color(color_thumb_tip)  translate([_tip_x,  _yt, 0]) thumbtip();
     }
 
-    // Gauntlet (forearm cuff) below the palm, in its native cuff orientation.
+    // Gauntlet as its own printable part: sized to the wrist, opening up, seated
+    // on the bed (native min z = -17.66, scaled by the cuff-depth factor g_depth).
     if (show_gauntlet)
-        color(color_gauntlet) translate([0, -72 * yScaleFactor, 0]) scale([g_sx, g_sy, g_sx]) gauntlet();
+        color(color_gauntlet)
+            scale([xScaleFactor, yScaleFactor, zScaleFactor])
+                translate([-70, -60, 17.66 * g_depth])
+                    scale([g_hinge, g_len, g_depth])
+                        gauntlet(pin_hole_d = g_pin_bore, rim_hole_d = gauntlet_rim_hole_d);
 
     // Flexy joints laid flat on a plate, off to the side of the palm.
     if (show_hinges)
         color(color_hinge) translate([-70 * xScaleFactor, 10 * yScaleFactor, 0]) hinge_plate();
 }
 
-// ── Gauntlet (forearm cuff) ───────────────────────────────────────────────────
+// ── Gauntlet (forearm cuff, shared with the Cyborg Beast) ─────────────────────
 
-// Placed + scaled forearm gauntlet. Straps face the hand and pin onto the palm
-// wrist hinge axis; the cuff extends down the forearm (toward -Y).
+// Place the sized gauntlet, seated on the palm wrist pin. Wrapped in the hand's
+// uniform scale so the local-frame seat math (G_PIN_Y/Z) lands on the scaled palm
+// wrist bore; g_depth already divides by xScaleFactor so the girth stays physical.
+// The prong pin-holes are drilled by gauntlet(pin_hole_d=…); with the default
+// gauntlet_length_scale the Y/Z scale factors are near-equal so they stay round.
 module gauntlet_part() {
-    difference() {
-        translate([0, g_pos_y, g_pos_z])
-            rotate([0, 0, 180])
-            scale([g_sx, g_sy, g_sx])
-            gauntlet();
-        // round wrist-pin clearance hole through the strap flaps (assembly space)
-        translate([0, g_pivot_y, g_pivot_z]) rotate([0, 90, 0])
-            cylinder(d=wrist_pin_dia + 2*wrist_pin_clearance, h=g_pin_span + 10, center=true, $fn=28);
-    }
+    scale([xScaleFactor, yScaleFactor, zScaleFactor])
+        translate(g_seat + gauntlet_nudge)
+            rotate([gauntlet_tilt, 0, 180])
+                scale([g_hinge, g_len, g_depth])
+                    gauntlet(pin_hole_d = g_pin_bore, rim_hole_d = gauntlet_rim_hole_d);
 }
 
 // lengthMult: positional arg — fixes the original Flexy Beast parameter-name mismatch.
@@ -736,123 +740,7 @@ module hinge_plate(cols = 5, rows = 2) {
             rotate([0, 0, 90]) flexy_joint();
 }
 
-// ── Gauntlet modules (primitive forearm cuff) ─────────────────────────────────
-// Authored in native mm; gauntlet_part() scales/places the whole thing. Pure
-// core primitives (no BOSL2). All identifiers are g_-prefixed to stay isolated
-// from the hand. $fn is set inside gauntlet() so it does not affect the hand.
-
-g_eps  = 0.01;
-// Native wall thickness: divide by the width scale so the printed wall ends up
-// at gauntlet_wall_mm after gauntlet_part() applies g_sx.
-g_wall = gauntlet_wall_mm / g_sx;
-
-g_open_half_x = 17.0;   // half-width of the palmar opening
-g_open_top_z  = 3.0;    // how high the central opening reaches
-
-// Cuff cross-section stations: [y, rx, rz, cz] (outer oval)
-g_cuff_discs = [
-    [-30, 20.8, 16.0, -1.0],   // distal (toward hand)
-    [-10, 22.8, 17.0, -0.5],
-    [ 10, 24.0, 17.5,  0.0],
-    [ 30, 25.0, 18.5,  0.5],   // proximal body (fullest wrap)
-    [ 44, 25.0, 17.0, -1.0],   // wrist rim
-    [ 50, 23.5, 13.5, -2.5],   // rim mouth
-];
-
-// Right strap stations: [y, xmin, xmax, zmin, zmax]; left = mirror
-g_strap_stations = [
-    [-58.00,21.68,24.19,-13.29,-6.49], [-56.00,21.33,24.61,-14.79,-4.81],
-    [-54.00,21.12,24.81,-15.50,-3.89], [-52.00,20.97,24.89,-15.83,-3.27],
-    [-50.00,20.81,24.93,-16.05,-2.72], [-48.00,20.64,24.91,-16.15,-2.22],
-    [-46.00,20.45,24.82,-16.16,-1.75], [-44.00,20.22,24.65,-16.11,-1.25],
-    [-42.00,19.94,24.38,-16.03,-0.69], [-40.00,19.61,24.01,-15.95,-0.05],
-    [-38.00,19.21,23.52,-15.86,0.72],  [-36.00,18.70,22.95,-15.79,1.68],
-    [-34.00,18.06,22.32,-15.77,2.86],  [-32.00,17.27,21.77,-15.81,4.32],
-    [-30.00,12.90,21.39,-15.90,8.82],
-];
-g_strap_corner_r = 1.6;   // strap cross-section corner rounding (pin hole drilled in assembly space)
-
-g_boss_cx=0.3; g_boss_cy=28.5; g_boss_width=29.5; g_boss_length=20.0;
-g_boss_top_z=23.4; g_boss_base_z=13.5; g_boss_round=4.0;
-
-g_crenel_x=[-11.4,-5.0,0.6,6.8,12.4];
-g_crenel_z_base=15.5; g_crenel_z_apex=21.0; g_crenel_w=4.6;
-g_crenel_y0=14.0; g_crenel_y1=22.5;
-
-g_hole_x=12.6; g_hole_y=8.5; g_hole_z=12.0; g_hole_d=3.5;
-
-module gauntlet() {
-    $fn = g_fn;
-    difference() {
-        union() {
-            g_cuff_halfpipe();
-            g_straps();
-            g_boss();
-        }
-        g_crenellations();
-        g_holes();
-    }
-}
-
-// Cuff: tapered oval half-pipe tunnel
-module g_oval_disc(d, dr=0) {   // d=[y,rx,rz,cz]; dr shrinks radii for the bore
-    translate([0, d[0], d[3]]) rotate([90,0,0])
-        linear_extrude(0.5, center=true) scale([d[1]+dr, d[2]+dr]) circle(r=1);
-}
-module g_oval_tube(dr=0) {
-    for (i = [0:len(g_cuff_discs)-2])
-        hull() { g_oval_disc(g_cuff_discs[i], dr); g_oval_disc(g_cuff_discs[i+1], dr); }
-}
-module g_cuff_halfpipe() {
-    difference() {
-        g_oval_tube(0);
-        g_oval_tube(-g_wall);
-        translate([0, 0, g_open_top_z - 100]) cube([2*g_open_half_x, 400, 200], center=true);
-    }
-}
-
-// Distal straps/tongues. The pivot end splays outward (g_splay) so each flap sits
-// just inside its palm wrist fin. The pin hole is drilled round in assembly space
-// by gauntlet_part() (stays circular despite the cuff's non-uniform scaling).
-function g_strap_rows() = [ for (s = g_strap_stations) if (s[0] <= -30 + g_eps) s ];
-function g_splay(y) = g_strap_splay * max(0, min(1, (-30 - y) / 28));   // 0 at cuff, full at tip
-module g_slab(s) {
-    w=(s[2]-s[1]); h=(s[4]-s[3]); cx=(s[1]+s[2])/2 + g_splay(s[0]); cz=(s[3]+s[4])/2;
-    r=min(g_strap_corner_r, w/2-0.01, h/2-0.01);
-    translate([cx, s[0], cz]) rotate([90,0,0]) linear_extrude(0.6, center=true)
-        offset(r=r) offset(r=-r) square([w, h], center=true);
-}
-module g_one_strap(mir) {
-    rows = g_strap_rows();
-    scale([mir,1,1])
-        for (i = [0:len(rows)-2]) hull() { g_slab(rows[i]); g_slab(rows[i+1]); }
-}
-module g_straps() { g_one_strap(1); g_one_strap(-1); }
-
-// Tensioner boss (rounded pad via minkowski)
-module g_boss() {
-    h = g_boss_top_z - g_boss_base_z; r = g_boss_round;
-    translate([g_boss_cx, g_boss_cy, (g_boss_base_z+g_boss_top_z)/2])
-        minkowski() {
-            cube([g_boss_width-2*r, g_boss_length-2*r, max(h-2*r,0.1)], center=true);
-            sphere(r=r, $fn=20);
-        }
-}
-
-// Triangular crenellation slots
-module g_crenellations() {
-    for (xc = g_crenel_x)
-        translate([xc, g_crenel_y1, 0]) rotate([90,0,0])
-            linear_extrude(g_crenel_y1-g_crenel_y0)
-            polygon([[-g_crenel_w/2, g_crenel_z_base],
-                     [ g_crenel_w/2, g_crenel_z_base],
-                     [ 0,            g_crenel_z_apex]]);
-}
-
-// Dorsal round holes (radial)
-module g_holes() {
-    ang = atan2(g_hole_z, g_hole_x);
-    for (sx = [1,-1]) scale([sx,1,1])
-        translate([g_hole_x, g_hole_y, g_hole_z])
-            rotate([0, 90-ang, 0]) cylinder(h=40, d=g_hole_d, center=true);
-}
+// ── Gauntlet (forearm cuff) ───────────────────────────────────────────────────
+// The gauntlet geometry now lives in the shared gauntlet.scad (included above) —
+// the same reconstructed part used by the Cyborg Beast. gauntlet_part() and the
+// print-layout branch size and seat it; there is no primitive cuff inlined here.

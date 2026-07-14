@@ -35,9 +35,12 @@ const COOKIE_OPTIONS = {
 };
 
 // --- Rate limiters ---
+// The login cap is overridable via LOGIN_RATE_LIMIT_MAX purely so automated test
+// campaigns (which log in many times from one IP) are not throttled. Production
+// leaves it unset → the original limit of 5 per 15 minutes is unchanged.
 const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 5,
+    max: Number(process.env.LOGIN_RATE_LIMIT_MAX) || 5,
     message: { error: 'Too many login attempts, try again in 15 minutes' },
     standardHeaders: true,
     legacyHeaders: false,

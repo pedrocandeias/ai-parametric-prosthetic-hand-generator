@@ -1,0 +1,61 @@
+{
+  "_comment": "Frozen, identified deterministic configurations for the REP-DET repetition campaign. Values are fixed BEFORE execution and must not be changed to influence results (protocol §6.1, §7). Each config is fully inside its model's declared parameter bounds. laterality is pinned so geometry is stable. Export target is the combined whole-model STL.",
+  "configs": [
+    {
+      "id": "REP-DET-001",
+      "model_id": "flexy_beast",
+      "label": "Flexy Beast — frozen adult reference",
+      "export": "combined",
+      "parameters": {
+        "mirrored": false,
+        "palm_breadth_mm": 83,
+        "middle_finger_length_mm": 72,
+        "index_finger_length_mm": 68,
+        "ring_finger_length_mm": 68,
+        "pinky_finger_length_mm": 55,
+        "thumb_length_mm": 65,
+        "wrist_circumference_mm": 160,
+        "gauntlet_tilt": 0,
+        "gauntlet_length_scale": 0.7,
+        "gauntlet_rim_hole_d": 2.5
+      }
+    },
+    {
+      "id": "REP-DET-002",
+      "model_id": "paraglider_hand",
+      "label": "Paraglider Hand — frozen adult reference",
+      "export": "combined",
+      "parameters": {
+        "mirrored": false,
+        "palm_breadth_mm": 83,
+        "palm_length_mm": 95,
+        "palm_thickness_mm": 32,
+        "index_finger_length_mm": 68,
+        "middle_finger_length_mm": 72,
+        "ring_finger_length_mm": 68,
+        "pinky_finger_length_mm": 55,
+        "thumb_length_mm": 65
+      }
+    },
+    {
+      "id": "REP-DET-003",
+      "model_id": "unlimbed_phoenix_hand",
+      "label": "UnLimbited Phoenix Hand — frozen adult reference",
+      "export": "combined",
+      "parameters": {
+        "LeftRight": "Left",
+        "palm_breadth_mm": 95,
+        "index_finger_length_mm": 72,
+        "index_base_length_mm": 31,
+        "middle_finger_length_mm": 72,
+        "middle_base_length_mm": 31,
+        "ring_finger_length_mm": 72,
+        "ring_base_length_mm": 31,
+        "pinky_finger_length_mm": 72,
+        "pinky_base_length_mm": 31,
+        "thumb_length_mm": 72,
+        "thumb_base_length_mm": 31
+      }
+    }
+  ]
+}

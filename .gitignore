@@ -35,6 +35,11 @@ npm-debug.log*
 deploy/
 deploy.tar.gz
 
+# Thesis evaluation evidence (large STL/screenshot/trace artefacts + campaign
+# metadata). Preserved locally and selectively copied to the dissertation annex;
+# never committed to the code repo.
+test-results/
+
 # Scratch / in-progress model build artifacts (never commit or deploy)
 **/_assembly.*
 **/*_preview.png

@@ -4,8 +4,12 @@ const path = require('path');
 const fs = require('fs');
 const { DatabaseSync } = require('node:sqlite');
 
-const DATA_DIR = path.join(__dirname, '..', 'data');
-const DB_PATH = path.join(DATA_DIR, 'app.db');
+// DB location. Defaults to data/app.db. `HANDFAB_DB_PATH` overrides it so an
+// isolated, synthetic database can be used for automated test campaigns without
+// touching production data — a testability seam only; the default is unchanged
+// and no runtime behaviour differs when the variable is unset.
+const DB_PATH = process.env.HANDFAB_DB_PATH || path.join(__dirname, '..', 'data', 'app.db');
+const DATA_DIR = path.dirname(DB_PATH);
 const SCHEMA_PATH = path.join(__dirname, 'schema.sql');
 
 // Ensure data directory exists
