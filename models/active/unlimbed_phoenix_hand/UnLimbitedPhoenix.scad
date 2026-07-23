@@ -31,6 +31,7 @@ show_thumb     = true;
 show_pins      = true;
 show_gauntlet  = true;
 show_tensioner = true;
+show_washers   = true;
 // - Per-part colours (assembled view / Colors tab)
 color_palm            = "#d2b48c";
 color_index           = "#4a9eff";

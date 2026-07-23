@@ -1008,11 +1008,22 @@
           "name": "show_tensioner",
           "type": "boolean",
           "initial": true,
-          "caption": "Show the tensioner mechanism (block, pins and wrist washers)",
+          "caption": "Show the tensioner mechanism (block and pins)",
           "label_pt": "Mostrar o Tensor",
-          "caption_pt": "Mostrar o mecanismo tensor (bloco, pinos e anilhas do pulso)",
-          "help": "Objective: include or hide the tensioner block, its pins and the wrist washers. Outcome: turn off to preview or export without the tensioning hardware seated at the wrist.",
-          "help_pt": "Objetivo: incluir ou ocultar o bloco tensor, os seus pinos e as anilhas do pulso. Resultado: desligue para pré-visualizar ou exportar sem a ferragem de tensão assente no pulso.",
+          "caption_pt": "Mostrar o mecanismo tensor (bloco e pinos)",
+          "help": "Objective: include or hide the tensioner block and its pins. Outcome: turn off to preview or export without the tensioning hardware seated at the wrist.",
+          "help_pt": "Objetivo: incluir ou ocultar o bloco tensor e os seus pinos. Resultado: desligue para pré-visualizar ou exportar sem a ferragem de tensão assente no pulso.",
+          "group": "Visibility"
+        },
+        {
+          "name": "show_washers",
+          "type": "boolean",
+          "initial": true,
+          "caption": "Show the wrist-pin cup washers (flat sides facing each other)",
+          "label_pt": "Mostrar as Anilhas",
+          "caption_pt": "Mostrar as anilhas dos pinos do pulso (lados planos frente a frente)",
+          "help": "Objective: include or hide the two cup washers seated on the wrist hinge pins. Outcome: turn off to preview or export without the washers; each washer sits with its flat side facing the other washer.",
+          "help_pt": "Objetivo: incluir ou ocultar as duas anilhas assentes nos pinos da dobradiça do pulso. Resultado: desligue para pré-visualizar ou exportar sem as anilhas; cada anilha assenta com o lado plano virado para o da outra.",
           "group": "Visibility"
         },
         {

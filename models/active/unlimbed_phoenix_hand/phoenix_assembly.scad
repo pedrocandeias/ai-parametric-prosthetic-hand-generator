@@ -64,7 +64,7 @@ TH_DIST = [0.3, -7.9, 0.7];         // thumb distal (fingertip) offset [x,y,z]
 TH_DROT = [-10, 0, 0];              // thumb distal rotation [x,y,z] deg
 
 // ── ARM GUARD (gauntlet) ───────────────────────────────────────────────────
-GAUNT_POS = [62, -230, 2];          // more negative y slides it out past the palm to the wrist
+GAUNT_POS = [55, -235, 2];          // more negative y slides it out past the palm to the wrist
 GAUNT_ROT = [90, 0, 0];
 
 // ── WRIST HINGE PINS (palm <-> gauntlet) ───────────────────────────────────
@@ -78,7 +78,7 @@ PIN_HEAD_D = 7;
 PIN_HEAD_H = 2;
 PIN_FLIP_MCP   = [0, 0, 0, 1];      // knuckle pins    [index,middle,ring,pinky]
 PIN_FLIP_PIP   = [0, 0, 0, 0];      // mid-finger pins [index,middle,ring,pinky]
-PIN_FLIP_THUMB = [0, 0];            // thumb [MCP, PIP]
+PIN_FLIP_THUMB = [1, 0];            // thumb [MCP, PIP] — MCP flipped: rectangular head into the saddle's rectangular recess (thumb-local -X side)
 PIN_FLIP_WRIST = [1, 0];            // wrist [pinky-side, thumb-side]
 PIN_SHOW_MCP   = [1, 1, 1, 1];      // knuckle pins    [index,middle,ring,pinky]
 PIN_SHOW_PIP   = [1, 1, 1, 1];      // mid-finger pins [index,middle,ring,pinky]
@@ -86,19 +86,23 @@ PIN_SHOW_THUMB = [1, 1];            // thumb [MCP, PIP]
 PIN_SHOW_WRIST = [1, 1];            // wrist [pinky-side, thumb-side]
 PIN_OFF_MCP    = [[0,0,0], [0,0,0], [0,0,0], [0,0,0]];
 PIN_OFF_PIP    = [[0,0,0], [0,0,0], [0,0,0], [0,0,0]];
-PIN_OFF_THUMB  = [[1,1,1], [1,1,1]];
-PIN_OFF_WRIST  = [[5,0,0], [-5,0,0]];
+PIN_OFF_THUMB  = [[0,0,0], [0,0,0]]; // zero = pins exactly on the thumb part hole axes (MCP & PIP)
+PIN_OFF_WRIST  = [[0,1,0], [-0,1,0]];
 
 // ── TENSIONER MECHANISM & WASHERS (real reconstructed parts) ────────────────
 WASHER_SHOW    = [1, 1];             // cup washers on the two wrist pins [pinky, thumb]
-WASHER_POS     = [[20, -142, 8], [90, -142, 8]];  // one per wrist pin (world)
-WASHER_ROT     = [0, 90, 0];         // bore lies along X to slip over the wrist pin
+// Washers sit FLAT on the gauntlet's wrist holes (the gauntlet previews flat —
+// it thermoforms around the arm — so its wrist holes run through Z). Each bore
+// is concentric with its hole: hole centres measured at (31.86,-151)/(92.14,-151),
+// boss top z=5.8. Flat base down against the plate, cup up to receive the pin head.
+WASHER_POS     = [[23.86, -141, 7.8], [85.14, -141, 7.8]];  // one per gauntlet wrist hole (world)
+WASHER_ROT     = [[0,-90,0], [0,90,0]];  // per-washer; bore along Z, concentric with the gauntlet hole
 TBLOCK_SHOW    = 1;                  // tensioner block (stadium housing)
-TBLOCK_POS     = [55, -168, 3];      // world seat; more -y = further out toward the wrist
+TBLOCK_POS     = [55, -220, 10];      // world seat; more -y = further out toward the wrist
 TBLOCK_ROT     = [-90, 0, 0];        // stand the tower dorsally, length along the forearm
 TPINS_SHOW     = 1;                  // three flat tensioner pins
-TPINS_POS      = [55, -150, 12];     // world seat near the wrist
-TPINS_ROT      = [0, 0, 0];          // flat, long axis along the forearm (Y)
+TPINS_POS      = [55, -200, 7.5];     // world seat near the wrist
+TPINS_ROT      = [0, 0, 180];          // flat, long axis along the forearm (Y)
 
 // ── COLOURS ────────────────────────────────────────────────────────────────
 // Colours come from the injectable color_* model parameters (defined by the
@@ -208,9 +212,12 @@ module phoenix_assembly(){
 
     if(show_gauntlet) color(GAUNT_COL) translate(GAUNT_POS) rotate(GAUNT_ROT) Gauntlet_V4();  // arm guard
 
-    if(show_tensioner){                                                   // tensioner mechanism & washers
-      if(WASHER_SHOW[0]) color(WASHER_COL) translate(WASHER_POS[0]) rotate(WASHER_ROT) washer_centered();
-      if(WASHER_SHOW[1]) color(WASHER_COL) translate(WASHER_POS[1]) rotate(WASHER_ROT) washer_centered();
+    if(show_washers){                                                     // wrist-pin cup washers, flats facing each other
+      if(WASHER_SHOW[0]) color(WASHER_COL) translate(WASHER_POS[0]) rotate(WASHER_ROT[0]) washer_centered();
+      if(WASHER_SHOW[1]) color(WASHER_COL) translate(WASHER_POS[1]) rotate(WASHER_ROT[1]) washer_centered();
+    }
+
+    if(show_tensioner){                                                   // tensioner mechanism
       if(TBLOCK_SHOW)    color(TBLOCK_COL) translate(TBLOCK_POS) rotate(TBLOCK_ROT) tensioner_block_centered();
       if(TPINS_SHOW)     color(TPINS_COL)  translate(TPINS_POS)  rotate(TPINS_ROT)  tensioner_pins_centered();
     }
@@ -238,6 +245,8 @@ module phoenix_printlayout(){
     if(show_gauntlet) color(GAUNT_COL)  translate([-10, 60, 0]) rotate([90,0,0]) Gauntlet_V4();
     if(show_tensioner){ color(TBLOCK_COL) translate([230, -40, 0]) tensioner_block_centered();
                         color(TPINS_COL)  translate([270, -40, 0]) tensioner_pins_centered(); }
+    if(show_washers)    color(WASHER_COL){ translate([297, -40, 0]) washer_centered();
+                                           translate([315, -40, 0]) washer_centered(); }
 }
 
 // Dispatcher: assembled seated preview or the flat print-bed layout.
