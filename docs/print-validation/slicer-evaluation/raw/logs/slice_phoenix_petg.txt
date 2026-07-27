@@ -1,0 +1,2 @@
+[2026-07-14 14:28:32.387685] [0x000074be8589c400] [trace]   Initializing StaticPrintConfigs
+[2026-07-14 14:28:33.602447] [0x000074be7fbfe6c0] [error]   Reversing even wall line causes it to be printed CCW instead of CW!

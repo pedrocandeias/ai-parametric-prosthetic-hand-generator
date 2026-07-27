@@ -78,16 +78,24 @@ PIN_HEAD_D = 7;
 PIN_HEAD_H = 2;
 PIN_FLIP_MCP   = [0, 0, 0, 1];      // knuckle pins    [index,middle,ring,pinky]
 PIN_FLIP_PIP   = [0, 0, 0, 0];      // mid-finger pins [index,middle,ring,pinky]
-PIN_FLIP_THUMB = [1, 0];            // thumb [MCP, PIP] — MCP flipped: rectangular head into the saddle's rectangular recess (thumb-local -X side)
-PIN_FLIP_WRIST = [1, 0];            // wrist [pinky-side, thumb-side]
+PIN_FLIP_THUMB = [1, 1];            // thumb [MCP, PIP] — MCP flipped: rectangular head into the saddle's rectangular recess (thumb-local -X side)
+PIN_FLIP_WRIST = [0, 1];            // wrist [pinky-side, thumb-side]
 PIN_SHOW_MCP   = [1, 1, 1, 1];      // knuckle pins    [index,middle,ring,pinky]
 PIN_SHOW_PIP   = [1, 1, 1, 1];      // mid-finger pins [index,middle,ring,pinky]
 PIN_SHOW_THUMB = [1, 1];            // thumb [MCP, PIP]
 PIN_SHOW_WRIST = [1, 1];            // wrist [pinky-side, thumb-side]
 PIN_OFF_MCP    = [[0,0,0], [0,0,0], [0,0,0], [0,0,0]];
 PIN_OFF_PIP    = [[0,0,0], [0,0,0], [0,0,0], [0,0,0]];
-PIN_OFF_THUMB  = [[0,0,0], [0,0,0]]; // zero = pins exactly on the thumb part hole axes (MCP & PIP)
-PIN_OFF_WRIST  = [[0,1,0], [-0,1,0]];
+PIN_OFF_THUMB  = [[0,0,0], [0,0,-0.5]]; // zero = pins exactly on the thumb part hole axes (MCP & PIP)
+PIN_OFF_WRIST  = [[-2,1,0], [2,1,0]];
+// Extra rotation per pin [x,y,z] deg, applied AFTER the offset — the pin rotates
+// about its own seat point, in the local axes of the part it sits in. The pin
+// body lies along local X, so Z swings it in-plane, Y tilts its axis, and X
+// rolls it about itself (head orientation, e.g. the MCP rectangular head).
+PIN_ROT_MCP    = [[0,0,0], [0,0,0], [0,0,0], [0,0,0]];  // knuckle pins    [index,middle,ring,pinky]
+PIN_ROT_PIP    = [[0,0,0], [0,0,0], [0,0,0], [0,0,0]];  // mid-finger pins [index,middle,ring,pinky]
+PIN_ROT_THUMB  = [[0,0,0], [0,0,0]];                    // thumb [MCP, PIP]
+PIN_ROT_WRIST  = [[0,0,0], [0,0,0]];                    // wrist [pinky-side, thumb-side] (world axes)
 
 // ── TENSIONER MECHANISM & WASHERS (real reconstructed parts) ────────────────
 WASHER_SHOW    = [1, 1];             // cup washers on the two wrist pins [pinky, thumb]
@@ -201,13 +209,13 @@ module phoenix_assembly(){
     if(show_pins){
       for(f=[0:3])                                                        // finger pins
         translate([KX[f]+DX,KY[f]+DY,KZ[f]]) rotate([0,0,SPLAY[f]]) rotate([CURL,0,0]){
-          if(PIN_SHOW_MCP[f]) translate([0,MCP_HOLE_Y,PROX_PIN_Z]+PIN_OFF_MCP[f]) pin(PIN_FLIP_MCP[f]);
-          if(PIN_SHOW_PIP[f]) translate([0,PIP_HOLE_Y+bd_of(f),PROX_PIN_Z]+PIN_OFF_PIP[f]) pin(PIN_FLIP_PIP[f]); }
+          if(PIN_SHOW_MCP[f]) translate([0,MCP_HOLE_Y,PROX_PIN_Z]+PIN_OFF_MCP[f]) rotate(PIN_ROT_MCP[f]) pin(PIN_FLIP_MCP[f]);
+          if(PIN_SHOW_PIP[f]) translate([0,PIP_HOLE_Y+bd_of(f),PROX_PIN_Z]+PIN_OFF_PIP[f]) rotate(PIN_ROT_PIP[f]) pin(PIN_FLIP_PIP[f]); }
       translate(TH_POS) rotate(TH_ROT){                                  // thumb pins
-          if(PIN_SHOW_THUMB[0]) translate([0,MCP_HOLE_Y,PROX_PIN_Z]+PIN_OFF_THUMB[0]) pin(PIN_FLIP_THUMB[0]);
-          if(PIN_SHOW_THUMB[1]) translate([0,PIP_HOLE_Y+bd_of(4),PROX_PIN_Z]+PIN_OFF_THUMB[1]) pin(PIN_FLIP_THUMB[1]); }
-      if(PIN_SHOW_WRIST[0]) translate(WRIST_PIN_A+PIN_OFF_WRIST[0]) wpin(PIN_FLIP_WRIST[0]);   // wrist pins
-      if(PIN_SHOW_WRIST[1]) translate(WRIST_PIN_B+PIN_OFF_WRIST[1]) wpin(PIN_FLIP_WRIST[1]);
+          if(PIN_SHOW_THUMB[0]) translate([0,MCP_HOLE_Y,PROX_PIN_Z]+PIN_OFF_THUMB[0]) rotate(PIN_ROT_THUMB[0]) pin(PIN_FLIP_THUMB[0]);
+          if(PIN_SHOW_THUMB[1]) translate([0,PIP_HOLE_Y+bd_of(4),PROX_PIN_Z]+PIN_OFF_THUMB[1]) rotate(PIN_ROT_THUMB[1]) pin(PIN_FLIP_THUMB[1]); }
+      if(PIN_SHOW_WRIST[0]) translate(WRIST_PIN_A+PIN_OFF_WRIST[0]) rotate(PIN_ROT_WRIST[0]) wpin(PIN_FLIP_WRIST[0]);   // wrist pins
+      if(PIN_SHOW_WRIST[1]) translate(WRIST_PIN_B+PIN_OFF_WRIST[1]) rotate(PIN_ROT_WRIST[1]) wpin(PIN_FLIP_WRIST[1]);
     }
 
     if(show_gauntlet) color(GAUNT_COL) translate(GAUNT_POS) rotate(GAUNT_ROT) Gauntlet_V4();  // arm guard

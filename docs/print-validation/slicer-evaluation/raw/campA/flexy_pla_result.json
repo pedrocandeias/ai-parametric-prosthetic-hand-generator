@@ -1,0 +1,163 @@
+{
+    "error_string": "Success.",
+    "export_time": 518,
+    "plate_index": 0,
+    "prepare_time": 31,
+    "return_code": 0,
+    "sliced_plates": [
+        {
+            "filament_change_times": 0,
+            "filaments": [
+                {
+                    "filament_id": "GFA00",
+                    "id": 1,
+                    "main_used_g": 56.509193420410156,
+                    "total_used_g": 56.509193420410156
+                }
+            ],
+            "generate_support_material_time": 101,
+            "id": 1,
+            "infill_time": 388,
+            "layer_filament_change": 0,
+            "main_predication": 8510.15234375,
+            "make_perimeters_time": 359,
+            "objects": [
+                {
+                    "bbox": {
+                        "depth": 25.344867706298828,
+                        "height": 55.90087890625,
+                        "width": 17.93941879272461,
+                        "x": 185.64215087890625,
+                        "y": 160.96971130371094,
+                        "z": 4.687499810529516e-08
+                    },
+                    "id": 5,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 1180
+                },
+                {
+                    "bbox": {
+                        "depth": 25.34486961364746,
+                        "height": 61.87385559082031,
+                        "width": 17.939422607421875,
+                        "x": 143.70272827148438,
+                        "y": 160.96971130371094,
+                        "z": 4.589836066770658e-09
+                    },
+                    "id": 9,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 1206
+                },
+                {
+                    "bbox": {
+                        "depth": 17.939416885375977,
+                        "height": 63.71168518066406,
+                        "width": 25.34487533569336,
+                        "x": 178.2366943359375,
+                        "y": 119.03028869628906,
+                        "z": 9.667960654269336e-09
+                    },
+                    "id": 13,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 1166
+                },
+                {
+                    "bbox": {
+                        "depth": 25.34487533569336,
+                        "height": 62.33331298828125,
+                        "width": 17.939424514770508,
+                        "x": 136.29727172851563,
+                        "y": 111.62483215332031,
+                        "z": 5.859366325466908e-09
+                    },
+                    "id": 17,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 1172
+                },
+                {
+                    "bbox": {
+                        "depth": 17.772733688354492,
+                        "height": 44.41473388671875,
+                        "width": 17.939420700073242,
+                        "x": 101.7633056640625,
+                        "y": 168.54185485839844,
+                        "z": -4.3359381862728696e-08
+                    },
+                    "id": 21,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 938
+                },
+                {
+                    "bbox": {
+                        "depth": 17.772741317749023,
+                        "height": 43.87419128417969,
+                        "width": 17.93942642211914,
+                        "x": 94.35784912109375,
+                        "y": 126.76911163330078,
+                        "z": -4.208984805131877e-08
+                    },
+                    "id": 25,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 940
+                },
+                {
+                    "bbox": {
+                        "depth": 17.77273941040039,
+                        "height": 39.54987335205078,
+                        "width": 17.93942642211914,
+                        "x": 94.35784912109375,
+                        "y": 84.99637603759766,
+                        "z": 2.3974607188392838e-08
+                    },
+                    "id": 29,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 944
+                },
+                {
+                    "bbox": {
+                        "depth": 17.939420700073242,
+                        "height": 46.03636169433594,
+                        "width": 17.77273941040039,
+                        "x": 59.99056625366211,
+                        "y": 168.3751678466797,
+                        "z": -4.7167972638817446e-08
+                    },
+                    "id": 33,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 940
+                },
+                {
+                    "bbox": {
+                        "depth": 17.772737503051758,
+                        "height": 33.19999694824219,
+                        "width": 17.939422607421875,
+                        "x": 52.41843032836914,
+                        "y": 126.60243225097656,
+                        "z": 2.5878904352794052e-08
+                    },
+                    "id": 37,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 1098
+                },
+                {
+                    "bbox": {
+                        "depth": 17.939422607421875,
+                        "height": 36.84716796875,
+                        "width": 17.772737503051758,
+                        "x": 131.97036743164063,
+                        "y": 67.90959167480469,
+                        "z": 1.5624998184193828e-08
+                    },
+                    "id": 41,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 938
+                }
+            ],
+            "sliced_time": 2803,
+            "sliced_time_with_cache": 1792,
+            "total_predication": 8852.865234375,
+            "triangle_count": 10522,
+            "warning_message": ""
+        }
+    ]
+}

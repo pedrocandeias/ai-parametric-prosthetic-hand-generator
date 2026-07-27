@@ -1,0 +1,5 @@
+[2026-07-14 15:02:26.685934] [0x00007a09bd8e9400] [trace]   Initializing StaticPrintConfigs
+[2026-07-14 15:02:35.618644] [0x00007a09bd8e9400] [error]   error_code 65542, description: OSMesa: Library not found
+
+[2026-07-14 15:02:35.618701] [0x00007a09bd8e9400] [error]   Failed to create GLFW window
+

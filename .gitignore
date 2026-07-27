@@ -9,6 +9,8 @@ data/app.db
 data/app.db-*
 data/app.db.bak-*
 data/*.db
+data/*.db-shm
+data/*.db-wal
 data/.~lock.*
 
 # Node modules
@@ -34,6 +36,16 @@ npm-debug.log*
 # Deployment staging output (produced by ./deploy.sh collect)
 deploy/
 deploy.tar.gz
+
+# FTP deploy credentials + local upload manifests (./deploy.sh ftp)
+.ftp-deploy.conf
+.deploy-state/
+
+# Slicer scratch (binaries + gcode output)
+.slicer-work/
+
+# Release delta archives (built locally, never committed)
+dist-*.zip
 
 # Thesis evaluation evidence (large STL/screenshot/trace artefacts + campaign
 # metadata). Preserved locally and selectively copied to the dissertation annex;

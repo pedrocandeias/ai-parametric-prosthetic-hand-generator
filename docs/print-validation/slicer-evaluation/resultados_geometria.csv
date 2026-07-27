@@ -1,0 +1,37 @@
+modelo,perfil,tipo_medida,x_mm,y_mm,z_mm,volume_malha_cm3,n_corpos,watertight,arestas_fronteira,faces_degeneradas,cabe_placa,fonte
+Flexy Beast,child_8,montagem_solida_mao_estendida,214.2,175.2,52.3,128.3,1,Sim,0,0,Sim,3MF montagem (corpo único)
+Flexy Beast,child_8,palma_peca,97.4,80.1,37.1,51.4,1,Sim,0,0,,parts/palm.3mf
+Paraglider Hand,child_8,montagem_solida_mao_estendida,331.1,114.0,29.0,65.2,1,Sim,0,409,Nao (>256mm A1),3MF montagem (corpo único)
+Paraglider Hand,child_8,palma_peca,76.5,86.3,29.0,37.2,1,Sim,0,4,,parts/palm.3mf
+UnLimbited Phoenix,child_8,montagem_solida_mao_estendida,,,,,,,,,,plataforma exporta Phoenix em pecas soltas (sem 3MF de montagem) (AUSENTE)
+UnLimbited Phoenix,child_8,palma_peca,82.2,92.0,30.6,46.1,1,Nao,2,5,,unlimbed_phoenix_hand_<perfil>_palm.3mf
+Flexy Beast,child_8,placa_disposta_serieB_placa1,161.7,143.2,37.1,65.87,12,,,,1 placa(s) A1,Série B (peças dispostas)
+Paraglider Hand,child_8,placa_disposta_serieB_placa1,125.9,166.0,29.0,39.74,7,,,,1 placa(s) A1,Série B (peças dispostas)
+UnLimbited Phoenix,child_8,placa_disposta_serieB_placa1,181.0,178.4,37.8,73.78,8,,,,2 placa(s) A1,Série B (peças dispostas)
+Flexy Beast,teen_15,montagem_solida_mao_estendida,258.6,220.8,63.1,230.4,1,Sim,0,0,Nao (>256mm A1),3MF montagem (corpo único)
+Flexy Beast,teen_15,palma_peca,117.1,96.4,44.7,87.6,1,Sim,0,0,,parts/palm.3mf
+Paraglider Hand,teen_15,montagem_solida_mao_estendida,354.0,129.1,35.9,124.6,1,Sim,0,407,Nao (>256mm A1),3MF montagem (corpo único)
+Paraglider Hand,teen_15,palma_peca,94.7,106.9,35.9,70.6,1,Sim,0,4,,parts/palm.3mf
+UnLimbited Phoenix,teen_15,montagem_disposta_placa,222.6,214.7,40.5,153.3,8,Nao,8,13,Sim,print_project.3mf (unica montagem existente)
+UnLimbited Phoenix,teen_15,palma_peca,88.2,98.7,32.8,57.0,1,Nao,2,8,,unlimbed_phoenix_hand_<perfil>_palm.3mf
+Flexy Beast,teen_15,placa_disposta_serieB_placa1,194.1,190.5,45.0,103.86,12,,,,1 placa(s) A1,Série B (peças dispostas)
+Paraglider Hand,teen_15,placa_disposta_serieB_placa1,140.6,178.9,35.9,66.62,7,,,,1 placa(s) A1,Série B (peças dispostas)
+UnLimbited Phoenix,teen_15,placa_disposta_serieB_placa1,192.9,193.8,40.5,87.4,8,,,,2 placa(s) A1,Série B (peças dispostas)
+Flexy Beast,adult_28,montagem_solida_mao_estendida,295.7,243.8,71.2,323.3,1,Sim,0,0,Nao (>256mm A1),3MF montagem (corpo único)
+Flexy Beast,adult_28,palma_peca,134.1,110.3,51.1,131.2,1,Sim,0,0,,parts/palm.3mf
+Paraglider Hand,adult_28,montagem_solida_mao_estendida,372.3,140.8,41.4,187.2,1,Sim,0,244,Nao (>256mm A1),3MF montagem (corpo único)
+Paraglider Hand,adult_28,palma_peca,109.3,123.3,41.4,108.4,1,Sim,0,4,,parts/palm.3mf
+UnLimbited Phoenix,adult_28,montagem_solida_mao_estendida,,,,,,,,,,plataforma exporta Phoenix em pecas soltas (sem 3MF de montagem) (AUSENTE)
+UnLimbited Phoenix,adult_28,palma_peca,90.2,100.9,33.5,61.0,1,Nao,2,5,,unlimbed_phoenix_hand_<perfil>_palm.3mf
+Flexy Beast,adult_28,placa_disposta_serieB_placa1,134.1,177.2,51.1,134.24,12,,,,2 placa(s) A1,Série B (peças dispostas)
+Paraglider Hand,adult_28,placa_disposta_serieB_placa1,195.5,194.5,41.4,92.48,7,,,,1 placa(s) A1,Série B (peças dispostas)
+UnLimbited Phoenix,adult_28,placa_disposta_serieB_placa1,154.1,154.5,41.4,91.83,8,,,,2 placa(s) A1,Série B (peças dispostas)
+Flexy Beast,elderly_70,montagem_solida_mao_estendida,272.5,229.6,67.9,262.4,1,Sim,0,0,Nao (>256mm A1),3MF montagem (corpo único)
+Flexy Beast,elderly_70,palma_peca,125.6,103.3,47.9,107.9,1,Sim,0,0,,parts/palm.3mf
+Paraglider Hand,elderly_70,montagem_solida_mao_estendida,363.2,131.5,38.7,133.3,1,Sim,0,243,Nao (>256mm A1),3MF montagem (corpo único)
+Paraglider Hand,elderly_70,palma_peca,102.0,115.1,38.7,88.1,1,Sim,0,165,,parts/palm.3mf
+UnLimbited Phoenix,elderly_70,montagem_solida_mao_estendida,,,,,,,,,,plataforma exporta Phoenix em pecas soltas (sem 3MF de montagem) (AUSENTE)
+UnLimbited Phoenix,elderly_70,palma_peca,84.2,94.2,31.3,49.6,1,Nao,2,6,,unlimbed_phoenix_hand_<perfil>_palm.3mf
+Flexy Beast,elderly_70,placa_disposta_serieB_placa1,195.4,188.9,49.0,114.5,12,,,,2 placa(s) A1,Série B (peças dispostas)
+Paraglider Hand,elderly_70,placa_disposta_serieB_placa1,180.2,176.5,38.7,71.26,7,,,,1 placa(s) A1,Série B (peças dispostas)
+UnLimbited Phoenix,elderly_70,placa_disposta_serieB_placa1,185.3,182.7,38.7,77.96,8,,,,2 placa(s) A1,Série B (peças dispostas)

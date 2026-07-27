@@ -1,0 +1,301 @@
+[
+  {
+    "model": "flexy_beast",
+    "profile": "child_8",
+    "case": "flexy_beast_child_8",
+    "status": "SLICED",
+    "plates": 1,
+    "objects": 12,
+    "weight_g": 83.0,
+    "volume_cm3": 65.87,
+    "length_mm": 27387.6,
+    "time_s": 23974.9,
+    "time_hms": "6h39m34s",
+    "max_layers": 186,
+    "height_mm": 37.1,
+    "plate_footprints": [
+      [
+        161.7,
+        143.2
+      ]
+    ],
+    "warnings": [
+      "It seems object OpenSCAD Model has floating cantilever. Please re-orient the object or enable support generation."
+    ]
+  },
+  {
+    "model": "flexy_beast",
+    "profile": "teen_15",
+    "case": "flexy_beast_teen_15",
+    "status": "SLICED",
+    "plates": 1,
+    "objects": 12,
+    "weight_g": 130.87,
+    "volume_cm3": 103.86,
+    "length_mm": 43180.9,
+    "time_s": 35512.6,
+    "time_hms": "9h51m52s",
+    "max_layers": 225,
+    "height_mm": 45.0,
+    "plate_footprints": [
+      [
+        194.1,
+        190.5
+      ]
+    ],
+    "warnings": [
+      "It seems object OpenSCAD Model has floating cantilever. Please re-orient the object or enable support generation."
+    ]
+  },
+  {
+    "model": "flexy_beast",
+    "profile": "adult_28",
+    "case": "flexy_beast_adult_28",
+    "status": "SLICED",
+    "plates": 2,
+    "objects": 12,
+    "weight_g": 169.15,
+    "volume_cm3": 134.24,
+    "length_mm": 55811.9,
+    "time_s": 45254.4,
+    "time_hms": "12h34m14s",
+    "max_layers": 256,
+    "height_mm": 51.1,
+    "plate_footprints": [
+      [
+        134.1,
+        177.2
+      ],
+      [
+        174.6,
+        124.0
+      ]
+    ],
+    "warnings": [
+      "It seems object OpenSCAD Model has floating cantilever. Please re-orient the object or enable support generation.",
+      "It seems object OpenSCAD Model has floating regions. Please re-orient the object or enable support generation."
+    ]
+  },
+  {
+    "model": "flexy_beast",
+    "profile": "elderly_70",
+    "case": "flexy_beast_elderly_70",
+    "status": "SLICED",
+    "plates": 2,
+    "objects": 12,
+    "weight_g": 144.27,
+    "volume_cm3": 114.5,
+    "length_mm": 47602.0,
+    "time_s": 39177.7,
+    "time_hms": "10h52m57s",
+    "max_layers": 245,
+    "height_mm": 49.0,
+    "plate_footprints": [
+      [
+        195.4,
+        188.9
+      ],
+      [
+        40.2,
+        36.6
+      ]
+    ],
+    "warnings": [
+      "It seems object OpenSCAD Model has floating regions. Please re-orient the object or enable support generation."
+    ]
+  },
+  {
+    "model": "paraglider_hand",
+    "profile": "child_8",
+    "case": "paraglider_hand_child_8",
+    "status": "SLICED",
+    "plates": 1,
+    "objects": 7,
+    "weight_g": 50.07,
+    "volume_cm3": 39.74,
+    "length_mm": 16522.2,
+    "time_s": 15767.4,
+    "time_hms": "4h22m47s",
+    "max_layers": 145,
+    "height_mm": 29.0,
+    "plate_footprints": [
+      [
+        125.9,
+        166.0
+      ]
+    ],
+    "warnings": []
+  },
+  {
+    "model": "paraglider_hand",
+    "profile": "teen_15",
+    "case": "paraglider_hand_teen_15",
+    "status": "SLICED",
+    "plates": 1,
+    "objects": 7,
+    "weight_g": 83.94,
+    "volume_cm3": 66.62,
+    "length_mm": 27695.5,
+    "time_s": 24318.2,
+    "time_hms": "6h45m18s",
+    "max_layers": 179,
+    "height_mm": 35.9,
+    "plate_footprints": [
+      [
+        140.6,
+        178.9
+      ]
+    ],
+    "warnings": []
+  },
+  {
+    "model": "paraglider_hand",
+    "profile": "adult_28",
+    "case": "paraglider_hand_adult_28",
+    "status": "SLICED",
+    "plates": 1,
+    "objects": 7,
+    "weight_g": 116.53,
+    "volume_cm3": 92.48,
+    "length_mm": 38449.4,
+    "time_s": 32141.4,
+    "time_hms": "8h55m41s",
+    "max_layers": 207,
+    "height_mm": 41.4,
+    "plate_footprints": [
+      [
+        195.5,
+        194.5
+      ]
+    ],
+    "warnings": []
+  },
+  {
+    "model": "paraglider_hand",
+    "profile": "elderly_70",
+    "case": "paraglider_hand_elderly_70",
+    "status": "SLICED",
+    "plates": 1,
+    "objects": 7,
+    "weight_g": 89.79,
+    "volume_cm3": 71.26,
+    "length_mm": 29627.5,
+    "time_s": 25746.0,
+    "time_hms": "7h09m05s",
+    "max_layers": 193,
+    "height_mm": 38.7,
+    "plate_footprints": [
+      [
+        180.2,
+        176.5
+      ]
+    ],
+    "warnings": [
+      "It seems object OpenSCAD Model has floating regions. Please re-orient the object or enable support generation."
+    ]
+  },
+  {
+    "model": "unlimbed_phoenix_hand",
+    "profile": "child_8",
+    "case": "unlimbed_phoenix_hand_child_8",
+    "status": "SLICED",
+    "plates": 2,
+    "objects": 8,
+    "weight_g": 92.96,
+    "volume_cm3": 73.78,
+    "length_mm": 30673.7,
+    "time_s": 26984.7,
+    "time_hms": "7h29m44s",
+    "max_layers": 189,
+    "height_mm": 37.8,
+    "plate_footprints": [
+      [
+        181.0,
+        178.4
+      ],
+      [
+        64.7,
+        66.0
+      ]
+    ],
+    "warnings": []
+  },
+  {
+    "model": "unlimbed_phoenix_hand",
+    "profile": "teen_15",
+    "case": "unlimbed_phoenix_hand_teen_15",
+    "status": "SLICED",
+    "plates": 2,
+    "objects": 8,
+    "weight_g": 110.12,
+    "volume_cm3": 87.4,
+    "length_mm": 36335.2,
+    "time_s": 30645.2,
+    "time_hms": "8h30m45s",
+    "max_layers": 202,
+    "height_mm": 40.5,
+    "plate_footprints": [
+      [
+        192.9,
+        193.8
+      ],
+      [
+        69.2,
+        70.8
+      ]
+    ],
+    "warnings": []
+  },
+  {
+    "model": "unlimbed_phoenix_hand",
+    "profile": "adult_28",
+    "case": "unlimbed_phoenix_hand_adult_28",
+    "status": "SLICED",
+    "plates": 2,
+    "objects": 8,
+    "weight_g": 115.71,
+    "volume_cm3": 91.83,
+    "length_mm": 38179.8,
+    "time_s": 32180.3,
+    "time_hms": "8h56m20s",
+    "max_layers": 207,
+    "height_mm": 41.4,
+    "plate_footprints": [
+      [
+        154.1,
+        154.5
+      ],
+      [
+        148.7,
+        167.4
+      ]
+    ],
+    "warnings": []
+  },
+  {
+    "model": "unlimbed_phoenix_hand",
+    "profile": "elderly_70",
+    "case": "unlimbed_phoenix_hand_elderly_70",
+    "status": "SLICED",
+    "plates": 2,
+    "objects": 8,
+    "weight_g": 98.23,
+    "volume_cm3": 77.96,
+    "length_mm": 32412.0,
+    "time_s": 28149.6,
+    "time_hms": "7h49m09s",
+    "max_layers": 193,
+    "height_mm": 38.7,
+    "plate_footprints": [
+      [
+        185.3,
+        182.7
+      ],
+      [
+        66.2,
+        67.6
+      ]
+    ],
+    "warnings": []
+  }
+]

@@ -18,12 +18,22 @@
 #       rsync the staged tree up. With no destination it uses the cPanel target
 #       configured below. No --delete by default, so server-only files
 #       (Passenger .htaccess, the live data/ DB) are preserved.
+#       Requires SSH access to the server.
+#
+#   ./deploy.sh ftp [--dry-run] [--all] [--yes] [--out DIR]
+#       SSH-less deploy over FTPS. Runs collect, then uploads only the files
+#       whose content changed since the last FTP deploy (tracked in a local
+#       manifest under .deploy-state/). Credentials live in .ftp-deploy.conf
+#       (git-ignored; bootstrap from ftp-deploy.conf.example). Nothing is ever
+#       deleted on the server, and there is no remote backup step — code is
+#       recoverable from git and the live DB (data/) is never touched.
 #
 # Examples:
 #   ./deploy.sh collect --tar
-#   ./deploy.sh deploy                       # → configured cPanel target
-#   ./deploy.sh deploy --dry-run             # preview, no changes
-#   ./deploy.sh deploy user@host:/path --port 2222
+#   ./deploy.sh deploy                       # → configured cPanel target (SSH)
+#   ./deploy.sh ftp --dry-run                # preview changed files, no upload
+#   ./deploy.sh ftp                          # incremental FTPS upload
+#   ./deploy.sh ftp --all                    # re-upload everything
 #
 set -euo pipefail
 
@@ -35,6 +45,7 @@ ASSUME_YES=false
 DESTINATION=""
 DRY_RUN=false
 DO_BACKUP=true
+UPLOAD_ALL=false
 
 # --- Default cPanel deploy target (same account as bragagenda) ----------------
 # Override the destination by passing user@host:/path; override the SSH port
@@ -89,9 +100,16 @@ EXCLUDES=(
     "assemblage-*.jpg"                  # reference exploded-view photos
     "models/*/*/output/"                # openscad-skill render output (STL/PNG scratch)
     "models/*/*/previews/"              # openscad-skill preview PNGs
+    ".slicer-work/"                     # slicer binaries + gcode scratch (~1 GB)
+    "dist-*.zip"                        # release delta archives
+    "docs/print-validation/"            # thesis print artifacts (.3mf/.gcode, tens of MB)
     # --- the deploy machinery itself ---
     "deploy/"
     "deploy.sh"
+    "deploy.tar.gz"
+    ".ftp-deploy.conf"                  # FTP credentials — NEVER ship
+    "ftp-deploy.conf.example"
+    ".deploy-state/"                    # local FTP upload manifests
 )
 
 usage() {
@@ -105,12 +123,19 @@ Usage:
   ./deploy.sh deploy [user@host:/path] [--port N] [--dry-run] [--no-backup] [--delete] [--yes]
       collect → remote backup → rsync up. No destination = the configured cPanel target.
       No --delete by default (preserves Passenger .htaccess, the live data/ DB, etc.).
+      Requires SSH access.
+
+  ./deploy.sh ftp [--dry-run] [--all] [--yes]
+      SSH-less deploy over FTPS: collect → upload only content-changed files
+      (local manifest in .deploy-state/). Credentials in .ftp-deploy.conf
+      (git-ignored; copy ftp-deploy.conf.example). Never deletes on the server.
+      --all re-uploads everything, ignoring the manifest.
 
 Examples:
   ./deploy.sh collect --tar
-  ./deploy.sh deploy                 # configured cPanel target
-  ./deploy.sh deploy --dry-run       # preview only
-  ./deploy.sh deploy user@host:/path --port 2222
+  ./deploy.sh deploy                 # configured cPanel target (SSH)
+  ./deploy.sh ftp --dry-run          # list files that would be uploaded
+  ./deploy.sh ftp                    # incremental FTPS upload
 USAGE
     exit "${1:-0}"
 }
@@ -248,13 +273,144 @@ EOF
     echo ""
 }
 
+# ── FTP deploy (SSH-less) ─────────────────────────────────────────────────────
+
+# Percent-encode a path for use in an ftp:// URL (byte-wise; keeps / . _ ~ -).
+urlencode_path() {
+    local LC_ALL=C s="$1" out="" c i
+    for ((i = 0; i < ${#s}; i++)); do
+        c="${s:i:1}"
+        case "$c" in
+            [a-zA-Z0-9/._~-]) out+="$c" ;;
+            *) printf -v c '%%%02X' "'$c"; out+="$c" ;;
+        esac
+    done
+    printf '%s' "$out"
+}
+
+do_ftp_deploy() {
+    local conf="${SCRIPT_DIR}/.ftp-deploy.conf"
+    if [ ! -f "${conf}" ]; then
+        echo "❌ ${conf} not found." >&2
+        echo "   Create it from the template:  cp ftp-deploy.conf.example .ftp-deploy.conf" >&2
+        exit 1
+    fi
+    # shellcheck source=/dev/null
+    source "${conf}"
+    : "${FTP_HOST:?FTP_HOST missing in .ftp-deploy.conf}"
+    : "${FTP_USER:?FTP_USER missing in .ftp-deploy.conf}"
+    : "${FTP_PASS:?FTP_PASS missing in .ftp-deploy.conf}"
+    : "${FTP_PATH:?FTP_PATH missing in .ftp-deploy.conf}"
+    FTP_PROTO="${FTP_PROTO:-ftps}"
+    if [ "${DRY_RUN}" != true ] && { [ "${FTP_HOST}" = "ftp.example.com" ] || [ "${FTP_HOST}" = "CHANGE_ME" ]; }; then
+        echo "❌ .ftp-deploy.conf still has template values — fill in the real credentials." >&2
+        exit 1
+    fi
+
+    do_collect
+
+    local state_dir="${SCRIPT_DIR}/.deploy-state"
+    local manifest="${state_dir}/ftp-manifest-${FTP_HOST}.txt"
+    mkdir -p "${state_dir}"
+
+    echo "=========================================="
+    echo "  FTP deploy (SSH-less)"
+    echo "=========================================="
+    echo "Destination: ${FTP_PROTO}://${FTP_HOST}${FTP_PATH}/"
+    [ "${DRY_RUN}" = true ]    && echo "Mode: DRY RUN (no files will be transferred)"
+    [ "${UPLOAD_ALL}" = true ] && echo "Mode: full upload (--all: manifest ignored)"
+    echo ""
+
+    # Hash the staged tree; compare against the last-uploaded manifest.
+    echo "→ Hashing staged files…"
+    local new_manifest="${OUT_DIR}.manifest"
+    (cd "${OUT_DIR}" && find . -type f -print0 | sort -z \
+        | xargs -0 md5sum | sed 's|  \./|  |') > "${new_manifest}"
+
+    local changed_list="${OUT_DIR}.changed"
+    if [ "${UPLOAD_ALL}" = true ] || [ ! -f "${manifest}" ]; then
+        [ ! -f "${manifest}" ] && echo "  (no previous manifest — first FTP deploy uploads everything)"
+        sed 's/^[0-9a-f]*  //' "${new_manifest}" > "${changed_list}"
+    else
+        # Lines (hash + path) present now but absent from the old manifest =
+        # new or content-changed files.
+        comm -13 <(sort "${manifest}") <(sort "${new_manifest}") \
+            | sed 's/^[0-9a-f]*  //' > "${changed_list}"
+        local removed
+        removed=$(comm -23 <(sed 's/^[0-9a-f]*  //' "${manifest}" | sort) \
+                           <(sed 's/^[0-9a-f]*  //' "${new_manifest}" | sort) | wc -l | tr -d ' ')
+        [ "${removed}" != "0" ] && echo "  ℹ ${removed} file(s) no longer staged locally — FTP mode never deletes them on the server."
+    fi
+
+    local total
+    total=$(wc -l < "${changed_list}" | tr -d ' ')
+    if [ "${total}" = "0" ]; then
+        echo "✅ Nothing to upload — server is up to date."
+        return 0
+    fi
+    echo "→ ${total} file(s) to upload:"
+    sed 's/^/    /' "${changed_list}" | head -40
+    [ "${total}" -gt 40 ] && echo "    … ($((total - 40)) more)"
+    echo ""
+
+    if [ "${DRY_RUN}" = true ]; then
+        echo "(DRY RUN — nothing was transferred.)"
+        return 0
+    fi
+
+    if [ "${ASSUME_YES}" != true ]; then
+        read -r -p "Continue with FTP upload? (y/N) " reply
+        case "${reply}" in
+            [Yy]*) ;;
+            *) echo "Deployment cancelled."; exit 0 ;;
+        esac
+    fi
+
+    # Build a curl config so all transfers share one process/connection.
+    # mktemp gives 600 perms, so the credentials never sit in `ps` output.
+    local curl_cfg
+    curl_cfg=$(mktemp)
+    trap 'rm -f "${curl_cfg}"' RETURN
+    {
+        echo "user = \"${FTP_USER}:${FTP_PASS}\""
+        [ "${FTP_PROTO}" = "ftps" ] && echo "ssl-reqd"
+        echo "ftp-create-dirs"
+        echo "fail-early"
+        echo "show-error"
+        echo "no-progress-meter"
+        while IFS= read -r rel; do
+            echo "upload-file = \"${OUT_DIR}/${rel}\""
+            echo "url = \"ftp://${FTP_HOST}$(urlencode_path "${FTP_PATH}/${rel}")\""
+        done < "${changed_list}"
+    } > "${curl_cfg}"
+
+    echo "→ Uploading ${total} file(s)…"
+    if curl --config "${curl_cfg}"; then
+        cp "${new_manifest}" "${manifest}"
+        echo ""
+        echo "=========================================="
+        echo "✅ FTP upload complete (${total} files)"
+        echo "=========================================="
+        echo ""
+        echo "If server/** changed: Restart the app in cPanel → Setup Node.js App."
+        echo "New npm dependencies also need Run NPM Install there."
+        echo "Client-only changes (app.js, index.html, models/, .scad) are live now."
+    else
+        rm -f "${curl_cfg}"
+        echo "" >&2
+        echo "❌ Upload failed — manifest NOT updated; re-run './deploy.sh ftp' to retry." >&2
+        exit 1
+    fi
+    echo ""
+}
+
 # --- Argument parsing ---------------------------------------------------------
 [ $# -eq 0 ] && usage 1
 MODE="$1"; shift
 
 case "${MODE}" in
     -h|--help|help) usage 0 ;;
-    collect|deploy) ;;
+    collect|deploy|ftp) ;;
     *) echo "Unknown mode: '${MODE}'" >&2; echo ""; usage 1 ;;
 esac
 
@@ -267,6 +423,7 @@ while [ $# -gt 0 ]; do
         --port)   REMOTE_PORT="$2"; shift 2 ;;
         --port=*) REMOTE_PORT="${1#*=}"; shift ;;
         --dry-run) DRY_RUN=true; shift ;;
+        --all)    UPLOAD_ALL=true; shift ;;
         --no-backup) DO_BACKUP=false; shift ;;
         -y|--yes) ASSUME_YES=true; shift ;;
         -h|--help) usage 0 ;;
@@ -290,4 +447,5 @@ esac
 case "${MODE}" in
     collect) do_collect ;;
     deploy)  do_deploy ;;
+    ftp)     do_ftp_deploy ;;
 esac

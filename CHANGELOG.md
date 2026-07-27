@@ -10,6 +10,16 @@ Version format: `MAJOR.MINOR.PATCH`
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
+## v14.77.0 — 2026-07-27
+
+feat: **`./deploy.sh ftp` — SSH-less incremental deploy over FTPS.** New mode: collect → hash the staged tree → upload only content-changed files via a single `curl --config` FTPS session (credentials in git-ignored `.ftp-deploy.conf`, bootstrap from the new `ftp-deploy.conf.example`; per-host manifest in `.deploy-state/`). Never deletes on the server and never touches the live `data/` DB; `--dry-run` previews the changed-file list, `--all` ignores the manifest. Collect excludes extended: `.slicer-work/`, `dist-*.zip`, `docs/print-validation/`, FTP conf + state.
+
+fix: **UnLimbited Phoenix — wrist and thumb pins fully seated.** Wrist pins nudged onto the gauntlet boss holes (`PIN_OFF_WRIST` ±2 mm in X) with flips corrected to `[0,1]` (heads outward on both sides); thumb PIP pin flipped and dropped 0.5 mm onto its hole axis (`PIN_FLIP_THUMB` `[1,1]`, `PIN_OFF_THUMB` PIP `z −0.5`). New per-pin rotation hooks `PIN_ROT_MCP/PIP/THUMB/WRIST` (applied after the offset, about the pin's own seat point) for future fine alignment — all zeroed, so every other pin renders identically.
+
+docs: **add slicer-evaluation suite** (`docs/print-validation/slicer-evaluation/`) — verifiable Bambu Studio + PrusaSlicer CLI slicing evidence for dissertation Annex D: protocol, exact commands/versions/SHA-256 checksums, Série A (4 archived projects as-prepared) and Série B (12 cases, 3 models × 4 profiles under a common virtual condition) result CSVs, geometry/manifold checks, and raw slicer outputs. Also commits the previously documented print projects (Cyborg Beast teen_15 `.3mf`, Phoenix teen_15 PETG `.3mf`, `palm-body-dimensions.md`).
+
+chore: gitignore FTP deploy credentials/state (`.ftp-deploy.conf`, `.deploy-state/`), slicer scratch (`.slicer-work/`), release archives (`dist-*.zip`), and thesis-test SQLite journal files (`data/*.db-shm/-wal`).
+
 ## v14.76.0 — 2026-07-23
 
 fix: **UnLimbited Phoenix — thumb pins seated on the part holes, rectangular head into the palm recess.** `PIN_OFF_THUMB` zeroed (was a `[1,1,1]` fudge, leaving both thumb pins ~1 mm off the MCP/PIP hole axes — pins now sit exactly on the holes by construction, same as the fingers) and `PIN_FLIP_THUMB` set to `[1,0]`: the MCP pin is flipped so its rectangular snap-pin head faces the thumb saddle's rectangular recess (thumb-local −X side; recess side identified on the palm mesh, flip semantics verified by isolated `pin(0)`/`pin(1)` renders — flip=1 ⇒ head at −X).

@@ -1,0 +1,4 @@
+[2026-07-14 14:52:28.763875] [0x0000737a3d1be400] [trace]   Initializing StaticPrintConfigs
+[2026-07-14 14:52:28.866987] [0x0000737a3d1be400] [error]   plate 1: Nothing to be sliced, Either the print is empty or no object is fully inside the print volume before apply.
+
+run found error, return -50, exit...

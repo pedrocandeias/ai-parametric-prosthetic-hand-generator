@@ -1,0 +1,134 @@
+================================================================================
+COMANDOS, VERSÕES E CHECKSUMS — Ensaios de avaliação de preparação para impressão
+Data de execução: 2026-07-14
+Máquina: Linux 6.17.0-35-generic x86_64
+================================================================================
+
+--------------------------------------------------------------------------------
+1. PROGRAMAS (fatiadores) E VERSÕES
+--------------------------------------------------------------------------------
+Bambu Studio  : BambuStudio-01.10.02.76   (AppImage PR-6008, ubuntu-24.04)
+PrusaSlicer   : 2.8.1+linux-x64-GTK3-202409181416  (based on Slic3r)
+Python        : 3.12.3
+NumPy         : 2.4.4   (usado apenas na análise geométrica, não no fatiamento)
+
+Ficheiros AppImage originais em /home/pec/Apps:
+  Bambu_Studio_ubuntu-24.04_PR-6008.AppImage
+    SHA-256 = b31fb706ead0134b514d281b9f33b9ccd14a6a3362ce344bdf5be4109f8d7e59
+  PrusaSlicer-2.8.1+linux-x64-newer-distros-GTK3-202409181416.AppImage
+    SHA-256 = 565f2f4bd4dbb05904a459d54db1916b6932124709c1d17b5aacfe9f5f2f1b03
+
+--------------------------------------------------------------------------------
+2. AMBIENTE DE EXECUÇÃO E ISOLAMENTO
+--------------------------------------------------------------------------------
+- O AppImageLauncher instalado no sistema intercepta a execução dos AppImage e,
+  em modo headless (sem sessão gráfica) com HOME redirigido, provoca segfault
+  ("cannot read config file" / QIODevice appimagelauncher.cfg). Por isso os dois
+  AppImage foram EXTRAÍDOS e executou-se o binário interno via ./AppRun, como o
+  próprio protocolo previa ("extrai-os e executa os binários internos").
+    Bambu:  <extração>/squashfs-root/AppRun          (define LC_ALL=C, LD_LIBRARY_PATH)
+    Prusa:  <extração>/squashfs-root/AppRun
+- Isolamento dos perfis globais do utilizador:
+    HOME redirigido para um diretório de trabalho dedicado (não os perfis reais).
+    PrusaSlicer: --datadir para um diretório temporário dedicado.
+    Bambu Série B: processo/filamento carregados de ficheiros próprios (ver §5),
+    sem escrever nos presets do utilizador.
+- NOTA: o sandbox do ambiente bloqueou a escrita em /tmp; usou-se um diretório de
+  trabalho isolado dentro da área autorizada, funcionalmente equivalente a /tmp
+  (isolado dos perfis globais). Nenhum perfil global do utilizador foi alterado.
+
+--------------------------------------------------------------------------------
+3. SÉRIE A (ENSAIO A) — FATIAMENTO DOS 4 PROJECTOS ARQUIVADOS (perfis embebidos)
+--------------------------------------------------------------------------------
+Objetivo: re-fatiar cada projecto TAL COMO FOI PREPARADO (definições, filamento e
+layout de placa embebidos no próprio 3MF) para obter tempo/filamento/massa, que
+NÃO estavam guardados nos ficheiros (o slice_info.config Bambu continha apenas o
+cabeçalho; o projecto PrusaSlicer não continha G-code).
+
+Bambu (×3) — comando genérico:
+  HOME=<work>/bambu_home  <work>/squashfs-root/AppRun \
+    --slice 0 \
+    --outputdir <out>/<caso> \
+    --export-3mf <caso>_sliced.3mf \
+    <docs/print-validation>/<projecto>.3mf
+
+  Projectos:
+   - flexy_beast_teen_15_print.3mf
+   - unlimbed_phoenix_hand_teen_15_print_project.3mf
+   - unlimbed_phoenix_hand_teen_15_print_project_PETG.3mf
+  Saída relevante por caso: result.json (tempo/massa), plate_1.gcode (cabeçalho
+  com comprimento/camadas).
+
+PrusaSlicer (×1) — Paraglider (Prusa MINI):
+  HOME=<work>/bambu_home  <work>/prusa_extract/squashfs-root/AppRun \
+    --export-gcode \
+    --datadir <work>/prusa_datadir \
+    --load <work>/configs/override_ascii.ini \   (binary_gcode = 0, para cabeçalho legível)
+    --output <out>/paraglider_ascii.gcode \
+    <docs/print-validation>/paraglider_15_teen_prusa_print_profile.3mf
+
+--------------------------------------------------------------------------------
+4. SÉRIE B (ENSAIO B) — COMPARAÇÃO DIGITAL CONTROLADA (12 casos: 3 modelos × 4 perfis)
+--------------------------------------------------------------------------------
+Condição virtual COMUM idêntica nos 12 casos:
+  Impressora  : Bambu Lab A1 (bico 0,4 mm)              [perfil de máquina de sistema]
+  Filamento   : Bambu PLA Basic @BBL A1                 [preset de sistema, herança resolvida]
+  Processo    : herda "0.20mm Standard @BBL A1" e fixa explicitamente:
+                  layer_height = 0.20 mm
+                  wall_loops = 2
+                  sparse_infill_density = 15%
+                  sparse_infill_pattern = grid
+                  enable_support = 0   (POLÍTICA ÚNICA DE SUPORTES: SEM suportes)
+                  brim_type = auto_brim
+  Layout      : --arrange 1 --orient 0 --ensure-on-bed
+                (mantém a ORIENTAÇÃO de cada peça exportada; o fatiador apenas
+                 translada/coloca as peças na placa; quando não cabem numa placa,
+                 gera automaticamente uma 2.ª placa A1)
+
+Input de cada caso = conjunto de PEÇAS imprimíveis já exportadas pela plataforma:
+  Flexy Beast      : flexy_beast/<perfil>/parts/*.3mf                 (12 peças)
+  Paraglider Hand  : paraglider_hand/<perfil>/parts/*.3mf             (7 peças)
+  UnLimbited Phoenix: unlimbed_phoenix_hand/<perfil>/*_<parte>.3mf    (8 peças)
+
+Comando genérico (Bambu):
+  HOME=<work>/bambu_home  <work>/squashfs-root/AppRun \
+    --slice 0 --arrange 1 --orient 0 --ensure-on-bed \
+    --load-settings "<...>/Bambu Lab A1 0.4 nozzle.json;<work>/configs/handfab_campB_process.json" \
+    --load-filaments "<work>/configs/pla_basic_a1_resolved.json" \
+    --outputdir <out>/campB/<modelo>_<perfil> --export-3mf sliced.3mf \
+    <lista de ficheiros .3mf das peças>
+
+--------------------------------------------------------------------------------
+5. FICHEIROS DE CONFIGURAÇÃO GERADOS (em raw/)
+--------------------------------------------------------------------------------
+  handfab_campB_process.json  : processo comum da Série B (0.20/2/15%/sem suporte)
+  pla_basic_a1_resolved.json  : filamento PLA Basic com herança APLANADA
+       (necessário porque o CLI do Bambu, ao carregar o preset de sistema via
+        --load-filaments, NÃO resolvia a herança: densidade e caudal volumétrico
+        ficavam a 0, produzindo massa=0 e tempo irreal; ver README/protocolo).
+  override_ascii.ini          : força G-code ASCII no PrusaSlicer (binary_gcode=0).
+
+--------------------------------------------------------------------------------
+6. FALHAS E DESVIOS REGISTADOS (não silenciados)
+--------------------------------------------------------------------------------
+- Série B / UnLimbited Phoenix / teen_15: 1.ª tentativa FALHOU
+  ("File list order to the slicer is invalid") porque a pasta teen_15 contém,
+  além das 8 peças, o ficheiro extra ..._print_project.3mf (um projecto completo,
+  não uma peça), apanhado pelo padrão de ficheiros. Corrigido re-fatiando apenas
+  as 8 peças. Fatiamento final: Sucesso.
+- OSMesa/GLFW: em alguns casos o Bambu falhou a criação de janela GL para gerar
+  miniaturas ("OSMesa: Library not found"). É NÃO-FATAL para o fatiamento — o
+  result.json e o G-code foram sempre produzidos. Afeta apenas imagens de pré-visualização.
+- Erros "Not precalculated Placeable areas requested (critical: 0)": avisos de
+  arranjo não-críticos do Bambu; não afetam as estimativas.
+
+--------------------------------------------------------------------------------
+7. CÁLCULO DE CUSTO
+--------------------------------------------------------------------------------
+- Taxa: 36,29 EUR/kg — preço de filamento do perfil Prusament PLA emitido pelo
+  PrusaSlicer, ASSUMIDO IGUAL para ambos os fatiadores e para todos os materiais
+  (indicação do autor).
+- Fórmula: custo_EUR = massa_g / 1000 * 36,29.
+- Validação: no Paraglider o custo calculado (1,38 EUR) coincide com o valor
+  emitido pelo próprio PrusaSlicer.
+- Coluna nos CSV: custo_eur_a_36.29_por_kg.

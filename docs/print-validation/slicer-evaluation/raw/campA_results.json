@@ -1,0 +1,63 @@
+[
+  {
+    "case": "flexy_pla",
+    "slicer": "BambuStudio 01.10.02.76",
+    "pred_s": 8510.2,
+    "pred_hms": "2h 21m 50s",
+    "total_time": "2h 27m 32s",
+    "layers": "266",
+    "length_mm": 18645.87,
+    "weight_g": 56.51,
+    "vol_cm3": 44.85,
+    "filament_id": "GFA00",
+    "objects": 10,
+    "triangles": 10522,
+    "warning": "(none)"
+  },
+  {
+    "case": "phoenix_pla",
+    "slicer": "BambuStudio 01.10.02.76",
+    "pred_s": 18764.4,
+    "pred_hms": "5h 12m 44s",
+    "total_time": "5h 18m 26s",
+    "layers": "169",
+    "length_mm": 40756.68,
+    "weight_g": 123.52,
+    "vol_cm3": 98.03,
+    "filament_id": "GFA00",
+    "objects": 8,
+    "triangles": 79542,
+    "warning": "(none)"
+  },
+  {
+    "case": "phoenix_petg",
+    "slicer": "BambuStudio 01.10.02.76",
+    "pred_s": 21087.8,
+    "pred_hms": "5h 51m 52s",
+    "total_time": "5h 58m 18s",
+    "layers": "169",
+    "length_mm": 39094.09,
+    "weight_g": 117.54,
+    "vol_cm3": 94.03,
+    "filament_id": "GFG00",
+    "objects": 8,
+    "triangles": 79542,
+    "warning": "(none)"
+  },
+  {
+    "case": "paraglider_pla",
+    "slicer": "PrusaSlicer 2.8.1",
+    "pred_s": null,
+    "pred_hms": "2h 32m 11s",
+    "total_time": null,
+    "layers": null,
+    "length_mm": 12727.61,
+    "weight_g": 37.96,
+    "vol_cm3": 30.61,
+    "filament_id": "Prusament PLA",
+    "objects": 5,
+    "triangles": null,
+    "warning": "Low bed adhesion (thumb,pinky,ring,middle,index); consider supports+brim",
+    "cost_eur": 1.38
+  }
+]

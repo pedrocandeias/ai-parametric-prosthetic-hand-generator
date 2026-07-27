@@ -1,0 +1,127 @@
+
+################################################################################
+# flexy_pla  (flexy_beast_teen_15_print.3mf)  [BAMBU]
+################################################################################
+  printer_settings_id = 'Bambu Lab A1 0.4 nozzle'
+  printer_model = 'Bambu Lab A1'
+  nozzle_diameter = ['0.4']
+  default_print_profile = '0.20mm Standard @BBL A1'
+  layer_height = '0.24'
+  initial_layer_print_height = '0.2'
+  wall_loops = '2'
+  top_shell_layers = '4'
+  bottom_shell_layers = '3'
+  sparse_infill_density = '15%'
+  sparse_infill_pattern = 'grid'
+  enable_support = '1'
+  support_type = 'tree(auto)'
+  support_style = 'tree_organic'
+  support_on_build_plate_only = '1'
+  support_critical_regions_only = '1'
+  support_threshold_angle = '35'
+  brim_type = 'auto_brim'
+  brim_width = '5'
+  brim_object_gap = '0.1'
+  filament_settings_id = ['Bambu PLA Basic @BBL A1', 'Bambu PLA Basic @BBL A1', 'Bambu PETG Basic @BBL A1']
+  filament_type = ['PLA', 'PLA', 'PETG']
+  filament_density = ['1.26', '1.26', '1.25']
+  curr_bed_type = 'Textured PEI Plate'
+  skirt_loops = '0'
+  [plate_1.json] bbox_all(x0,y0,x1,y1)=[50.607648, 66.495239, 208.79021799999998, 187.94826799999998]  footprint=158.18 x 121.45 mm  objects=10  bed=textured_plate  seq=False
+  [3dmodel build items] = 10
+
+################################################################################
+# phoenix_pla  (unlimbed_phoenix_hand_teen_15_print_project.3mf)  [BAMBU]
+################################################################################
+  printer_settings_id = 'Bambu Lab A1 0.4 nozzle'
+  printer_model = 'Bambu Lab A1'
+  nozzle_diameter = ['0.4']
+  default_print_profile = '0.20mm Standard @BBL A1'
+  layer_height = '0.24'
+  initial_layer_print_height = '0.2'
+  wall_loops = '2'
+  top_shell_layers = '4'
+  bottom_shell_layers = '3'
+  sparse_infill_density = '15%'
+  sparse_infill_pattern = 'grid'
+  enable_support = '1'
+  support_type = 'tree(auto)'
+  support_style = 'tree_organic'
+  support_on_build_plate_only = '1'
+  support_critical_regions_only = '1'
+  support_threshold_angle = '35'
+  brim_type = 'auto_brim'
+  brim_width = '5'
+  brim_object_gap = '0.1'
+  filament_settings_id = ['Bambu PLA Basic @BBL A1', 'Bambu PLA Basic @BBL A1', 'Bambu PETG Basic @BBL A1']
+  filament_type = ['PLA', 'PLA', 'PETG']
+  filament_density = ['1.26', '1.26', '1.25']
+  curr_bed_type = 'Textured PEI Plate'
+  skirt_loops = '0'
+  [plate_1.json] ABSENT
+  [3dmodel build items] = 8
+
+################################################################################
+# phoenix_petg  (unlimbed_phoenix_hand_teen_15_print_project_PETG.3mf)  [BAMBU]
+################################################################################
+  printer_settings_id = 'Bambu Lab A1 0.4 nozzle'
+  printer_model = 'Bambu Lab A1'
+  nozzle_diameter = ['0.4']
+  default_print_profile = '0.20mm Standard @BBL A1'
+  layer_height = '0.24'
+  initial_layer_print_height = '0.2'
+  wall_loops = '2'
+  top_shell_layers = '4'
+  bottom_shell_layers = '3'
+  sparse_infill_density = '15%'
+  sparse_infill_pattern = 'grid'
+  enable_support = '1'
+  support_type = 'tree(auto)'
+  support_style = 'tree_organic'
+  support_on_build_plate_only = '1'
+  support_critical_regions_only = '1'
+  support_threshold_angle = '35'
+  brim_type = 'auto_brim'
+  brim_width = '5'
+  brim_object_gap = '0.1'
+  filament_settings_id = ['Bambu PLA Basic @BBL A1', 'Bambu PLA Basic @BBL A1', 'Bambu PETG Basic @BBL A1']
+  filament_type = ['PLA', 'PLA', 'PETG']
+  filament_density = ['1.26', '1.26', '1.25']
+  curr_bed_type = 'Textured PEI Plate'
+  skirt_loops = '0'
+  [plate_1.json] bbox_all(x0,y0,x1,y1)=[22.586085, 25.085555, 244.824514, 236.580084]  footprint=222.24 x 211.49 mm  objects=8  bed=textured_plate  seq=False
+  [3dmodel build items] = 8
+
+################################################################################
+# paraglider_pla  (paraglider_15_teen_prusa_print_profile.3mf)  [PRUSA]
+################################################################################
+  printer_model = MINIIS
+  print_settings_id = 0.20mm SPEED @MINIIS 0.4
+  nozzle_diameter = 0.4
+  bed_shape = 0x0,180x0,180x180,0x180
+  max_print_height = 180
+  layer_height = 0.2
+  first_layer_height = 0.2
+  perimeters = 2
+  top_solid_layers = 5
+  bottom_solid_layers = 4
+  fill_density = 15%
+  fill_pattern = grid
+  support_material = 0
+  support_material_auto = 1
+  support_material_buildplate_only = 0
+  support_material_threshold = 40
+  support_material_style = snug
+  raft_layers = 0
+  brim_type = outer_only
+  brim_width = 0
+  skirts = 0
+  filament_type = PLA
+  filament_settings_id = "Prusament PLA @MINIIS"
+  filament_density = 1.24
+  filament_diameter = 1.75
+  filament_cost = 36.29
+  filament_vendor = Prusa Polymers
+  printer_notes = Don't remove the following keywords! These keywords are used...
+  [model.config] objects=5 volumes=5
+  [3dmodel build items] = 5

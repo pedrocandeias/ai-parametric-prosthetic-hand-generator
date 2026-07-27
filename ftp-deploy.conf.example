@@ -1,0 +1,8 @@
+# FTP deploy target — template.
+# Copy to .ftp-deploy.conf (git-ignored) and fill in the real values:
+#   cp ftp-deploy.conf.example .ftp-deploy.conf
+FTP_HOST="ftp.example.com"
+FTP_USER="username"
+FTP_PASS="password"
+FTP_PATH="/public_html/sites/handfab"
+FTP_PROTO="ftps"   # ftps (explicit TLS, recommended) or ftp

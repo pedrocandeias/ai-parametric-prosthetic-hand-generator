@@ -1,0 +1,213 @@
+{
+    "error_string": "Success.",
+    "export_time": 1239,
+    "plate_index": 0,
+    "prepare_time": 162,
+    "return_code": 0,
+    "sliced_plates": [
+        {
+            "filament_change_times": 0,
+            "filaments": [
+                {
+                    "filament_id": "GFA00",
+                    "id": 1,
+                    "main_used_g": 100.63755798339844,
+                    "total_used_g": 100.63755798339844
+                }
+            ],
+            "generate_support_material_time": 70,
+            "id": 1,
+            "infill_time": 2350,
+            "layer_filament_change": 0,
+            "main_predication": 28348.6875,
+            "make_perimeters_time": 2936,
+            "objects": [
+                {
+                    "bbox": {
+                        "depth": 110.28636169433594,
+                        "height": 51.11164474487305,
+                        "width": 134.08056640625,
+                        "x": 32.95989227294922,
+                        "y": 78.32461547851563,
+                        "z": 0.0
+                    },
+                    "id": 222,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 15676
+                },
+                {
+                    "bbox": {
+                        "depth": 20.53307342529297,
+                        "height": 23.948951721191406,
+                        "width": 63.94450378417969,
+                        "x": 103.09596252441406,
+                        "y": 55.791542053222656,
+                        "z": 0.0
+                    },
+                    "id": 302,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 1106
+                },
+                {
+                    "bbox": {
+                        "depth": 51.51100540161133,
+                        "height": 20.342287063598633,
+                        "width": 51.511009216308594,
+                        "x": 65.93428802490234,
+                        "y": 26.55189323425293,
+                        "z": 0.0
+                    },
+                    "id": 252,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 878
+                },
+                {
+                    "bbox": {
+                        "depth": 20.533069610595703,
+                        "height": 20.342287063598633,
+                        "width": 47.99016189575195,
+                        "x": 118.62902069091797,
+                        "y": 33.25847244262695,
+                        "z": 0.0
+                    },
+                    "id": 232,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 878
+                },
+                {
+                    "bbox": {
+                        "depth": 46.54214859008789,
+                        "height": 20.342287063598633,
+                        "width": 46.54214859008789,
+                        "x": 49.4672737121582,
+                        "y": 16.121192932128906,
+                        "z": 0.0
+                    },
+                    "id": 312,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 878
+                },
+                {
+                    "bbox": {
+                        "depth": 20.533069610595703,
+                        "height": 17.343048095703125,
+                        "width": 37.73542404174805,
+                        "x": 108.66808319091797,
+                        "y": 11.389022827148438,
+                        "z": 0.0
+                    },
+                    "id": 322,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 886
+                }
+            ],
+            "sliced_time": 7550,
+            "sliced_time_with_cache": 1956,
+            "total_predication": 28706.93359375,
+            "triangle_count": 20302,
+            "warning_message": "It seems object OpenSCAD Model has floating cantilever. Please re-orient the object or enable support generation."
+        },
+        {
+            "filament_change_times": 0,
+            "filaments": [
+                {
+                    "filament_id": "GFA00",
+                    "id": 1,
+                    "main_used_g": 68.50902557373047,
+                    "total_used_g": 68.50902557373047
+                }
+            ],
+            "generate_support_material_time": 14,
+            "id": 2,
+            "infill_time": 627,
+            "layer_filament_change": 0,
+            "main_predication": 16905.681640625,
+            "make_perimeters_time": 370,
+            "objects": [
+                {
+                    "bbox": {
+                        "depth": 115.58564758300781,
+                        "height": 48.99333572387695,
+                        "width": 84.49629974365234,
+                        "x": 342.8179931640625,
+                        "y": 46.05393981933594,
+                        "z": 0.0
+                    },
+                    "id": 212,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 5988
+                },
+                {
+                    "bbox": {
+                        "depth": 72.67424011230469,
+                        "height": 23.948951721191406,
+                        "width": 20.533082962036133,
+                        "x": 320.284912109375,
+                        "y": 88.9653549194336,
+                        "z": 0.0
+                    },
+                    "id": 262,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 1072
+                },
+                {
+                    "bbox": {
+                        "depth": 70.83639526367188,
+                        "height": 23.948951721191406,
+                        "width": 20.53306007385254,
+                        "x": 297.7518615722656,
+                        "y": 90.8031997680664,
+                        "z": 0.0
+                    },
+                    "id": 282,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 1064
+                },
+                {
+                    "bbox": {
+                        "depth": 63.30842590332031,
+                        "height": 23.948951721191406,
+                        "width": 63.30842590332031,
+                        "x": 273.2344970703125,
+                        "y": 37.61829376220703,
+                        "z": 0.0
+                    },
+                    "id": 242,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 1052
+                },
+                {
+                    "bbox": {
+                        "depth": 50.15233612060547,
+                        "height": 20.342287063598633,
+                        "width": 20.533069610595703,
+                        "x": 275.2187805175781,
+                        "y": 111.48725891113281,
+                        "z": 0.0
+                    },
+                    "id": 272,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 870
+                },
+                {
+                    "bbox": {
+                        "depth": 42.044227600097656,
+                        "height": 20.342287063598633,
+                        "width": 20.5330810546875,
+                        "x": 252.68569946289063,
+                        "y": 119.59536743164063,
+                        "z": 0.0
+                    },
+                    "id": 292,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 878
+                }
+            ],
+            "sliced_time": 2183,
+            "sliced_time_with_cache": 1069,
+            "total_predication": 17265.044921875,
+            "triangle_count": 10924,
+            "warning_message": "It seems object OpenSCAD Model has floating regions. Please re-orient the object or enable support generation."
+        }
+    ]
+}

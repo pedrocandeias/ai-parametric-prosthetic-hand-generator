@@ -1,0 +1,124 @@
+{
+    "error_string": "Success.",
+    "export_time": 1737,
+    "plate_index": 0,
+    "prepare_time": 159,
+    "return_code": 0,
+    "sliced_plates": [
+        {
+            "filament_change_times": 0,
+            "filaments": [
+                {
+                    "filament_id": "GFA00",
+                    "id": 1,
+                    "main_used_g": 83.93547821044922,
+                    "total_used_g": 83.93547821044922
+                }
+            ],
+            "generate_support_material_time": 54,
+            "id": 1,
+            "infill_time": 1415,
+            "layer_filament_change": 0,
+            "main_predication": 24318.171875,
+            "make_perimeters_time": 1484,
+            "objects": [
+                {
+                    "bbox": {
+                        "depth": 94.77133178710938,
+                        "height": 35.891746520996094,
+                        "width": 106.89189147949219,
+                        "x": 63.417118072509766,
+                        "y": 94.68744659423828,
+                        "z": 0.0
+                    },
+                    "id": 144,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 27354
+                },
+                {
+                    "bbox": {
+                        "depth": 17.202608108520508,
+                        "height": 21.425703048706055,
+                        "width": 90.97341918945313,
+                        "x": 79.30884552001953,
+                        "y": 75.50511932373047,
+                        "z": 0.0
+                    },
+                    "id": 184,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 3682
+                },
+                {
+                    "bbox": {
+                        "depth": 15.768095016479492,
+                        "height": 21.425703048706055,
+                        "width": 96.88531494140625,
+                        "x": 73.3969497680664,
+                        "y": 57.73694610595703,
+                        "z": 0.0
+                    },
+                    "id": 134,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 3144
+                },
+                {
+                    "bbox": {
+                        "depth": 14.702675819396973,
+                        "height": 19.9780216217041,
+                        "width": 93.7173843383789,
+                        "x": 76.56488037109375,
+                        "y": 41.03425216674805,
+                        "z": 0.0
+                    },
+                    "id": 124,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 3130
+                },
+                {
+                    "bbox": {
+                        "depth": 14.702666282653809,
+                        "height": 19.9780216217041,
+                        "width": 91.32067108154297,
+                        "x": 78.96159362792969,
+                        "y": 24.331571578979492,
+                        "z": 0.0
+                    },
+                    "id": 174,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 3130
+                },
+                {
+                    "bbox": {
+                        "depth": 50.0567741394043,
+                        "height": 3.424999952316284,
+                        "width": 50.0567741394043,
+                        "x": 29.71773910522461,
+                        "y": 52.232513427734375,
+                        "z": 0.0
+                    },
+                    "id": 164,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 360
+                },
+                {
+                    "bbox": {
+                        "depth": 11.932616233825684,
+                        "height": 16.214046478271484,
+                        "width": 83.5356216430664,
+                        "x": 71.85562896728516,
+                        "y": 10.554393768310547,
+                        "z": 0.0
+                    },
+                    "id": 154,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 3134
+                }
+            ],
+            "sliced_time": 5709,
+            "sliced_time_with_cache": 2516,
+            "total_predication": 24676.80859375,
+            "triangle_count": 43934,
+            "warning_message": ""
+        }
+    ]
+}

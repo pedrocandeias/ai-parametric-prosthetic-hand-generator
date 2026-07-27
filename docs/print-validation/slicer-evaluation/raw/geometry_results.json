@@ -1,0 +1,1045 @@
+[
+  {
+    "label": "flexy_beast/child_8",
+    "file": "flexy_beast/child_8/flexy_beast_child_8.3mf",
+    "n_build_items": 1,
+    "n_components": 1,
+    "assembly_bbox_min": [
+      -41.557552,
+      -133.512448,
+      -15.1904
+    ],
+    "assembly_bbox_size": [
+      214.177232,
+      175.15556,
+      52.313592
+    ],
+    "footprint_xy": [
+      214.177232,
+      175.15556
+    ],
+    "height_z": 52.313592,
+    "total_mesh_volume_mm3": 128341.55788482516,
+    "total_triangles": 27346,
+    "watertight_all": true,
+    "total_boundary_edges": 0,
+    "total_degenerate": 0,
+    "parts": [
+      {
+        "file": "3dmodel.model",
+        "oid": "2",
+        "tris": 27346,
+        "vol_mm3": 128341.55788482516,
+        "size": [
+          214.177232,
+          175.15556,
+          52.313592
+        ],
+        "watertight": true,
+        "boundary_edges": 0,
+        "degenerate": 0
+      }
+    ],
+    "model": "flexy_beast",
+    "profile": "child_8",
+    "kind": "assembly"
+  },
+  {
+    "label": "flexy_beast_palm/child_8",
+    "file": "flexy_beast/child_8/parts/palm.3mf",
+    "n_build_items": 1,
+    "n_components": 1,
+    "assembly_bbox_min": [
+      -48.692412,
+      -40.05136,
+      0.0
+    ],
+    "assembly_bbox_size": [
+      97.384824,
+      80.10272,
+      37.123192
+    ],
+    "footprint_xy": [
+      97.384824,
+      80.10272
+    ],
+    "height_z": 37.123192,
+    "total_mesh_volume_mm3": 51380.787244908395,
+    "total_triangles": 11186,
+    "watertight_all": true,
+    "total_boundary_edges": 0,
+    "total_degenerate": 0,
+    "parts": [
+      {
+        "file": "3dmodel.model",
+        "oid": "2",
+        "tris": 11186,
+        "vol_mm3": 51380.787244908395,
+        "size": [
+          97.384824,
+          80.10272,
+          37.123192
+        ],
+        "watertight": true,
+        "boundary_edges": 0,
+        "degenerate": 0
+      }
+    ],
+    "model": "flexy_beast_palm",
+    "profile": "child_8",
+    "kind": "palm"
+  },
+  {
+    "label": "paraglider_hand/child_8",
+    "file": "paraglider_hand/child_8/paraglider_hand_child_8.3mf",
+    "n_build_items": 1,
+    "n_components": 1,
+    "assembly_bbox_min": [
+      -38.256372,
+      -43.1531,
+      -0.000948
+    ],
+    "assembly_bbox_size": [
+      331.132852,
+      113.99408400000002,
+      28.989486
+    ],
+    "footprint_xy": [
+      331.132852,
+      113.99408400000002
+    ],
+    "height_z": 28.989486,
+    "total_mesh_volume_mm3": 65185.168244225344,
+    "total_triangles": 44192,
+    "watertight_all": true,
+    "total_boundary_edges": 0,
+    "total_degenerate": 409,
+    "parts": [
+      {
+        "file": "3dmodel.model",
+        "oid": "2",
+        "tris": 44192,
+        "vol_mm3": 65185.168244225344,
+        "size": [
+          331.132852,
+          113.99408400000002,
+          28.989486
+        ],
+        "watertight": true,
+        "boundary_edges": 0,
+        "degenerate": 409
+      }
+    ],
+    "model": "paraglider_hand",
+    "profile": "child_8",
+    "kind": "assembly"
+  },
+  {
+    "label": "paraglider_palm/child_8",
+    "file": "paraglider_hand/child_8/parts/palm.3mf",
+    "n_build_items": 1,
+    "n_components": 1,
+    "assembly_bbox_min": [
+      -38.256372,
+      -43.1531,
+      0.0
+    ],
+    "assembly_bbox_size": [
+      76.512744,
+      86.3062,
+      28.989486
+    ],
+    "footprint_xy": [
+      76.512744,
+      86.3062
+    ],
+    "height_z": 28.989486,
+    "total_mesh_volume_mm3": 37185.387293356565,
+    "total_triangles": 27352,
+    "watertight_all": true,
+    "total_boundary_edges": 0,
+    "total_degenerate": 4,
+    "parts": [
+      {
+        "file": "3dmodel.model",
+        "oid": "2",
+        "tris": 27352,
+        "vol_mm3": 37185.387293356565,
+        "size": [
+          76.512744,
+          86.3062,
+          28.989486
+        ],
+        "watertight": true,
+        "boundary_edges": 0,
+        "degenerate": 4
+      }
+    ],
+    "model": "paraglider_palm",
+    "profile": "child_8",
+    "kind": "palm"
+  },
+  {
+    "label": "phoenix_palm/child_8",
+    "file": "unlimbed_phoenix_hand/child_8/unlimbed_phoenix_hand_child_8_palm.3mf",
+    "n_build_items": 1,
+    "n_components": 1,
+    "assembly_bbox_min": [
+      21.835,
+      -149.0,
+      -0.103
+    ],
+    "assembly_bbox_size": [
+      82.16499999999999,
+      91.964,
+      30.553
+    ],
+    "footprint_xy": [
+      82.16499999999999,
+      91.964
+    ],
+    "height_z": 30.553,
+    "total_mesh_volume_mm3": 46102.49725974895,
+    "total_triangles": 11236,
+    "watertight_all": false,
+    "total_boundary_edges": 2,
+    "total_degenerate": 5,
+    "parts": [
+      {
+        "file": "3dmodel.model",
+        "oid": "2",
+        "tris": 11236,
+        "vol_mm3": 46102.49725974895,
+        "size": [
+          82.16499999999999,
+          91.964,
+          30.553
+        ],
+        "watertight": false,
+        "boundary_edges": 2,
+        "degenerate": 5
+      }
+    ],
+    "model": "phoenix_palm",
+    "profile": "child_8",
+    "kind": "palm"
+  },
+  {
+    "label": "flexy_beast/teen_15",
+    "file": "flexy_beast/teen_15/flexy_beast_teen_15.3mf",
+    "n_build_items": 1,
+    "n_components": 1,
+    "assembly_bbox_min": [
+      -49.98952,
+      -170.733248,
+      -18.4224
+    ],
+    "assembly_bbox_size": [
+      258.573936,
+      220.825684,
+      63.077832
+    ],
+    "footprint_xy": [
+      258.573936,
+      220.825684
+    ],
+    "height_z": 63.077832,
+    "total_mesh_volume_mm3": 230360.71242826863,
+    "total_triangles": 29894,
+    "watertight_all": true,
+    "total_boundary_edges": 0,
+    "total_degenerate": 0,
+    "parts": [
+      {
+        "file": "3dmodel.model",
+        "oid": "2",
+        "tris": 29894,
+        "vol_mm3": 230360.71242826863,
+        "size": [
+          258.573936,
+          220.825684,
+          63.077832
+        ],
+        "watertight": true,
+        "boundary_edges": 0,
+        "degenerate": 0
+      }
+    ],
+    "model": "flexy_beast",
+    "profile": "teen_15",
+    "kind": "assembly"
+  },
+  {
+    "label": "flexy_beast_palm/teen_15",
+    "file": "flexy_beast/teen_15/parts/palm.3mf",
+    "n_build_items": 1,
+    "n_components": 1,
+    "assembly_bbox_min": [
+      -58.572036,
+      -48.177728,
+      0.0
+    ],
+    "assembly_bbox_size": [
+      117.144072,
+      96.355456,
+      44.655432
+    ],
+    "footprint_xy": [
+      117.144072,
+      96.355456
+    ],
+    "height_z": 44.655432,
+    "total_mesh_volume_mm3": 87632.35855497181,
+    "total_triangles": 13456,
+    "watertight_all": true,
+    "total_boundary_edges": 0,
+    "total_degenerate": 0,
+    "parts": [
+      {
+        "file": "3dmodel.model",
+        "oid": "2",
+        "tris": 13456,
+        "vol_mm3": 87632.35855497181,
+        "size": [
+          117.144072,
+          96.355456,
+          44.655432
+        ],
+        "watertight": true,
+        "boundary_edges": 0,
+        "degenerate": 0
+      }
+    ],
+    "model": "flexy_beast_palm",
+    "profile": "teen_15",
+    "kind": "palm"
+  },
+  {
+    "label": "paraglider_hand/teen_15",
+    "file": "paraglider_hand/teen_15/paraglider_hand_teen_15.3mf",
+    "n_build_items": 1,
+    "n_components": 1,
+    "assembly_bbox_min": [
+      -47.365028,
+      -53.427652,
+      -0.001174
+    ],
+    "assembly_bbox_size": [
+      354.021636,
+      129.131524,
+      35.891746
+    ],
+    "footprint_xy": [
+      354.021636,
+      129.131524
+    ],
+    "height_z": 35.891746,
+    "total_mesh_volume_mm3": 124584.82717597869,
+    "total_triangles": 44160,
+    "watertight_all": true,
+    "total_boundary_edges": 0,
+    "total_degenerate": 407,
+    "parts": [
+      {
+        "file": "3dmodel.model",
+        "oid": "2",
+        "tris": 44160,
+        "vol_mm3": 124584.82717597869,
+        "size": [
+          354.021636,
+          129.131524,
+          35.891746
+        ],
+        "watertight": true,
+        "boundary_edges": 0,
+        "degenerate": 407
+      }
+    ],
+    "model": "paraglider_hand",
+    "profile": "teen_15",
+    "kind": "assembly"
+  },
+  {
+    "label": "paraglider_palm/teen_15",
+    "file": "paraglider_hand/teen_15/parts/palm.3mf",
+    "n_build_items": 1,
+    "n_components": 1,
+    "assembly_bbox_min": [
+      -47.365028,
+      -53.427652,
+      0.0
+    ],
+    "assembly_bbox_size": [
+      94.730056,
+      106.855304,
+      35.891748
+    ],
+    "footprint_xy": [
+      94.730056,
+      106.855304
+    ],
+    "height_z": 35.891748,
+    "total_mesh_volume_mm3": 70572.33101195964,
+    "total_triangles": 27354,
+    "watertight_all": true,
+    "total_boundary_edges": 0,
+    "total_degenerate": 4,
+    "parts": [
+      {
+        "file": "3dmodel.model",
+        "oid": "2",
+        "tris": 27354,
+        "vol_mm3": 70572.33101195964,
+        "size": [
+          94.730056,
+          106.855304,
+          35.891748
+        ],
+        "watertight": true,
+        "boundary_edges": 0,
+        "degenerate": 4
+      }
+    ],
+    "model": "paraglider_palm",
+    "profile": "teen_15",
+    "kind": "palm"
+  },
+  {
+    "label": "phoenix_palm/teen_15",
+    "file": "unlimbed_phoenix_hand/teen_15/unlimbed_phoenix_hand_teen_15_palm.3mf",
+    "n_build_items": 1,
+    "n_components": 1,
+    "assembly_bbox_min": [
+      23.432682,
+      -159.902432,
+      -0.110536
+    ],
+    "assembly_bbox_size": [
+      88.177078,
+      98.69306800000001,
+      32.788586
+    ],
+    "footprint_xy": [
+      88.177078,
+      98.69306800000001
+    ],
+    "height_z": 32.788586,
+    "total_mesh_volume_mm3": 56981.110969742644,
+    "total_triangles": 11236,
+    "watertight_all": false,
+    "total_boundary_edges": 2,
+    "total_degenerate": 8,
+    "parts": [
+      {
+        "file": "3dmodel.model",
+        "oid": "2",
+        "tris": 11236,
+        "vol_mm3": 56981.110969742644,
+        "size": [
+          88.177078,
+          98.69306800000001,
+          32.788586
+        ],
+        "watertight": false,
+        "boundary_edges": 2,
+        "degenerate": 8
+      }
+    ],
+    "model": "phoenix_palm",
+    "profile": "teen_15",
+    "kind": "palm"
+  },
+  {
+    "label": "flexy_beast/adult_28",
+    "file": "flexy_beast/adult_28/flexy_beast_adult_28.3mf",
+    "n_build_items": 1,
+    "n_components": 1,
+    "assembly_bbox_min": [
+      -57.21692,
+      -186.442336,
+      -20.0384
+    ],
+    "assembly_bbox_size": [
+      295.709336,
+      243.77705200000003,
+      71.150044
+    ],
+    "footprint_xy": [
+      295.709336,
+      243.77705200000003
+    ],
+    "height_z": 71.150044,
+    "total_mesh_volume_mm3": 323317.8864691666,
+    "total_triangles": 31198,
+    "watertight_all": true,
+    "total_boundary_edges": 0,
+    "total_degenerate": 0,
+    "parts": [
+      {
+        "file": "3dmodel.model",
+        "oid": "2",
+        "tris": 31198,
+        "vol_mm3": 323317.8864691666,
+        "size": [
+          295.709336,
+          243.77705200000003,
+          71.150044
+        ],
+        "watertight": true,
+        "boundary_edges": 0,
+        "degenerate": 0
+      }
+    ],
+    "model": "flexy_beast",
+    "profile": "adult_28",
+    "kind": "assembly"
+  },
+  {
+    "label": "flexy_beast_palm/adult_28",
+    "file": "flexy_beast/adult_28/parts/palm.3mf",
+    "n_build_items": 1,
+    "n_components": 1,
+    "assembly_bbox_min": [
+      -67.040284,
+      -55.14318,
+      0.0
+    ],
+    "assembly_bbox_size": [
+      134.080568,
+      110.28636,
+      51.111644
+    ],
+    "footprint_xy": [
+      134.080568,
+      110.28636
+    ],
+    "height_z": 51.111644,
+    "total_mesh_volume_mm3": 131201.76617038433,
+    "total_triangles": 15676,
+    "watertight_all": true,
+    "total_boundary_edges": 0,
+    "total_degenerate": 0,
+    "parts": [
+      {
+        "file": "3dmodel.model",
+        "oid": "2",
+        "tris": 15676,
+        "vol_mm3": 131201.76617038433,
+        "size": [
+          134.080568,
+          110.28636,
+          51.111644
+        ],
+        "watertight": true,
+        "boundary_edges": 0,
+        "degenerate": 0
+      }
+    ],
+    "model": "flexy_beast_palm",
+    "profile": "adult_28",
+    "kind": "palm"
+  },
+  {
+    "label": "paraglider_hand/adult_28",
+    "file": "paraglider_hand/adult_28/paraglider_hand_adult_28.3mf",
+    "n_build_items": 1,
+    "n_components": 1,
+    "assembly_bbox_min": [
+      -54.65196,
+      -61.647284,
+      -0.001355
+    ],
+    "assembly_bbox_size": [
+      372.33269600000006,
+      140.82465200000001,
+      41.413551
+    ],
+    "footprint_xy": [
+      372.33269600000006,
+      140.82465200000001
+    ],
+    "height_z": 41.413551,
+    "total_mesh_volume_mm3": 187172.0948679686,
+    "total_triangles": 44184,
+    "watertight_all": true,
+    "total_boundary_edges": 0,
+    "total_degenerate": 244,
+    "parts": [
+      {
+        "file": "3dmodel.model",
+        "oid": "2",
+        "tris": 44184,
+        "vol_mm3": 187172.0948679686,
+        "size": [
+          372.33269600000006,
+          140.82465200000001,
+          41.413551
+        ],
+        "watertight": true,
+        "boundary_edges": 0,
+        "degenerate": 244
+      }
+    ],
+    "model": "paraglider_hand",
+    "profile": "adult_28",
+    "kind": "assembly"
+  },
+  {
+    "label": "paraglider_palm/adult_28",
+    "file": "paraglider_hand/adult_28/parts/palm.3mf",
+    "n_build_items": 1,
+    "n_components": 1,
+    "assembly_bbox_min": [
+      -54.65196,
+      -61.647284,
+      0.0
+    ],
+    "assembly_bbox_size": [
+      109.30392,
+      123.294568,
+      41.413552
+    ],
+    "footprint_xy": [
+      109.30392,
+      123.294568
+    ],
+    "height_z": 41.413552,
+    "total_mesh_volume_mm3": 108412.20459042133,
+    "total_triangles": 27354,
+    "watertight_all": true,
+    "total_boundary_edges": 0,
+    "total_degenerate": 4,
+    "parts": [
+      {
+        "file": "3dmodel.model",
+        "oid": "2",
+        "tris": 27354,
+        "vol_mm3": 108412.20459042133,
+        "size": [
+          109.30392,
+          123.294568,
+          41.413552
+        ],
+        "watertight": true,
+        "boundary_edges": 0,
+        "degenerate": 4
+      }
+    ],
+    "model": "paraglider_palm",
+    "profile": "adult_28",
+    "kind": "palm"
+  },
+  {
+    "label": "phoenix_palm/adult_28",
+    "file": "unlimbed_phoenix_hand/adult_28/unlimbed_phoenix_hand_adult_28_palm.3mf",
+    "n_build_items": 1,
+    "n_components": 1,
+    "assembly_bbox_min": [
+      23.965242,
+      -163.536592,
+      -0.113048
+    ],
+    "assembly_bbox_size": [
+      90.181094,
+      100.93610400000001,
+      33.533782
+    ],
+    "footprint_xy": [
+      90.181094,
+      100.93610400000001
+    ],
+    "height_z": 33.533782,
+    "total_mesh_volume_mm3": 60955.14203645109,
+    "total_triangles": 11236,
+    "watertight_all": false,
+    "total_boundary_edges": 2,
+    "total_degenerate": 5,
+    "parts": [
+      {
+        "file": "3dmodel.model",
+        "oid": "2",
+        "tris": 11236,
+        "vol_mm3": 60955.14203645109,
+        "size": [
+          90.181094,
+          100.93610400000001,
+          33.533782
+        ],
+        "watertight": false,
+        "boundary_edges": 2,
+        "degenerate": 5
+      }
+    ],
+    "model": "phoenix_palm",
+    "profile": "adult_28",
+    "kind": "palm"
+  },
+  {
+    "label": "flexy_beast/elderly_70",
+    "file": "flexy_beast/elderly_70/flexy_beast_elderly_70.3mf",
+    "n_build_items": 1,
+    "n_components": 1,
+    "assembly_bbox_min": [
+      -53.60322,
+      -175.88872,
+      -20.0384
+    ],
+    "assembly_bbox_size": [
+      272.547044,
+      229.60229600000002,
+      67.921936
+    ],
+    "footprint_xy": [
+      272.547044,
+      229.60229600000002
+    ],
+    "height_z": 67.921936,
+    "total_mesh_volume_mm3": 262386.56977022794,
+    "total_triangles": 30526,
+    "watertight_all": true,
+    "total_boundary_edges": 0,
+    "total_degenerate": 0,
+    "parts": [
+      {
+        "file": "3dmodel.model",
+        "oid": "2",
+        "tris": 30526,
+        "vol_mm3": 262386.56977022794,
+        "size": [
+          272.547044,
+          229.60229600000002,
+          67.921936
+        ],
+        "watertight": true,
+        "boundary_edges": 0,
+        "degenerate": 0
+      }
+    ],
+    "model": "flexy_beast",
+    "profile": "elderly_70",
+    "kind": "assembly"
+  },
+  {
+    "label": "flexy_beast_palm/elderly_70",
+    "file": "flexy_beast/elderly_70/parts/palm.3mf",
+    "n_build_items": 1,
+    "n_components": 1,
+    "assembly_bbox_min": [
+      -62.806156,
+      -51.660452,
+      0.0
+    ],
+    "assembly_bbox_size": [
+      125.612312,
+      103.320904,
+      47.883536
+    ],
+    "footprint_xy": [
+      125.612312,
+      103.320904
+    ],
+    "height_z": 47.883536,
+    "total_mesh_volume_mm3": 107949.1803733679,
+    "total_triangles": 14574,
+    "watertight_all": true,
+    "total_boundary_edges": 0,
+    "total_degenerate": 0,
+    "parts": [
+      {
+        "file": "3dmodel.model",
+        "oid": "2",
+        "tris": 14574,
+        "vol_mm3": 107949.1803733679,
+        "size": [
+          125.612312,
+          103.320904,
+          47.883536
+        ],
+        "watertight": true,
+        "boundary_edges": 0,
+        "degenerate": 0
+      }
+    ],
+    "model": "flexy_beast_palm",
+    "profile": "elderly_70",
+    "kind": "palm"
+  },
+  {
+    "label": "paraglider_hand/elderly_70",
+    "file": "paraglider_hand/elderly_70/paraglider_hand_elderly_70.3mf",
+    "n_build_items": 1,
+    "n_components": 1,
+    "assembly_bbox_min": [
+      -51.008492,
+      -57.537468,
+      -0.001264
+    ],
+    "assembly_bbox_size": [
+      363.177164,
+      131.504596,
+      38.652651999999996
+    ],
+    "footprint_xy": [
+      363.177164,
+      131.504596
+    ],
+    "height_z": 38.652651999999996,
+    "total_mesh_volume_mm3": 133252.82343633744,
+    "total_triangles": 44152,
+    "watertight_all": true,
+    "total_boundary_edges": 0,
+    "total_degenerate": 243,
+    "parts": [
+      {
+        "file": "3dmodel.model",
+        "oid": "2",
+        "tris": 44152,
+        "vol_mm3": 133252.82343633744,
+        "size": [
+          363.177164,
+          131.504596,
+          38.652651999999996
+        ],
+        "watertight": true,
+        "boundary_edges": 0,
+        "degenerate": 243
+      }
+    ],
+    "model": "paraglider_hand",
+    "profile": "elderly_70",
+    "kind": "assembly"
+  },
+  {
+    "label": "paraglider_palm/elderly_70",
+    "file": "paraglider_hand/elderly_70/parts/palm.3mf",
+    "n_build_items": 1,
+    "n_components": 1,
+    "assembly_bbox_min": [
+      -51.008492,
+      -57.537468,
+      0.0
+    ],
+    "assembly_bbox_size": [
+      102.016984,
+      115.074936,
+      38.652652
+    ],
+    "footprint_xy": [
+      102.016984,
+      115.074936
+    ],
+    "height_z": 38.652652,
+    "total_mesh_volume_mm3": 88143.14813291265,
+    "total_triangles": 27356,
+    "watertight_all": true,
+    "total_boundary_edges": 0,
+    "total_degenerate": 165,
+    "parts": [
+      {
+        "file": "3dmodel.model",
+        "oid": "2",
+        "tris": 27356,
+        "vol_mm3": 88143.14813291265,
+        "size": [
+          102.016984,
+          115.074936,
+          38.652652
+        ],
+        "watertight": true,
+        "boundary_edges": 0,
+        "degenerate": 165
+      }
+    ],
+    "model": "paraglider_palm",
+    "profile": "elderly_70",
+    "kind": "palm"
+  },
+  {
+    "label": "phoenix_palm/elderly_70",
+    "file": "unlimbed_phoenix_hand/elderly_70/unlimbed_phoenix_hand_elderly_70_palm.3mf",
+    "n_build_items": 1,
+    "n_components": 1,
+    "assembly_bbox_min": [
+      22.36756,
+      -152.634144,
+      -0.105512
+    ],
+    "assembly_bbox_size": [
+      84.16902400000001,
+      94.20702399999999,
+      31.298196
+    ],
+    "footprint_xy": [
+      84.16902400000001,
+      94.20702399999999
+    ],
+    "height_z": 31.298196,
+    "total_mesh_volume_mm3": 49558.79686087856,
+    "total_triangles": 11236,
+    "watertight_all": false,
+    "total_boundary_edges": 2,
+    "total_degenerate": 6,
+    "parts": [
+      {
+        "file": "3dmodel.model",
+        "oid": "2",
+        "tris": 11236,
+        "vol_mm3": 49558.79686087856,
+        "size": [
+          84.16902400000001,
+          94.20702399999999,
+          31.298196
+        ],
+        "watertight": false,
+        "boundary_edges": 2,
+        "degenerate": 6
+      }
+    ],
+    "model": "phoenix_palm",
+    "profile": "elderly_70",
+    "kind": "palm"
+  },
+  {
+    "label": "phoenix_assembly_teen15/teen_15",
+    "file": "unlimbed_phoenix_hand_teen_15_print_project.3mf",
+    "n_build_items": 8,
+    "n_components": 8,
+    "assembly_bbox_min": [
+      22.668273500654713,
+      21.919826727656478,
+      0.0
+    ],
+    "assembly_bbox_size": [
+      222.59437099934524,
+      214.67761459053796,
+      40.5154038
+    ],
+    "footprint_xy": [
+      222.59437099934524,
+      214.67761459053796
+    ],
+    "height_z": 40.5154038,
+    "total_mesh_volume_mm3": 153303.81816233374,
+    "total_triangles": 79542,
+    "watertight_all": false,
+    "total_boundary_edges": 8,
+    "total_degenerate": 13,
+    "parts": [
+      {
+        "file": "object_4.model",
+        "oid": "7",
+        "tris": 572,
+        "vol_mm3": 4145.484616218783,
+        "size": [
+          25.3482914,
+          11.84136582,
+          30.0487786
+        ],
+        "watertight": true,
+        "boundary_edges": 0,
+        "degenerate": 0
+      },
+      {
+        "file": "object_3.model",
+        "oid": "15",
+        "tris": 1350,
+        "vol_mm3": 1349.0831111088053,
+        "size": [
+          24.2600956,
+          32.1994172,
+          4.61892604
+        ],
+        "watertight": true,
+        "boundary_edges": 0,
+        "degenerate": 0
+      },
+      {
+        "file": "object_6.model",
+        "oid": "5",
+        "tris": 5944,
+        "vol_mm3": 16850.486159008487,
+        "size": [
+          86.7615662,
+          38.1243896,
+          18.4445858
+        ],
+        "watertight": true,
+        "boundary_edges": 0,
+        "degenerate": 0
+      },
+      {
+        "file": "object_5.model",
+        "oid": "13",
+        "tris": 5676,
+        "vol_mm3": 3488.9948073880582,
+        "size": [
+          69.9600068,
+          42.9289704,
+          4.61463404
+        ],
+        "watertight": true,
+        "boundary_edges": 0,
+        "degenerate": 0
+      },
+      {
+        "file": "object_7.model",
+        "oid": "11",
+        "tris": 11872,
+        "vol_mm3": 21281.597780277025,
+        "size": [
+          84.045372,
+          46.732296,
+          16.8713169
+        ],
+        "watertight": false,
+        "boundary_edges": 6,
+        "degenerate": 5
+      },
+      {
+        "file": "object_8.model",
+        "oid": "1",
+        "tris": 11236,
+        "vol_mm3": 56981.10803482934,
+        "size": [
+          88.1770782,
+          98.6930694,
+          32.7885894
+        ],
+        "watertight": false,
+        "boundary_edges": 2,
+        "degenerate": 8
+      },
+      {
+        "file": "object_2.model",
+        "oid": "9",
+        "tris": 16150,
+        "vol_mm3": 15748.398674170736,
+        "size": [
+          102.002945,
+          93.3658524,
+          5.25045204
+        ],
+        "watertight": true,
+        "boundary_edges": 0,
+        "degenerate": 0
+      },
+      {
+        "file": "object_1.model",
+        "oid": "3",
+        "tris": 26742,
+        "vol_mm3": 33458.66497933251,
+        "size": [
+          60.909172,
+          94.7062454,
+          40.5154038
+        ],
+        "watertight": true,
+        "boundary_edges": 0,
+        "degenerate": 0
+      }
+    ],
+    "model": "phoenix_assembly_teen15",
+    "profile": "teen_15",
+    "kind": "assembly"
+  }
+]

@@ -1,0 +1,161 @@
+{
+    "error_string": "Success.",
+    "export_time": 1817,
+    "plate_index": 0,
+    "prepare_time": 296,
+    "return_code": 0,
+    "sliced_plates": [
+        {
+            "filament_change_times": 0,
+            "filaments": [
+                {
+                    "filament_id": "GFA00",
+                    "id": 1,
+                    "main_used_g": 93.54431915283203,
+                    "total_used_g": 93.54431915283203
+                }
+            ],
+            "generate_support_material_time": 74,
+            "id": 1,
+            "infill_time": 1472,
+            "layer_filament_change": 0,
+            "main_predication": 26430.658203125,
+            "make_perimeters_time": 1579,
+            "objects": [
+                {
+                    "bbox": {
+                        "depth": 84.16902160644531,
+                        "height": 31.298194885253906,
+                        "width": 94.20702362060547,
+                        "x": 98.45745849609375,
+                        "y": 107.17855834960938,
+                        "z": 0.0
+                    },
+                    "id": 180,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 11236
+                },
+                {
+                    "bbox": {
+                        "depth": 58.14057540893555,
+                        "height": 38.67379379272461,
+                        "width": 90.40141296386719,
+                        "x": 102.26307678222656,
+                        "y": 47.03755187988281,
+                        "z": 0.0
+                    },
+                    "id": 170,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 26742
+                },
+                {
+                    "bbox": {
+                        "depth": 97.36644744873047,
+                        "height": 5.0117950439453125,
+                        "width": 89.1219482421875,
+                        "x": 7.335511684417725,
+                        "y": 93.98190307617188,
+                        "z": 0.0
+                    },
+                    "id": 160,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 16150
+                },
+                {
+                    "bbox": {
+                        "depth": 88.27041625976563,
+                        "height": 16.10443878173828,
+                        "width": 88.27041625976563,
+                        "x": 15.10942554473877,
+                        "y": 12.621781349182129,
+                        "z": 0.0
+                    },
+                    "id": 150,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 11872
+                },
+                {
+                    "bbox": {
+                        "depth": 36.41555404663086,
+                        "height": 17.6061954498291,
+                        "width": 82.82843780517578,
+                        "x": 109.83936309814453,
+                        "y": 8.643998146057129,
+                        "z": 0.0
+                    },
+                    "id": 190,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 5944
+                },
+                {
+                    "bbox": {
+                        "depth": 11.30312442779541,
+                        "height": 28.682926177978516,
+                        "width": 24.19609832763672,
+                        "x": 76.06697845458984,
+                        "y": 80.70487213134766,
+                        "z": 0.0
+                    },
+                    "id": 140,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 572
+                }
+            ],
+            "sliced_time": 5208,
+            "sliced_time_with_cache": 1838,
+            "total_predication": 26789.109375,
+            "triangle_count": 72516,
+            "warning_message": ""
+        },
+        {
+            "filament_change_times": 0,
+            "filaments": [
+                {
+                    "filament_id": "GFA00",
+                    "id": 1,
+                    "main_used_g": 4.685403823852539,
+                    "total_used_g": 4.685403823852539
+                }
+            ],
+            "generate_support_material_time": 10,
+            "id": 2,
+            "infill_time": 108,
+            "layer_filament_change": 0,
+            "main_predication": 1718.982666015625,
+            "make_perimeters_time": 183,
+            "objects": [
+                {
+                    "bbox": {
+                        "depth": 67.5706787109375,
+                        "height": 4.40487813949585,
+                        "width": 42.27925109863281,
+                        "x": 330.9494934082031,
+                        "y": 66.42424774169922,
+                        "z": 0.0
+                    },
+                    "id": 200,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 5676
+                },
+                {
+                    "bbox": {
+                        "depth": 30.735803604125977,
+                        "height": 4.408974647521973,
+                        "width": 23.157371520996094,
+                        "x": 307.04241943359375,
+                        "y": 84.49195861816406,
+                        "z": 0.0
+                    },
+                    "id": 210,
+                    "name": "OpenSCAD Model",
+                    "triangle_count": 1350
+                }
+            ],
+            "sliced_time": 643,
+            "sliced_time_with_cache": 324,
+            "total_predication": 2077.748046875,
+            "triangle_count": 7026,
+            "warning_message": ""
+        }
+    ]
+}

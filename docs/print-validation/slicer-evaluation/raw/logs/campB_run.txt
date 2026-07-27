@@ -1,0 +1,14 @@
+flexy_beast_child_8              rc=0 SLICED 83.0g 6h 39m 34s fp=[161.7, 143.2] err=Success.
+paraglider_hand_child_8          rc=0 SLICED 50.07g 4h 22m 47s fp=[125.9, 166.0] err=Success.
+unlimbed_phoenix_hand_child_8    rc=0 SLICED 88.5g 7h 2m 18s fp=[181.0, 178.4] err=Success.
+flexy_beast_teen_15              rc=0 SLICED 130.87g 9h 51m 52s fp=[194.1, 190.5] err=Success.
+paraglider_hand_teen_15          rc=0 SLICED 83.94g 6h 45m 18s fp=[140.6, 178.9] err=Success.
+unlimbed_phoenix_hand_teen_15    rc=252 FAILED g  fp=None err=File list order to the slicer is invalid. Please m
+flexy_beast_adult_28             rc=0 SLICED 100.64g 7h 52m 28s fp=[134.1, 177.2] err=Success.
+paraglider_hand_adult_28         rc=0 SLICED 116.53g 8h 55m 41s fp=[195.5, 194.5] err=Success.
+unlimbed_phoenix_hand_adult_28   rc=0 SLICED 79.13g 6h 19m 14s fp=[154.1, 154.5] err=Success.
+flexy_beast_elderly_70           rc=0 SLICED 136.26g 10h 14m 20s fp=[195.4, 188.9] err=Success.
+paraglider_hand_elderly_70       rc=0 SLICED 89.79g 7h 9m 5s fp=[180.2, 176.5] err=Success.
+unlimbed_phoenix_hand_elderly_70 rc=0 SLICED 93.54g 7h 20m 30s fp=[185.3, 182.7] err=Success.
+
+wrote campB_results.json
