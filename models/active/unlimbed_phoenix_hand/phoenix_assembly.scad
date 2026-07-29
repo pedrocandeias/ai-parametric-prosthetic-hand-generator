@@ -26,6 +26,7 @@ use <phoenix_snap_pins.scad>       // real Phoenix pins + wrist washers (STEP re
 use <phoenix_tensioner_block.scad> // tensioner housing (STEP reconstruction)
 use <phoenix_tensioner_pins.scad>  // three flat tensioner pins (STEP reconstruction)
 use <phoenix_preview_meshes.scad>  // palm_preview()/fingers_preview() — manifold remeshes (below)
+use <phoenix_gauntlet_curved.scad> // Gauntlet_V4_curved() — thermoformed (tube) gauntlet (below)
 
 // PREVIEW-ONLY manifold remeshes of the two non-manifold Phoenix meshes.
 // The original Phoenix_Thermo_Palm_2 (palm) and Phoenix_Fingers_Left (distals)
@@ -64,7 +65,24 @@ TH_DIST = [0.3, -7.9, 0.7];         // thumb distal (fingertip) offset [x,y,z]
 TH_DROT = [-10, 0, 0];              // thumb distal rotation [x,y,z] deg
 
 // ── ARM GUARD (gauntlet) ───────────────────────────────────────────────────
-GAUNT_POS = [55, -235, 2];          // more negative y slides it out past the palm to the wrist
+// The gauntlet PRINTS flat and is then heat-formed over the Jig (the tapered
+// arch former that ships with the Phoenix meshes) into the tube it is worn as.
+// The assembled preview therefore shows the thermoformed version — the flat
+// plate wrapped onto the jig's outer surface, baked once by
+// scripts/phoenix_bend_gauntlet.py into Gauntlet_V4_curved(). The printable
+// part / print-bed layout keeps the original flat Gauntlet_V4(). Both meshes
+// share the same frame (crown line on y=0, centred on x=0) — only the seat
+// height differs, since the formed guard hangs from the palm shell's crown
+// instead of lying on the print plane. Set false to preview it flat as printed.
+GAUNT_CURVED = true;
+GAUNT_LIFT = GAUNT_CURVED ? 18.33 : 0; // formed: the crown rides just over the palm shell's, not on the print plane.
+                                    // The hinge boss hangs a fixed drop below the crown, so this height is what
+                                    // lands it on the palm's wrist-pin axis (z 8.5) — see the generator script.
+                                    // The tensioner rides the guard's dovetail rail, so it lifts with it.
+// y: the formed guard butts against the palm shell (which ends at y=-149) instead
+// of lying past it, so the two arches read as one sleeve — kept 0.5 mm clear,
+// since its wrist section IS the palm's and coincident faces z-fight.
+GAUNT_POS = [55, GAUNT_CURVED ? -236.5 : -235, 2 + GAUNT_LIFT];  // more negative y slides it out toward the elbow
 GAUNT_ROT = [90, 0, 0];
 
 // ── WRIST HINGE PINS (palm <-> gauntlet) ───────────────────────────────────
@@ -99,17 +117,20 @@ PIN_ROT_WRIST  = [[0,0,0], [0,0,0]];                    // wrist [pinky-side, th
 
 // ── TENSIONER MECHANISM & WASHERS (real reconstructed parts) ────────────────
 WASHER_SHOW    = [1, 1];             // cup washers on the two wrist pins [pinky, thumb]
-// Washers sit FLAT on the gauntlet's wrist holes (the gauntlet previews flat —
-// it thermoforms around the arm — so its wrist holes run through Z). Each bore
-// is concentric with its hole: hole centres measured at (31.86,-151)/(92.14,-151),
-// boss top z=5.8. Flat base down against the plate, cup up to receive the pin head.
-WASHER_POS     = [[23.86, -141, 7.8], [85.14, -141, 7.8]];  // one per gauntlet wrist hole (world)
+// The washer is the spacer of the wrist hinge, so it stacks OUTBOARD of the
+// guard's ear: palm wall | gauntlet ear | washer | pin head. Formed, the ears
+// clamp the palm's wrist wall from outside (their inner faces on x 24.08/85.92),
+// so each washer's base sits on the ear's outer face. Flat, the guard has no ears
+// to clear and the washers go back against the palm, as printed and previewed
+// before (hole centres measured at (31.86,-151)/(92.14,-151), boss top z=5.8).
+WASHER_POS     = GAUNT_CURVED ? [[18.41, -141, 7.8], [91.59, -141, 7.8]]
+                              : [[23.86, -141, 7.8], [85.14, -141, 7.8]];
 WASHER_ROT     = [[0,-90,0], [0,90,0]];  // per-washer; bore along Z, concentric with the gauntlet hole
 TBLOCK_SHOW    = 1;                  // tensioner block (stadium housing)
-TBLOCK_POS     = [55, -220, 10];      // world seat; more -y = further out toward the wrist
+TBLOCK_POS     = [55, -220, 10 + GAUNT_LIFT]; // world seat; more -y = further out toward the wrist
 TBLOCK_ROT     = [-90, 0, 0];        // stand the tower dorsally, length along the forearm
 TPINS_SHOW     = 1;                  // three flat tensioner pins
-TPINS_POS      = [55, -200, 7.5];     // world seat near the wrist
+TPINS_POS      = [55, -200, 7.5 + GAUNT_LIFT]; // world seat near the wrist
 TPINS_ROT      = [0, 0, 180];          // flat, long axis along the forearm (Y)
 
 // ── COLOURS ────────────────────────────────────────────────────────────────
@@ -218,7 +239,8 @@ module phoenix_assembly(){
       if(PIN_SHOW_WRIST[1]) translate(WRIST_PIN_B+PIN_OFF_WRIST[1]) rotate(PIN_ROT_WRIST[1]) wpin(PIN_FLIP_WRIST[1]);
     }
 
-    if(show_gauntlet) color(GAUNT_COL) translate(GAUNT_POS) rotate(GAUNT_ROT) Gauntlet_V4();  // arm guard
+    if(show_gauntlet) color(GAUNT_COL) translate(GAUNT_POS) rotate(GAUNT_ROT)   // arm guard
+      if(GAUNT_CURVED) Gauntlet_V4_curved(); else Gauntlet_V4();                // thermoformed (worn) vs flat (printed)
 
     if(show_washers){                                                     // wrist-pin cup washers, flats facing each other
       if(WASHER_SHOW[0]) color(WASHER_COL) translate(WASHER_POS[0]) rotate(WASHER_ROT[0]) washer_centered();

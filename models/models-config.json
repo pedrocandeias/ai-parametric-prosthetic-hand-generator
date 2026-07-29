@@ -747,6 +747,10 @@
         {
           "url": "active/unlimbed_phoenix_hand/phoenix_preview_meshes.scad",
           "path": "phoenix_preview_meshes.scad"
+        },
+        {
+          "url": "active/unlimbed_phoenix_hand/phoenix_gauntlet_curved.scad",
+          "path": "phoenix_gauntlet_curved.scad"
         }
       ],
       "parameters": [
