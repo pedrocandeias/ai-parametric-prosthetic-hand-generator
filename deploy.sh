@@ -107,6 +107,8 @@ EXCLUDES=(
     "deploy/"
     "deploy.sh"
     "deploy.tar.gz"
+    "deploy.manifest"                   # ftp mode writes these beside OUT_DIR; without
+    "deploy.changed"                    # them here, each run stages the last run's scratch
     ".ftp-deploy.conf"                  # FTP credentials — NEVER ship
     "ftp-deploy.conf.example"
     ".deploy-state/"                    # local FTP upload manifests
