@@ -41,7 +41,9 @@ function httpsPost(url, headers, body) {
     });
 }
 
-async function callAnthropicModel(promptText, { model = 'claude-sonnet-4-6', maxTokens = 1024, temperature } = {}) {
+const ANTHROPIC_MODEL = process.env.ANTHROPIC_MODEL || 'claude-sonnet-5';
+
+async function callAnthropicModel(promptText, { model = ANTHROPIC_MODEL, maxTokens = 1024, temperature, effort } = {}) {
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) throw Object.assign(new Error('ANTHROPIC_API_KEY not configured'), { status: 503 });
 
@@ -50,18 +52,27 @@ async function callAnthropicModel(promptText, { model = 'claude-sonnet-4-6', max
         max_tokens: maxTokens,
         messages: [{ role: 'user', content: promptText }],
     };
+    // Sonnet 5+ rejects temperature and thinks by default (effort controls depth);
+    // Haiku 4.5 still takes temperature and no effort.
     if (typeof temperature === 'number') body.temperature = temperature;
+    if (effort) body.output_config = { effort };
 
     const data = await httpsPost(
         'https://api.anthropic.com/v1/messages',
         { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
         body
     );
-    return data.content[0].text;
+    // With thinking on, content[0] is a thinking block — take the text block.
+    const textBlock = (data.content || []).find(b => b.type === 'text');
+    if (!textBlock) {
+        throw Object.assign(new Error(`AI provider returned no text (stop_reason: ${data.stop_reason})`), { status: 502 });
+    }
+    return textBlock.text;
 }
 
 async function callAnthropic(promptText) {
-    return callAnthropicModel(promptText, { model: 'claude-sonnet-4-6', maxTokens: 1024 });
+    // max_tokens also covers thinking tokens, so leave headroom over the ~1K answer.
+    return callAnthropicModel(promptText, { maxTokens: 8000, effort: 'low' });
 }
 
 /**
@@ -102,10 +113,12 @@ async function callOpenAI(promptText) {
         'https://api.openai.com/v1/chat/completions',
         { Authorization: `Bearer ${apiKey}` },
         {
-            model: 'gpt-4',
+            model: process.env.OPENAI_MODEL || 'gpt-6.1-sol',
             messages: [{ role: 'user', content: promptText }],
-            max_tokens: 1024,
-            temperature: 0.7,
+            // Reasoning models: max_completion_tokens (not max_tokens) and it also
+            // covers hidden reasoning tokens; custom temperature is not supported.
+            max_completion_tokens: 4096,
+            reasoning_effort: 'low',
         }
     );
     return data.choices[0].message.content;

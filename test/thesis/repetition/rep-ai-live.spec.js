@@ -66,7 +66,7 @@ test.describe('REP-AI (live) · repeated real calls · dispersion', () => {
 
         writeResult(DIR, 'REP-AI-001-live-dispersion.json', {
             test_id: 'REP-AI-001', mocked: false,
-            provider: 'anthropic', model_id: 'claude-sonnet-4-6',
+            provider: 'anthropic', model_id: 'claude-sonnet-5',
             prompt: PROMPT, prompt_sha256: ai.sha256(PROMPT),
             schema: SCHEMA, schema_sha256: ai.sha256(JSON.stringify(SCHEMA)),
             patient_text: PATIENT,

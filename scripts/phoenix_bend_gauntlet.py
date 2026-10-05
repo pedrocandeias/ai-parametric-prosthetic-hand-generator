@@ -84,8 +84,13 @@ A_EAR = 28.0     # half-width of the section at the ear
 FLAT_ARC = 22.0
 R_FOLD = 2.0     # bend radius of that fold (mm) — a sharp crease would make the
                  # plate's own thickness overlap itself on the inside of the bend
-Z_FLAT_FULL = -73.0   # bend line fully in at/below this z (clear of the boss)
-Z_FLAT_NONE = -25.0   # bend line out at the base of the arch at/above this z
+# The wrist end must run STRAIGHT: from the mouth to Z_HOLD the section and the
+# fold line are both frozen, so that stretch of the guard is prismatic — parallel
+# walls, no flare or belly next to the ears. Everything only starts rounding out
+# into the tube past Z_HOLD.
+Z_HOLD = -60.0
+Z_FLAT_FULL = Z_HOLD  # fold line frozen at FLAT_ARC at/below this z
+Z_FLAT_NONE = 0.0     # and out at the base of the arch by the elbow
 
 # The ear has to end up OUTBOARD of the palm's wrist wall (palm boss | ear |
 # washer | pin head), and no amount of bending gets it there: nothing at 30 mm of
@@ -178,10 +183,9 @@ def solve_b(a, arc):
 
 
 def make_wrap(b_ear):
-    span = Z_ELBOW - Z_EAR
 
     def section(z):
-        t = (z - Z_EAR) / span
+        t = 0.0 if z <= Z_HOLD else (z - Z_HOLD) / (Z_ELBOW - Z_HOLD)
         return (A_EAR + (A_ELBOW - A_EAR) * t,   # half-width of the arch at this z
                 b_ear + (B_ELBOW - b_ear) * t)   # height of the arch at this z
 

@@ -82,7 +82,7 @@ GAUNT_LIFT = GAUNT_CURVED ? 18.33 : 0; // formed: the crown rides just over the 
 // y: the formed guard butts against the palm shell (which ends at y=-149) instead
 // of lying past it, so the two arches read as one sleeve — kept 0.5 mm clear,
 // since its wrist section IS the palm's and coincident faces z-fight.
-GAUNT_POS = [55, GAUNT_CURVED ? -236.5 : -235, 2 + GAUNT_LIFT];  // more negative y slides it out toward the elbow
+GAUNT_POS = [55, GAUNT_CURVED ? -220.5 : -235, 2 + GAUNT_LIFT];  // more negative y slides it out toward the elbow
 GAUNT_ROT = [90, 0, 0];
 
 // ── WRIST HINGE PINS (palm <-> gauntlet) ───────────────────────────────────

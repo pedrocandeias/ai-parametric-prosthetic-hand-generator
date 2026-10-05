@@ -157,7 +157,7 @@ async function main() {
         ] : [
             'Public campaign is strictly non-destructive: no authentication, no data creation/modification.',
         ],
-        ai: spec.requiresLive ? { provider: 'anthropic', model_id: 'claude-sonnet-4-6', sampling_settings: { max_tokens: 1024 } } : {},
+        ai: spec.requiresLive ? { provider: 'anthropic', model_id: 'claude-sonnet-5', sampling_settings: { max_tokens: 8000, effort: 'low' } } : {},
     });
     writeMetadata(dir, meta);
 

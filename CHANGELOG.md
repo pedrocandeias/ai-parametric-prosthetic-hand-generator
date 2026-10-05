@@ -10,6 +10,16 @@ Version format: `MAJOR.MINOR.PATCH`
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
+## v14.81.0 — 2026-10-05
+
+feat: **AI — OpenAI provider moved from `gpt-4` to `gpt-6.1-sol`.** The model is now configurable with the optional `OPENAI_MODEL` env var (default `gpt-6.1-sol`). The request uses reasoning-model parameters: `max_completion_tokens: 4096` (it also covers hidden reasoning tokens) and `reasoning_effort: "low"`, and drops `temperature`, which these models don't accept.
+fix: AI provider dropdown label no longer says "OpenAI (GPT-4)" — now "OpenAI (GPT)", since the model is configurable.
+feat: **AI — Anthropic provider moved from `claude-sonnet-4-6` to `claude-sonnet-5`** (cheaper: $2/$10 vs $3/$15 per MTok), configurable via the optional `ANTHROPIC_MODEL` env var. Sonnet 5 thinks by default, so the call now sets `output_config.effort: "low"`, raises `max_tokens` to 8000 (it also covers thinking tokens) and reads the response's `text` block instead of `content[0]` (now a thinking block). Patient-attribute extraction stays on Haiku 4.5. Thesis live-AI provenance metadata (`run-campaign.js`, `rep-ai-live.spec.js`) updated to match.
+
+## v14.80.0 — 2026-07-30
+
+fix: **Phoenix gauntlet — the wrist end runs straight.** The formed guard flared straight out of the ears: the section interpolation started at `Z_EAR` and the fold line started migrating at z −73, so the side wall swelled from 31 mm out to 38 mm and back — a belly right next to the hinge. Both are now frozen from the mouth to the new `Z_HOLD` (−60), making that 27 mm of guard prismatic: parallel walls, no flare (wall position measured constant to 0.01 mm along it), and it only rounds out into the tube past that. Ear geometry is unchanged — inner faces on the palm's wall at world x 24.08/85.92, holes on its wrist-pin axis at z 8.50.
+
 ## v14.79.0 — 2026-07-29
 
 fix: **deploy — the FTPS mode no longer stages its own scratch.** `deploy.sh ftp` writes its hash manifest and changed-file list beside the staging dir (`deploy.manifest` / `deploy.changed` in the repo root), so every run after the first collected the previous run's scratch and shipped it to production. Both are now in `EXCLUDES`, next to the rest of the deploy machinery.
