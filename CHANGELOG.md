@@ -10,6 +10,11 @@ Version format: `MAJOR.MINOR.PATCH`
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
+## v14.82.0 — 2026-10-18
+
+feat: **Admins are emailed when a new user self-registers.** `POST /api/auth/register` now sends a "New user registered" email (username, email, link to `/admin`) via the new `emailService.sendNewUserNotification`. Recipients come from the optional `ADMIN_NOTIFY_EMAIL` env var (comma-separated); when it is unset, every active admin account is notified. Best-effort like the verification email: a delivery failure is logged and never blocks registration; with SMTP unconfigured it is a no-op.
+docs: `.env.example` documents `ADMIN_NOTIFY_EMAIL`.
+
 ## v14.81.0 — 2026-10-05
 
 feat: **AI — OpenAI provider moved from `gpt-4` to `gpt-6.1-sol`.** The model is now configurable with the optional `OPENAI_MODEL` env var (default `gpt-6.1-sol`). The request uses reasoning-model parameters: `max_completion_tokens: 4096` (it also covers hidden reasoning tokens) and `reasoning_effort: "low"`, and drops `temperature`, which these models don't accept.

@@ -158,6 +158,29 @@ function sendAccountCreated(to, { username, loginUrl }) {
     return sendMail({ to, subject: `Your ${APP_NAME} account is ready`, html, text });
 }
 
+function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => (
+        { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+    ));
+}
+
+/**
+ * Tell administrators a new self-service account was registered.
+ * `to` may be a single address or an array (nodemailer accepts both).
+ */
+function sendNewUserNotification(to, { username, email, adminUrl }) {
+    const u = escapeHtml(username);
+    const e = escapeHtml(email);
+    const html = layout(
+        'New user registered',
+        `<p style="color:#334155;">A new account was just registered on ${APP_NAME}:</p>
+         <p style="color:#334155;">Username: <strong>${u}</strong><br>Email: <strong>${e}</strong></p>
+         ${button(adminUrl, 'Open admin panel')}`
+    );
+    const text = `New ${APP_NAME} user registered:\nUsername: ${username}\nEmail: ${email}\n\nAdmin panel: ${adminUrl}`;
+    return sendMail({ to, subject: `New ${APP_NAME} user: ${username}`, html, text });
+}
+
 module.exports = {
     isConfigured,
     baseUrl,
@@ -165,4 +188,5 @@ module.exports = {
     sendPasswordReset,
     sendVerification,
     sendAccountCreated,
+    sendNewUserNotification,
 };

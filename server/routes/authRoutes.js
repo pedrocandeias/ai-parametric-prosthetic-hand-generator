@@ -106,6 +106,17 @@ function setRefreshCookie(res, token) {
     res.cookie(REFRESH_COOKIE, token, COOKIE_OPTIONS);
 }
 
+// Who gets told about new registrations: ADMIN_NOTIFY_EMAIL (comma-separated)
+// when set, otherwise every active admin account.
+function adminNotifyRecipients() {
+    const configured = (process.env.ADMIN_NOTIFY_EMAIL || '')
+        .split(',').map(s => s.trim()).filter(Boolean);
+    if (configured.length) return configured;
+    return db.prepare(
+        `SELECT email FROM users WHERE role = 'admin' AND is_active = 1`
+    ).all().map(r => r.email);
+}
+
 function clearRefreshCookie(res) {
     res.clearCookie(REFRESH_COOKIE, { ...COOKIE_OPTIONS, maxAge: 0 });
 }
@@ -187,6 +198,20 @@ router.post('/register', registerLimiter, async (req, res, next) => {
                 .catch(err => console.error('[register] verification email failed:', err.message));
         } catch (err) {
             console.error('[register] could not issue verification token:', err.message);
+        }
+
+        // Notify administrators (best-effort; never blocks the flow).
+        try {
+            const recipients = adminNotifyRecipients();
+            if (recipients.length) {
+                emailService.sendNewUserNotification(recipients, {
+                    username,
+                    email,
+                    adminUrl: `${emailService.baseUrl(req)}/admin`,
+                }).catch(err => console.error('[register] admin notification failed:', err.message));
+            }
+        } catch (err) {
+            console.error('[register] could not notify admins:', err.message);
         }
 
         // When verification is mandatory, don't auto-login — ask them to confirm first.
