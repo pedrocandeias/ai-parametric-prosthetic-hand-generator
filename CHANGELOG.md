@@ -10,6 +10,10 @@ Version format: `MAJOR.MINOR.PATCH`
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
+## v14.84.0 — 2026-10-18
+
+chore: `/cpd` command now deploys and restarts over SSH port 22022 (port 22 times out on the prod host).
+
 ## v14.83.0 — 2026-10-18
 
 chore: `/cpd` command no longer adds a `Co-Authored-By: Claude …` trailer to commits (model names keep changing).

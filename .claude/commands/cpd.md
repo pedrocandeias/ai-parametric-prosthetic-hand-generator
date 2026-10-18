@@ -32,15 +32,16 @@ Conventional-Commits subject yourself from the diff.
 - `git push -u origin <current-branch>`.
 
 ## 5. Deploy (production cPanel — `pedrocandeias.net`)
-- **Dry-run first:** `./deploy.sh deploy --dry-run`. Print the transferred-file list and
+- SSH on the prod host is on **port 22022** (port 22 times out), so every `deploy.sh` / `ssh` call below passes it.
+- **Dry-run first:** `./deploy.sh deploy --dry-run --port 22022`. Print the transferred-file list and
   confirm it contains ONLY intended files (no scratch, no secrets, no `data/`). Abort if not.
-- **Deploy:** `./deploy.sh deploy --yes` (it takes a remote DB+code backup first and runs a
+- **Deploy:** `./deploy.sh deploy --yes --port 22022` (it takes a remote DB+code backup first and runs a
   secret/`data/` safety check).
 
 ## 6. Restart if server code changed
 - If any `server/**` file changed, the Passenger app must reload (client-only changes —
   `app.js`, `index.html`, `models/`, `.scad`, `docs/` — go live on refetch, no restart):
-  `ssh -o BatchMode=yes pedrocan@pedrocandeias.net "mkdir -p /home/pedrocan/public_html/sites/handfab/tmp && touch /home/pedrocan/public_html/sites/handfab/tmp/restart.txt"`
+  `ssh -p 22022 -o BatchMode=yes pedrocan@pedrocandeias.net "mkdir -p /home/pedrocan/public_html/sites/handfab/tmp && touch /home/pedrocan/public_html/sites/handfab/tmp/restart.txt"`
   then hit the site once to trigger the reload.
 
 ## 7. Health check
