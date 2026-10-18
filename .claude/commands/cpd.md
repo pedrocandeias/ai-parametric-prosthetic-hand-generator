@@ -25,8 +25,8 @@ Conventional-Commits subject yourself from the diff.
 ## 3. Commit
 - If on the default branch (`main`), create a feature branch first; otherwise commit on the current branch.
 - `git add` only the intended files (explicit paths — never the untracked data from step 1).
-- Commit. End the message body with:
-  `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`
+- Commit. Do **not** add a `Co-Authored-By: Claude …` trailer or any other AI/model
+  attribution line (model names keep changing; commits carry no Claude signature).
 
 ## 4. Push
 - `git push -u origin <current-branch>`.

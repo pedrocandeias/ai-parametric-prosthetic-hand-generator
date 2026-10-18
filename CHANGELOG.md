@@ -10,6 +10,10 @@ Version format: `MAJOR.MINOR.PATCH`
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
+## v14.83.0 — 2026-10-18
+
+chore: `/cpd` command no longer adds a `Co-Authored-By: Claude …` trailer to commits (model names keep changing).
+
 ## v14.82.0 — 2026-10-18
 
 feat: **Admins are emailed when a new user self-registers.** `POST /api/auth/register` now sends a "New user registered" email (username, email, link to `/admin`) via the new `emailService.sendNewUserNotification`. Recipients come from the optional `ADMIN_NOTIFY_EMAIL` env var (comma-separated); when it is unset, every active admin account is notified. Best-effort like the verification email: a delivery failure is logged and never blocks registration; with SMTP unconfigured it is a no-op.
