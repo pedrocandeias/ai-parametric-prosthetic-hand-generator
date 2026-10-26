@@ -10,6 +10,11 @@ Version format: `MAJOR.MINOR.PATCH`
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
+## v14.86.0 — 2026-10-26
+
+feat: login subtitle now reads "Sistema de Configuração de Próteses de Membro Superior" (PT) / "Upper Limb Prosthetic Configuration System" (EN).
+fix: footer now follows the language switcher — known footer strings (column titles, default links, tagline, copyright) are translated client-side via `footer.text.*` keys and the footer re-renders on language change; custom admin text is shown as stored.
+
 ## v14.85.0 — 2026-10-26
 
 feat: login page shows a prominent banner linking to the latest master's dissertation manuscript (GitHub Pages, version of 25/10/2026), translated EN/PT.
