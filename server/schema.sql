@@ -100,6 +100,17 @@ CREATE TABLE IF NOT EXISTS pages (
     updated_at        TEXT    NOT NULL DEFAULT (datetime('now'))
 );
 
+-- Admin-added parametric models. Repository models stay in models/models-config.json;
+-- these live only here + data/models/<id>/ (never in git, untouched by deploys).
+CREATE TABLE IF NOT EXISTS custom_models (
+    id         TEXT    PRIMARY KEY,               -- model_id, unique across repo + custom
+    definition TEXT    NOT NULL,                  -- JSON: same shape as a models-config.json entry
+    enabled    INTEGER NOT NULL DEFAULT 0,        -- 0 = draft (admins only), 1 = visible to all
+    created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    created_at TEXT    NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT    NOT NULL DEFAULT (datetime('now'))
+);
+
 CREATE INDEX IF NOT EXISTS idx_configurations_user ON configurations(user_id);
 CREATE INDEX IF NOT EXISTS idx_assignments_tech    ON tech_assignments(tech_id);
 CREATE INDEX IF NOT EXISTS idx_refresh_user        ON refresh_tokens(user_id);

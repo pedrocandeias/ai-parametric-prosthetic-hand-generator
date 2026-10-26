@@ -74,4 +74,7 @@ if (usersSql && !/email_verified/i.test(usersSql)) {
     db.exec(`UPDATE users SET email_verified = 1`);
 }
 
+// Exposed so services can keep their files beside the DB (e.g. data/models/).
+db.DATA_DIR = DATA_DIR;
+
 module.exports = db;

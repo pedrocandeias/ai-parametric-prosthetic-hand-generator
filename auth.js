@@ -180,19 +180,28 @@ const Auth = (() => {
         showLoginModal();
     }
 
-    async function refresh() {
-        try {
-            const res = await fetch('/api/auth/refresh', {
-                method: 'POST',
-                credentials: 'same-origin',
-            });
-            if (!res.ok) return false;
-            const data = await res.json();
-            setSession(data.accessToken, data.user);
-            return true;
-        } catch {
-            return false;
-        }
+    // Concurrent callers share one request: the server rotates the refresh token
+    // and treats a second use of the old one as reuse (revoking the session), so
+    // two boot handlers refreshing at once (e.g. auth.js + admin.js) logged the
+    // admin page out depending on timing.
+    let _refreshInFlight = null;
+    function refresh() {
+        if (_refreshInFlight) return _refreshInFlight;
+        _refreshInFlight = (async () => {
+            try {
+                const res = await fetch('/api/auth/refresh', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                });
+                if (!res.ok) return false;
+                const data = await res.json();
+                setSession(data.accessToken, data.user);
+                return true;
+            } catch {
+                return false;
+            }
+        })().finally(() => { _refreshInFlight = null; });
+        return _refreshInFlight;
     }
 
     // Try to restore session silently on page load via cookie

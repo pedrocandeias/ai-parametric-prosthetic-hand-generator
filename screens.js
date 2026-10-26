@@ -91,10 +91,8 @@ const Screens = (() => {
         const grid = document.getElementById('selection-models-grid');
         if (!grid) return;
         try {
-            // no-cache: force revalidation so a newly-added/edited model shows up
-            // for returning browsers instead of a stale cached model list.
-            const res = await fetch('/models/models-config.json', { cache: 'no-cache' });
-            const data = await res.json();
+            // Repository + admin-added models (drafts too, for admins) — see app.js.
+            const data = await window.fetchModelList();
             const models = data.models || [];
             if (!models.length) {
                 grid.innerHTML = `<p class="sel-empty">${t('dash.noModels')}</p>`;
@@ -146,7 +144,7 @@ const Screens = (() => {
                     </div>
                     <div class="sel-model-body">
                         <h3>
-                            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="display:inline;vertical-align:middle;margin-right:5px;opacity:0.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>${esc(m.name)}
+                            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="display:inline;vertical-align:middle;margin-right:5px;opacity:0.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>${esc(m.name)}${m.draft ? ` <span class="sel-draft-badge">${t('dash.draft')}</span>` : ''}
                         </h3>
                         <p>${esc((m.description || '').slice(0, 130))}${(m.description || '').length > 130 ? '…' : ''}</p>
                     </div>

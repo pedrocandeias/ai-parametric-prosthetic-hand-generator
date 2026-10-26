@@ -516,6 +516,7 @@ function setupTabs() {
             // Load profiles when switching to anthropometric tab
             if (btn.dataset.tab === 'anthropometric') loadAnthroProfiles();
             if (btn.dataset.tab === 'content') { loadFooter(); loadPages(); }
+            if (btn.dataset.tab === 'models') loadModelsTab();
         });
     });
 }
@@ -841,6 +842,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupCreateUserForm();
     setupAnthroTab();
     setupContentTab();
+    setupModelsTab();
     loadUsers();
 
     // Re-render the JS-built tables/editors in the new language.

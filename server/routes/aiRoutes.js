@@ -1,13 +1,12 @@
 'use strict';
 
 const express = require('express');
-const path = require('path');
-const fs = require('fs');
 const rateLimit = require('express-rate-limit');
 const { z } = require('zod');
 const { callAnthropic, callOpenAI, extractPatientAttributes } = require('../services/aiService');
 const { requireAuth } = require('../middleware/auth');
 const db = require('../db');
+const modelRegistry = require('../services/modelRegistry');
 const {
     mapProfileToModelParameters,
     findBestProfileMatch,
@@ -18,19 +17,9 @@ const {
 
 const router = express.Router();
 
-// Lazily load models-config.json (for parameter bounds when grounding).
-let _modelsConfig = null;
+// Model definition (for parameter bounds when grounding) — repo or admin-added.
 function getModelDef(modelId) {
-    if (!modelId) return null;
-    if (!_modelsConfig) {
-        try {
-            const p = path.join(__dirname, '..', '..', 'models', 'models-config.json');
-            _modelsConfig = JSON.parse(fs.readFileSync(p, 'utf8'));
-        } catch {
-            _modelsConfig = { models: [] };
-        }
-    }
-    return _modelsConfig.models.find(m => m.id === modelId) || null;
+    return modelRegistry.getModel(modelId);
 }
 
 /**

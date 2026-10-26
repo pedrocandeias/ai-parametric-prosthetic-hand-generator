@@ -1,13 +1,12 @@
 'use strict';
 
 const express = require('express');
-const path = require('path');
-const fs = require('fs');
 const { z } = require('zod');
 const db = require('../db');
 const { requireAuth, requireRole } = require('../middleware/auth');
 const importer = require('../services/anthropometricImporter');
 const { mapProfileToModelParameters } = require('../services/profileMapping');
+const modelRegistry = require('../services/modelRegistry');
 
 const router = express.Router();
 
@@ -17,17 +16,9 @@ const router = express.Router();
 // clinician needs in the configurator to seed a design.
 const adminOnly = [requireAuth, requireRole('admin')];
 
-// Lazily load models-config.json for parameter bounds (clamping).
-let _modelsConfig = null;
+// Model definitions for parameter bounds (clamping) — repo + admin-added.
 function getModelsConfig() {
-    if (_modelsConfig) return _modelsConfig;
-    try {
-        const p = path.join(__dirname, '..', '..', 'models', 'models-config.json');
-        _modelsConfig = JSON.parse(fs.readFileSync(p, 'utf8'));
-    } catch {
-        _modelsConfig = { models: [] };
-    }
-    return _modelsConfig;
+    return { models: modelRegistry.getModels({ includeDrafts: true }) };
 }
 
 // ── Validation ────────────────────────────────────────────────────────────────

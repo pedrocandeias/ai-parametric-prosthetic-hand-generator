@@ -1,4 +1,22 @@
 // OpenSCAD Parameter Editor with 3D Renderer
+
+// Model list = repository models + admin-added ones (/api/models). Signed-in
+// admins also get draft models, so the request carries the token when present.
+async function fetchModelList() {
+    const opts = { cache: 'no-cache' };
+    const res = (typeof Auth !== 'undefined' && Auth.isAuthenticated())
+        ? await Auth.fetchWithAuth('/api/models', opts)
+        : await fetch('/api/models', opts);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+}
+window.fetchModelList = fetchModelList;
+
+// Repository models live under models/; admin-added ones are served from their assetBase.
+function modelAssetUrl(model, rel) {
+    return (model.assetBase || 'models/') + rel;
+}
+
 class ParameterEditor {
     constructor() {
         this.config = null;
@@ -132,9 +150,7 @@ class ParameterEditor {
 
     async loadConfiguration() {
         try {
-            // no-cache: revalidate so model edits aren't masked by a stale cache.
-            const response = await fetch('models/models-config.json', { cache: 'no-cache' });
-            this.config = await response.json();
+            this.config = await fetchModelList();
             this.updateStatus('Configuration loaded successfully', 'success');
         } catch (error) {
             this.updateStatus('Error loading configuration: ' + error.message, 'error');
@@ -228,7 +244,7 @@ class ParameterEditor {
             this.config.models.forEach(model => {
                 const option = document.createElement('option');
                 option.value = model.id;
-                option.textContent = model.name;
+                option.textContent = model.draft ? `${model.name} (${t('dash.draft')})` : model.name;
                 select.appendChild(option);
             });
         }
@@ -324,7 +340,7 @@ class ParameterEditor {
             // no-cache: revalidate the model source so edits to a .scad reach
             // returning browsers instead of a stale cached copy (same reason as
             // the models-config.json fetch).
-            const response = await fetch(`models/${model.file}`, { cache: 'no-cache' });
+            const response = await fetch(modelAssetUrl(model, model.file), { cache: 'no-cache' });
             this.originalCode = await response.text();
 
             // Load dependency files.
@@ -340,9 +356,9 @@ class ParameterEditor {
                 const isBinary = /\.(stl|amf|3mf|off|obj)$/i.test(serverPath);
                 if (isBinary) {
                     // Pass URL so the worker fetches it directly as ArrayBuffer.
-                    return { path: `/${wasmPath}`, url: `models/${serverPath}` };
+                    return { path: `/${wasmPath}`, url: modelAssetUrl(model, serverPath) };
                 }
-                const r = await fetch(`models/${serverPath}`, { cache: 'no-cache' });
+                const r = await fetch(modelAssetUrl(model, serverPath), { cache: 'no-cache' });
                 return { path: `/${wasmPath}`, content: await r.text() };
             }));
 

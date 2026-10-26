@@ -202,6 +202,10 @@ remote_backup() {
             sqlite3 data/app.db \".backup 'backups/app-\${ts}.db'\" 2>/dev/null \
                 || cp data/app.db \"backups/app-\${ts}.db\" 2>/dev/null || true
         fi
+        # Admin-uploaded models (.scad + deps) live beside the DB, not in git.
+        if [ -d data/models ]; then
+            tar -czf \"backups/models-\${ts}.tar.gz\" -C data models 2>/dev/null || true
+        fi
         tar -czf \"backups/code-\${ts}.tar.gz\" \
             --exclude=./data --exclude=./node_modules --exclude=./backups \
             . 2>/dev/null || true

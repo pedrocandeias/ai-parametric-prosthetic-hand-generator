@@ -1,40 +1,22 @@
 'use strict';
 
 const express = require('express');
-const path = require('path');
-const fs = require('fs');
 const { z } = require('zod');
 const db = require('../db');
 const { requireAuth } = require('../middleware/auth');
+const modelRegistry = require('../services/modelRegistry');
 
 const router = express.Router();
 
-// Load models config from models-config.json
-let modelsConfig = null;
-function getModelsConfig() {
-    if (modelsConfig) return modelsConfig;
-    try {
-        const configPath = path.join(__dirname, '..', '..', 'models', 'models-config.json');
-        modelsConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    } catch {
-        modelsConfig = { models: [] };
-    }
-    return modelsConfig;
-}
-
-// Load valid model IDs from models-config.json
-let validModelIds = null;
+// Valid model IDs: repository + admin-added models (drafts included), read live
+// so a model added in the admin panel needs no restart.
 function getValidModelIds() {
-    if (validModelIds) return validModelIds;
-    const config = getModelsConfig();
-    validModelIds = new Set(config.models.map(m => m.id));
-    return validModelIds;
+    return new Set(modelRegistry.getModels({ includeDrafts: true }).map(m => m.id));
 }
 
 // Validate parameter values against model config bounds
 function validateParameterValues(modelId, parameters) {
-    const config = getModelsConfig();
-    const model = config.models.find(m => m.id === modelId);
+    const model = modelRegistry.getModel(modelId);
     if (!model) return [];
 
     const errors = [];

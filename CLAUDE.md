@@ -66,6 +66,7 @@ server/
 ## Key Conventions
 
 - **Auth**: Access tokens go in `Authorization: Bearer <token>` header only. Never store in localStorage. Refresh token lives in HttpOnly cookie.
+- **Models**: Never read `models-config.json` directly on the server or client — use `modelRegistry` (server) / `GET /api/models` (client, via `fetchModelList()` in `app.js`), which merge repository and admin-added models.
 - **DB**: All queries use Node's built-in `node:sqlite` (`DatabaseSync`, synchronous) — **requires Node ≥ 22**. No native module to compile. `server/db.js` adds a `db.transaction(fn)` shim (BEGIN/COMMIT/ROLLBACK) for better-sqlite3-style call sites. Wrap async-only code (bcrypt, fetch) in `async` route handlers with `try/catch → next(err)`.
 - **Validation**: All request bodies validated with `zod` before touching the DB.
 - **Error responses**: Always `{ error: "message" }` JSON — never HTML error pages from API routes.
@@ -129,9 +130,25 @@ Full production guide (first-run cPanel app setup, env vars, TLS, backups) is in
 
 ## Adding a New Model
 
-1. Place `.scad` file in `models/`
-2. Add entry to `models/models-config.json`
-3. The `model_id` validation in `configRoutes.js` picks up new models automatically on restart
+Two routes, same definition format (a `models-config.json` entry):
+
+**Admin panel (no deploy, no restart)** — Admin › *Models* tab. Upload the main
+`.scad` + its dependencies; parameters are read from the OpenSCAD Customizer
+annotations (`server/services/scadParser.js`) and can be refined in the form, or
+in *Advanced (JSON)* for fields the form doesn't cover (`parts`, `exportLayout`,
+`renderCall`, `dependsOn`…). Stored in the `custom_models` table + files in
+`data/models/<id>/` — never in git, never touched by `deploy.sh` (its remote
+backup tars `data/models/`). Served via `/api/models` and
+`/api/models/files/<id>/<file>` (plain text, nosniff). New models start as
+drafts (admins only) until published. Dependencies are flat: includes use bare
+file names.
+
+**Repository (versioned with the code)**
+1. Place the `.scad` (+ deps) in `models/active/<id>/`
+2. Add an entry to `models/models-config.json`
+3. Deploy — no restart needed: `server/services/modelRegistry.js` re-reads the
+   file when it changes and is the single source for config validation, AI
+   grounding and profile clamping.
 
 ## Anthropometric Parameter Alignment
 

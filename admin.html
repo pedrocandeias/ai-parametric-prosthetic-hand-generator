@@ -259,6 +259,46 @@
         .page-status-pill.published { background: #e9f9f0; color: #198a55; }
         .page-status-pill.draft { background: #f1f1f4; color: #717182; }
 
+        /* ── Models tab ── */
+        .mdl-hint { padding: 12px 20px 0; font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5; }
+        .mdl-source { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 500; background: #eef2ff; color: #4338ca; }
+        .mdl-editor { display: none; }
+        .mdl-editor.open { display: block; }
+        .mdl-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 18px; }
+        .mdl-section h3 { font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-secondary); margin-bottom: 8px; }
+        .mdl-section p.mdl-note { font-size: 0.8125rem; color: var(--text-secondary); margin: -2px 0 8px; line-height: 1.5; }
+        .mdl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
+        .mdl-grid .full { grid-column: 1 / -1; }
+        @media (max-width: 720px) { .mdl-grid { grid-template-columns: 1fr; } }
+        .mdl-editor label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px; }
+        .mdl-editor input[type=text], .mdl-editor input[type=number], .mdl-editor select, .mdl-editor textarea {
+            width: 100%; padding: 7px 10px; border: none; border-radius: var(--radius); font-size: 0.8125rem;
+            font-family: var(--font); color: var(--text-primary); background: var(--surface); box-shadow: 0 0 0 1px var(--border-strong);
+        }
+        .mdl-editor textarea { resize: vertical; }
+        .mdl-editor input:focus, .mdl-editor select:focus, .mdl-editor textarea:focus { outline: none; box-shadow: 0 0 0 2px var(--text-primary); }
+        .mdl-editor input:disabled { background: var(--surface-2); color: var(--text-secondary); }
+        .mdl-check { display: flex !important; align-items: center; gap: 6px; font-weight: 500 !important; color: var(--text-primary) !important; cursor: pointer; }
+        .mdl-mode { display: inline-flex; gap: 2px; padding: 3px; background: var(--accent-subtle); border-radius: var(--radius-lg); }
+        .mdl-mode button { padding: 5px 12px; border: none; border-radius: calc(var(--radius-lg) - 2px); background: transparent; font-size: 0.8125rem; color: var(--text-secondary); cursor: pointer; }
+        .mdl-mode button.active { background: var(--surface); color: var(--text-primary); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .mdl-files td, .mdl-files th { padding: 6px 10px; }
+        .mdl-files-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+        .mdl-report { font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5; }
+        .mdl-report:empty { display: none; }
+        .mdl-params { display: flex; flex-direction: column; gap: 8px; }
+        .mdl-param { border: 1px solid var(--border); border-radius: 8px; padding: 10px; background: #fafafa; }
+        .mdl-param-row { display: grid; grid-template-columns: 1.4fr 0.9fr 0.9fr 0.6fr 0.6fr 0.6fr 1fr auto; gap: 6px; align-items: end; }
+        @media (max-width: 900px) { .mdl-param-row { grid-template-columns: 1fr 1fr 1fr; } }
+        .mdl-param-row label { font-size: 0.6875rem; margin-bottom: 2px; }
+        .mdl-param details { margin-top: 6px; }
+        .mdl-param summary { font-size: 0.75rem; color: var(--text-secondary); cursor: pointer; }
+        .mdl-param .mdl-grid { margin-top: 8px; }
+        .mdl-warn { display: inline-block; margin: 6px 6px 0 0; padding: 1px 8px; border-radius: 999px; font-size: 0.6875rem; font-weight: 500; background: #fff4e5; color: #b45309; }
+        .mdl-json { font-family: ui-monospace, SFMono-Regular, Menlo, monospace !important; font-size: 0.78rem !important; min-height: 420px; }
+        .mdl-actions { display: flex; gap: 8px; padding: 0 20px 16px; flex-wrap: wrap; }
+        #mdl-error { display: none; margin: 12px 20px 0; }
+
         /* ── Cards ── */
         .card {
             background: var(--surface);
@@ -752,6 +792,7 @@
                 <button class="tab-btn" data-tab="assignments" data-i18n="admin.tabAssignments">Tech Assignments</button>
                 <button class="tab-btn" data-tab="anthropometric" data-i18n="admin.tabAnthro">Anthropometric Profiles</button>
                 <button class="tab-btn" data-tab="content" data-i18n="admin.tabContent">Footer &amp; Pages</button>
+                <button class="tab-btn" data-tab="models" data-i18n="admin.tabModels">Models</button>
             </div>
 
             <!-- Users tab -->
@@ -943,6 +984,97 @@
                     </table>
                 </div>
 
+            </div>
+
+            <!-- Models tab -->
+            <div class="tab-panel" id="tab-models">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 data-i18n="mdl.heading">Parametric models</h2>
+                        <button class="btn-success" id="mdl-new-btn"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg> <span data-i18n="mdl.new">New model</span></button>
+                    </div>
+                    <p class="mdl-hint" data-i18n="mdl.hint">Repository models ship with the code and are read-only here. Models added here are stored on the server (database + data/models/), survive deploys and are available immediately — no restart. Drafts are only visible to admins.</p>
+                    <table>
+                        <thead>
+                            <tr><th data-i18n="mdl.colName">Name</th><th>ID</th><th data-i18n="mdl.colSource">Source</th><th data-i18n="admin.colStatus">Status</th><th data-i18n="mdl.colParams">Params</th><th data-i18n="mdl.colConfigs">Saved configs</th><th data-i18n="admin.colActions">Actions</th></tr>
+                        </thead>
+                        <tbody id="mdl-tbody"></tbody>
+                    </table>
+                </div>
+
+                <div class="card mdl-editor" id="mdl-editor">
+                    <div class="card-header">
+                        <h2 id="mdl-editor-title">New model</h2>
+                        <div class="mdl-mode" role="tablist">
+                            <button type="button" id="mdl-mode-form" class="active" data-i18n="mdl.modeForm">Form</button>
+                            <button type="button" id="mdl-mode-json" data-i18n="mdl.modeJson">Advanced (JSON)</button>
+                        </div>
+                    </div>
+                    <div class="error-msg" id="mdl-error"></div>
+
+                    <div class="mdl-body" id="mdl-form-view">
+                        <div class="mdl-section">
+                            <h3 data-i18n="mdl.secIdentity">Identification</h3>
+                            <div class="mdl-grid">
+                                <div><label for="mdl-id">ID</label><input type="text" id="mdl-id" placeholder="my_hand" autocomplete="off"></div>
+                                <div><label for="mdl-limb" data-i18n="mdl.limb">Limb</label>
+                                    <select id="mdl-limb">
+                                        <option value="hand" data-i18n="mdl.limbHand">Hand</option>
+                                        <option value="arm" data-i18n="mdl.limbArm">Arm / forearm</option>
+                                        <option value="other" data-i18n="mdl.limbOther">Other</option>
+                                    </select></div>
+                                <div><label for="mdl-name" data-i18n="mdl.nameEn">Name (EN)</label><input type="text" id="mdl-name"></div>
+                                <div><label for="mdl-name-pt" data-i18n="mdl.namePt">Name (PT)</label><input type="text" id="mdl-name-pt"></div>
+                                <div class="full"><label for="mdl-desc" data-i18n="mdl.descEn">Description (EN)</label><textarea id="mdl-desc" rows="2"></textarea></div>
+                                <div class="full"><label for="mdl-desc-pt" data-i18n="mdl.descPt">Description (PT)</label><textarea id="mdl-desc-pt" rows="2"></textarea></div>
+                                <div><label for="mdl-backend" data-i18n="mdl.backend">Render engine</label>
+                                    <select id="mdl-backend">
+                                        <option value="manifold">Manifold (fast)</option>
+                                        <option value="cgal">CGAL</option>
+                                    </select></div>
+                                <div style="align-self:end"><label class="mdl-check"><input type="checkbox" id="mdl-enabled"> <span data-i18n="mdl.enabled">Visible to all users (otherwise draft)</span></label></div>
+                            </div>
+                        </div>
+
+                        <div class="mdl-section">
+                            <h3 data-i18n="mdl.secFiles">OpenSCAD files</h3>
+                            <p class="mdl-note" data-i18n="mdl.filesNote">Upload the main .scad and any files it include&lt;&gt;s or use&lt;&gt;s (.scad, .stl, .dxf, .svg; max 5 MB each). All files sit side by side, so includes must use the bare file name.</p>
+                            <table class="mdl-files">
+                                <thead><tr><th data-i18n="mdl.colMain">Main</th><th data-i18n="mdl.colFile">File</th><th data-i18n="mdl.colSize">Size</th><th></th></tr></thead>
+                                <tbody id="mdl-files-tbody"></tbody>
+                            </table>
+                            <div class="mdl-files-actions">
+                                <input type="file" id="mdl-file-input" multiple accept=".scad,.stl,.dxf,.svg" style="display:none">
+                                <button type="button" class="btn-secondary" id="mdl-add-files" data-i18n="mdl.addFiles">+ Add files</button>
+                                <button type="button" class="btn-primary" id="mdl-parse-btn" data-i18n="mdl.parse">Read parameters from main .scad</button>
+                            </div>
+                            <div class="mdl-report" id="mdl-parse-report"></div>
+                        </div>
+
+                        <div class="mdl-section">
+                            <h3 data-i18n="mdl.secParams">Parameters</h3>
+                            <p class="mdl-note" data-i18n="mdl.paramsNote">Read automatically from the Customizer annotations (// [min:step:max], /* [Group] */). Anatomical measurements should use the canonical names (palm_breadth_mm, index_finger_length_mm, wrist_circumference_mm…) so patient profiles fill them in.</p>
+                            <div class="mdl-params" id="mdl-params"></div>
+                            <button type="button" class="btn-secondary" id="mdl-add-param" style="margin-top:8px" data-i18n="mdl.addParam">+ Add parameter</button>
+                        </div>
+
+                        <div class="mdl-section">
+                            <h3 data-i18n="mdl.secAi">AI sizing guidance</h3>
+                            <p class="mdl-note" data-i18n="mdl.aiNote">Tells the AI assistant which fields matter and what ranges are realistic for this model.</p>
+                            <textarea id="mdl-ai" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="mdl-body" id="mdl-json-view" style="display:none">
+                        <p class="mdl-note" data-i18n="mdl.jsonNote">Full definition, in the same format as a models-config.json entry. Use it for fields the form doesn't cover (parts, exportLayout, renderCall, dependsOn…). "file" is the main file name; id and dependencies are managed by the server.</p>
+                        <textarea id="mdl-json" class="mdl-json" spellcheck="false"></textarea>
+                    </div>
+
+                    <div class="mdl-actions">
+                        <button type="button" class="btn-primary" id="mdl-save-btn" data-i18n="mdl.save">Save model</button>
+                        <button type="button" class="btn-secondary" id="mdl-cancel-btn" data-i18n="admin.cancel">Cancel</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1281,10 +1413,11 @@
 
     <div id="toast"></div>
 
-    <script src="translations.js"></script>
-    <script src="i18n.js"></script>
-    <script src="auth.js"></script>
-    <script src="anthropometric.js"></script>
-    <script src="admin.js"></script>
+    <script src="translations.js?v=15.0.0"></script>
+    <script src="i18n.js?v=15.0.0"></script>
+    <script src="auth.js?v=15.0.0"></script>
+    <script src="anthropometric.js?v=15.0.0"></script>
+    <script src="admin.js?v=15.0.0"></script>
+    <script src="admin-models.js?v=15.0.0"></script>
 </body>
 </html>

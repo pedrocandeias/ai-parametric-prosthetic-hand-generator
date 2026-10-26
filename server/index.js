@@ -16,6 +16,7 @@ const configRoutes = require('./routes/configRoutes');
 const aiRoutes = require('./routes/aiRoutes');
 const anthropometricRoutes = require('./routes/anthropometricRoutes');
 const contentRoutes = require('./routes/contentRoutes');
+const modelRoutes = require('./routes/modelRoutes');
 const emailService = require('./services/emailService');
 const errorHandler = require('./middleware/errorHandler');
 
@@ -82,6 +83,7 @@ app.use('/api/configurations', configRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/anthropometric', anthropometricRoutes);
 app.use('/api/content', contentRoutes);
+app.use('/api/models', modelRoutes);
 
 // --- API 404 (unknown API routes should return JSON, not the SPA) ---
 app.use('/api', (req, res) => res.status(404).json({ error: 'API endpoint not found' }));

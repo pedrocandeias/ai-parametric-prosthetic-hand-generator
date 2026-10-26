@@ -10,6 +10,18 @@ Version format: `MAJOR.MINOR.PATCH`
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
+## v15.0.0 — 2026-10-26
+
+feat: admin panel "Models" tab — add parametric OpenSCAD models without a deploy or restart. Upload the main .scad + dependencies (.scad/.stl/.dxf/.svg, 5 MB each); parameters are read automatically from the OpenSCAD Customizer annotations (groups, ranges, dropdowns, booleans, colours, captions) and refined in a form (EN/PT labels, captions, help, options, laterality), with an Advanced (JSON) mode for the full definition (parts, exportLayout, renderCall…). Models start as drafts visible only to admins; publish when ready.
+feat: `GET /api/models` (repository + published models; admins also get drafts) and `/api/models/files/<id>/<file>`; admin CRUD under `/api/models/admin`, `POST /api/models/parse-scad`. Admin-added models live in the new `custom_models` table + `data/models/<id>/`, so deploys never overwrite them.
+feat: parser warnings for guessed ranges, likely left/right switches and anatomical names that aren't canonical (so profiles wouldn't fill them).
+refactor: new `modelRegistry` service is the single source of model definitions for config validation, AI grounding and profile clamping (replaces three cached copies of models-config.json); repository model changes are picked up without a restart.
+security: uploaded files are name-whitelisted (no traversal, fixed extensions), served as text/plain or octet-stream with nosniff; model text rejects HTML; deleting a model is refused while saved configurations use it.
+fix: admin page could log itself out on load — auth.js and admin.js both refreshed the session at once and the server treated the second use of the rotated refresh token as reuse; concurrent refreshes now share one request.
+chore: deploy.sh remote backup also archives `data/models/`.
+docs: CLAUDE.md "Adding a New Model" covers the admin route.
+test: unit tests for the Customizer parser and model-definition validation (`test/scadParser.test.js`).
+
 ## v14.86.0 — 2026-10-26
 
 feat: login subtitle now reads "Sistema de Configuração de Próteses de Membro Superior" (PT) / "Upper Limb Prosthetic Configuration System" (EN).
