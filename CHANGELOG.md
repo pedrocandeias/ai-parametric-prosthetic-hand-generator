@@ -10,6 +10,11 @@ Version format: `MAJOR.MINOR.PATCH`
 Entry format follows [Conventional Commits](https://www.conventionalcommits.org/):
 `type: description` — types: `feat`, `fix`, `security`, `refactor`, `docs`, `chore`
 
+## v14.85.0 — 2026-10-26
+
+feat: login page shows a prominent banner linking to the latest master's dissertation manuscript (GitHub Pages, version of 25/10/2026), translated EN/PT.
+fix: login-page language switcher is vertically centred in the header with a right margin (was pinned to the corner).
+
 ## v14.84.0 — 2026-10-18
 
 chore: `/cpd` command now deploys and restarts over SSH port 22022 (port 22 times out on the prod host).

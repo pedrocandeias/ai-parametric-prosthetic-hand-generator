@@ -401,7 +401,7 @@ body::before {
 .lang-switcher:hover { border-color: var(--text-primary); color: var(--text-primary); }
 .lang-switcher:focus { outline: none; border-color: var(--text-primary); box-shadow: 0 0 0 3px rgba(3,2,19,0.08); }
 .login-page-header { position: relative; }
-.login-page-header .lang-switcher { position: absolute; top: 0; right: 0; }
+.login-page-header .lang-switcher { position: absolute; top: 50%; right: 24px; transform: translateY(-50%); }
 
 #login-btn {
     display: inline-flex;
@@ -1296,6 +1296,33 @@ button { font-family: var(--font); cursor: pointer; transition: all 0.15s; borde
 }
 #login-modal.active { display: flex; }
 
+/* Thesis manuscript banner (top of the login page) */
+.thesis-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    padding: 12px 16px;
+    flex-shrink: 0;
+    background: linear-gradient(90deg, #a855f7, #ec4899, #f97316);
+    color: #fff;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    box-shadow: var(--shadow-lg);
+}
+.thesis-banner:hover, .thesis-banner:focus-visible { filter: brightness(1.08); }
+.thesis-banner:focus-visible { outline: 3px solid #fff; outline-offset: -3px; }
+.thesis-banner-date {
+    font-weight: 500;
+    font-size: 0.875em;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.22);
+}
+.thesis-banner-cta { text-decoration: underline; text-underline-offset: 3px; }
+
 /* Header strip shown above the login card */
 .login-page-header {
     padding: 20px 24px;
@@ -1715,6 +1742,11 @@ button { font-family: var(--font); cursor: pointer; transition: all 0.15s; borde
 <!-- Login Modal (fixed overlay, shown before session restore)   -->
 <!-- ═══════════════════════════════════════════════════════════ -->
 <div id="login-modal">
+    <a class="thesis-banner" href="https://pedrocandeias.github.io/IPCA-MDDP-2026-PEC/manuscrito.html" target="_blank" rel="noopener">
+        <span>📄 <span data-i18n="thesis.banner">Read the latest version of the master's dissertation</span></span>
+        <span class="thesis-banner-date"><span data-i18n="thesis.updated">Updated</span> 25/10/2026</span>
+        <span class="thesis-banner-cta" data-i18n="thesis.open">Open manuscript →</span>
+    </a>
     <!-- Reference: Header above the login card -->
     <div class="login-page-header">
         <div class="hf-logo">
@@ -2676,11 +2708,11 @@ button { font-family: var(--font); cursor: pointer; transition: all 0.15s; borde
 <script type="module" src="./model-viewer.min.js"></script>
 <!-- ?v= cache-buster: bump to match package.json version on every release so
      returning browsers fetch fresh JS instead of a stale cached copy. -->
-<script src="translations.js?v=14.49.0"></script>
-<script src="i18n.js?v=14.49.0"></script>
-<script src="auth.js?v=14.49.0"></script>
-<script src="footer.js?v=14.49.0"></script>
-<script src="screens.js?v=14.49.0"></script>
-<script src="app.js?v=14.49.0"></script>
+<script src="translations.js?v=14.85.0"></script>
+<script src="i18n.js?v=14.85.0"></script>
+<script src="auth.js?v=14.85.0"></script>
+<script src="footer.js?v=14.85.0"></script>
+<script src="screens.js?v=14.85.0"></script>
+<script src="app.js?v=14.85.0"></script>
 </body>
 </html>
